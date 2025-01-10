@@ -14,14 +14,6 @@ public interface SwerveModule {
      * @param translation Translation vector of the swerve module. The length of the vector is the velocity in m/s
      */
     public void setTargetOpen(Translation2d translation);
-    
-    /**
-     * <p>Set the target speeds based off of a tranlsation vector</p>
-     * <p>Operates on an <b>closed loop</p>, meaning that the outputs of driving <b>are</b> taken into account.
-     * Suitable for Autonomous movements </p>
-     * @param translation Translation vector of the swerve module. The length of the vector is the velocity in m/s
-     */
-    public void setTargetClosed(Translation2d translation);
 
     /**
      * <p>Set the target speeds based off of a provided {@link SwerveModuleState}</p>
@@ -30,6 +22,14 @@ public interface SwerveModule {
      * @param state The desired {@link SwerveModuleState}
      */
     public void setTargetOpen(SwerveModuleState state);
+    
+    /**
+     * <p>Set the target speeds based off of a tranlsation vector</p>
+     * <p>Operates on an <b>closed loop</p>, meaning that the outputs of driving <b>are</b> taken into account.
+     * Suitable for Autonomous movements </p>
+     * @param translation Translation vector of the swerve module. The length of the vector is the velocity in m/s
+     */
+    public void setTargetClosed(Translation2d translation);
     
     /**
      * <p>Set the target speeds based off of a provided {@link SwerveModuleState}</p>
