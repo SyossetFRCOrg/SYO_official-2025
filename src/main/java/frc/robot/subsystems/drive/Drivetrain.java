@@ -1,6 +1,6 @@
 package frc.robot.subsystems.drive;
 
-import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
@@ -17,8 +17,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  */
 public abstract class Drivetrain extends SubsystemBase {
     /**
-     * <p>Set the speed of the chassis based off of the dx, dy, and dtheta</p>
-     * @param speeds
+     * <p>Set the speed of the chassis based off of the provided {@link ChassisSpeeds}</p>
+     * @param speeds target {@link ChassisSpeeds} of the chassis, measured in m/s and rad/s
      */
-    public abstract void setSpeeds(Twist2d speeds);
+    public abstract void setSpeeds(ChassisSpeeds speeds);
 }
