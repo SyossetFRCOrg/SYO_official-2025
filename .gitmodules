@@ -1,0 +1,3 @@
+[submodule "syolib"]
+	path = syolib
+	url = https://github.com/JTvedt/syolib.git
