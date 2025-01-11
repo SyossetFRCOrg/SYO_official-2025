@@ -15,5 +15,18 @@ package frc.robot;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+
+  /**
+   * @TODO Find real values and units for the speed
+   * 
+   */
+    public static final class AlgaeIntakeConstants {
+      enum AlgaeIntakePosition {
+        UP,
+        DOWN
+      }
+
+      public static final double algaeIntakeSpeed = 0.0;
+    }
   }
 }
