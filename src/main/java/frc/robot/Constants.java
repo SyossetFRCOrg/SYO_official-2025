@@ -16,4 +16,21 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
+  public static class ArmConstants
+  {
+    public static enum ArmAngle
+    {
+      CORAL_STATION,
+      L1,
+      L2_OR_L3,
+      L4,
+    }
+    public static enum ArmState
+    {
+      IDLE,
+      INTAKE,
+      OUTTAKE,
+    }
+
+  }
 }
