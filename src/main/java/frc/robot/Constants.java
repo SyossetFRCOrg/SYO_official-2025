@@ -16,17 +16,17 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
 
-  /**
-   * @TODO Find real values and units for the speed
-   * 
-   */
+  
+   //TODO Find real values and units for the values below
     public static final class AlgaeIntakeConstants {
-      enum AlgaeIntakePosition {
+      public static enum AlgaeIntakePosition {
         UP,
         DOWN
       }
 
-      public static final double algaeIntakeSpeed = 0.0;
+      public final static int ALGAE_INTAKE_PORT = 0;
+      public final static double ALGAE_INTAKE_SPEED = 0.5;
+      public final static double ALGAE_OUTTAKE_SPEED = -0.5;
     }
   }
 }
