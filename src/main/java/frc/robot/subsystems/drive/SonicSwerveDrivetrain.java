@@ -36,6 +36,6 @@ public class SonicSwerveDrivetrain extends Drivetrain {
     public void setSpeeds(ChassisSpeeds speeds) {
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
         for (int i = 0; i < numModules; i++)
-            modules[i].setTargetOpen(states[i]);
+            modules[i].setTargetClosed(states[i]);
     }
 }

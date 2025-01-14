@@ -4,9 +4,18 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.drive.Drivetrain;
+import frc.robot.subsystems.drive.SonicSwerveDrivetrain;
+import frc.robot.subsystems.drive.SparkMaxSwerveModule;
+import frc.robot.subsystems.drive.SwerveModule;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -17,6 +26,8 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
+  private final Drivetrain drivetrain;
+  private final CommandXboxController controller;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -26,6 +37,24 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+    
+    Translation2d m_frontLeftLocation = new Translation2d(0.381, 0.381);
+    Translation2d m_frontRightLocation = new Translation2d(0.381, -0.381);
+    Translation2d m_backLeftLocation = new Translation2d(-0.381, 0.381);
+    Translation2d m_backRightLocation = new Translation2d(-0.381, -0.381);
+
+    SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
+      m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation
+    );
+
+    drivetrain = new SonicSwerveDrivetrain(kinematics, new SwerveModule[] {
+      new SparkMaxSwerveModule(1, 2, 3),
+      new SparkMaxSwerveModule(4, 5, 6),
+      new SparkMaxSwerveModule(7, 8, 9),
+      new SparkMaxSwerveModule(10, 11, 12)
+    });
+
+    controller = new CommandXboxController(0);
   }
 
   /**
@@ -42,6 +71,8 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    drivetrain.setSpeeds(new ChassisSpeeds(controller.getLeftX() * 2, controller.getLeftY() * 2, controller.getRightX() * 3));
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

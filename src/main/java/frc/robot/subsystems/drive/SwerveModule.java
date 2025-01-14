@@ -7,22 +7,11 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
  * Individual module for a swerve subsystem, representing one wheel and the two motors (drive + steer) associated with it
  */
 public interface SwerveModule {
-    /**
-     * <p>Set the target speeds based off of a tranlsation vector</p>
-     * <p>Operates on an <b>open loop</p>, meaning that the outputs of driving <b>are not</b> taken into account.
-     * Suitable for TeleOp Drive</p>
-     * @param translation Translation vector of the swerve module. The length of the vector is the velocity in m/s
-     */
-    public void setTargetOpen(Translation2d translation);
+    public void setDriveOpen(double output);
+    public void setTurnOpen(double output);
 
-    /**
-     * <p>Set the target speeds based off of a provided {@link SwerveModuleState}</p>
-     * <p>Operates on an <b>open loop</p>, meaning that the outputs of driving <b>are not</b> taken into account.
-     * Suitable for TeleOp Drive</p>
-     * @param state The desired {@link SwerveModuleState}
-     */
-    public void setTargetOpen(SwerveModuleState state);
-    
+    public void periodic();
+
     /**
      * <p>Set the target speeds based off of a tranlsation vector</p>
      * <p>Operates on an <b>closed loop</p>, meaning that the outputs of driving <b>are</b> taken into account.
