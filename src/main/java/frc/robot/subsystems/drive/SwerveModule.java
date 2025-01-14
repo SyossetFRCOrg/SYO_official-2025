@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
@@ -11,6 +12,8 @@ public interface SwerveModule {
      * <p> Periodic update for the given swerve module, called on every periodic update for the drivetrain </p>
      */
     public void periodic();
+
+    public Rotation2d getAngle();
 
     /**
      * <p>Set the target speeds based off of a tranlsation vector</p>
@@ -27,4 +30,7 @@ public interface SwerveModule {
      * @param state The desired {@link SwerveModuleState}
      */
     public void setTargetClosed(SwerveModuleState state);
+
+    public void setDriveOpen(double drive);
+    public void setTurnOpen(double turn);
 }

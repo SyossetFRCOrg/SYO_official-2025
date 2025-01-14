@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
@@ -19,6 +20,11 @@ public class GenericSwerveModule implements SwerveModule {
     }
 
     @Override
+    public Rotation2d getAngle() {
+        return turn.getAngle();
+    }
+
+    @Override
     public void setTargetClosed(Translation2d translation) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'setTargetClosed'");
@@ -26,9 +32,18 @@ public class GenericSwerveModule implements SwerveModule {
 
     @Override
     public void setTargetClosed(SwerveModuleState state) {
-        // state.optimize(turn.getAngle());
+        state.optimize(turn.getAngle());
         drive.setSpeed(state.speedMetersPerSecond);
         turn.setTarget(state.angle);
     }
-    
+
+    @Override
+    public void setDriveOpen(double drive) {
+        this.drive.setSpeed(drive);
+    }
+
+    @Override
+    public void setTurnOpen(double turn) {
+        this.turn.setSpeed(turn);
+    }
 }

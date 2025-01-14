@@ -72,10 +72,10 @@ public class Robot extends TimedRobot {
       .setWheelRadiusMeters(Units.inchesToMeters(1.7));
 
     SparkMax driveSparks[] = {
-      new SparkMax(1, MotorType.kBrushless),
+      new SparkMax(10, MotorType.kBrushless),
       new SparkMax(4, MotorType.kBrushless),
       new SparkMax(7, MotorType.kBrushless),
-      new SparkMax(10, MotorType.kBrushless),
+      new SparkMax(1, MotorType.kBrushless),
     };
     
     SparkMax turnSparks[] = {
@@ -135,13 +135,13 @@ public class Robot extends TimedRobot {
     
     return new SonicSwerveDrivetrain(kinematics, new SwerveModule[] {
       new GenericSwerveModule(new DriveModuleSpark(driveSparks[0], driveConstants.build()), new TurnModuleSpark(turnSparks[0], cancoders[0], 
-        turnConstants.setZeroRotation(new Rotation2d(-1.411 + .051 - .119 + Math.PI)).build())),
+        turnConstants.setZeroRotation(new Rotation2d(Math.PI/2)).build())),
       new GenericSwerveModule(new DriveModuleSpark(driveSparks[1], driveConstants.build()), new TurnModuleSpark(turnSparks[1], cancoders[1], 
-        turnConstants.setZeroRotation(new Rotation2d(-1.221)).build())),
+        turnConstants.setZeroRotation(new Rotation2d(-Math.PI/2)).build())),
       new GenericSwerveModule(new DriveModuleSpark(driveSparks[2], driveConstants.build()), new TurnModuleSpark(turnSparks[2], cancoders[2], 
-        turnConstants.setZeroRotation(new Rotation2d(-.22 -.176 + .266)).build())),
+        turnConstants.setZeroRotation(new Rotation2d(0)).build())),
       new GenericSwerveModule(new DriveModuleSpark(driveSparks[3], driveConstants.build()), new TurnModuleSpark(turnSparks[3], cancoders[3], 
-        turnConstants.setZeroRotation(new Rotation2d(.242 +.148 - .141)).build()))
+        turnConstants.setZeroRotation(new Rotation2d(0)).build()))
     });
   }
 
@@ -160,7 +160,7 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
-    drivetrain.setSpeeds(new ChassisSpeeds(controller.getLeftY() * 2, controller.getLeftX() * 2, -controller.getRightX() * 4));
+    drivetrain.setSpeeds(new ChassisSpeeds(controller.getLeftY() * 2, controller.getLeftX() * 2, controller.getRightX() * 4));
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

@@ -63,6 +63,8 @@ public class DriveModuleSpark implements DriveModule {
 
     @Override
     public void setSpeed(double metersPerSec) {
+        // System.out.print(Math.round(MathUtil.clamp(metersPerSec, -3.0, 3.0)/3.0 * 0.2 * 1000.0) / 1000.0 + ", ");
         spark.set(MathUtil.clamp(metersPerSec, -3.0, 3.0)/3.0 * 0.2);
+        // spark.set(0.2);
     }
 }

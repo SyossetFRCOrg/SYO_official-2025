@@ -146,6 +146,7 @@ public class SparkMaxSwerveModule implements SwerveModule {
         turnController.setReference(rad, ControlType.kPosition);
     }
 
+    @Override
     public Rotation2d getAngle() {
         return (turnRelativeOffset == null) ? new Rotation2d() : turnPosition.plus(turnRelativeOffset);
     }
