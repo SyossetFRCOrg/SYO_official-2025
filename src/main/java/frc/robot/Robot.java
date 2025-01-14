@@ -4,9 +4,32 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.drive.DriveModuleSpark;
+import frc.robot.subsystems.drive.Drivetrain;
+import frc.robot.subsystems.drive.GenericSwerveModule;
+import frc.robot.subsystems.drive.SonicSwerveDrivetrain;
+import frc.robot.subsystems.drive.SparkMaxSwerveModule;
+import frc.robot.subsystems.drive.SwerveModule;
+import frc.robot.subsystems.drive.TurnModuleSpark;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -17,6 +40,8 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
+  private final Drivetrain drivetrain;
+  private final CommandXboxController controller;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -26,6 +51,98 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+    drivetrain = createDrivetrain();
+
+    controller = new CommandXboxController(0);
+  }
+
+  private Drivetrain createDrivetrain() {
+    Translation2d frontLeftLocation = new Translation2d(0.381, 0.381);
+    Translation2d frontRightLocation = new Translation2d(0.381, -0.381);
+    Translation2d backLeftLocation = new Translation2d(-0.381, 0.381);
+    Translation2d backRightLocation = new Translation2d(-0.381, -0.381);
+
+    SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
+      frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation
+    );
+
+    DriveModuleSpark.Constants.Builder driveBuilder = new DriveModuleSpark.Constants.Builder()
+      .setVolts(12)
+      .setWheelRadiusMeters(Units.inchesToMeters(1.7));
+
+    SparkMax driveSparks[] = {
+      new SparkMax(10, MotorType.kBrushless),
+      new SparkMax(4, MotorType.kBrushless),
+      new SparkMax(7, MotorType.kBrushless),
+      new SparkMax(1, MotorType.kBrushless),
+    };
+    
+    SparkMax turnSparks[] = {
+      new SparkMax(2, MotorType.kBrushless),
+      new SparkMax(5, MotorType.kBrushless),
+      new SparkMax(8, MotorType.kBrushless),
+      new SparkMax(11, MotorType.kBrushless),
+    };
+
+    CANcoder cancoders[] = {
+      new CANcoder(3, "rio"),
+      new CANcoder(6, "rio"),
+      new CANcoder(9, "rio"),
+      new CANcoder(12, "rio")
+    };
+
+    for (var cancoder : cancoders) {      
+      cancoder.getConfigurator().apply(new CANcoderConfiguration());
+    }
+    
+    var driveConfig = new SparkMaxConfig();
+    driveConfig
+        .idleMode(IdleMode.kBrake)
+        .smartCurrentLimit(20, 20)
+        .voltageCompensation(12.0);
+    
+    for (var drive : driveSparks) {
+      drive.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    }
+
+    var turnConfig = new SparkMaxConfig();
+    turnConfig
+        .inverted(true)
+        .idleMode(IdleMode.kBrake)
+        .smartCurrentLimit(20)
+        .voltageCompensation(12.0);
+    turnConfig
+        .signals
+        .absoluteEncoderPositionAlwaysOn(true)
+        .absoluteEncoderPositionPeriodMs((int) (1000.0 / 50.0))
+        .absoluteEncoderVelocityAlwaysOn(true)
+        .absoluteEncoderVelocityPeriodMs(20)
+        .appliedOutputPeriodMs(20)
+        .busVoltagePeriodMs(20)
+        .outputCurrentPeriodMs(20);
+    
+    for (var turn : turnSparks) {
+      turn.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
+    var driveConstants = new DriveModuleSpark.Constants.Builder()
+      .setVolts(12)
+      .setWheelRadiusMeters(Units.inchesToMeters(1.7));
+    
+    var turnConstants = new TurnModuleSpark.Constants.Builder()
+      .setTurnMotorReduction(150.0 / 7.0);
+    
+    return new SonicSwerveDrivetrain(kinematics, new SwerveModule[] {
+      new GenericSwerveModule(new DriveModuleSpark(driveSparks[0], driveConstants.build()), new TurnModuleSpark(turnSparks[0], cancoders[0], 
+        turnConstants.setZeroRotation(new Rotation2d(Math.PI/2)).build())),
+      new GenericSwerveModule(new DriveModuleSpark(driveSparks[1], driveConstants.build()), new TurnModuleSpark(turnSparks[1], cancoders[1], 
+        turnConstants.setZeroRotation(new Rotation2d(-Math.PI/2)).build())),
+      new GenericSwerveModule(new DriveModuleSpark(driveSparks[2], driveConstants.build()), new TurnModuleSpark(turnSparks[2], cancoders[2], 
+        turnConstants.setZeroRotation(new Rotation2d(0)).build())),
+      new GenericSwerveModule(new DriveModuleSpark(driveSparks[3], driveConstants.build()), new TurnModuleSpark(turnSparks[3], cancoders[3], 
+        turnConstants.setZeroRotation(new Rotation2d(0)).build()))
+    });
   }
 
   /**
@@ -42,6 +159,8 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    drivetrain.setSpeeds(new ChassisSpeeds(controller.getLeftY() * 2, controller.getLeftX() * 2, controller.getRightX() * 4));
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
