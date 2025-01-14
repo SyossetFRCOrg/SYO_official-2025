@@ -100,12 +100,10 @@ public class SparkMaxSwerveModule implements SwerveModule {
         }       
     }
 
-    @Override
     public void setDriveOpen(double output) {
         driveSpark.set(output);
     }
 
-    @Override
     public void setTurnOpen(double output) {
         turnSpark.set(output);
     }

@@ -7,9 +7,9 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
  * Individual module for a swerve subsystem, representing one wheel and the two motors (drive + steer) associated with it
  */
 public interface SwerveModule {
-    public void setDriveOpen(double output);
-    public void setTurnOpen(double output);
-
+    /**
+     * <p> Periodic update for the given swerve module, called on every periodic update for the drivetrain </p>
+     */
     public void periodic();
 
     /**
