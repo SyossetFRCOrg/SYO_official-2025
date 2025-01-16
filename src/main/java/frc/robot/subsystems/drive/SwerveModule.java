@@ -32,5 +32,6 @@ public interface SwerveModule {
     public void setTargetClosed(SwerveModuleState state);
 
     public void setDriveOpen(double drive);
+    
     public void setTurnOpen(double turn);
 }

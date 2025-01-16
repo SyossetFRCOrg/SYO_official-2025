@@ -26,8 +26,7 @@ public class GenericSwerveModule implements SwerveModule {
 
     @Override
     public void setTargetClosed(Translation2d translation) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setTargetClosed'");
+        setTargetClosed(new SwerveModuleState(Math.hypot(translation.getX(), translation.getY()), translation.getAngle()));
     }
 
     @Override

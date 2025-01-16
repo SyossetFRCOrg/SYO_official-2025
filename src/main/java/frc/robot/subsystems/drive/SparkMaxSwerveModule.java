@@ -24,7 +24,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 
-// THIS CODE IS NEITHER GOOD NOR FINAL, IT IS TEMPORARY JUST TO MAKE SURE THE SWERVE WORKS
+@Deprecated
 public class SparkMaxSwerveModule implements SwerveModule {
     public static final double wheelRadiusMeters = 12;
     public static final double driveKv = 0.1;

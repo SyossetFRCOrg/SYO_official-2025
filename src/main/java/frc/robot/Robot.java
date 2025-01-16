@@ -19,7 +19,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -27,7 +26,6 @@ import frc.robot.subsystems.drive.DriveModuleSpark;
 import frc.robot.subsystems.drive.Drivetrain;
 import frc.robot.subsystems.drive.GenericSwerveModule;
 import frc.robot.subsystems.drive.SonicSwerveDrivetrain;
-import frc.robot.subsystems.drive.SparkMaxSwerveModule;
 import frc.robot.subsystems.drive.SwerveModule;
 import frc.robot.subsystems.drive.TurnModuleSpark;
 
@@ -72,10 +70,10 @@ public class Robot extends TimedRobot {
       .setWheelRadiusMeters(Units.inchesToMeters(1.7));
 
     SparkMax driveSparks[] = {
-      new SparkMax(10, MotorType.kBrushless),
+      new SparkMax(1, MotorType.kBrushless),
       new SparkMax(4, MotorType.kBrushless),
       new SparkMax(7, MotorType.kBrushless),
-      new SparkMax(1, MotorType.kBrushless),
+      new SparkMax(10, MotorType.kBrushless),
     };
     
     SparkMax turnSparks[] = {
@@ -131,7 +129,8 @@ public class Robot extends TimedRobot {
       .setWheelRadiusMeters(Units.inchesToMeters(1.7));
     
     var turnConstants = new TurnModuleSpark.Constants.Builder()
-      .setTurnMotorReduction(150.0 / 7.0);
+      .setTurnMotorReduction(150.0 / 7.0)
+      .setPID(5.0, 0.0, 0.0);
     
     return new SonicSwerveDrivetrain(kinematics, new SwerveModule[] {
       new GenericSwerveModule(new DriveModuleSpark(driveSparks[0], driveConstants.build()), new TurnModuleSpark(turnSparks[0], cancoders[0], 

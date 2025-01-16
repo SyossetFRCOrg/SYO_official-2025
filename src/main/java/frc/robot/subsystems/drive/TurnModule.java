@@ -13,6 +13,7 @@ public interface TurnModule {
 
     public Rotation2d getAngle();
     public void setSpeed(double radPerSec);
+    public void setVoltage(double volts);
 
     public void setTarget(Rotation2d rad);
 }
