@@ -67,4 +67,9 @@ public class DriveModuleSpark implements DriveModule {
         spark.set(MathUtil.clamp(metersPerSec, -3.0, 3.0)/3.0 * 0.2);
         // spark.set(0.2);
     }
+
+    @Override
+    public void setVoltage(double volts) {
+        spark.setVoltage(MathUtil.clamp(volts, -3.0, 3.0));
+    }
 }

@@ -94,19 +94,22 @@ public class TurnModuleSpark implements TurnModule {
 
     @Override
     public void periodic() {
-        currentAngle = new Rotation2d(encoder.getPosition() / constants.turnEncoderPositionFactor).minus(constants.zeroRotation);
+        // currentAngle = new Rotation2d(encoder.getPosition() / constants.turnEncoderPositionFactor).minus(constants.zeroRotation);
         absoluteAngle = Rotation2d.fromRotations(cancoder.getAbsolutePosition().getValueAsDouble()).minus(constants.zeroRotation);
+        currentAngle = absoluteAngle;
 
         if (angleOffset == null && absoluteAngle.getRadians() != 0) {
             angleOffset = absoluteAngle.minus(currentAngle);
         }
 
-        setVoltage(pid.calculate(getAngle().getRadians(), targetAngle.getRadians()));
+        // setVoltage(0);
+        // setVoltage(pid.calculate(getAngle().getRadians(), targetAngle.getRadians()));
     }
 
     @Override
     public Rotation2d getAngle() {
-        return angleOffset == null ? new Rotation2d() : currentAngle.plus(angleOffset);
+        return currentAngle;
+        // return angleOffset == null ? new Rotation2d() : currentAngle.plus(angleOffset);
     }
 
     @Override
@@ -116,7 +119,7 @@ public class TurnModuleSpark implements TurnModule {
 
     @Override
     public void setVoltage(double volts) {
-        spark.setVoltage(volts);
+        spark.setVoltage(MathUtil.clamp(volts, -3.0, 3.0));
     }
 
     @Override

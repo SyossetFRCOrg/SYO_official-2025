@@ -31,7 +31,7 @@ public interface SwerveModule {
      */
     public void setTargetClosed(SwerveModuleState state);
 
-    public void setDriveOpen(double drive);
+    public void setDriveOpen(double metersPerSec);
     
-    public void setTurnOpen(double turn);
+    public void setTurnOpen(double radPerSec);
 }

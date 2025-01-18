@@ -34,15 +34,18 @@ public class SonicSwerveDrivetrain extends Drivetrain {
 
     @Override
     public void setSpeeds(ChassisSpeeds speeds) {
-        SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
-        // System.out.print("[");
+        // SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
         for (int i = 0; i < numModules; i++) {
             modules[i].periodic();
-            modules[i].setTargetClosed(states[i]);
+            // modules[i].setTargetClosed(states[i]);
         }
 
+        // System.out.print("Angles: [");
+        // for (var module : modules) {
+        //     System.out.print(Math.round(module.getAngle().getRadians() * 1000.0) / 1000.0 + ", ");
+        // }
         // System.out.println("]");
 
-        System.out.println();
+        // modules[0].setTurnOpen(2);
     }
 }

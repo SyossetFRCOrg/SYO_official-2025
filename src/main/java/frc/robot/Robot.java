@@ -19,6 +19,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -65,29 +66,25 @@ public class Robot extends TimedRobot {
       frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation
     );
 
-    DriveModuleSpark.Constants.Builder driveBuilder = new DriveModuleSpark.Constants.Builder()
-      .setVolts(12)
-      .setWheelRadiusMeters(Units.inchesToMeters(1.7));
-
     SparkMax driveSparks[] = {
-      new SparkMax(1, MotorType.kBrushless),
-      new SparkMax(4, MotorType.kBrushless),
-      new SparkMax(7, MotorType.kBrushless),
-      new SparkMax(10, MotorType.kBrushless),
-    };
-    
-    SparkMax turnSparks[] = {
-      new SparkMax(2, MotorType.kBrushless),
       new SparkMax(5, MotorType.kBrushless),
+      new SparkMax(1, MotorType.kBrushless),
       new SparkMax(8, MotorType.kBrushless),
       new SparkMax(11, MotorType.kBrushless),
     };
+    
+    SparkMax turnSparks[] = {
+      new SparkMax(7, MotorType.kBrushless),
+      new SparkMax(10, MotorType.kBrushless),
+      new SparkMax(2, MotorType.kBrushless),
+      new SparkMax(4, MotorType.kBrushless),
+    };
 
     CANcoder cancoders[] = {
-      new CANcoder(3, "rio"),
-      new CANcoder(6, "rio"),
+      new CANcoder(12, "rio"),
       new CANcoder(9, "rio"),
-      new CANcoder(12, "rio")
+      new CANcoder(6, "rio"),
+      new CANcoder(3, "rio")
     };
 
     for (var cancoder : cancoders) {      
@@ -126,21 +123,22 @@ public class Robot extends TimedRobot {
 
     var driveConstants = new DriveModuleSpark.Constants.Builder()
       .setVolts(12)
-      .setWheelRadiusMeters(Units.inchesToMeters(1.7));
+      .setWheelRadiusMeters(Units.inchesToMeters(1.7))
+      .build();
     
-    var turnConstants = new TurnModuleSpark.Constants.Builder()
+    var turnConstantsBuilder = new TurnModuleSpark.Constants.Builder()
       .setTurnMotorReduction(150.0 / 7.0)
       .setPID(5.0, 0.0, 0.0);
     
     return new SonicSwerveDrivetrain(kinematics, new SwerveModule[] {
-      new GenericSwerveModule(new DriveModuleSpark(driveSparks[0], driveConstants.build()), new TurnModuleSpark(turnSparks[0], cancoders[0], 
-        turnConstants.setZeroRotation(new Rotation2d(Math.PI/2)).build())),
-      new GenericSwerveModule(new DriveModuleSpark(driveSparks[1], driveConstants.build()), new TurnModuleSpark(turnSparks[1], cancoders[1], 
-        turnConstants.setZeroRotation(new Rotation2d(-Math.PI/2)).build())),
-      new GenericSwerveModule(new DriveModuleSpark(driveSparks[2], driveConstants.build()), new TurnModuleSpark(turnSparks[2], cancoders[2], 
-        turnConstants.setZeroRotation(new Rotation2d(0)).build())),
-      new GenericSwerveModule(new DriveModuleSpark(driveSparks[3], driveConstants.build()), new TurnModuleSpark(turnSparks[3], cancoders[3], 
-        turnConstants.setZeroRotation(new Rotation2d(0)).build()))
+      new GenericSwerveModule(new DriveModuleSpark(driveSparks[0], driveConstants), new TurnModuleSpark(turnSparks[0], cancoders[0], 
+        turnConstantsBuilder.setZeroRotation(new Rotation2d(0)).build())),
+      new GenericSwerveModule(new DriveModuleSpark(driveSparks[1], driveConstants), new TurnModuleSpark(turnSparks[1], cancoders[1], 
+        turnConstantsBuilder.setZeroRotation(new Rotation2d(0)).build())),
+      new GenericSwerveModule(new DriveModuleSpark(driveSparks[2], driveConstants), new TurnModuleSpark(turnSparks[2], cancoders[2], 
+        turnConstantsBuilder.setZeroRotation(new Rotation2d(0)).build())),
+      new GenericSwerveModule(new DriveModuleSpark(driveSparks[3], driveConstants), new TurnModuleSpark(turnSparks[3], cancoders[3], 
+        turnConstantsBuilder.setZeroRotation(new Rotation2d(0)).build()))
     });
   }
 
@@ -160,6 +158,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
 
     drivetrain.setSpeeds(new ChassisSpeeds(controller.getLeftY() * 2, controller.getLeftX() * 2, controller.getRightX() * 4));
+    SmartDashboard.putData("Drivetrain", drivetrain);
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

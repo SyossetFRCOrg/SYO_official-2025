@@ -4,4 +4,5 @@ public interface DriveModule {
     public default void periodic() {}
 
     public void setSpeed(double metersPerSec);
+    public void setVoltage(double volts);
 }

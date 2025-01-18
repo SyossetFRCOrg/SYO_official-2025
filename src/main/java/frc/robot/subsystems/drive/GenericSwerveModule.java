@@ -37,12 +37,12 @@ public class GenericSwerveModule implements SwerveModule {
     }
 
     @Override
-    public void setDriveOpen(double drive) {
-        this.drive.setSpeed(drive);
+    public void setDriveOpen(double metersPerSec) {
+        this.drive.setSpeed(metersPerSec);
     }
 
     @Override
-    public void setTurnOpen(double turn) {
-        this.turn.setSpeed(turn);
+    public void setTurnOpen(double radPerSec) {
+        this.turn.setSpeed(radPerSec);
     }
 }
