@@ -161,7 +161,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
 
     drivetrain.setSpeeds(new ChassisSpeeds(controller.getLeftY() * 2, controller.getLeftX() * 2, controller.getRightX() * 4));
-  }
+      }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override

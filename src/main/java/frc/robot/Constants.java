@@ -27,4 +27,38 @@ public final class Constants {
     public final static double ALGAE_INTAKE_SPEED = 0.5;
     public final static double ALGAE_OUTTAKE_SPEED = -0.5;
   }
+  
+  public static final class Elevator {
+    public static enum ElevatorPosition{
+      //account for encoder offset. units in meters
+      BOTTOM(0.0), //TODO
+      INTAKE_PREP(0.0), //TODO
+      INTAKE(0.0), //TODO
+      ALGAE_L2(0.0), //TODO
+      ALGAE_L3(0.0), //TODO
+
+      L1(0.0), //TODO
+      L2(0.0), //TODO
+      L3(0.0), //TODO
+      L4(0.0); //TODO
+
+      public final double value;
+      
+      private ElevatorPosition(double value) {
+      this.value = value;
+    }
+    }
+
+    public static final int MOTOR_ID = 0; //TODO
+
+    public static final double kP = 0.0; // TODO
+    public static final double kI = 0.0; // TODO
+    public static final double kD = 0.0; // TODO
+    public static final double kS = 0.0; // TODO
+    public static final double kG = 0.0; // TODO
+    public static final double kV = 0.0; // TODO
+    public static final double kA = 0.0; // TODO
+
+    public static final double CURRENT_LIMIT = 0.0; //TODO
+  }
 }
