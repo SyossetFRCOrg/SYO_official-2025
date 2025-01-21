@@ -8,7 +8,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 
-public class TurnModuleSpark implements TurnModule {
+public class TurnModuleSpark extends TurnModule {
     public static class Constants {
         public final double turnMotorReduction;
         public final double turnEncoderPositionFactor;
@@ -94,22 +94,14 @@ public class TurnModuleSpark implements TurnModule {
 
     @Override
     public void periodic() {
-        // currentAngle = new Rotation2d(encoder.getPosition() / constants.turnEncoderPositionFactor).minus(constants.zeroRotation);
-        absoluteAngle = Rotation2d.fromRotations(cancoder.getAbsolutePosition().getValueAsDouble()).minus(constants.zeroRotation);
-        currentAngle = absoluteAngle;
+        currentAngle = Rotation2d.fromRotations(cancoder.getAbsolutePosition().getValueAsDouble()).minus(constants.zeroRotation);
 
-        if (angleOffset == null && absoluteAngle.getRadians() != 0) {
-            angleOffset = absoluteAngle.minus(currentAngle);
-        }
-
-        // setVoltage(0);
-        // setVoltage(pid.calculate(getAngle().getRadians(), targetAngle.getRadians()));
+        setVoltage(pid.calculate(getAngle().getRadians(), targetAngle.getRadians()));
     }
 
     @Override
     public Rotation2d getAngle() {
         return currentAngle;
-        // return angleOffset == null ? new Rotation2d() : currentAngle.plus(angleOffset);
     }
 
     @Override
@@ -119,7 +111,7 @@ public class TurnModuleSpark implements TurnModule {
 
     @Override
     public void setVoltage(double volts) {
-        spark.setVoltage(MathUtil.clamp(volts, -3.0, 3.0));
+        spark.setVoltage(MathUtil.clamp(volts, -6.0, 6.0));
     }
 
     @Override

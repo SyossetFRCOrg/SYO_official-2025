@@ -25,7 +25,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 
 @Deprecated
-public class SparkMaxSwerveModule implements SwerveModule {
+public class SparkMaxSwerveModule extends SwerveModule {
     public static final double wheelRadiusMeters = 12;
     public static final double driveKv = 0.1;
     public static final double turnEncoderPositionFactor = 150.0 / 7.0 / (2 * Math.PI);

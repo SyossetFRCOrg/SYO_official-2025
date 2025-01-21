@@ -1,8 +1,9 @@
 package frc.robot.subsystems.drive;
 
-public interface DriveModule {
-    public default void periodic() {}
+import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-    public void setSpeed(double metersPerSec);
-    public void setVoltage(double volts);
+public abstract class DriveModule extends SubsystemBase {
+    public abstract void setSpeed(double metersPerSec);
+    public abstract void setVoltage(double volts);
 }

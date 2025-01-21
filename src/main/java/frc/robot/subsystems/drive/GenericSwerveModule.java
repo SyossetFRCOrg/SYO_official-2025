@@ -4,13 +4,16 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
-public class GenericSwerveModule implements SwerveModule {
+public class GenericSwerveModule extends SwerveModule {
     private final DriveModule drive;
     private final TurnModule turn;
 
     public GenericSwerveModule(DriveModule drive, TurnModule turn) {
         this.drive = drive;
         this.turn = turn;
+
+        addChild(getName(), drive);
+        addChild(getName(), turn);
     }
 
     @Override

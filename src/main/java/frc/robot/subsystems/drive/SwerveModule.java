@@ -3,17 +3,13 @@ package frc.robot.subsystems.drive;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
  * Individual module for a swerve subsystem, representing one wheel and the two motors (drive + steer) associated with it
  */
-public interface SwerveModule {
-    /**
-     * <p> Periodic update for the given swerve module, called on every periodic update for the drivetrain </p>
-     */
-    public void periodic();
-
-    public Rotation2d getAngle();
+public abstract class SwerveModule extends SubsystemBase {
+    public abstract Rotation2d getAngle();
 
     /**
      * <p>Set the target speeds based off of a tranlsation vector</p>
@@ -21,7 +17,7 @@ public interface SwerveModule {
      * Suitable for Autonomous movements </p>
      * @param translation Translation vector of the swerve module. The length of the vector is the velocity in m/s
      */
-    public void setTargetClosed(Translation2d translation);
+    public abstract void setTargetClosed(Translation2d translation);
     
     /**
      * <p>Set the target speeds based off of a provided {@link SwerveModuleState}</p>
@@ -29,9 +25,9 @@ public interface SwerveModule {
      * Suitable for Autonomous movements </p>
      * @param state The desired {@link SwerveModuleState}
      */
-    public void setTargetClosed(SwerveModuleState state);
+    public abstract void setTargetClosed(SwerveModuleState state);
 
-    public void setDriveOpen(double metersPerSec);
+    public abstract void setDriveOpen(double metersPerSec);
     
-    public void setTurnOpen(double radPerSec);
+    public abstract void setTurnOpen(double radPerSec);
 }

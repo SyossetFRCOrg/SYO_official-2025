@@ -3,6 +3,8 @@ package frc.robot.subsystems.drive;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -30,22 +32,18 @@ public class SonicSwerveDrivetrain extends Drivetrain {
         this.kinematics = kinematics;
 
         numModules = modules.length;
+
+        for (var module : modules) {
+            addChild(getName(), module);
+        }
     }
 
     @Override
     public void setSpeeds(ChassisSpeeds speeds) {
-        // SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
+        SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
         for (int i = 0; i < numModules; i++) {
             modules[i].periodic();
-            // modules[i].setTargetClosed(states[i]);
+            modules[i].setTargetClosed(states[i]);
         }
-
-        // System.out.print("Angles: [");
-        // for (var module : modules) {
-        //     System.out.print(Math.round(module.getAngle().getRadians() * 1000.0) / 1000.0 + ", ");
-        // }
-        // System.out.println("]");
-
-        // modules[0].setTurnOpen(2);
     }
 }

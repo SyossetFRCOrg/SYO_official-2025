@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -132,13 +133,13 @@ public class Robot extends TimedRobot {
     
     return new SonicSwerveDrivetrain(kinematics, new SwerveModule[] {
       new GenericSwerveModule(new DriveModuleSpark(driveSparks[0], driveConstants), new TurnModuleSpark(turnSparks[0], cancoders[0], 
-        turnConstantsBuilder.setZeroRotation(new Rotation2d(0)).build())),
+        turnConstantsBuilder.setZeroRotation(new Rotation2d(-2.932)).build())),
       new GenericSwerveModule(new DriveModuleSpark(driveSparks[1], driveConstants), new TurnModuleSpark(turnSparks[1], cancoders[1], 
-        turnConstantsBuilder.setZeroRotation(new Rotation2d(0)).build())),
+        turnConstantsBuilder.setZeroRotation(new Rotation2d(3.004)).build())),
       new GenericSwerveModule(new DriveModuleSpark(driveSparks[2], driveConstants), new TurnModuleSpark(turnSparks[2], cancoders[2], 
-        turnConstantsBuilder.setZeroRotation(new Rotation2d(0)).build())),
+        turnConstantsBuilder.setZeroRotation(new Rotation2d(1.890)).build())),
       new GenericSwerveModule(new DriveModuleSpark(driveSparks[3], driveConstants), new TurnModuleSpark(turnSparks[3], cancoders[3], 
-        turnConstantsBuilder.setZeroRotation(new Rotation2d(0)).build()))
+        turnConstantsBuilder.setZeroRotation(new Rotation2d(-1.517)).build()))
     });
   }
 
@@ -158,7 +159,6 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
 
     drivetrain.setSpeeds(new ChassisSpeeds(controller.getLeftY() * 2, controller.getLeftX() * 2, controller.getRightX() * 4));
-    SmartDashboard.putData("Drivetrain", drivetrain);
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

@@ -5,7 +5,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
 
-public class DriveModuleSpark implements DriveModule {
+public class DriveModuleSpark extends DriveModule {
     public static class Constants {
         public final double maxSpeedMetersPerSec;
         public final double wheelRadiusMeters;
@@ -29,7 +29,8 @@ public class DriveModuleSpark implements DriveModule {
 
             public Constants build() {
                 return new Constants(
-                        (5600.0 / 60.0) / ((50.0 / 14.0) * (19.0 / 25.0) * (45.0 / 15.0)) * wheelRadiusMeters * 2 * Math.PI, // Where does this number come from ???
+                        // Max Rotations per Second * Gear ratio * radius * 2pi
+                        (5600.0 / 60.0) / ((50.0 / 14.0) * (19.0 / 25.0) * (45.0 / 15.0)) * wheelRadiusMeters * 2 * Math.PI,
                         wheelRadiusMeters,
                         volts / maxSpeedMetersPerSec * wheelRadiusMeters);
             }
@@ -64,12 +65,12 @@ public class DriveModuleSpark implements DriveModule {
     @Override
     public void setSpeed(double metersPerSec) {
         // System.out.print(Math.round(MathUtil.clamp(metersPerSec, -3.0, 3.0)/3.0 * 0.2 * 1000.0) / 1000.0 + ", ");
-        spark.set(MathUtil.clamp(metersPerSec, -3.0, 3.0)/3.0 * 0.2);
+        spark.set(MathUtil.clamp(metersPerSec, -4.0, 4.0)/4.0 * 0.5);
         // spark.set(0.2);
     }
 
     @Override
     public void setVoltage(double volts) {
-        spark.setVoltage(MathUtil.clamp(volts, -3.0, 3.0));
+        spark.setVoltage(MathUtil.clamp(volts, -6.0, 6.0));
     }
 }
