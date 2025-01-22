@@ -18,65 +18,76 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
-  private final SparkBase motor;
-  private final RelativeEncoder encoder;
+  private final SparkBase leftMotor;
+  private final SparkBase rightMotor;
+
+  private final RelativeEncoder leftEncoder;
+  private final RelativeEncoder rightEncoder;
   // private final ProfiledPIDController pidController = new ProfiledPIDController(kP, kI, kD, MOVEMENT_CONSTRAINTS);
   // private final ElevatorFeedforward feedforwardController = new ElevatorFeedforward(kS, kG, kV, kA);
 
   /** Creates a new ElevatorSubsystem. */
   public ElevatorSubsystem() {
-    motor = new SparkMax(0, MotorType.kBrushless);
-    encoder = motor.getEncoder();
-    var motorConfig = new SparkMaxConfig();
+    leftMotor = new SparkMax(0, MotorType.kBrushless);
+    rightMotor = new SparkMax(1, MotorType.kBrushless);
 
-    motorConfig
+    leftEncoder = leftMotor.getEncoder();
+    rightEncoder = rightMotor.getEncoder();
+
+    var leftMotorConfig = new SparkMaxConfig();
+    var rightMotorConfig = new SparkMaxConfig();
+
+    leftMotorConfig
           .idleMode(IdleMode.kBrake)
           .smartCurrentLimit(20)
           .voltageCompensation(12.0);
 
-    //configuring motor
-    motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    rightMotorConfig
+          .idleMode(IdleMode.kBrake)
+          .smartCurrentLimit(20)
+          .voltageCompensation(12.0);
+
+    //configuring motors
+    leftMotor.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    rightMotor.configure(rightMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
 
-    // motor = SparkConfigurator.createSparkMax(MOTOR_ID, MotorType.kBrushless, MOTOR_INVERTED,
-    //         (s) -> s.setIdleMode(IdleMode.kBrake),
-    //         (s) -> s.setSmartCurrentLimit(CURRENT_LIMIT),
-    //         (s) -> s.getEncoder().setPositionConversionFactor(ENCODER_ROTATIONS_TO_METERS),
-    //         (s) -> s.getEncoder().setVelocityConversionFactor(ENCODER_ROTATIONS_TO_METERS / 60.0));
-
+ 
 
   }
 
-
-  private double feedbackVoltage = 0;
-  private double feedForwardVoltage = 0;
+  // private double feedbackVoltage = 0;
+  // private double feedForwardVoltage = 0;
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
 
-    var pos = encoder.getPosition();
+    var pos = getPosition();
     var target = 1000;
 
     //adjusts position until it reaches target. moves it up and down until really near the target
     if(Math.abs(pos - target) < 5)
     {
-      motor.set(0);
+      leftMotor.set(0);
+      rightMotor.set(0);
     }
     else if(pos < target) {
-      motor.set(0.25);
+      leftMotor.set(0.25);
+      rightMotor.set(-0.25); //FIX +- to see which one goes up or down
     } else if(pos >= target) {
-      motor.set(-0.25);
+      leftMotor.set(-0.25);
+      rightMotor.set(0.25);
     }
     
   }
 
   public double getPosition() {
-    return encoder.getPosition();
+    return (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
   }
 
   public double getVelocity() {
-    return encoder.getVelocity();
+    return (leftEncoder.getVelocity() + rightEncoder.getVelocity()) / 2;
   }
 
 
@@ -88,7 +99,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public void setVoltage(double voltage) {
     voltage = MathUtil.clamp(voltage, -2.0, 2.0); //TO DO, CLAMP VALUES
-    motor.setVoltage(voltage);
+    leftMotor.setVoltage(voltage);
+    rightMotor.setVoltage(-voltage); //FIX +-
   }
 
 
