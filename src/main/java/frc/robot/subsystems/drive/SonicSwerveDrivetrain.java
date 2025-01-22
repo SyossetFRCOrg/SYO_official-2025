@@ -1,10 +1,14 @@
 package frc.robot.subsystems.drive;
 
+import java.util.Arrays;
+import java.util.List;
+
+import com.moandjiezana.toml.Toml;
+
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -18,19 +22,30 @@ public class SonicSwerveDrivetrain extends Drivetrain {
     // Temporary, move this to a robot constants class later
     private final SwerveDriveKinematics kinematics;
 
-    public SonicSwerveDrivetrain(@NotNull SwerveDriveKinematics kinematics, @NotNull SwerveModule[] modules) {
+    public SonicSwerveDrivetrain(Toml toml) {
+        Toml defaultModule = toml.getTable("default_module");
+        SwerveModule[] modules = toml.getTables("modules").stream().map(t -> SwerveModule.create(new Toml(t).read(defaultModule))).toArray(SwerveModule[]::new);
+        
+        this.modules = modules;
+        setName(toml.getString("name"));
+        
+        kinematics = new SwerveDriveKinematics(Arrays.stream(modules).map(m -> m.getPosition()).toArray(Translation2d[]::new));
+        numModules = modules.length;
+
+        for (var module : modules) {
+            addChild(getName(), module);
+        }
+    }
+
+    public SonicSwerveDrivetrain(@NotNull SwerveModule[] modules) {
         // validate entered modules
         for (var module : modules)
             if (module == null)
                 throw new NullPointerException("Provided SwerveModule has a value of null");
-
-        // validate kinematics
-        if (kinematics.getModules().length != modules.length)
-            throw new IllegalArgumentException("Kinematics must have an equal number of modules as provided in the constructor");
-
+        
         this.modules = modules;
-        this.kinematics = kinematics;
 
+        kinematics = new SwerveDriveKinematics(Arrays.stream(modules).map(m -> m.getPosition()).toArray(Translation2d[]::new));
         numModules = modules.length;
 
         for (var module : modules) {

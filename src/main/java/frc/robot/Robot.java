@@ -24,12 +24,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.drive.DriveModuleSpark;
 import frc.robot.subsystems.drive.Drivetrain;
-import frc.robot.subsystems.drive.GenericSwerveModule;
 import frc.robot.subsystems.drive.SonicSwerveDrivetrain;
 import frc.robot.subsystems.drive.SwerveModule;
-import frc.robot.subsystems.drive.TurnModuleSpark;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -52,7 +49,8 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
-    drivetrain = createDrivetrain();
+    // drivetrain = new SonicSwerveDrivetrain("config/swerve.toml");
+    drivetrain = null;
 
     controller = new CommandXboxController(0);
   }
@@ -122,25 +120,26 @@ public class Robot extends TimedRobot {
       turn.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
-    var driveConstants = new DriveModuleSpark.Constants.Builder()
-      .setVolts(12)
-      .setWheelRadiusMeters(Units.inchesToMeters(1.7))
-      .build();
+    // var driveConstants = new DriveModuleSpark.Constants.Builder()
+    //   .setVolts(12)
+    //   .setWheelRadiusMeters(Units.inchesToMeters(1.7))
+    //   .build();
     
-    var turnConstantsBuilder = new TurnModuleSpark.Constants.Builder()
-      .setTurnMotorReduction(150.0 / 7.0)
-      .setPID(5.0, 0.0, 0.0);
+    // var turnConstantsBuilder = new TurnModuleSpark.Constants.Builder()
+    //   .setTurnMotorReduction(150.0 / 7.0)
+    //   .setPID(5.0, 0.0, 0.0);
     
-    return new SonicSwerveDrivetrain(kinematics, new SwerveModule[] {
-      new GenericSwerveModule(new DriveModuleSpark(driveSparks[0], driveConstants), new TurnModuleSpark(turnSparks[0], cancoders[0], 
-        turnConstantsBuilder.setZeroRotation(new Rotation2d(-2.932)).build())),
-      new GenericSwerveModule(new DriveModuleSpark(driveSparks[1], driveConstants), new TurnModuleSpark(turnSparks[1], cancoders[1], 
-        turnConstantsBuilder.setZeroRotation(new Rotation2d(3.004)).build())),
-      new GenericSwerveModule(new DriveModuleSpark(driveSparks[2], driveConstants), new TurnModuleSpark(turnSparks[2], cancoders[2], 
-        turnConstantsBuilder.setZeroRotation(new Rotation2d(1.890)).build())),
-      new GenericSwerveModule(new DriveModuleSpark(driveSparks[3], driveConstants), new TurnModuleSpark(turnSparks[3], cancoders[3], 
-        turnConstantsBuilder.setZeroRotation(new Rotation2d(-1.517)).build()))
-    });
+    // return new SonicSwerveDrivetrain(kinematics, new SwerveModule[] {
+    //   new GenericSwerveModule(new DriveModuleSpark(driveSparks[0], driveConstants), new TurnModuleSpark(turnSparks[0], cancoders[0], 
+    //     turnConstantsBuilder.setZeroRotation(new Rotation2d(-2.932)).build())),
+    //   new GenericSwerveModule(new DriveModuleSpark(driveSparks[1], driveConstants), new TurnModuleSpark(turnSparks[1], cancoders[1], 
+    //     turnConstantsBuilder.setZeroRotation(new Rotation2d(3.004)).build())),
+    //   new GenericSwerveModule(new DriveModuleSpark(driveSparks[2], driveConstants), new TurnModuleSpark(turnSparks[2], cancoders[2], 
+    //     turnConstantsBuilder.setZeroRotation(new Rotation2d(1.890)).build())),
+    //   new GenericSwerveModule(new DriveModuleSpark(driveSparks[3], driveConstants), new TurnModuleSpark(turnSparks[3], cancoders[3], 
+    //     turnConstantsBuilder.setZeroRotation(new Rotation2d(-1.517)).build()))
+    // });
+    return null;
   }
 
   /**

@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drive;
 
+import com.moandjiezana.toml.Toml;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -30,4 +32,15 @@ public abstract class SwerveModule extends SubsystemBase {
     public abstract void setDriveOpen(double metersPerSec);
     
     public abstract void setTurnOpen(double radPerSec);
+
+    public abstract Translation2d getPosition();
+
+    public static SwerveModule create(Toml toml) {
+        var type = toml.getString("type");
+        if (type.equals("sonic_swerve")) {
+            return new SonicSwerveModule(toml);
+        } else {
+            throw new IllegalArgumentException(String.format("Unsupported SwerveModule type: %s", type));
+        }
+    }
 }
