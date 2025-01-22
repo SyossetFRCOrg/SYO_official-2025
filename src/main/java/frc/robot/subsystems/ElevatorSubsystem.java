@@ -17,7 +17,6 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class ElevatorSubsystem extends SubsystemBase {
-
   private final SparkBase leftMotor;
   private final SparkBase rightMotor;
 
@@ -25,9 +24,12 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final RelativeEncoder rightEncoder;
   // private final ProfiledPIDController pidController = new ProfiledPIDController(kP, kI, kD, MOVEMENT_CONSTRAINTS);
   // private final ElevatorFeedforward feedforwardController = new ElevatorFeedforward(kS, kG, kV, kA);
+  
+  private double target = 1000.0;
 
   /** Creates a new ElevatorSubsystem. */
   public ElevatorSubsystem() {
+    // TODO figure out canids for motors
     leftMotor = new SparkMax(0, MotorType.kBrushless);
     rightMotor = new SparkMax(1, MotorType.kBrushless);
 
@@ -36,13 +38,15 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     var leftMotorConfig = new SparkMaxConfig();
     var rightMotorConfig = new SparkMaxConfig();
-
+    
+    //TODO +- figure out which motor should be inverted
     leftMotorConfig
           .idleMode(IdleMode.kBrake)
           .smartCurrentLimit(20)
           .voltageCompensation(12.0);
 
     rightMotorConfig
+          .inverted(true)
           .idleMode(IdleMode.kBrake)
           .smartCurrentLimit(20)
           .voltageCompensation(12.0);
@@ -50,58 +54,35 @@ public class ElevatorSubsystem extends SubsystemBase {
     //configuring motors
     leftMotor.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     rightMotor.configure(rightMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-
-
- 
-
   }
-
-  // private double feedbackVoltage = 0;
-  // private double feedForwardVoltage = 0;
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
 
-    var pos = getPosition();
-    var target = 1000;
+    double pos = getPosition();
 
     //adjusts position until it reaches target. moves it up and down until really near the target
-    if(Math.abs(pos - target) < 5)
-    {
-      leftMotor.set(0);
-      rightMotor.set(0);
-    }
-    else if(pos < target) {
-      leftMotor.set(0.25);
-      rightMotor.set(-0.25); //FIX +- to see which one goes up or down
+    if(Math.abs(pos - target) < 5) {
+      setVoltage(0.0);
+    } else if(pos < target) {
+      setVoltage(3.0);
     } else if(pos >= target) {
-      leftMotor.set(-0.25);
-      rightMotor.set(0.25);
+      setVoltage(-3.0);
     }
-    
   }
 
   public double getPosition() {
     return (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
   }
 
-  public double getVelocity() {
-    return (leftEncoder.getVelocity() + rightEncoder.getVelocity()) / 2;
-  }
-
-
-  private boolean initialized = false;
-
-  public boolean getInitialized() {
-    return initialized;
+  public void setTarget(double target) {
+    this.target = target;
   }
 
   public void setVoltage(double voltage) {
-    voltage = MathUtil.clamp(voltage, -2.0, 2.0); //TO DO, CLAMP VALUES
+    voltage = MathUtil.clamp(voltage, -3.0, 3.0); //TO DO, CLAMP VALUES
     leftMotor.setVoltage(voltage);
-    rightMotor.setVoltage(-voltage); //FIX +-
+    rightMotor.setVoltage(voltage);
   }
-
-
 }
