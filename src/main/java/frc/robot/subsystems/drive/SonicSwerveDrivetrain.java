@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -24,7 +25,7 @@ public class SonicSwerveDrivetrain extends Drivetrain {
 
     public SonicSwerveDrivetrain(Toml toml) {
         Toml defaultModule = toml.getTable("default_module");
-        SwerveModule[] modules = toml.getTables("modules").stream().map(t -> SwerveModule.create(new Toml(t).read(defaultModule))).toArray(SwerveModule[]::new);
+        SwerveModule[] modules = toml.getTables("modules").stream().map(t -> SwerveModule.create(t, defaultModule)).toArray(SwerveModule[]::new);
         
         this.modules = modules;
         setName(toml.getString("name"));
@@ -57,8 +58,20 @@ public class SonicSwerveDrivetrain extends Drivetrain {
     public void setSpeeds(ChassisSpeeds speeds) {
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
         for (int i = 0; i < numModules; i++) {
+            states[i].optimize(modules[i].getAngle());
             modules[i].periodic();
             modules[i].setTargetClosed(states[i]);
+        }
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Front Left", modules[0].getAngle().getRadians());
+        SmartDashboard.putNumber("Front Right", modules[1].getAngle().getRadians());
+        SmartDashboard.putNumber("Back Left", modules[2].getAngle().getRadians());
+        SmartDashboard.putNumber("Back Right", modules[3].getAngle().getRadians());
+        for (var module: modules) {
+            module.periodic();
         }
     }
 }

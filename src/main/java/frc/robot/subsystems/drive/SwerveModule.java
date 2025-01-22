@@ -35,10 +35,10 @@ public abstract class SwerveModule extends SubsystemBase {
 
     public abstract Translation2d getPosition();
 
-    public static SwerveModule create(Toml toml) {
-        var type = toml.getString("type");
+    public static SwerveModule create(Toml toml, Toml defaultToml) {
+        var type = toml.getString("type", defaultToml.getString("type"));
         if (type.equals("sonic_swerve")) {
-            return new SonicSwerveModule(toml);
+            return new SonicSwerveModule(toml, defaultToml);
         } else {
             throw new IllegalArgumentException(String.format("Unsupported SwerveModule type: %s", type));
         }

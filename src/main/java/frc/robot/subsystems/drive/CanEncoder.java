@@ -10,7 +10,7 @@ public class CanEncoder extends TurnEncoder {
     private final Rotation2d zeroRotation;
 
     public CanEncoder(Toml toml) {
-        cancoder = new CANcoder(toml.getDouble("canid").intValue(), "rio");
+        cancoder = new CANcoder(toml.getLong("canid").intValue(), "rio");
         zeroRotation = new Rotation2d(toml.getDouble("zero_rotation"));
     }
 

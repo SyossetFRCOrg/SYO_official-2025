@@ -33,9 +33,9 @@ kd = 0.0
     [[default_module.drive_encoders]]
     type = "sparkmax"
 
-    [[default_module.turn_encoders]]
-    type = "sparkmax"
-    reduction = 21.429
+    # [[default_module.turn_encoders]]
+    # type = "sparkmax"
+    # reduction = 21.429
 
     [[default_module.turn_encoders]]
     type = "cancoder"
@@ -45,16 +45,16 @@ kd = 0.0
     x = 3.175
     y = 3.175
 
-    [[modules.drive_motor]]
+    [modules.drive_motor]
     canid = 1
 
-    [[modules.turn_motor]]
+    [modules.turn_motor]
     canid = 2
 
     [[modules.drive_encoders]]
+    # [[modules.turn_encoders]]
     [[modules.turn_encoders]]
-    [[modules.turn_encoders]]
-    zero_rotation = -2.932
+    zero_rotation = -0.209
     canid = 3
 
 [[modules]]
@@ -62,16 +62,16 @@ kd = 0.0
     x = 3.175
     y = -3.175
 
-    [[modules.drive_motor]]
+    [modules.drive_motor]
     canid = 4
 
-    [[modules.turn_motor]]
+    [modules.turn_motor]
     canid = 5
 
     [[modules.drive_encoders]]
+    # [[modules.turn_encoders]]
     [[modules.turn_encoders]]
-    [[modules.turn_encoders]]
-    zero_rotation = 3.004
+    zero_rotation = -2.759
     canid = 6
 
 [[modules]]
@@ -79,16 +79,16 @@ kd = 0.0
     x = -3.175
     y = 3.175
 
-    [[modules.drive_motor]]
+    [modules.drive_motor]
     canid = 7
 
-    [[modules.turn_motor]]
+    [modules.turn_motor]
     canid = 8
 
     [[modules.drive_encoders]]
+    # [[modules.turn_encoders]]
     [[modules.turn_encoders]]
-    [[modules.turn_encoders]]
-    zero_rotation = 1.890
+    zero_rotation = -1.251
     canid = 9
 
 [[modules]]
@@ -96,14 +96,14 @@ kd = 0.0
     x = -3.175
     y = -3.175
 
-    [[modules.drive_motor]]
+    [modules.drive_motor]
     canid = 10
 
-    [[modules.turn_motor]]
+    [modules.turn_motor]
     canid = 11
 
     [[modules.drive_encoders]]
+    # [[modules.turn_encoders]]
     [[modules.turn_encoders]]
-    [[modules.turn_encoders]]
-    zero_rotation = -1.517
+    zero_rotation = 1.624
     canid = 12

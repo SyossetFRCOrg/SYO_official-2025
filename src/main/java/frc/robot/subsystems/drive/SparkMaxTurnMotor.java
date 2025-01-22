@@ -30,34 +30,48 @@ public class SparkMaxTurnMotor extends TurnMotor {
 
     private final SparkBase spark;
 
-    public SparkMaxTurnMotor(Toml toml) {
-        MotorType motorType = TomlUtil.mapString(toml, "motor_type", "brushless", 
+    public SparkMaxTurnMotor(Toml toml, Toml defaultToml) {
+        var motorToml = new Toml(defaultToml).read(toml);
+
+        MotorType motorType = TomlUtil.mapString(motorToml, "motor_type", "brushless", 
             new String[] {"brushless", "brushed"},
             new MotorType[] {MotorType.kBrushless, MotorType.kBrushed}
         );
 
-        IdleMode idleMode = TomlUtil.mapString(toml, "idle_mode", "brake", 
+        IdleMode idleMode = TomlUtil.mapString(motorToml, "idle_mode", "brake", 
             new String[] {"brake", "coast"},
             new IdleMode[] {IdleMode.kBrake, IdleMode.kCoast}
         );
 
-        spark = new SparkMax(toml.getDouble("canid").intValue(), motorType);
+        spark = new SparkMax(motorToml.getLong("canid").intValue(), motorType);
 
         var config = new SparkMaxConfig();
 
         config
+            .inverted(true)
             .idleMode(idleMode)
             .smartCurrentLimit(
-                toml.getDouble("stall_limit", 0.0).intValue(),
-                toml.getDouble("free_limit", 0.0).intValue()
+                motorToml.getLong("stall_limit", 0L).intValue(),
+                motorToml.getLong("free_limit", 0L).intValue()
             )
-            .voltageCompensation(toml.getDouble("volts", 12.0));
+            .voltageCompensation(motorToml.getDouble("volts", 12.0));
+
+        // Hard Coded for now
+        config
+            .signals
+            .absoluteEncoderPositionAlwaysOn(true)
+            .absoluteEncoderPositionPeriodMs((int) (1000.0 / 50.0))
+            .absoluteEncoderVelocityAlwaysOn(true)
+            .absoluteEncoderVelocityPeriodMs(20)
+            .appliedOutputPeriodMs(20)
+            .busVoltagePeriodMs(20)
+            .outputCurrentPeriodMs(20);
         
         spark.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
     @Override
     public void setSpeed(double radPerSec) {
-        spark.setVoltage(MathUtil.clamp(radPerSec, -5.0, 5.0) / 5.0 * 0.7);
+        spark.set(MathUtil.clamp(radPerSec, -5.0, 5.0) / 5.0 * 0.7);
     }
 }

@@ -4,29 +4,17 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
+import java.io.File;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import com.moandjiezana.toml.Toml;
+
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.util.sendable.SendableRegistry;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.drive.Drivetrain;
-import frc.robot.subsystems.drive.SonicSwerveDrivetrain;
-import frc.robot.subsystems.drive.SwerveModule;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -50,96 +38,11 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
 
     // drivetrain = new SonicSwerveDrivetrain("config/swerve.toml");
-    drivetrain = null;
+    var deployDir = Filesystem.getDeployDirectory();
+
+    drivetrain = Drivetrain.create(new Toml().read(new File(deployDir, "config/swerve.toml")));
 
     controller = new CommandXboxController(0);
-  }
-
-  private Drivetrain createDrivetrain() {
-    Translation2d frontLeftLocation = new Translation2d(0.381, 0.381);
-    Translation2d frontRightLocation = new Translation2d(0.381, -0.381);
-    Translation2d backLeftLocation = new Translation2d(-0.381, 0.381);
-    Translation2d backRightLocation = new Translation2d(-0.381, -0.381);
-
-    SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
-      frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation
-    );
-
-    SparkMax driveSparks[] = {
-      new SparkMax(5, MotorType.kBrushless),
-      new SparkMax(1, MotorType.kBrushless),
-      new SparkMax(8, MotorType.kBrushless),
-      new SparkMax(11, MotorType.kBrushless),
-    };
-    
-    SparkMax turnSparks[] = {
-      new SparkMax(7, MotorType.kBrushless),
-      new SparkMax(10, MotorType.kBrushless),
-      new SparkMax(2, MotorType.kBrushless),
-      new SparkMax(4, MotorType.kBrushless),
-    };
-
-    CANcoder cancoders[] = {
-      new CANcoder(12, "rio"),
-      new CANcoder(9, "rio"),
-      new CANcoder(6, "rio"),
-      new CANcoder(3, "rio")
-    };
-
-    for (var cancoder : cancoders) {      
-      cancoder.getConfigurator().apply(new CANcoderConfiguration());
-    }
-    
-    var driveConfig = new SparkMaxConfig();
-    driveConfig
-        .idleMode(IdleMode.kBrake)
-        .smartCurrentLimit(20, 20)
-        .voltageCompensation(12.0);
-    
-    for (var drive : driveSparks) {
-      drive.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    }
-
-    var turnConfig = new SparkMaxConfig();
-    turnConfig
-        .inverted(true)
-        .idleMode(IdleMode.kBrake)
-        .smartCurrentLimit(20)
-        .voltageCompensation(12.0);
-    turnConfig
-        .signals
-        .absoluteEncoderPositionAlwaysOn(true)
-        .absoluteEncoderPositionPeriodMs((int) (1000.0 / 50.0))
-        .absoluteEncoderVelocityAlwaysOn(true)
-        .absoluteEncoderVelocityPeriodMs(20)
-        .appliedOutputPeriodMs(20)
-        .busVoltagePeriodMs(20)
-        .outputCurrentPeriodMs(20);
-    
-    for (var turn : turnSparks) {
-      turn.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    }
-
-    // var driveConstants = new DriveModuleSpark.Constants.Builder()
-    //   .setVolts(12)
-    //   .setWheelRadiusMeters(Units.inchesToMeters(1.7))
-    //   .build();
-    
-    // var turnConstantsBuilder = new TurnModuleSpark.Constants.Builder()
-    //   .setTurnMotorReduction(150.0 / 7.0)
-    //   .setPID(5.0, 0.0, 0.0);
-    
-    // return new SonicSwerveDrivetrain(kinematics, new SwerveModule[] {
-    //   new GenericSwerveModule(new DriveModuleSpark(driveSparks[0], driveConstants), new TurnModuleSpark(turnSparks[0], cancoders[0], 
-    //     turnConstantsBuilder.setZeroRotation(new Rotation2d(-2.932)).build())),
-    //   new GenericSwerveModule(new DriveModuleSpark(driveSparks[1], driveConstants), new TurnModuleSpark(turnSparks[1], cancoders[1], 
-    //     turnConstantsBuilder.setZeroRotation(new Rotation2d(3.004)).build())),
-    //   new GenericSwerveModule(new DriveModuleSpark(driveSparks[2], driveConstants), new TurnModuleSpark(turnSparks[2], cancoders[2], 
-    //     turnConstantsBuilder.setZeroRotation(new Rotation2d(1.890)).build())),
-    //   new GenericSwerveModule(new DriveModuleSpark(driveSparks[3], driveConstants), new TurnModuleSpark(turnSparks[3], cancoders[3], 
-    //     turnConstantsBuilder.setZeroRotation(new Rotation2d(-1.517)).build()))
-    // });
-    return null;
   }
 
   /**
@@ -158,6 +61,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
 
     drivetrain.setSpeeds(new ChassisSpeeds(controller.getLeftY() * 2, controller.getLeftX() * 2, controller.getRightX() * 4));
+    drivetrain.periodic();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

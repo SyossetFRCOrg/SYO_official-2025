@@ -24,28 +24,31 @@ public class SparkMaxDriveMotor extends DriveMotor {
     private final SparkBase spark;
     // private final double wheelRadius;
 
-    public SparkMaxDriveMotor(Toml toml) {
-        MotorType motorType = TomlUtil.mapString(toml, "motor_type", "brushless", 
+    public SparkMaxDriveMotor(Toml toml, Toml defaultToml) {
+        var motorToml = new Toml(defaultToml).read(toml);
+
+        MotorType motorType = TomlUtil.mapString(motorToml, "motor_type", "brushless", 
             new String[] {"brushless", "brushed"},
             new MotorType[] {MotorType.kBrushless, MotorType.kBrushed}
         );
 
-        IdleMode idleMode = TomlUtil.mapString(toml, "idle_mode", "brake", 
+        IdleMode idleMode = TomlUtil.mapString(motorToml, "idle_mode", "brake", 
             new String[] {"brake", "coast"},
             new IdleMode[] {IdleMode.kBrake, IdleMode.kCoast}
         );
 
-        spark = new SparkMax(toml.getDouble("canid").intValue(), motorType);
+        spark = new SparkMax(motorToml.getLong("canid").intValue(), motorType);
 
         var config = new SparkMaxConfig();
 
         config
+            .inverted(true)
             .idleMode(idleMode)
             .smartCurrentLimit(
-                toml.getDouble("stall_limit", 0.0).intValue(),
-                toml.getDouble("free_limit", 0.0).intValue()
+                motorToml.getLong("stall_limit", 0L).intValue(),
+                motorToml.getLong("free_limit", 0L).intValue()
             )
-            .voltageCompensation(toml.getDouble("volts", 12.0));
+            .voltageCompensation(motorToml.getDouble("volts", 12.0));
         
         spark.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
@@ -54,6 +57,6 @@ public class SparkMaxDriveMotor extends DriveMotor {
 
     @Override
     public void setSpeed(double metersPerSec) {
-        spark.setVoltage(MathUtil.clamp(metersPerSec, -4.0, 4.0) / 4.0 * 0.7);
+        spark.set(MathUtil.clamp(metersPerSec, -4.0, 4.0) / 4.0 * 0.5);
     }
 }
