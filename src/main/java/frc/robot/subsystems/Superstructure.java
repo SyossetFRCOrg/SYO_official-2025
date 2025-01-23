@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Current;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
@@ -22,9 +21,8 @@ import frc.robot.RobotContainer;
 // import frc.robot.subsystems.climber.ClimberSubsystem;
 // import frc.robot.config.FieldConstants;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.flywheel.Flywheel;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.Intake.CurrentState;
+import frc.robot.subsystems.elevator.elevator;
+import frc.robot.subsystems.elevator.elevator.elevatorState;
 import frc.robot.subsystems.vision.Vision;
 
 import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
@@ -39,8 +37,8 @@ import org.littletonrobotics.junction.Logger;
 public class Superstructure extends SubsystemBase {
     
     private Drive drive;
-    public Flywheel flywheel;
-    public Intake intake;
+    private elevator elevator;
+    
     // private ClimberSubsystem climber;
     private RobotContainer container;
 
@@ -50,40 +48,34 @@ public class Superstructure extends SubsystemBase {
     private boolean feedShotMode = false;
 
     public static enum WantedSuperState {
-        MANUAL,
-        HOLD_FIX_PIECE,
-        REGULAR_STATE,
-        PREPARING_SUBWOOFER_SHOT,
-        SUBWOOFER_SHOT,
-        PREPARING_LIMELIGHT_SHOT,
-        LIMELIGHT_SHOT,
-        PREPARING_PASS,
-        PASS,
-
-        INTAKE_DOWN,
-        INTAKE_UP,
-        CLIMBER_UP,
-        CLIMBER_DOWN,
+        // MANUAL,
+        INTAKE,
+        L1,
+        L2,
+        L3,
+        L4,
+        L1PREPARE,
+        L2PREPARE,
+        L3PREPARE,
+        L4PREPARE,         
         STOPPED,
+        STOW,
     }
     
 
     public static enum CurrentSuperState {
-        MANUAL,
-        HOLD_FIX_PIECE,
-        REGULAR_STATE,
-        PREPARING_SUBWOOFER_SHOT,
-        SUBWOOFER_SHOT,
-        PREPARING_LIMELIGHT_SHOT,
-        LIMELIGHT_SHOT,
-        PREPARING_PASS,
-        PASS,
-
-        INTAKE_DOWN,
-        INTAKE_UP,
-        CLIMBER_UP,
-        CLIMBER_DOWN,
+        // MANUAL,
+        INTAKE,
+        L1,
+        L2,
+        L3,
+        L4,
+        L1PREPARE,
+        L2PREPARE,
+        L3PREPARE,
+        L4PREPARE,        
         STOPPED,
+        STOW,
     }
 
     private WantedSuperState wantedSuperState = WantedSuperState.STOPPED;
@@ -99,17 +91,13 @@ public class Superstructure extends SubsystemBase {
 
     public Superstructure(
         Drive drive,
-        Flywheel flywheel,
-        Intake intake,
-        // ClimberSubsystem climber,
-    
+        
+        elevator elevator,
         RobotContainer container
             
             ) {
         this.drive = drive;
-        this.flywheel = flywheel;
-        this.intake = intake;
-        // this.climber = climber;
+        this.elevator = elevator;
         this.container = container;
 
     }
@@ -155,66 +143,44 @@ public class Superstructure extends SubsystemBase {
     private CurrentSuperState handleStateTransitions() {
         previousSuperState = currentSuperState;
         switch (wantedSuperState) {
-            case MANUAL:
-                currentSuperState = CurrentSuperState.MANUAL;
-                break;
-            case HOLD_FIX_PIECE:
-            
-                currentSuperState = CurrentSuperState.HOLD_FIX_PIECE;
+            case STOW:
+                currentSuperState = CurrentSuperState.STOW;
                 break;
 
-                
-            case REGULAR_STATE:
-                currentSuperState = CurrentSuperState.REGULAR_STATE;
-                break;
-            case PREPARING_SUBWOOFER_SHOT:
-                currentSuperState = CurrentSuperState.PREPARING_SUBWOOFER_SHOT;
-                break;
-            // case READY_FOR_SUBWOOFER_SHOT:
-            //     currentSuperState = CurrentSuperState.READY_FOR_SUBWOOFER_SHOT;
-            //     break;
-            case SUBWOOFER_SHOT:
-                currentSuperState = areSystemsReadyForSubwooferShot()
-                        ? CurrentSuperState.SUBWOOFER_SHOT
-                        : CurrentSuperState.PREPARING_SUBWOOFER_SHOT;
-                
-                break;
-            case PREPARING_LIMELIGHT_SHOT:
-                currentSuperState = CurrentSuperState.PREPARING_LIMELIGHT_SHOT;
-                break;
-            // case READY_FOR_LIMELIGHT_SHOT:
-            //     currentSuperState = CurrentSuperState.READY_FOR_LIMELIGHT_SHOT;
-            //     break;
-            case LIMELIGHT_SHOT:
-                currentSuperState = areSystemsReadyForLimelightShot()
-                ? CurrentSuperState.LIMELIGHT_SHOT
-                : CurrentSuperState.PREPARING_LIMELIGHT_SHOT;
-                break;
-            case PREPARING_PASS:
-                currentSuperState = CurrentSuperState.PREPARING_PASS;
-                break;
-            case PASS:
-
-                currentSuperState = areSystemsReadyForPassShot() 
-                ? CurrentSuperState.PASS 
-                : CurrentSuperState.PREPARING_PASS;
-                break;
+            case INTAKE:
+                currentSuperState = CurrentSuperState.INTAKE;
+            case L1PREPARE:
+                currentSuperState = CurrentSuperState.L1PREPARE;
             
-            // case READY_FOR_INTAKE:
-            //     currentSuperState = CurrentSuperState.READY_FOR_INTAKE;
+            case L1:
+                currentSuperState = subsystemsL1ready() ? CurrentSuperState.L1 : CurrentSuperState.L1PREPARE;
+            
+            case L2PREPARE:
+                currentSuperState = CurrentSuperState.L2PREPARE;
+
+            case L2:
+                currentSuperState = subsystemsL2ready() ? CurrentSuperState.L2 : CurrentSuperState.L2PREPARE;
+
+            case L3PREPARE:
+                currentSuperState = CurrentSuperState.L3PREPARE;
+
+            case L3:
+                currentSuperState = subsystemsL3ready() ? CurrentSuperState.L3 : CurrentSuperState.L3PREPARE;
+
+
+            case L4PREPARE:
+                currentSuperState = CurrentSuperState.L4PREPARE;
+
+            case L4:
+                currentSuperState = subsystemsL4ready() ? CurrentSuperState.L4 : CurrentSuperState.L4PREPARE;
+            
+
+
+            // case PASS:
+            //     currentSuperState = areSystemsReadyForPassShot() 
+            //     ? CurrentSuperState.PASS 
+            //     : CurrentSuperState.PREPARING_PASS;
             //     break;
-            case INTAKE_DOWN:
-                currentSuperState = CurrentSuperState.INTAKE_DOWN;
-                break;
-            case INTAKE_UP:
-                currentSuperState = CurrentSuperState.INTAKE_UP;
-                break;
-            case CLIMBER_UP:
-                currentSuperState = CurrentSuperState.CLIMBER_UP;
-                break;
-            case CLIMBER_DOWN:
-                currentSuperState = CurrentSuperState.CLIMBER_DOWN;
-                break;
             
             case STOPPED:
             default:
@@ -227,37 +193,38 @@ public class Superstructure extends SubsystemBase {
 
     private void applyStates() {
         switch (currentSuperState) {
-            case MANUAL:
-                manualControl();
-            case REGULAR_STATE:
-                makeSureIntakeUp(true);
-            case HOLD_FIX_PIECE:
-                holdFixPiece();
+            
+            case INTAKE:
+                intake();
                 break;
-            case PREPARING_SUBWOOFER_SHOT:
-                prepareForSubwooferShot();
+            case L1PREPARE:
+                L1prepare();
                 break;
-            case SUBWOOFER_SHOT:
-                subwooferShot();
+            case L1:
+                L1();
                 break;
-            case PREPARING_LIMELIGHT_SHOT:
-                prepareForLimelightShot();
+            case L2PREPARE:
+                L2prepare();
                 break;
-            case LIMELIGHT_SHOT:
-                limelightShot();
+            case L2:
+                L2();
                 break;
-            case PREPARING_PASS:
-                prepareForPass();
+            case L3PREPARE:
+                L3prepare();
                 break;
-            case PASS:
-                pass();
+            case L3:
+                L3();
                 break;
-            case INTAKE_DOWN:
-                intakeDown();
+            case L4PREPARE:
+                L4prepare();
                 break;
-            case INTAKE_UP:
-                intakeUp();
+            case L4:
+                L4();
                 break;
+            case STOW:
+                stow();
+                break;
+        
             // case CLIMBER_DOWN:
             //     climbDown();
             //     break;
@@ -271,264 +238,122 @@ public class Superstructure extends SubsystemBase {
         }
     }
 
+    
     /** 
-     * checks
+     * checks if the subsystems are ready for L1 shooting
      */
-    private boolean areSystemsReadyForSubwooferShot(){
-        boolean isReady = flywheel.atSetpoint(flywheel.getSubwooferAngle(), 
-        flywheel.getsubwooferRPM(),
-        wantedSuperState)
-                && intake.atShootPoint();
-        return isReady;
-    }
-
-
-    /** Checks */
-    private boolean areSystemsReadyForLimelightShot() {
-        boolean isReady = flywheel.atSetpoint(drive.calculateShootAngle(),
-        flywheel.getLimelightRPM(),
-        wantedSuperState) 
-                && intake.atShootPoint();
-                // && drive.atSetpoint()
-                // && drive.stopped();
+    private boolean subsystemsL1ready(){
+        boolean isReady = elevator.atSetPoint();
                 
         return isReady;
     }
 
-    /** checks
-    */
-    private boolean areSystemsReadyForPassShot() {
-        boolean isReady = flywheel.atSetpoint(flywheel.getPassShotAngle(),
-        flywheel.getPassRPM(),
-        wantedSuperState)
-                && intake.atShootPoint();
-                // && drive.atSetpoint()
-                // && drive.stopped();
+    /** 
+     * checks if the subsystems are ready for L2 shooting
+     */
+    private boolean subsystemsL2ready(){
+        boolean isReady = elevator.atSetPoint();
+                
         return isReady;
-        
     }
 
-
-    private void manualControl(){
-        intake.setWantedState(Intake.CurrentState.MANUAL);
-        flywheel.setWantedState(Flywheel.CurrentState.MANUAL);
-
-    }
-    /** moves intake to shootpoint if it isn't yet*/
-    private void makeSureIntakeUp(boolean revUp) {
-        intake.setWantedState(Intake.CurrentState.REGULAR_STATE);
-        if (revUp)
-        {
-            flywheel.setWantedState(Flywheel.CurrentState.REGULAR_STATE);
-        }
-
-        drive.disableRotationLock();
-        // climber.stop();
-
-    }
-
-    /**
-     * moves the note up and down and up and down rapidly to fix it while it moves the intake back up.
-     * therefore, the note should be nicely intaked by the time it's tdone
-     * 
-     * DOES NOT FIX IT RIGHT NOW, JUST BRINGS IT BACK UP
+    /** 
+     * checks if the subsystems are ready for L2 shooting
      */
-    private void intakeUp(){
-        
-        intake.setWantedState(Intake.CurrentState.INTAKE_UP);
-        flywheel.setWantedState(Flywheel.CurrentState.INTAKE_UP);
-
-        // Commands.deadline(
-
-        // Commands.run(() -> makeSureIntakeUp(false)).until(() -> intake.atShootPoint()),
-        // Commands.run(() -> flywheel.runVelocity(flywheel.getMaxOuttakeRate() * .8)),
-
-        // new SequentialCommandGroup(
-        //     Commands.deadline(waitSeconds(25),  Commands.run(() -> intake.intake( () -> 700.0))),
-        //     Commands.deadline(waitSeconds(.3),  Commands.run(() -> intake.intake( () -> -700.0)))
-        // ).repeatedly()
-        
-        // ).finallyDo(() -> Commands.deadline(waitSeconds(.15),  Commands.run(() -> intake.intake( () -> -700.0))));
-        
-        // intake.intake(() -> 0);
+    private boolean subsystemsL3ready(){
+        boolean isReady = elevator.atSetPoint();
+                
+        return isReady;
     }
 
-
-    /**
-     * moves the note up and down and up and down rapidly to fix it while it moves the intake back up.
-     * therefore, the note should be nicely intaked by the time it's done
-     * DOESN'T WORK RIGHT NOW
+    /** 
+     * checks if the subsystems are ready for L2 shooting
      */
-    private void holdFixPiece(){
-        
-
-        // this doesn't work, might come back later
-        // Commands.deadline(
-
-        // waitSeconds(1),
-
-        // new SequentialCommandGroup(
-        //     Commands.deadline(waitSeconds(.25),  Commands.run(() -> intake.intake( () -> 700.0))),
-        //     Commands.deadline(waitSeconds(.3),  Commands.run(() -> intake.intake( () -> -700.0)))
-        // ).repeatedly()
-        
-        // ).finallyDo(() -> Commands.deadline(waitSeconds(.15),  Commands.run(() -> intake.intake( () -> -700.0))));
-        
-        // intake.intake(() -> 0);
-        wantedSuperState = WantedSuperState.REGULAR_STATE;
+    private boolean subsystemsL4ready(){
+        boolean isReady = elevator.atSetPoint();
+                
+        return isReady;
     }
 
-    /**
-     * moves the intake up and revs the shooter up while bringing it to the angle for subwoofer shoot
+
+    /** 
+     * moves subsystems to intake position
      */
-    private void prepareForSubwooferShot(){
-        // the preparing should continue regardless until it's just not called anymore
-        // if (!areSystemsReadyForSubwooferShot())
-        // {   
-        flywheel.setWantedState(Flywheel.CurrentState.PREPARING_SUBWOOFER_SHOT);
-        
-        makeSureIntakeUp(false);
-        wantedSuperState = WantedSuperState.SUBWOOFER_SHOT;
+    private void intake(){
+        elevator.setWantedState(elevatorState.INTAKE);
 
-        // }       
     }
 
-    /**
-     * moves the intake up and revs the shooter up while aiming the shooter and drivetrain for limelight shoot
+    /** 
+     * moves subsystems to L1 position, prepare
      */
-    private void prepareForLimelightShot() {
-        // if (!areSystemsReadyForLimelightShot())
-        // {   
-        flywheel.setWantedState(Flywheel.CurrentState.PREPARING_LIMELIGHT_SHOT);
-        makeSureIntakeUp(false);
-        
-        wantedSuperState = WantedSuperState.LIMELIGHT_SHOT;
-        // }
+    private void L1prepare(){
+        elevator.setWantedState(elevatorState.L1PREPARE);
     }
 
-    /**
-     * Does the Subwoofer Shot. sets the robot state to REGULAR_STATE afterwards
+    /** 
+     * Shoots Coral to L1
      */
-    private void subwooferShot()
-    {
-        
-        flywheel.setWantedState(Flywheel.CurrentState.SUBWOOFER_SHOT);
-        intake.setWantedState(Intake.CurrentState.SUBWOOFER_SHOT);
-        // intake.intake( () -> 700.0);
-        // // I don't think the angle should be adjusting during the shot
-        // // Commands.run(() -> flywheel.aim(flywheel.getSubwooferAngle())), 
-        // flywheel.runVelocity(flywheel.getsubwooferRPM());
-        // makeSureIntakeUp(false);
-
-        // wantedSuperState = WantedSuperState.REGULAR_STATE;
-        // currentSuperState = CurrentSuperState.REGULAR_STATE;
-
+    private void L1(){
+        elevator.setWantedState(elevatorState.L1);
     }
 
-    /**
-     * Does the limelight Shot. sets the robot state to REGULAR_STATE afterwards
+
+    /** 
+     * moves subsystems to L2 position, prepare
      */
-    private void limelightShot()
-    {
-
-        flywheel.setWantedState(Flywheel.CurrentState.LIMELIGHT_SHOT);
-        intake.setWantedState(Intake.CurrentState.LIMELIGHT_SHOT);
-       
-        
-        // Commands.run( () -> 
-        // Commands.deadline(waitSeconds(.75),  
-        // Commands.run(() -> intake.intake( () -> 700.0)),
-        // // I don't think the angle should be adjusting during the shot
-        // // Commands.run(() -> flywheel.aim(flywheel.getSubwooferAngle())), 
-        // Commands.run(() -> flywheel.runVelocity(flywheel.getLimelightAndPassRPM())),
-        // Commands.run(() -> makeSureIntakeUp(false)),
-        // Commands.runOnce(() -> drive.setRotationLock()),
-        // Commands.run(() -> drive.stop())
-        // )
-        // );
-        // drive.disableRotationLock();
-        // wantedSuperState = WantedSuperState.REGULAR_STATE;
-        // currentSuperState = CurrentSuperState.REGULAR_STATE;
+    private void L2prepare(){
+        elevator.setWantedState(elevatorState.L2PREPARE);
     }
 
-     /**
-     * moves the intake up and revs the shooter up while aiming the shooter and drivetrain for pass 
+    /** 
+     * Shoots Coral to L2
      */
-    private void prepareForPass() {
-        // if (!areSystemsReadyForLimelightShot())
-        // {   
-            flywheel.setWantedState(Flywheel.CurrentState.PREPARING_PASS);
-            makeSureIntakeUp(false);
-           
-
-            wantedSuperState = WantedSuperState.PASS;
-        // }
+    private void L2(){
+        elevator.setWantedState(elevatorState.L2);
     }
 
-    /**
-     * Does the limelight Shot. sets the robot state to REGULAR_STATE afterwards
+
+    /** 
+     * moves subsystems to L3 position, prepare
      */
-    private void pass()
-    {
-        flywheel.setWantedState(Flywheel.CurrentState.PASS);
-        intake.setWantedState(Intake.CurrentState.PASS);
-       
-        // Commands.run( () -> 
-        // Commands.deadline(waitSeconds(.75),  
-        // Commands.run(() -> intake.intake( () -> 700.0)),
-        // // I don't think the angle should be adjusting during the shot
-        // // Commands.run(() -> flywheel.aim(flywheel.getSubwooferAngle())), 
-        // Commands.run(() -> flywheel.runVelocity(flywheel.getLimelightAndPassRPM())),
-        // Commands.run(() -> makeSureIntakeUp(false)),
-        // Commands.runOnce(() -> drive.setRotationLock()),
-        // Commands.run(() -> drive.stop())
-        // )
-        // );
-        // drive.disableRotationLock();
-        // wantedSuperState = WantedSuperState.REGULAR_STATE;
-        // currentSuperState = CurrentSuperState.REGULAR_STATE;
+    private void L3prepare(){
+        elevator.setWantedState(elevatorState.L3PREPARE);
     }
 
-
-    /**
-     * moves the intake down to the intake angle. This angle is approximated to be the one that works, 
-     * but may be physically stopped by the bumper, which should be at the right height to be able to intake properly
-     * without dragging the intake on the ground
-     * 
+    /** 
+     * Shoots Coral to L1
      */
-    private void intakeDown(){
-
-        
-        intake.setWantedState(Intake.CurrentState.INTAKE_DOWN);
-        
+    private void L3(){
+        elevator.setWantedState(elevatorState.L3);
+    }
+    /** 
+     * moves subsystems to L1 position, prepare
+     */
+    private void L4prepare(){
+        elevator.setWantedState(elevatorState.L4PREPARE);
     }
 
+    /** 
+     * Shoots Coral to L4
+     */
+    private void L4(){
+        elevator.setWantedState(elevatorState.L4);
+    }
 
-
-    // /**
-    //  * moves the climber up or down
-    //  */
-    // private void climbUp(){
-    //     climber.climb(.7,.7);
-    //     // currentSuperState = CurrentSuperState.REGULAR_STATE;
-    // }
-
-    // /**
-    //  * moves the climber up or down
-    //  */
-    // private void climbDown(){
-    //     climber.climb(-.7,-.7);
-    //     // currentSuperState = CurrentSuperState.REGULAR_STATE;
-    // }
-
+    /** 
+     * brings elevator down, stow everything
+     */
+    private void stow(){
+        elevator.setWantedState(elevatorState.STOW);
+    }
     
 
 
     private void handleStopped(){
         drive.stop();
-        flywheel.stop();
-        intake.stop();
-        // climber.stop();
+        elevator.stop();
+        
     }
 
 

@@ -64,7 +64,7 @@ public class AutoChooser extends SendableChooser<Auto> {
      */
     public static AutoChooser create(final RobotContainer robotContainer, final Drive drive, final Superstructure superstructure) {
         var autoFactories = Stream.of(DriverStation.Alliance.values())
-                .map(alliance -> Map.entry(alliance, new AutoFactory(alliance, robotContainer, drive, superstructure)))
+                .map(alliance -> Map.entry(alliance, new AutoFactory(alliance, robotContainer, drive)))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         var programs = AUTO_PROGRAMS.stream()
                 .map(program -> Map.entry(program.getAuto(), program))
