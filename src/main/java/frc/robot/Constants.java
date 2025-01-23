@@ -23,8 +23,8 @@ public final class Constants {
       DOWN
     }
 
-    public final static int ALGAE_INTAKE_PORT = 0;
-    public final static double ALGAE_INTAKE_SPEED = 0.5;
-    public final static double ALGAE_OUTTAKE_SPEED = -0.5;
+    public final static int ALGAE_INTAKE_ID = 18;
+    public final static double ALGAE_INTAKE_SPEED = 1;
+    public final static double ALGAE_OUTTAKE_SPEED = -1;
   }
 }

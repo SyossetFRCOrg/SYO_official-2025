@@ -26,7 +26,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   /** Creates a new AlgaeIntakeSubsystem. */
   public AlgaeIntakeSubsystem() {
     //Initializes Spark Max 
-    algaeIntakeRollerMotor = new SparkMax(AlgaeIntakeConstants.ALGAE_INTAKE_PORT, MotorType.kBrushless);
+    algaeIntakeRollerMotor = new SparkMax(AlgaeIntakeConstants.ALGAE_INTAKE_ID, MotorType.kBrushless);
     
     /*
      * Create a new Spark Max configuration object. 

@@ -25,11 +25,14 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.drive.DriveModuleSpark;
 import frc.robot.subsystems.drive.Drivetrain;
+import frc.robot.subsystems.AlgaeIntakeSubsystem;
 import frc.robot.subsystems.drive.GenericSwerveModule;
 import frc.robot.subsystems.drive.SonicSwerveDrivetrain;
 import frc.robot.subsystems.drive.SparkMaxSwerveModule;
 import frc.robot.subsystems.drive.SwerveModule;
 import frc.robot.subsystems.drive.TurnModuleSpark;
+
+import frc.robot.Constants;;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -40,8 +43,10 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
+  private final AlgaeIntakeSubsystem m_algaeIntakeSubsystem;
   private final Drivetrain drivetrain;
   private final CommandXboxController controller;
+  private final XboxController xboxController;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -51,7 +56,9 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+    xboxController = new XboxController(0);
 
+    m_algaeIntakeSubsystem = new AlgaeIntakeSubsystem();
     drivetrain = createDrivetrain();
 
     controller = new CommandXboxController(0);
@@ -161,6 +168,15 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
 
     drivetrain.setSpeeds(new ChassisSpeeds(controller.getLeftY() * 2, controller.getLeftX() * 2, controller.getRightX() * 4));
+    if (xboxController.getAButton()) {
+      m_algaeIntakeSubsystem.setRollerVoltage(5);
+    } 
+    else if (xboxController.getBButton()) {
+      m_algaeIntakeSubsystem.setRollerVoltage(-5);
+    }
+    else {
+      m_algaeIntakeSubsystem.setRollerVoltage(0);
+    }
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
