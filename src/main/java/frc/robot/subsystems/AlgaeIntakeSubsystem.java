@@ -34,7 +34,11 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
      */
 
     motorConfig = new SparkMaxConfig();
-    motorConfig.inverted(true).idleMode(IdleMode.kCoast);
+    motorConfig
+            .inverted(true)
+            .idleMode(IdleMode.kCoast)
+            .smartCurrentLimit(20)
+            .voltageCompensation(12.0);
     algaeIntakeRollerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
