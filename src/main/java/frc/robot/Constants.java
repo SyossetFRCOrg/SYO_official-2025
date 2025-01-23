@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -21,13 +26,27 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
-  public static class ArmConstants {
-    //TODO replace with real values
-    public static final int ARM_INTAKE_PORT = 0;
+  public static final class ArmConstants {
+    // TODO replace with real values
     public static final int ARM_WRIST_PORT = 1;
 
-    public static final double ARM_INTAKE_SPEED = 0.5;
-    public static final double ARM_OUTTAKE_SPEED = -0.5;
+    public static enum ArmPosition {
+      BOTTOM(-Math.PI / 2.0 + Units.degreesToRadians(5)),
+      HORIZONTAL(0),
+      L1(0),
+      L2(Units.degreesToRadians(55)), // reef angle
+      L3(Units.degreesToRadians(55)),
+      L4(1.033),
+      TOP(Math.PI / 2.0);
 
+      public final double value;
+
+      private ArmPosition(double value) {
+        this.value = value;
+      }
+    }
+    public static final int ARM_MOTOR_ID = 19;
+    public static final int ARM_CURRENT_LIMIT = 20;
+    public static final int ARM_VOLTAGE = 2;
   }
 }

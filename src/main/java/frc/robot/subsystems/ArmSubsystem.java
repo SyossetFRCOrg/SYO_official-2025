@@ -4,31 +4,49 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+
+import static frc.robot.Constants.ArmConstants.*;
 
 public class ArmSubsystem extends SubsystemBase {
-  SparkMax coralWrist;
-  SparkMaxConfig motorConfig;
+  private final SparkMax armMotor;
+  private final RelativeEncoder armEncoder;
+  private final SparkMaxConfig armMotorConfig;
+
+  // private final ProfiledPIDController armPIDController;
+  // private final ArmFeedforward feedforwardController;
+  // private double feedbackVoltage = 0;
+
 
   /** Creates a new ArmSubsystem. */
   public ArmSubsystem() {
-    coralWrist = new SparkMax(0,MotorType.kBrushless);
+      armMotor = new SparkMax(ARM_MOTOR_ID, MotorType.kBrushless);
+      armEncoder = armMotor.getEncoder();
 
-    //TODO Go through this and change it, just pasted in for syntax
-    motorConfig = new SparkMaxConfig();
-    motorConfig.inverted(true).idleMode(IdleMode.kBrake);
-    motorConfig.encoder.positionConversionFactor(1000).velocityConversionFactor(1000);
-    motorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(1.0, 0.0, 0.0);
-    coralWrist.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    
+      armMotorConfig = new SparkMaxConfig();
+
+      armMotorConfig.inverted(true);
+      armMotorConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(ARM_CURRENT_LIMIT);
+
+      armMotor.configure(armMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
   }
 
@@ -36,4 +54,15 @@ public class ArmSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
   }
+  public void setArmVoltage(double voltage) {
+    armMotor.set(voltage);
+  }
+  public Command runArmMotorCommand() {
+    return Commands.startEnd( 
+        () -> setArmVoltage(ARM_VOLTAGE), 
+        () -> setArmVoltage(0))
+        .withName("arm.runArmMotor");
+  }
+
+
 }
