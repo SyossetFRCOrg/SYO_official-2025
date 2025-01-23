@@ -25,35 +25,37 @@ public class ElevatorSubsystem extends SubsystemBase {
   // private final ProfiledPIDController pidController = new ProfiledPIDController(kP, kI, kD, MOVEMENT_CONSTRAINTS);
   // private final ElevatorFeedforward feedforwardController = new ElevatorFeedforward(kS, kG, kV, kA);
   
-  private double target = 1000.0;
+  private double target = 10000.0;
 
   /** Creates a new ElevatorSubsystem. */
   public ElevatorSubsystem() {
-    // TODO figure out canids for motors
-    leftMotor = new SparkMax(0, MotorType.kBrushless);
-    rightMotor = new SparkMax(1, MotorType.kBrushless);
+    leftMotor = new SparkMax(16, MotorType.kBrushless);
+    rightMotor = new SparkMax(17, MotorType.kBrushless);
 
     leftEncoder = leftMotor.getEncoder();
     rightEncoder = rightMotor.getEncoder();
 
+    //configuring motors 
     var leftMotorConfig = new SparkMaxConfig();
     var rightMotorConfig = new SparkMaxConfig();
     
-    //TODO +- figure out which motor should be inverted
     leftMotorConfig
           .idleMode(IdleMode.kBrake)
-          .smartCurrentLimit(20)
+          .smartCurrentLimit(40, 40)
           .voltageCompensation(12.0);
 
     rightMotorConfig
           .inverted(true)
           .idleMode(IdleMode.kBrake)
-          .smartCurrentLimit(20)
+          .smartCurrentLimit(40, 40)
           .voltageCompensation(12.0);
 
-    //configuring motors
     leftMotor.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     rightMotor.configure(rightMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+
+    //reset voltage to 0
+    setVoltage(0.0);
+    // rightMotor.setVoltage(0.0);
   }
 
   @Override
@@ -63,16 +65,21 @@ public class ElevatorSubsystem extends SubsystemBase {
     double pos = getPosition();
 
     //adjusts position until it reaches target. moves it up and down until really near the target
-    if(Math.abs(pos - target) < 5) {
-      setVoltage(0.0);
-    } else if(pos < target) {
-      setVoltage(3.0);
-    } else if(pos >= target) {
-      setVoltage(-3.0);
-    }
+    // if(Math.abs(pos - target) < 5) {
+    //   setVoltage(0.0);
+    // } else if(pos < target) {
+    //   setVoltage(3.0);
+    // } else if(pos >= target) {
+    //   setVoltage(-3.0);
+    //}
+
+    setVoltage(3);
+    System.out.println(pos);
+ 
   }
 
   public double getPosition() {
+    //averages encoder positions and returns position
     return (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
   }
 
@@ -81,7 +88,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public void setVoltage(double voltage) {
-    voltage = MathUtil.clamp(voltage, -3.0, 3.0); //TO DO, CLAMP VALUES
+    voltage = MathUtil.clamp(voltage, -1.0, 2.0); //TO DO, CLAMP VALUES
     leftMotor.setVoltage(voltage);
     rightMotor.setVoltage(voltage);
   }

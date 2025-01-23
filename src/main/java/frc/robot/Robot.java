@@ -30,6 +30,7 @@ import frc.robot.subsystems.drive.SonicSwerveDrivetrain;
 import frc.robot.subsystems.drive.SparkMaxSwerveModule;
 import frc.robot.subsystems.drive.SwerveModule;
 import frc.robot.subsystems.drive.TurnModuleSpark;
+import frc.robot.subsystems.ElevatorSubsystem;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -41,7 +42,9 @@ public class Robot extends TimedRobot {
 
   private final RobotContainer m_robotContainer;
   private final Drivetrain drivetrain;
-  private final CommandXboxController controller;
+  // private final CommandXboxController controller;
+  private final XboxController xboxController;
+  private final ElevatorSubsystem elevator;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -52,9 +55,12 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
-    drivetrain = createDrivetrain();
+    // drivetrain = createDrivetrain();
+    drivetrain = null;
 
-    controller = new CommandXboxController(0);
+    elevator = new ElevatorSubsystem();
+
+    xboxController = new XboxController(0);
   }
 
   private Drivetrain createDrivetrain() {
@@ -160,8 +166,16 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
-    drivetrain.setSpeeds(new ChassisSpeeds(controller.getLeftY() * 2, controller.getLeftX() * 2, controller.getRightX() * 4));
-      }
+    // drivetrain.setSpeeds(new ChassisSpeeds(controller.getLeftY() * 2, controller.getLeftX() * 2, controller.getRightX() * 4));
+    if (xboxController.getAButton()) {
+      elevator.setVoltage(3.0);
+    } else if (xboxController.getBButton()) {
+      elevator.setVoltage(-3.0);
+    } else {
+      elevator.setVoltage(0.0);
+    }
+    
+  }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
