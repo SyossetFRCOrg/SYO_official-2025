@@ -47,7 +47,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    * @param voltage the voltage to set the motor to
    */
   public void setRollerVoltage(double voltage) {
-    System.out.println("Voltage: " + voltage);
+    // System.out.println("Voltage: " + voltage);
     algaeIntakeRollerMotor.setVoltage(voltage);
   }
 

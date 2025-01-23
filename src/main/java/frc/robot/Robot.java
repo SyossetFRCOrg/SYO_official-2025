@@ -32,7 +32,8 @@ import frc.robot.subsystems.drive.SparkMaxSwerveModule;
 import frc.robot.subsystems.drive.SwerveModule;
 import frc.robot.subsystems.drive.TurnModuleSpark;
 
-import frc.robot.Constants;;
+import frc.robot.Constants;
+import frc.robot.Constants.AlgaeIntakeConstants;;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -59,9 +60,11 @@ public class Robot extends TimedRobot {
     xboxController = new XboxController(0);
 
     m_algaeIntakeSubsystem = new AlgaeIntakeSubsystem();
-    drivetrain = createDrivetrain();
+    // drivetrain = createDrivetrain();
+    drivetrain = null;
 
-    controller = new CommandXboxController(0);
+    // controller = new CommandXboxController(0);
+    controller = null;
   }
 
   private Drivetrain createDrivetrain() {
@@ -169,15 +172,15 @@ public class Robot extends TimedRobot {
 
     // drivetrain.setSpeeds(new ChassisSpeeds(controller.getLeftY() * 2, controller.getLeftX() * 2, controller.getRightX() * 4));
     if (xboxController.getAButton()) {
-      System.out.println("A pressed");
-      m_algaeIntakeSubsystem.setRollerVoltage(5.0);
+      // System.out.println("A pressed");
+      m_algaeIntakeSubsystem.setRollerVoltage(AlgaeIntakeConstants.ALGAE_INTAKE_SPEED);
     } 
     else if (xboxController.getBButton()) {
-      System.out.println("B pressed");
-      m_algaeIntakeSubsystem.setRollerVoltage(-5.0);
+      // System.out.println("B pressed");
+      m_algaeIntakeSubsystem.setRollerVoltage(AlgaeIntakeConstants.ALGAE_OUTTAKE_SPEED);
     }
     else {
-      System.out.println("Nothing pressed");
+      // System.out.println("Nothing pressed");
       m_algaeIntakeSubsystem.setRollerVoltage(0.0);
     }
   }
