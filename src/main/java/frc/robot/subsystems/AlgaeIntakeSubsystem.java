@@ -35,8 +35,6 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
 
     motorConfig = new SparkMaxConfig();
     motorConfig.inverted(true).idleMode(IdleMode.kCoast);
-    motorConfig.encoder.positionConversionFactor(1000).velocityConversionFactor(1000);
-    motorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(1.0, 0.0, 0.0);
     algaeIntakeRollerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
@@ -45,7 +43,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    * @param voltage the voltage to set the motor to
    */
   public void setRollerVoltage(double voltage) {
-    algaeIntakeRollerMotor.set(voltage);
+    System.out.println("Voltage: " + voltage);
+    algaeIntakeRollerMotor.setVoltage(voltage);
   }
 
   /**

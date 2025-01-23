@@ -167,15 +167,18 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
-    drivetrain.setSpeeds(new ChassisSpeeds(controller.getLeftY() * 2, controller.getLeftX() * 2, controller.getRightX() * 4));
+    // drivetrain.setSpeeds(new ChassisSpeeds(controller.getLeftY() * 2, controller.getLeftX() * 2, controller.getRightX() * 4));
     if (xboxController.getAButton()) {
-      m_algaeIntakeSubsystem.setRollerVoltage(5);
+      System.out.println("A pressed");
+      m_algaeIntakeSubsystem.setRollerVoltage(5.0);
     } 
     else if (xboxController.getBButton()) {
-      m_algaeIntakeSubsystem.setRollerVoltage(-5);
+      System.out.println("B pressed");
+      m_algaeIntakeSubsystem.setRollerVoltage(-5.0);
     }
     else {
-      m_algaeIntakeSubsystem.setRollerVoltage(0);
+      System.out.println("Nothing pressed");
+      m_algaeIntakeSubsystem.setRollerVoltage(0.0);
     }
   }
 
