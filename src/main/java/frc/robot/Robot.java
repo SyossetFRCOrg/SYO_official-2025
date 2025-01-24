@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.AlgaeIntakeSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.drive.DefaultDriveCommand;
 import frc.robot.subsystems.drive.Drivetrain;
 
@@ -26,6 +27,7 @@ public class Robot extends TimedRobot {
   private final AlgaeIntakeSubsystem algaeIntakeSubsystem;
   private final Drivetrain drivetrain;
   private final CommandXboxController controller;
+  private final ElevatorSubsystem elevator;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -50,6 +52,7 @@ public class Robot extends TimedRobot {
     ));
 
     algaeIntakeSubsystem = new AlgaeIntakeSubsystem();
+    elevator = new ElevatorSubsystem();
 
     Shuffleboard.getTab("Subsystems").add("Drivetrain", drivetrain);
   }
