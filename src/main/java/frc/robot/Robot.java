@@ -9,11 +9,15 @@ import java.io.File;
 import com.moandjiezana.toml.Toml;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.drive.DefaultDriveCommand;
 import frc.robot.subsystems.drive.Drivetrain;
 
 /**
@@ -28,6 +32,8 @@ public class Robot extends TimedRobot {
   private final Drivetrain drivetrain;
   private final CommandXboxController controller;
 
+  private GenericEntry drivetrainEntry;
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -40,9 +46,18 @@ public class Robot extends TimedRobot {
     // drivetrain = new SonicSwerveDrivetrain("config/swerve.toml");
     var deployDir = Filesystem.getDeployDirectory();
 
-    drivetrain = Drivetrain.create(new Toml().read(new File(deployDir, "config/swerve.toml")));
-
     controller = new CommandXboxController(0);
+
+    drivetrain = Drivetrain.create(new Toml().read(new File(deployDir, "config/swerve.toml")));
+    drivetrain.setDefaultCommand(new DefaultDriveCommand(
+      drivetrain, 
+      () -> controller.getLeftY(), 
+      () -> controller.getLeftX(), 
+      () -> -controller.getRightX(), 
+      5.0, 5.0
+    ));
+
+    Shuffleboard.getTab("Subsystems").add("Drivetrain", drivetrain);
   }
 
   /**
@@ -59,9 +74,6 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-
-    drivetrain.setSpeeds(new ChassisSpeeds(controller.getLeftY() * 2, controller.getLeftX() * 2, controller.getRightX() * 4));
-    drivetrain.periodic();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

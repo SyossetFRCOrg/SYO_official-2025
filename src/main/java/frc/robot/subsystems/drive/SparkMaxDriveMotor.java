@@ -42,7 +42,7 @@ public class SparkMaxDriveMotor extends DriveMotor {
         var config = new SparkMaxConfig();
 
         config
-            .inverted(true)
+            .inverted(motorToml.getBoolean("inverted", false))
             .idleMode(idleMode)
             .smartCurrentLimit(
                 motorToml.getLong("stall_limit", 0L).intValue(),

@@ -1,15 +1,12 @@
 package frc.robot.subsystems.drive;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 import com.moandjiezana.toml.Toml;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.TomlUtil;
 
 public class SonicSwerveModule extends SwerveModule {
     private final Translation2d position;
@@ -57,6 +54,17 @@ public class SonicSwerveModule extends SwerveModule {
             } else {
                 throw new IllegalArgumentException(String.format("Unsupported Drive Encoder type: %s", type));
             }
+        }
+
+        addChild("Drive Motor", driveMotor);
+        addChild("Turn Motor", turnMotor);
+
+        for (int i = 0; i < driveEncoders.length; i++) {
+            addChild(String.format("Drive Encoder %d", i), driveEncoders[i]);
+        }
+        
+        for (int i = 0; i < turnEncoders.length; i++) {
+            addChild(String.format("Turn Encoder %d", i), turnEncoders[i]);
         }
     }
 

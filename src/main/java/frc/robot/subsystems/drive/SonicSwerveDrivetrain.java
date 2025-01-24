@@ -1,15 +1,15 @@
 package frc.robot.subsystems.drive;
 
 import java.util.Arrays;
-import java.util.List;
 
 import com.moandjiezana.toml.Toml;
 
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -18,6 +18,7 @@ import jakarta.validation.constraints.NotNull;
 public class SonicSwerveDrivetrain extends Drivetrain {
     private final int numModules;
 
+    private final GyroSensor gyroSensor;
     private final SwerveModule[] modules;
 
     // Temporary, move this to a robot constants class later
@@ -34,8 +35,11 @@ public class SonicSwerveDrivetrain extends Drivetrain {
         numModules = modules.length;
 
         for (var module : modules) {
-            addChild(getName(), module);
+            addChild(module.getName(), module);
         }
+
+        gyroSensor = new NavXGyroSensor();
+        addChild("Gyro Sensor", gyroSensor);
     }
 
     public SonicSwerveDrivetrain(@NotNull SwerveModule[] modules) {
@@ -52,6 +56,8 @@ public class SonicSwerveDrivetrain extends Drivetrain {
         for (var module : modules) {
             addChild(getName(), module);
         }
+
+        gyroSensor = new NavXGyroSensor();
     }
 
     @Override
@@ -59,19 +65,26 @@ public class SonicSwerveDrivetrain extends Drivetrain {
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
         for (int i = 0; i < numModules; i++) {
             states[i].optimize(modules[i].getAngle());
-            modules[i].periodic();
             modules[i].setTargetClosed(states[i]);
         }
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Front Left", modules[0].getAngle().getRadians());
-        SmartDashboard.putNumber("Front Right", modules[1].getAngle().getRadians());
-        SmartDashboard.putNumber("Back Left", modules[2].getAngle().getRadians());
-        SmartDashboard.putNumber("Back Right", modules[3].getAngle().getRadians());
         for (var module: modules) {
             module.periodic();
         }
+    }
+
+    @Override
+    public Rotation3d getAngle() {
+        return gyroSensor.getAngle();
+    }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        builder.addDoubleProperty("Roll", () -> gyroSensor.getAngle().getX(), null);
+        builder.addDoubleProperty("Pitch", () -> gyroSensor.getAngle().getY(), null);
+        builder.addDoubleProperty("Yaw", () -> gyroSensor.getAngle().getZ(), null);
     }
 }
