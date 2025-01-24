@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 /** An example command that uses an example subsystem. */
 public class AlgaeIntakeDownCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final AlgaeIntakeSubsystem m_subsystem;
+  private final AlgaeIntakeSubsystem subsystem;
 
   /**
    * Creates a new AlgaeIntakeDownCommand.
@@ -18,7 +18,7 @@ public class AlgaeIntakeDownCommand extends Command {
    * @param subsystem Algae subsystem required by this command.
    */
   public AlgaeIntakeDownCommand(AlgaeIntakeSubsystem subsystem) {
-    m_subsystem = subsystem;
+    this.subsystem = subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
   }

@@ -22,8 +22,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   private final RelativeEncoder leftEncoder;
   private final RelativeEncoder rightEncoder;
-  // private final ProfiledPIDController pidController = new ProfiledPIDController(kP, kI, kD, MOVEMENT_CONSTRAINTS);
-  // private final ElevatorFeedforward feedforwardController = new ElevatorFeedforward(kS, kG, kV, kA);
   
   private double target = 10000.0;
 
@@ -61,21 +59,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-
-    double pos = getPosition();
-
-    //adjusts position until it reaches target. moves it up and down until really near the target
-    // if(Math.abs(pos - target) < 5) {
-    //   setVoltage(0.0);
-    // } else if(pos < target) {
-    //   setVoltage(3.0);
-    // } else if(pos >= target) {
-    //   setVoltage(-3.0);
-    //}
-
-    setVoltage(3);
-    System.out.println(pos);
- 
   }
 
   public double getPosition() {
