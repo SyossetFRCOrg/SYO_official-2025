@@ -1,5 +1,8 @@
 package frc.robot.subsystems.drive;
 
+import com.moandjiezana.toml.Toml;
+
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -21,4 +24,15 @@ public abstract class Drivetrain extends SubsystemBase {
      * @param speeds target {@link ChassisSpeeds} of the chassis, measured in m/s and rad/s
      */
     public abstract void setSpeeds(ChassisSpeeds speeds);
+
+    public abstract Rotation3d getAngle();
+
+    public static Drivetrain create(Toml toml) {
+        var type = toml.getString("type");
+        if (type.equals("sonic_swerve")) {
+            return new SonicSwerveDrivetrain(toml);
+        } else {
+            throw new IllegalArgumentException(String.format("Unsupported Drivetrain type, %s", type));
+        }
+    }
 }

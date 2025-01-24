@@ -1,0 +1,111 @@
+type = "sonic_swerve"
+name = "Sonic Swerve Drivetrain"
+
+[turn_pid]
+kp = 5.0
+ki = 0.0
+kd = 0.0
+
+[drive_pid]
+kp = 5.0
+ki = 0.0
+kd = 0.0
+
+[default_module]
+    type = "sonic_swerve"
+
+    [default_module.drive_motor]
+    type = "sparkmax"
+    motor_type = "brushless"
+    idle_mode = "brake"
+    inverted = true
+    stall_limit = 40
+    free_limit = 40
+    volts = 12.0
+    wheel_radius = 0.04318
+
+    [default_module.turn_motor]
+    type = "sparkmax"
+    motor_type = "brushless"
+    idle_mode = "brake"
+    inverted = true
+    stall_limit = 40
+    volts = 12.0
+
+    [[default_module.drive_encoders]]
+    type = "sparkmax"
+
+    # [[default_module.turn_encoders]]
+    # type = "sparkmax"
+    # reduction = 21.429
+
+    [[default_module.turn_encoders]]
+    type = "cancoder"
+
+[[modules]]
+    name = "Front Left"
+    x = 3.175
+    y = 3.175
+
+    [modules.drive_motor]
+    canid = 1
+
+    [modules.turn_motor]
+    canid = 2
+
+    [[modules.drive_encoders]]
+    # [[modules.turn_encoders]]
+    [[modules.turn_encoders]]
+    zero_rotation = -0.209
+    canid = 3
+
+[[modules]]
+    name = "Front Right"
+    x = 3.175
+    y = -3.175
+
+    [modules.drive_motor]
+    canid = 4
+
+    [modules.turn_motor]
+    canid = 5
+
+    [[modules.drive_encoders]]
+    # [[modules.turn_encoders]]
+    [[modules.turn_encoders]]
+    zero_rotation = -2.759
+    canid = 6
+
+[[modules]]
+    name = "Back Left"
+    x = -3.175
+    y = 3.175
+
+    [modules.drive_motor]
+    canid = 7
+
+    [modules.turn_motor]
+    canid = 8
+
+    [[modules.drive_encoders]]
+    # [[modules.turn_encoders]]
+    [[modules.turn_encoders]]
+    zero_rotation = -1.251
+    canid = 9
+
+[[modules]]
+    name = "Back Right"
+    x = -3.175
+    y = -3.175
+
+    [modules.drive_motor]
+    canid = 10
+
+    [modules.turn_motor]
+    canid = 11
+
+    [[modules.drive_encoders]]
+    # [[modules.turn_encoders]]
+    [[modules.turn_encoders]]
+    zero_rotation = 1.624
+    canid = 12
