@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.AlgaeIntakeSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
@@ -58,10 +59,19 @@ public class Robot extends TimedRobot {
     ));
 
     algaeIntake = new AlgaeIntakeSubsystem();
-    elevator = new ElevatorSubsystem();
-    arm = new ArmSubsystem();
+    algaeIntake.setDefaultCommand(Commands.run(() -> algaeIntake.setRollerVoltage(0.0), algaeIntake));
+    controller.leftBumper().whileTrue(Commands.run(() -> algaeIntake.setRollerVoltage(4.0), algaeIntake));
+    controller.rightBumper().whileTrue(Commands.run(() -> algaeIntake.setRollerVoltage(-4.0), algaeIntake));
 
-    Shuffleboard.getTab("Subsystems").add("Drivetrain", drivetrain);
+    elevator = new ElevatorSubsystem();
+    elevator.setDefaultCommand(Commands.run(() -> elevator.setVoltage(0.0), elevator));
+    controller.x().whileTrue(Commands.run(() -> elevator.setVoltage(2.0), algaeIntake));
+    controller.y().whileTrue(Commands.run(() -> elevator.setVoltage(-1.0), algaeIntake));
+
+    arm = new ArmSubsystem();
+    arm.setDefaultCommand(Commands.run(() -> arm.setArmVoltage(0.0), algaeIntake));
+    controller.a().whileTrue(Commands.run(() -> arm.setArmVoltage(0.5), algaeIntake));
+    controller.b().whileTrue(Commands.run(() -> arm.setArmVoltage(-0.2), algaeIntake));
   }
 
   /**
