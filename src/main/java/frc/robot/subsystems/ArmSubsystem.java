@@ -14,6 +14,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -27,8 +28,6 @@ public class ArmSubsystem extends SubsystemBase {
     private final SparkMaxConfig armMotorConfig;
 
     private final PIDController pidController;
-    // private final ArmFeedforward feedforwardController;
-    // private double feedbackVoltage = 0;
 
     /** Creates a new ArmSubsystem. */
     public ArmSubsystem() {
@@ -42,17 +41,19 @@ public class ArmSubsystem extends SubsystemBase {
 
         armMotor.configure(armMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
-        pidController = new PIDController(2.0, 0.0, 0.0);
+        setArmVoltage(0.0);
+
+        pidController = new PIDController(0.1, 0.0, 0.0);
         pidController.reset();
     }
 
     @Override
     public void periodic() {
-        // This method will be called once per scheduler run
+        SmartDashboard.putNumber("Arm Position", armEncoder.getPosition());
     }
     
     public void setArmVoltage(double voltage) {
-        armMotor.set(MathUtil.clamp(voltage, 2.0, -2.0));
+        armMotor.set(MathUtil.clamp(voltage, -2.0, 2.0));
     }
 
     public final Command runArmMotorCommand = Commands.startEnd( 
@@ -112,11 +113,17 @@ public class ArmSubsystem extends SubsystemBase {
 
         public FreeMove(Supplier<Double> movementSupplier) {
             this.movementSupplier = movementSupplier;
+            addRequirements(ArmSubsystem.this);
         }
 
         @Override
         public void execute() {
             setArmVoltage(movementSupplier.get());
+        }
+
+        @Override
+        public void end(boolean interrupted) {
+            setArmVoltage(0.0);
         }
     }
 }

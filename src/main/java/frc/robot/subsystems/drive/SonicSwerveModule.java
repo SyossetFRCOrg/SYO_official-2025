@@ -14,7 +14,7 @@ public class SonicSwerveModule extends SwerveModule {
     private final TurnMotor turnMotor;
     private final DriveEncoder[] driveEncoders;
     private final TurnEncoder[] turnEncoders;
-    private SwerveModuleState targetState = new SwerveModuleState();
+    private SwerveModuleState targetState = null;
     
     public SonicSwerveModule(Toml toml, Toml defaultToml) {
         setName(toml.getString("name", defaultToml.getString("name")));
@@ -70,8 +70,10 @@ public class SonicSwerveModule extends SwerveModule {
 
     @Override
     public void periodic() {
-        driveMotor.setSpeed(targetState.speedMetersPerSecond);
-        turnMotor.setSpeed(targetState.angle.minus(getAngle()).getRadians() * 5);
+        if (targetState != null) {
+            driveMotor.setSpeed(targetState.speedMetersPerSecond);
+            turnMotor.setSpeed(targetState.angle.minus(getAngle()).getRadians() * 5.0);
+        }
     }
 
     @Override
@@ -81,7 +83,7 @@ public class SonicSwerveModule extends SwerveModule {
 
     @Override
     public double getVelocity() {
-        return targetState.speedMetersPerSecond;
+        return targetState != null ? targetState.speedMetersPerSecond : 0.0;
     }
 
     @Override

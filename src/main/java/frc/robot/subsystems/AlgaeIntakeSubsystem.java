@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -45,8 +46,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
      * @param voltage the voltage to set the motor to
      */
     public void setRollerVoltage(double voltage) {
-        // System.out.println("Voltage: " + voltage);
-        algaeIntakeRollerMotor.setVoltage(voltage);
+        algaeIntakeRollerMotor.setVoltage(MathUtil.clamp(voltage, -4.0, 4.0));
     }
 
     /**

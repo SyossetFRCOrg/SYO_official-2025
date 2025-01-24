@@ -56,7 +56,7 @@ kd = 0.0
     [[modules.drive_encoders]]
     # [[modules.turn_encoders]]
     [[modules.turn_encoders]]
-    zero_rotation = -0.209
+    zero_rotation = 0.204
     canid = 3
 
 [[modules]]
@@ -73,7 +73,7 @@ kd = 0.0
     [[modules.drive_encoders]]
     # [[modules.turn_encoders]]
     [[modules.turn_encoders]]
-    zero_rotation = -2.759
+    zero_rotation = -0.508
     canid = 6
 
 [[modules]]
@@ -90,7 +90,7 @@ kd = 0.0
     [[modules.drive_encoders]]
     # [[modules.turn_encoders]]
     [[modules.turn_encoders]]
-    zero_rotation = -1.251
+    zero_rotation = -1.281
     canid = 9
 
 [[modules]]
@@ -107,5 +107,5 @@ kd = 0.0
     [[modules.drive_encoders]]
     # [[modules.turn_encoders]]
     [[modules.turn_encoders]]
-    zero_rotation = 1.624
+    zero_rotation = 1.654
     canid = 12

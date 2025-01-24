@@ -7,13 +7,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ElevatorStructure extends SubsystemBase {
-    private final ElevatorSubsystem elevator;
-    private final ArmSubsystem coralArm;
-
+    private final ElevatorSubsystem elevator = new ElevatorSubsystem();
+    private final ArmSubsystem coralArm = new ArmSubsystem();
+    
     public ElevatorStructure() {
-        elevator = new ElevatorSubsystem();
-        coralArm = new ArmSubsystem();
-
         coralArm.setDefaultCommand(coralArm.new Hover());
         elevator.setDefaultCommand(elevator.new Hover());
     }
@@ -36,9 +33,13 @@ public class ElevatorStructure extends SubsystemBase {
     }
 
     // TODO find values
-    public final Command coralIntakePrep = new PositionCommand(0.0, 0.0);
-    public final Command coralIntakeDescent = new PositionCommand(0.0, 0.0);
+    public final Command coralIntakePrep = new PositionCommand(-7.86, 2.0);
+    public final Command coralIntakeDescent = new PositionCommand(-7.86, -1.64);
     public final Command coralIntakeAscent = new PositionCommand(0.0, 0.0);
     
-    public final Command coralIntake = Commands.sequence(coralIntakePrep, coralIntakeDescent, coralIntakeAscent);
+    public final Command coralIntake = Commands.sequence(
+        new PositionCommand(-7.86, 2.0),  
+        new PositionCommand(-7.86, -1.64),
+        new PositionCommand(-4.0, 2.0)
+    );
 }

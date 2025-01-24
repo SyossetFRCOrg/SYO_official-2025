@@ -10,6 +10,6 @@ name = "Elevator Structure"
 enabled = true
 
 [[subsystems]]
-id = "coral_arm"
-name = "Coral Arm"
+id = "algae_intake"
+name = "Algae Intake"
 enabled = true

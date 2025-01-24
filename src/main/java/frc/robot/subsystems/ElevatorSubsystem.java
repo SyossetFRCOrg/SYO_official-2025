@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.function.Supplier;
 
@@ -58,7 +59,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         //reset voltage to 0
         setVoltage(0.0);
 
-        pidController = new PIDController(4.0, 0.0, 0.0);
+        pidController = new PIDController(2.0, 0.0, 0.0);
     }
 
     public double getPosition() {
@@ -71,6 +72,11 @@ public class ElevatorSubsystem extends SubsystemBase {
         leftMotor.setVoltage(voltage);
         rightMotor.setVoltage(voltage);
     }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Elevator Position", getPosition());
+    }
     
     public class Hover extends Command {
         private double target;
@@ -81,6 +87,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         @Override
         public void initialize() {
+            System.out.println("Init Hover");
             this.target = getPosition();
 
             pidController.reset();
@@ -123,11 +130,17 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         public FreeMove(Supplier<Double> movementSupplier) {
             this.movementSupplier = movementSupplier;
+            addRequirements(ElevatorSubsystem.this);
         }
 
         @Override
         public void execute() {
             setVoltage(movementSupplier.get());
+        }
+
+        @Override
+        public void end(boolean interrupted) {
+            setVoltage(0.0);
         }
     }
 }

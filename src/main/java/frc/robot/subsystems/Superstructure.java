@@ -32,13 +32,15 @@ public class Superstructure extends SubsystemBase {
 
         if (subsystems.get("drivetrain").getBoolean("enabled")) {
             drivetrain = Optional.of(Drivetrain.create(new Toml().read(new File(configDir, subsystems.get("drivetrain").getString("config")))));
-            drivetrain.ifPresent(drive -> drive.setDefaultCommand(new DefaultDriveCommand(
-                drive, 
-                () -> controller.getLeftY(), 
-                () -> controller.getLeftX(), 
-                () -> -controller.getRightX(), 
-                5.0, 5.0
-            )));
+            drivetrain.ifPresent(drive -> {
+                drive.setDefaultCommand(new DefaultDriveCommand(
+                    drive, 
+                    () -> controller.getLeftY(), 
+                    () -> controller.getLeftX(), 
+                    () -> -controller.getRightX(), 
+                    5.0, 5.0
+                ));
+            });
         } else {
             drivetrain = Optional.empty();
         }
@@ -65,8 +67,8 @@ public class Superstructure extends SubsystemBase {
                  
                 controller.leftTrigger().and(controller.a().or(controller.b()))
                     .whileTrue(structure.getMoveArm(() ->
-                        (controller.b().getAsBoolean() ? 0.4 : 0.0) +
-                        (controller.a().getAsBoolean() ? -0.2 : 0.0)
+                        (controller.b().getAsBoolean() ? 0.05 : 0.0) +
+                        (controller.a().getAsBoolean() ? -0.025 : 0.0)
                     ));
 
                 controller.leftTrigger().negate().and(controller.x())

@@ -26,7 +26,6 @@ public class Robot extends TimedRobot {
      * initialization code.
      */
     public Robot() {
-        enableLiveWindowInTest(true);
         superstructure = new Superstructure();
         if (Robot.isSimulation()) {
             DriverStation.silenceJoystickConnectionWarning(true);
@@ -46,5 +45,20 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
+    }
+
+    @Override
+    public void disabledPeriodic() {
+
+    }
+
+    @Override
+    public void testInit() {
+        CommandScheduler.getInstance().cancelAll();
+    }
+
+    @Override
+    public void testPeriodic() {
+
     }
 }

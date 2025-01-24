@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -71,9 +72,7 @@ public class SonicSwerveDrivetrain extends Drivetrain {
 
     @Override
     public void periodic() {
-        for (var module: modules) {
-            module.periodic();
-        }
+        SmartDashboard.putData("Drivetrain", this);
     }
 
     @Override
