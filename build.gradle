@@ -57,6 +57,7 @@ repositories {
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
 dependencies {
+    implementation project("syolib")
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
 
     providedCompile 'jakarta.platform:jakarta.jakartaee-web-api:9.0.0'

@@ -1,7 +1,5 @@
 package frc.robot.subsystems.drive;
 
-import java.util.Arrays;
-
 import com.moandjiezana.toml.Toml;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,7 +12,7 @@ public class SonicSwerveModule extends SwerveModule {
     private final TurnMotor turnMotor;
     private final DriveEncoder[] driveEncoders;
     private final TurnEncoder[] turnEncoders;
-    private SwerveModuleState targetState = new SwerveModuleState();
+    private SwerveModuleState targetState = null;
     
     public SonicSwerveModule(Toml toml, Toml defaultToml) {
         setName(toml.getString("name", defaultToml.getString("name")));
@@ -70,13 +68,21 @@ public class SonicSwerveModule extends SwerveModule {
 
     @Override
     public void periodic() {
-        driveMotor.setSpeed(targetState.speedMetersPerSecond);
-        turnMotor.setSpeed(targetState.angle.minus(getAngle()).getRadians() * 5);
+        if (targetState != null) {
+            driveMotor.setSpeed(targetState.speedMetersPerSecond);
+            turnMotor.setSpeed(targetState.angle.minus(getAngle()).getRadians() * 5.0);
+        }
     }
 
     @Override
     public Rotation2d getAngle() {
-        return new Rotation2d(Arrays.stream(turnEncoders).mapToDouble(e -> e.getAngle().getRadians()).average().orElseThrow());
+        return turnEncoders[0].getAngle();
+        // return new Rotation2d(Arrays.stream(turnEncoders).mapToDouble(e -> e.getAngle().getRadians()).average().orElseThrow());
+    }
+
+    @Override
+    public double getVelocity() {
+        return targetState != null ? targetState.speedMetersPerSecond : 0.0;
     }
 
     @Override

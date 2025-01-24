@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -71,9 +72,7 @@ public class SonicSwerveDrivetrain extends Drivetrain {
 
     @Override
     public void periodic() {
-        for (var module: modules) {
-            module.periodic();
-        }
+        SmartDashboard.putData("Drivetrain", this);
     }
 
     @Override
@@ -83,8 +82,20 @@ public class SonicSwerveDrivetrain extends Drivetrain {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        builder.addDoubleProperty("Roll", () -> gyroSensor.getAngle().getX(), null);
-        builder.addDoubleProperty("Pitch", () -> gyroSensor.getAngle().getY(), null);
-        builder.addDoubleProperty("Yaw", () -> gyroSensor.getAngle().getZ(), null);
+        builder.setSmartDashboardType("SwerveDrive");
+    
+        builder.addDoubleProperty("Front Left Angle", () -> modules[0].getAngle().getRadians(), null);
+        builder.addDoubleProperty("Front Left Velocity", () -> modules[0].getVelocity(), null);
+    
+        builder.addDoubleProperty("Front Right Angle", () -> modules[1].getAngle().getRadians(), null);
+        builder.addDoubleProperty("Front Right Velocity", () -> modules[1].getVelocity(), null);
+    
+        builder.addDoubleProperty("Back Left Angle", () -> modules[2].getAngle().getRadians(), null);
+        builder.addDoubleProperty("Back Left Velocity", () -> modules[2].getVelocity(), null);
+    
+        builder.addDoubleProperty("Back Right Angle", () -> modules[3].getAngle().getRadians(), null);
+        builder.addDoubleProperty("Back Right Velocity", () -> modules[3].getVelocity(), null);
+    
+        builder.addDoubleProperty("Robot Angle", () -> getAngle().getY(), null);
     }
 }

@@ -1,8 +1,6 @@
 package frc.robot.subsystems.drive;
 
 import java.util.function.Supplier;
-
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -29,12 +27,13 @@ public class DefaultDriveCommand extends Command {
     @Override
     public void execute() {
         drivetrain.setSpeeds(
-            ChassisSpeeds.fromFieldRelativeSpeeds(
-                xSupplier.get() * maxVelocity, 
-                ySupplier.get() * maxVelocity, 
-                omegaSupplier.get() * angularVelocity,
-                new Rotation2d(drivetrain.getAngle().getMeasureZ())
-            )
+            new ChassisSpeeds(xSupplier.get() * maxVelocity / Math.sqrt(2.0), ySupplier.get() * maxVelocity / Math.sqrt(2.0), omegaSupplier.get() * angularVelocity)
+            // ChassisSpeeds.fromFieldRelativeSpeeds(
+            //     xSupplier.get() * maxVelocity, 
+            //     ySupplier.get() * maxVelocity, 
+            //     omegaSupplier.get() * angularVelocity,
+            //     new Rotation2d(drivetrain.getAngle().getMeasureZ())
+            // )
         );
     }
 }
