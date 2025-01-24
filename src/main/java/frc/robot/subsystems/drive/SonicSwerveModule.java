@@ -80,6 +80,11 @@ public class SonicSwerveModule extends SwerveModule {
     }
 
     @Override
+    public double getVelocity() {
+        return targetState.speedMetersPerSecond;
+    }
+
+    @Override
     public void setTargetClosed(Translation2d translation) {
         targetState = new SwerveModuleState(translation.getNorm(), translation.getAngle());
     }

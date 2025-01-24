@@ -4,20 +4,10 @@
 
 package frc.robot;
 
-import java.io.File;
-
-import com.moandjiezana.toml.Toml;
-
-import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.AlgaeIntakeSubsystem;
-import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.drive.DefaultDriveCommand;
-import frc.robot.subsystems.drive.Drivetrain;
+import frc.robot.subsystems.Superstructure;
 
 /**
  * The methods in this class are called automatically corresponding to each
@@ -27,11 +17,7 @@ import frc.robot.subsystems.drive.Drivetrain;
  * this project, you must also update the Main.java file in the project.
  */
 public class Robot extends TimedRobot {
-  private final AlgaeIntakeSubsystem algaeIntake;
-  private final Drivetrain drivetrain;
-  private final CommandXboxController controller;
-  private final ElevatorSubsystem elevator;
-  private final ArmSubsystem arm;
+  private final Superstructure superstructure;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -39,38 +25,11 @@ public class Robot extends TimedRobot {
    * initialization code.
    */
   public Robot() {
-    // Instantiate our RobotContainer. This will perform all our button bindings,
-    // and put our
-    // autonomous chooser on the dashboard.
-
-    // drivetrain = new SonicSwerveDrivetrain("config/swerve.toml");
-    var deployDir = Filesystem.getDeployDirectory();
-
-    controller = new CommandXboxController(0);
-
-    drivetrain = Drivetrain.create(new Toml().read(new File(deployDir, "config/swerve.toml")));
-    drivetrain.setDefaultCommand(new DefaultDriveCommand(
-      drivetrain, 
-      () -> controller.getLeftY(), 
-      () -> controller.getLeftX(), 
-      () -> -controller.getRightX(), 
-      5.0, 5.0
-    ));
-
-    algaeIntake = new AlgaeIntakeSubsystem();
-    algaeIntake.setDefaultCommand(Commands.run(() -> algaeIntake.setRollerVoltage(0.0), algaeIntake));
-    controller.leftBumper().whileTrue(Commands.run(() -> algaeIntake.setRollerVoltage(4.0), algaeIntake));
-    controller.rightBumper().whileTrue(Commands.run(() -> algaeIntake.setRollerVoltage(-4.0), algaeIntake));
-
-    elevator = new ElevatorSubsystem();
-    elevator.setDefaultCommand(Commands.run(() -> elevator.setVoltage(0.0), elevator));
-    controller.x().whileTrue(Commands.run(() -> elevator.setVoltage(2.0), algaeIntake));
-    controller.y().whileTrue(Commands.run(() -> elevator.setVoltage(-1.0), algaeIntake));
-
-    arm = new ArmSubsystem();
-    arm.setDefaultCommand(Commands.run(() -> arm.setArmVoltage(0.0), algaeIntake));
-    controller.a().whileTrue(Commands.run(() -> arm.setArmVoltage(0.5), algaeIntake));
-    controller.b().whileTrue(Commands.run(() -> arm.setArmVoltage(-0.2), algaeIntake));
+    enableLiveWindowInTest(true);
+    superstructure = new Superstructure();
+    if (Robot.isSimulation()) {
+      DriverStation.silenceJoystickConnectionWarning(true);
+    }
   }
 
   /**
@@ -85,13 +44,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    // Runs the Scheduler. This is responsible for polling buttons, adding
-    // newly-scheduled
-    // commands, running already-scheduled commands, removing finished or
-    // interrupted commands,
-    // and running subsystem periodic() methods. This must be called from the
-    // robot's periodic
-    // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
   }
 }

@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * Individual module for a swerve subsystem, representing one wheel and the two motors (drive + steer) associated with it
  */
 public abstract class SwerveModule extends SubsystemBase {
+    public abstract double getVelocity();
     public abstract Rotation2d getAngle();
 
     /**
