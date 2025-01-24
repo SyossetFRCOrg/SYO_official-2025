@@ -1,7 +1,9 @@
 package frc.robot.subsystems;
 
 import java.io.File;
-import org.syofrc.syolib.state.StateMachine;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.moandjiezana.toml.Toml;
 
@@ -13,41 +15,65 @@ import frc.robot.subsystems.drive.DefaultDriveCommand;
 import frc.robot.subsystems.drive.Drivetrain;
 
 public class Superstructure extends SubsystemBase {
-    private final StateMachine<Superstructure> stateMachine = new StateMachine<>();
     private final CommandXboxController controller;
 
-    private final Drivetrain drivetrain;
-    private final AlgaeIntakeSubsystem algaeIntake;
-    private final ElevatorSubsystem elevator;
-    private final ArmSubsystem arm;
+    private final Optional<Drivetrain> drivetrain;
+    private final Optional<AlgaeIntakeSubsystem> algaeIntake;
+    private final Optional<ElevatorStructure> elevatorStructure;
 
     public Superstructure() {
         var deployDir = Filesystem.getDeployDirectory();
+        var configDir = new File(deployDir, "config");
+
+        Toml config = new Toml().read(new File(configDir, "superstructure.toml"));
+        Map<String, Toml> subsystems = config.getTables("subsystems").stream().collect(Collectors.toMap(toml -> toml.getString("id"), toml -> toml));
 
         controller = new CommandXboxController(0);
 
-        drivetrain = Drivetrain.create(new Toml().read(new File(deployDir, "config/swerve.toml")));
-        drivetrain.setDefaultCommand(new DefaultDriveCommand(
-        drivetrain, 
-        () -> controller.getLeftY(), 
-        () -> controller.getLeftX(), 
-        () -> -controller.getRightX(), 
-        5.0, 5.0
-        ));
+        if (subsystems.get("drivetrain").getBoolean("enabled")) {
+            drivetrain = Optional.of(Drivetrain.create(new Toml().read(new File(configDir, subsystems.get("drivetrain").getString("config")))));
+            drivetrain.ifPresent(drive -> drive.setDefaultCommand(new DefaultDriveCommand(
+                drive, 
+                () -> controller.getLeftY(), 
+                () -> controller.getLeftX(), 
+                () -> -controller.getRightX(), 
+                5.0, 5.0
+            )));
+        } else {
+            drivetrain = Optional.empty();
+        }
 
-        algaeIntake = new AlgaeIntakeSubsystem();
-        algaeIntake.setDefaultCommand(Commands.run(() -> algaeIntake.setRollerVoltage(0.0), algaeIntake));
-        controller.leftBumper().whileTrue(Commands.run(() -> algaeIntake.setRollerVoltage(4.0), algaeIntake));
-        controller.rightBumper().whileTrue(Commands.run(() -> algaeIntake.setRollerVoltage(-4.0), algaeIntake));
+        if (subsystems.get("algae_intake").getBoolean("enabled")) {
+            algaeIntake = Optional.of(new AlgaeIntakeSubsystem());
+            algaeIntake.ifPresent(intake -> {
+                intake.setDefaultCommand(Commands.run(() -> intake.setRollerVoltage(0.0), intake));
+                controller.leftBumper().whileTrue(Commands.run(() -> intake.setRollerVoltage(4.0), intake));
+                controller.rightBumper().whileTrue(Commands.run(() -> intake.setRollerVoltage(-4.0), intake));
+            });
+        } else {
+            algaeIntake = Optional.empty();
+        }
 
-        elevator = new ElevatorSubsystem();
-        elevator.setDefaultCommand(Commands.run(() -> elevator.setVoltage(0.0), elevator));
-        controller.x().whileTrue(Commands.run(() -> elevator.setVoltage(2.0), elevator));
-        controller.y().whileTrue(Commands.run(() -> elevator.setVoltage(-1.0), elevator));
+        if (subsystems.get("elevator_structure").getBoolean("enabled")) {
+            elevatorStructure = Optional.of(new ElevatorStructure());
+            elevatorStructure.ifPresent(structure -> {
+                controller.leftTrigger().and(controller.x().or(controller.y()))
+                    .whileTrue(structure.getMoveElevator(() ->
+                        (controller.y().getAsBoolean() ? 1.0 : 0.0) +
+                        (controller.x().getAsBoolean() ? -0.4 : 0.0)
+                    ));
+                 
+                controller.leftTrigger().and(controller.a().or(controller.b()))
+                    .whileTrue(structure.getMoveArm(() ->
+                        (controller.b().getAsBoolean() ? 0.4 : 0.0) +
+                        (controller.a().getAsBoolean() ? -0.2 : 0.0)
+                    ));
 
-        arm = new ArmSubsystem();
-        arm.setDefaultCommand(Commands.run(() -> arm.setArmVoltage(0.0), arm));
-        controller.a().whileTrue(Commands.run(() -> arm.setArmVoltage(0.5), arm));
-        controller.b().whileTrue(Commands.run(() -> arm.setArmVoltage(-0.2), arm));
+                controller.leftTrigger().negate().and(controller.x())
+                    .onTrue(structure.coralIntake);
+            });
+        } else {
+            elevatorStructure = Optional.empty();
+        }
     }
 }

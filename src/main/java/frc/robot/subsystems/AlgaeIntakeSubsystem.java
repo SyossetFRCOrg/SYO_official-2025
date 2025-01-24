@@ -17,86 +17,67 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AlgaeIntakeConstants;
 
-public class AlgaeIntakeSubsystem extends SubsystemBase {
-  
-  private final SparkMax algaeIntakeRollerMotor;
-  private SparkMaxConfig motorConfig;
+public class AlgaeIntakeSubsystem extends SubsystemBase {  
+    private final SparkMax algaeIntakeRollerMotor;
+    private SparkMaxConfig motorConfig;
 
-  /** Creates a new AlgaeIntakeSubsystem. */
-  public AlgaeIntakeSubsystem() {
-    //Initializes Spark Max 
-    algaeIntakeRollerMotor = new SparkMax(AlgaeIntakeConstants.ALGAE_INTAKE_ID, MotorType.kBrushless);
-    
-    /*
-     * Create a new Spark Max configuration object. 
-     * This stores the configuration parameters for the Spark Max to be set below
+    /** Creates a new AlgaeIntakeSubsystem. */
+    public AlgaeIntakeSubsystem() {
+        //Initializes Spark Max 
+        algaeIntakeRollerMotor = new SparkMax(AlgaeIntakeConstants.ALGAE_INTAKE_ID, MotorType.kBrushless);
+        
+        /*
+        * Create a new Spark Max configuration object. 
+        * This stores the configuration parameters for the Spark Max to be set below
+        */
+
+        motorConfig = new SparkMaxConfig();
+        motorConfig
+                .inverted(true)
+                .idleMode(IdleMode.kBrake)
+                .smartCurrentLimit(40)
+                .voltageCompensation(12.0);
+        algaeIntakeRollerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
+    /**
+     * Sets the voltage of the Algae Intake Roller Motor
+     * @param voltage the voltage to set the motor to
      */
+    public void setRollerVoltage(double voltage) {
+        // System.out.println("Voltage: " + voltage);
+        algaeIntakeRollerMotor.setVoltage(voltage);
+    }
 
-    motorConfig = new SparkMaxConfig();
-    motorConfig
-            .inverted(true)
-            .idleMode(IdleMode.kBrake)
-            .smartCurrentLimit(40)
-            .voltageCompensation(12.0);
-    algaeIntakeRollerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-  }
+    /**
+     * An example method querying a boolean state of the subsystem (for example, a digital sensor).
+     *
+     * @return value of some boolean subsystem state, such as a digital sensor.
+     * 
+     */
+    public boolean beamBroken() {
+        //TODO: learn beam breaker code and implement it
+        // Query some boolean state, such as a digital sensor.
+        return false;
+    }
+    
+    /**
+     * Command that runs the rollers in 
+     * the direction to intake the Algae
+     */
+    public final Command runIntakeRollersCommand = Commands.startEnd( 
+            () -> setRollerVoltage(AlgaeIntakeConstants.ALGAE_INTAKE_SPEED), 
+            () -> setRollerVoltage(0),
+            this
+    ).withName("intake.runIntakeRollers");
 
-  /**
-   * Sets the voltage of the Algae Intake Roller Motor
-   * @param voltage the voltage to set the motor to
-   */
-  public void setRollerVoltage(double voltage) {
-    // System.out.println("Voltage: " + voltage);
-    algaeIntakeRollerMotor.setVoltage(voltage);
-  }
-
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   * 
-   */
-  public boolean beamBroken() {
-    //TODO: learn beam breaker code and implement it
-    // Query some boolean state, such as a digital sensor.
-    return false;
-  }
-
-
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-  public Command exampleMethodCommand() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          /* one-time action goes here */
-        });
-  }
- 
-  /**
-   * Command that runs the rollers in 
-   * the direction to intake the Algae
-   */
-  public Command runIntakeRollersCommand() {
-    return Commands.startEnd( 
-        () -> setRollerVoltage(AlgaeIntakeConstants.ALGAE_INTAKE_SPEED), 
-        () -> setRollerVoltage(0))
-        .withName("intake.runIntakeRollers");
-  }
-
-  /**
-   * Command that runs the rollers in 
-   * the direction to outtake the Algae
-   */
-  public Command runOuttakeRollersCommand() {
-    return Commands.startEnd( 
-        () -> setRollerVoltage(-AlgaeIntakeConstants.ALGAE_INTAKE_SPEED), 
-        () -> setRollerVoltage(0))
-        .withName("intake.runOuttakeRollers");
-      };
-
+    /**
+     * Command that runs the rollers in 
+     * the direction to outtake the Algae
+     */
+    public final Command runOuttakeRollersCommand = Commands.startEnd( 
+            () -> setRollerVoltage(AlgaeIntakeConstants.ALGAE_OUTTAKE_SPEED), 
+            () -> setRollerVoltage(0),
+            this
+    ).withName("intake.runOuttakeRollers");
 }

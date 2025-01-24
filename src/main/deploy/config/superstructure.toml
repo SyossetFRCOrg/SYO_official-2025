@@ -1,0 +1,15 @@
+[[subsystems]]
+id = "drivetrain"
+name = "Drivetrain"
+config = "swerve.toml"
+enabled = true
+
+[[subsystems]]
+id = "elevator_structure"
+name = "Elevator Structure"
+enabled = true
+
+[[subsystems]]
+id = "coral_arm"
+name = "Coral Arm"
+enabled = true
