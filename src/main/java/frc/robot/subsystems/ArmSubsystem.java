@@ -43,7 +43,7 @@ public class ArmSubsystem extends SubsystemBase {
 
         setArmVoltage(0.0);
 
-        pidController = new PIDController(0.1, 0.0, 0.0);
+        pidController = new PIDController(0.2, 0.0, 0.0);
         pidController.reset();
     }
 

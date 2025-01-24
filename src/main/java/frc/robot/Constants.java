@@ -88,7 +88,7 @@ public final class Constants {
             }
         }
         public static final int ARM_MOTOR_ID = 19;
-        public static final int ARM_CURRENT_LIMIT = 20;
+        public static final int ARM_CURRENT_LIMIT = 40;
         public static final int ARM_VOLTAGE = 2;
     }
 }

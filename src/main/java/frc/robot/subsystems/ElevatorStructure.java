@@ -33,10 +33,6 @@ public class ElevatorStructure extends SubsystemBase {
     }
 
     // TODO find values
-    public final Command coralIntakePrep = new PositionCommand(-7.86, 2.0);
-    public final Command coralIntakeDescent = new PositionCommand(-7.86, -1.64);
-    public final Command coralIntakeAscent = new PositionCommand(0.0, 0.0);
-    
     public final Command coralIntake = Commands.sequence(
         new PositionCommand(-7.86, 2.0),  
         new PositionCommand(-7.86, -1.64),

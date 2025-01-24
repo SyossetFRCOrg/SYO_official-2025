@@ -1,7 +1,5 @@
 package frc.robot.subsystems.drive;
 
-import java.util.Arrays;
-
 import com.moandjiezana.toml.Toml;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -78,7 +76,8 @@ public class SonicSwerveModule extends SwerveModule {
 
     @Override
     public Rotation2d getAngle() {
-        return new Rotation2d(Arrays.stream(turnEncoders).mapToDouble(e -> e.getAngle().getRadians()).average().orElseThrow());
+        return turnEncoders[0].getAngle();
+        // return new Rotation2d(Arrays.stream(turnEncoders).mapToDouble(e -> e.getAngle().getRadians()).average().orElseThrow());
     }
 
     @Override

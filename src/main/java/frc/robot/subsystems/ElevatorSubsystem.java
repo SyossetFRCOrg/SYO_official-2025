@@ -87,7 +87,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         @Override
         public void initialize() {
-            System.out.println("Init Hover");
             this.target = getPosition();
 
             pidController.reset();

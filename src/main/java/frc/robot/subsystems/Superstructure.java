@@ -38,7 +38,7 @@ public class Superstructure extends SubsystemBase {
                     () -> controller.getLeftY(), 
                     () -> controller.getLeftX(), 
                     () -> -controller.getRightX(), 
-                    5.0, 5.0
+                    4.0, 2.0
                 ));
             });
         } else {
@@ -67,12 +67,9 @@ public class Superstructure extends SubsystemBase {
                  
                 controller.leftTrigger().and(controller.a().or(controller.b()))
                     .whileTrue(structure.getMoveArm(() ->
-                        (controller.b().getAsBoolean() ? 0.05 : 0.0) +
-                        (controller.a().getAsBoolean() ? -0.025 : 0.0)
+                        (controller.b().getAsBoolean() ? 0.5 : 0.0) +
+                        (controller.a().getAsBoolean() ? -0.25 : 0.0)
                     ));
-
-                controller.leftTrigger().negate().and(controller.x())
-                    .onTrue(structure.coralIntake);
             });
         } else {
             elevatorStructure = Optional.empty();
