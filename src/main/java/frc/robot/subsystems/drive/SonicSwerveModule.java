@@ -77,7 +77,7 @@ public class SonicSwerveModule extends SwerveModule {
     @Override
     public Rotation2d getAngle() {
         return turnEncoders[0].getAngle();
-        // return new Rotation2d(Arrays.stream(turnEncoders).mapToDouble(e -> e.getAngle().getRadians()).average().orElseThrow());
+        // return new Rotation2d(Arrays.stream(turnEncoders).map TODOuble(e -> e.getAngle().getRadians()).average().orElseThrow());
     }
 
     @Override

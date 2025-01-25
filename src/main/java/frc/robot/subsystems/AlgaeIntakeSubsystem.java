@@ -56,7 +56,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
      * 
      */
     public boolean beamBroken() {
-        //TODO: learn beam breaker code and implement it
+        // TODO: learn beam breaker code and implement it
         // Query some boolean state, such as a digital sensor.
         return false;
     }

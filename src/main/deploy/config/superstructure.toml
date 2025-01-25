@@ -13,3 +13,8 @@ enabled = true
 id = "algae_intake"
 name = "Algae Intake"
 enabled = true
+
+[[subsystems]]
+id = "deep_hang"
+name = "Deep Hang"
+enabled = true

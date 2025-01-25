@@ -20,6 +20,7 @@ public class Superstructure extends SubsystemBase {
     private final Optional<Drivetrain> drivetrain;
     private final Optional<AlgaeIntakeSubsystem> algaeIntake;
     private final Optional<ElevatorStructure> elevatorStructure;
+    private final Optional<DeepHangSubsystem> deepHang;
 
     public Superstructure() {
         var deployDir = Filesystem.getDeployDirectory();
@@ -73,6 +74,17 @@ public class Superstructure extends SubsystemBase {
             });
         } else {
             elevatorStructure = Optional.empty();
+        }
+
+        if (subsystems.get("deep_hang").getBoolean("enabled")) {
+            deepHang = Optional.of(new DeepHangSubsystem());
+            deepHang.ifPresent(hang -> {
+                 controller.rightTrigger().and(controller.povUp())
+                    .whileTrue(hang.runDeepHangMotor);
+                }
+            );
+        } else {
+            deepHang = Optional.empty();
         }
     }
 }

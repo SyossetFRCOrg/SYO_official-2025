@@ -22,7 +22,8 @@ public final class Constants {
     public static class OperatorConstants {
         public static final int kDriverControllerPort = 0;
     }
-    //TODO Find real values and units for the values below
+
+    // TODO Find real values and units for the values below
     public static final class AlgaeIntakeConstants {
         public static enum AlgaeIntakePosition {
             UP,
@@ -33,29 +34,29 @@ public final class Constants {
         public final static double ALGAE_INTAKE_SPEED = 4.0;
         public final static double ALGAE_OUTTAKE_SPEED = -4.0;
     }
-    
-    public static final class Elevator {
-        public static enum ElevatorPosition{
-            //account for encoder offset. units in meters
-            BOTTOM(0.0), //TODO
-            INTAKE_PREP(0.0), //TODO
-            INTAKE(0.0), //TODO
-            ALGAE_L2(0.0), //TODO
-            ALGAE_L3(0.0), //TODO
 
-            L1(0.0), //TODO
-            L2(0.0), //TODO
-            L3(0.0), //TODO
-            L4(0.0); //TODO
+    public static final class Elevator {
+        public static enum ElevatorPosition {
+            // account for encoder offset. units in meters
+            BOTTOM(0.0), // TODO
+            INTAKE_PREP(0.0), // TODO
+            INTAKE(0.0), // TODO
+            ALGAE_L2(0.0), // TODO
+            ALGAE_L3(0.0), // TODO
+
+            L1(0.0), // TODO
+            L2(0.0), // TODO
+            L3(0.0), // TODO
+            L4(0.0); // TODO
 
             public final double value;
-            
+
             private ElevatorPosition(double value) {
                 this.value = value;
             }
         }
 
-        public static final int MOTOR_ID = 0; //TODO
+        public static final int MOTOR_ID = 0; // TODO
 
         public static final double kP = 0.0; // TODO
         public static final double kI = 0.0; // TODO
@@ -65,7 +66,7 @@ public final class Constants {
         public static final double kV = 0.0; // TODO
         public static final double kA = 0.0; // TODO
 
-        public static final double CURRENT_LIMIT = 0.0; //TODO
+        public static final double CURRENT_LIMIT = 0.0; // TODO
     }
 
     public static final class ArmConstants {
@@ -87,8 +88,15 @@ public final class Constants {
                 this.value = value;
             }
         }
+
         public static final int ARM_MOTOR_ID = 19;
         public static final int ARM_CURRENT_LIMIT = 40;
         public static final int ARM_VOLTAGE = 2;
+    }
+
+    public static final class DeepHangConstants {
+        public static final int DEEP_HANG_MOTOR_ID = 20;
+        public static final int DEEP_HANG_CURRENT_LIMIT = 40;
+        public static final int DEEP_HANG_VOLTAGE = 3;
     }
 }

@@ -51,16 +51,15 @@ public class ArmSubsystem extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Arm Position", armEncoder.getPosition());
     }
-    
+
     public void setArmVoltage(double voltage) {
         armMotor.set(MathUtil.clamp(voltage, -2.0, 2.0));
     }
 
-    public final Command runArmMotorCommand = Commands.startEnd( 
-        () -> setArmVoltage(ARM_VOLTAGE), 
-        () -> setArmVoltage(0),
-        this
-    ).withName("arm.runArmMotor");
+    public final Command runArmMotorCommand = Commands.startEnd(
+            () -> setArmVoltage(ARM_VOLTAGE),
+            () -> setArmVoltage(0),
+            this).withName("arm.runArmMotor");
 
     public class Hover extends Command {
         private double target;
