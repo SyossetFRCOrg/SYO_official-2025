@@ -38,37 +38,37 @@ public class ElevatorSubsystem extends SubsystemBase {
         leftEncoder = leftMotor.getEncoder();
         rightEncoder = rightMotor.getEncoder();
 
-        //configuring motors 
+        // configuring motors
         var leftMotorConfig = new SparkMaxConfig();
         var rightMotorConfig = new SparkMaxConfig();
-        
+
         leftMotorConfig
-            .idleMode(IdleMode.kBrake)
-            .smartCurrentLimit(40, 40)
-            .voltageCompensation(12.0);
+                .idleMode(IdleMode.kBrake)
+                .smartCurrentLimit(40, 40)
+                .voltageCompensation(12.0);
 
         rightMotorConfig
-            .inverted(true)
-            .idleMode(IdleMode.kBrake)
-            .smartCurrentLimit(40, 40)
-            .voltageCompensation(12.0);
+                .inverted(true)
+                .idleMode(IdleMode.kBrake)
+                .smartCurrentLimit(40, 40)
+                .voltageCompensation(12.0);
 
         leftMotor.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
         rightMotor.configure(rightMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
-        //reset voltage to 0
+        // reset voltage to 0
         setVoltage(0.0);
 
         pidController = new PIDController(2.0, 0.0, 0.0);
     }
 
     public double getPosition() {
-        //averages encoder positions and returns position
+        // averages encoder positions and returns position
         return (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
     }
 
     public void setVoltage(double voltage) {
-        voltage = MathUtil.clamp(voltage, -1.0, 2.0); //TO DO, CLAMP VALUES
+        voltage = MathUtil.clamp(voltage, -1.0, 2.0); //TODO CLAMP VALUES
         leftMotor.setVoltage(voltage);
         rightMotor.setVoltage(voltage);
     }
@@ -77,7 +77,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Elevator Position", getPosition());
     }
-    
+
     public class Hover extends Command {
         private double target;
 

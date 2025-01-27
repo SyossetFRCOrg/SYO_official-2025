@@ -34,7 +34,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     /** Creates a new ArmSubsystem. */
     public ArmSubsystem(Toml toml) {
-        armMotor = new SparkMax(ARM_MOTOR_ID, MotorType.kBrushless);
+        armMotor = new SparkMax(toml.getLong("canid").intValue(), MotorType.kBrushless);
         armEncoder = armMotor.getEncoder();
 
         armMotorConfig = new SparkMaxConfig();

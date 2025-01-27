@@ -2,8 +2,8 @@ name = "Arm"
 inverted = true
 idle_mode = "brake"
 canid = 19
-current_limit = 20
-voltage = 2.0
+current_limit = 40
+voltage = 12.0
 
 [arm_pid]
 kp = 2.0
