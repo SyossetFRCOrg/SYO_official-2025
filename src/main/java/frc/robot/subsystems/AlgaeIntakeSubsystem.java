@@ -22,6 +22,9 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     private final SparkMax algaeIntakeRollerMotor;
     private SparkMaxConfig motorConfig;
 
+    public final RunAlgaeRollers intakeCommand = new RunAlgaeRollers(true);
+    public final RunAlgaeRollers outtakeCommand = new RunAlgaeRollers(false);
+
     /** Creates a new AlgaeIntakeSubsystem. */
     public AlgaeIntakeSubsystem() {
         //Initializes Spark Max 

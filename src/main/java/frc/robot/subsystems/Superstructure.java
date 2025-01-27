@@ -49,8 +49,8 @@ public class Superstructure extends SubsystemBase {
             algaeIntake = Optional.of(new AlgaeIntakeSubsystem());
             algaeIntake.ifPresent(intake -> {
                 intake.setDefaultCommand(Commands.run(() -> intake.setRollerVoltage(0.0), intake));
-                controller.leftBumper().whileTrue(Commands.run(() -> intake.setRollerVoltage(4.0), intake));
-                controller.rightBumper().whileTrue(Commands.run(() -> intake.setRollerVoltage(-4.0), intake));
+                controller.leftBumper().whileTrue(intake.intakeCommand);
+                controller.rightBumper().whileTrue(intake.outtakeCommand);
             });
         } else {
             algaeIntake = Optional.empty();
