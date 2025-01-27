@@ -2,15 +2,20 @@ package frc.robot.subsystems;
 
 import java.util.function.Supplier;
 
+import com.moandjiezana.toml.Toml;
+
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ElevatorStructure extends SubsystemBase {
     private final ElevatorSubsystem elevator = new ElevatorSubsystem();
-    private final ArmSubsystem coralArm = new ArmSubsystem();
+    private final ArmSubsystem coralArm;
     
-    public ElevatorStructure() {
+    public ElevatorStructure(Toml armToml) {
+        coralArm = new ArmSubsystem(armToml);
+
         coralArm.setDefaultCommand(coralArm.new Hover());
         elevator.setDefaultCommand(elevator.new Hover());
     }

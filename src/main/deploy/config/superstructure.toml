@@ -10,6 +10,11 @@ name = "Elevator Structure"
 enabled = true
 
 [[subsystems]]
+id = "arm"
+name = "Arm"
+config = "arm.toml"
+
+[[subsystems]]
 id = "algae_intake"
 name = "Algae Intake"
 enabled = true

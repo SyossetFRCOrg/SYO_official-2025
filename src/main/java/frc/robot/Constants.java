@@ -22,7 +22,7 @@ public final class Constants {
     public static class OperatorConstants {
         public static final int kDriverControllerPort = 0;
     }
-    //TODO Find real values and units for the values below
+    // TODO  Find real values and units for the values below
     public static final class AlgaeIntakeConstants {
         public static enum AlgaeIntakePosition {
             UP,
@@ -37,16 +37,16 @@ public final class Constants {
     public static final class Elevator {
         public static enum ElevatorPosition{
             //account for encoder offset. units in meters
-            BOTTOM(0.0), //TODO
-            INTAKE_PREP(0.0), //TODO
-            INTAKE(0.0), //TODO
-            ALGAE_L2(0.0), //TODO
-            ALGAE_L3(0.0), //TODO
+            BOTTOM(0.0), // TODO find real value
+            INTAKE_PREP(0.0), // TODO find real value
+            INTAKE(0.0), // TODO find real value
+            ALGAE_L2(0.0), // TODO find real value
+            ALGAE_L3(0.0), // TODO find real value
 
-            L1(0.0), //TODO
-            L2(0.0), //TODO
-            L3(0.0), //TODO
-            L4(0.0); //TODO
+            L1(0.0), // TODO find real value
+            L2(0.0), // TODO find real value
+            L3(0.0), // TODO find real value
+            L4(0.0); // TODO find real value
 
             public final double value;
             
@@ -55,22 +55,20 @@ public final class Constants {
             }
         }
 
-        public static final int MOTOR_ID = 0; //TODO
+        public static final int MOTOR_ID = 0; // TODO find real value 
 
-        public static final double kP = 0.0; // TODO
-        public static final double kI = 0.0; // TODO
-        public static final double kD = 0.0; // TODO
-        public static final double kS = 0.0; // TODO
-        public static final double kG = 0.0; // TODO
-        public static final double kV = 0.0; // TODO
-        public static final double kA = 0.0; // TODO
+        public static final double kP = 0.0; // TODO find real value
+        public static final double kI = 0.0; // TODO find real value
+        public static final double kD = 0.0; // TODO find real value
+        public static final double kS = 0.0; // TODO find real value
+        public static final double kG = 0.0; // TODO find real value
+        public static final double kV = 0.0; // TODO find real value
+        public static final double kA = 0.0; // TODO find real value
 
-        public static final double CURRENT_LIMIT = 0.0; //TODO
+        public static final double CURRENT_LIMIT = 0.0; // TODO find real value
     }
 
     public static final class ArmConstants {
-        // TODO replace with real values
-        public static final int ARM_WRIST_PORT = 1;
 
         public static enum ArmPosition {
             BOTTOM(-Math.PI / 2.0 + Units.degreesToRadians(5)),

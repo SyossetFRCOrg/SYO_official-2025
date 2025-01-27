@@ -53,11 +53,12 @@ public class Superstructure extends SubsystemBase {
                 controller.rightBumper().whileTrue(Commands.run(() -> intake.setRollerVoltage(-4.0), intake));
             });
         } else {
-            algaeIntake = Optional.empty();
+            algaeIntake = Optional.empty(); 
         }
 
         if (subsystems.get("elevator_structure").getBoolean("enabled")) {
-            elevatorStructure = Optional.of(new ElevatorStructure());
+            Toml armToml = new Toml().read(new File(configDir, subsystems.get("arm").getString("config")));
+            elevatorStructure = Optional.of(new ElevatorStructure(armToml));
             elevatorStructure.ifPresent(structure -> {
                 controller.leftTrigger().and(controller.x().or(controller.y()))
                     .whileTrue(structure.getMoveElevator(() ->
