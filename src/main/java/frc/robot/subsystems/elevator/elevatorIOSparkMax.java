@@ -47,8 +47,8 @@ import frc.robot.util.LoggedTunableNumber;
  */
 public class elevatorIOSparkMax implements elevatorIO {
 
-    private static final double GEAR_RATIO = 5.0;
-    public static final double maxIntakeRate = 5600.0 * GEAR_RATIO; // rpm
+    private static final double GEAR_RATIO = 10.0;
+    public static final double maxEvelatorRate = 5600.0 * GEAR_RATIO; // rpm
 
 
     private final SparkMax leader = new SparkMax(24, MotorType.kBrushless);
@@ -63,7 +63,7 @@ public class elevatorIOSparkMax implements elevatorIO {
     private static final LoggedTunableNumber kS =
         new LoggedTunableNumber("Arm/Gains/kS", 0);
     private static final LoggedTunableNumber kV =
-        new LoggedTunableNumber("Arm/Gains/kV", 0);
+        new LoggedTunableNumber("Arm/Gains/kV", 12 / ((5600.0 / 60.0) / (GEAR_RATIO) * 2 * Math.PI)); //it didn't want me to divide by 2PI on Kraken swerve, let's see I guess?
     private static final LoggedTunableNumber kA =
         new LoggedTunableNumber("Arm/Gains/kA", 0);
     private static final LoggedTunableNumber kG =
@@ -108,8 +108,8 @@ public class elevatorIOSparkMax implements elevatorIO {
     elevatorPID = new PIDController(kP.get(), 0, kD.get());
 
     leaderconfig.inverted(false);
-    followerconfig.inverted(true);
 
+    // followerconfig.inverted(true); //inverting already done in the next line
     followerconfig.follow(leader.getDeviceId(),true);
 
     leaderconfig.idleMode(IdleMode.kBrake);

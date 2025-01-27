@@ -47,6 +47,15 @@ public class elevator extends SubsystemBase {
   
   @RequiredArgsConstructor
   public static enum elevatorState {
+
+
+    // ALL OF THESE VALUES DEPEND ON THE MOTOR BEING USED FOR POWERING THE ELEVATOR
+    // IT CAN CHANGE IF THERE IS A DIFFERENT MOTOR (Hence, different gear ratio/encoder sensitivity and whatnot)
+    // don't mix and match motors
+    // 
+
+
+    //initially, this is going to be tuned for NEOS.
     STOW(new LoggedTunableNumber("elevator/StowPosition", 0)),
     INTAKE(new LoggedTunableNumber("elevator/IntakePosition", 3)),
 
