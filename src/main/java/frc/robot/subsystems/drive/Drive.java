@@ -57,7 +57,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-import frc.robot.subsystems.elevator.elevator;
+// import frc.robot.subsystems.elevator.elevator;
 
 public class Drive extends SubsystemBase {
   // TunerConstants doesn't include these constants, so they are declared locally
@@ -257,23 +257,23 @@ public class Drive extends SubsystemBase {
   public void runVelocity(ChassisSpeeds speeds) {
     // Calculate module setpoints
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-    SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
+    // SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
     currentSetpoint =
           setpointGenerator.generateSetpoint(
-              currentModuleLimits, currentSetpoint, desiredSpeeds, Constants.loopPeriodSecs);
-    SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
+              TunerConstants.moduleLimitsFree, currentSetpoint, discreteSpeeds, 0.02);
+    SwerveDriveKinematics.desaturateWheelSpeeds(currentSetpoint.moduleStates(), TunerConstants.driveConfig.maxLinearVelocity());
 
     // Log unoptimized setpoints and setpoint speeds
-    Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
-    Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
+    Logger.recordOutput("SwerveStates/Setpoints", currentSetpoint.moduleStates());
+    Logger.recordOutput("SwerveChassisSpeeds/Setpoints", currentSetpoint.chassisSpeeds());
 
     // Send setpoints to modules
     for (int i = 0; i < 4; i++) {
-      modules[i].runSetpoint(setpointStates[i]);
+      modules[i].runSetpoint(currentSetpoint.moduleStates()[i]);
     }
 
     // Log optimized setpoints (runSetpoint mutates each state)
-    Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
+    Logger.recordOutput("SwerveStates/SetpointsOptimized", currentSetpoint.moduleStates());
   }
 
   /** Runs the drive in a straight line with the specified drive output. */

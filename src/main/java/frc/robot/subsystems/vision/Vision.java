@@ -25,6 +25,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,9 +36,11 @@ public class Vision extends SubsystemBase {
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
+  private final Drive drive;
 
-  public Vision(VisionConsumer consumer, VisionIO... io) {
+  public Vision(VisionConsumer consumer, Drive drive, VisionIO... io) {
     this.consumer = consumer;
+    this.drive = drive;
     this.io = io;
 
     // Initialize inputs
@@ -113,6 +116,7 @@ public class Vision extends SubsystemBase {
                 || observation.pose().getY() > aprilTagLayout.getFieldWidth()
                 || (observation.pose().getX() == 0.0 
                 && observation.pose().getY() == 0.0)
+                || Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond) > Math.PI //reject if omega too high
                 
                 ;
 
