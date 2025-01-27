@@ -22,8 +22,10 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.AutoAlignController;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -48,13 +50,16 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  // Subsystems
-  // private final Vision vision;
-  private final Drive drive;
-  private final elevator elevator;
+    // Subsystems
+    // private final Vision vision;
+    private final Drive drive;
+    private final elevator elevator;
 
-  // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
+    // Controller
+    private final CommandXboxController controller = new CommandXboxController(0);
+
+    private AutoAlignController autoAlignController;
+
 
 //   // Dashboard inputs
 //   private final LoggedDashboardChooser<Command> autoChooser;
@@ -173,18 +178,44 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    // Lock to 0° when A button is held
+    // Lock to nearest coral station's angle when A button is held
     controller
         .a()
         .whileTrue( 
-            DriveCommands.joystickDriveAtAngle(
+            DriveCommands.joystickDriveCoralStation(
                 drive,
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
-                () -> new Rotation2d()));
+                () -> drive.getPose().getY()));
 
-    // Switch to X pattern when X button is pressed
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    controller
+        .x()
+        .whileTrue(
+            DriveCommands.lineUpToNearestReef(() -> drive.getPose())
+        );
+    
+    controller
+        .y()
+        .whileTrue(
+            new InstantCommand(() -> {
+                autoAlignController = new AutoAlignController(drive, () -> DriveCommands.getNearestReefPose(drive.getPose()), () -> DriveCommands.getDistanceToNearestReef(drive.getPose()) < 1.5);
+            })
+            .andThen(
+                () -> {
+                    drive.runVelocity(autoAlignController.update());
+
+                    // //does this every loop, make it more efficient??
+                    // //makes a new align controller with slow mode when it's nearby
+                    // //maybe change the slowmode boolean to a booleanSupplier
+                    // if (DriveCommands.getDistanceToNearestReef(drive.getPose()) < 1.5) 
+                    //     {
+                    //         autoAlignController = new AutoAlignController(drive, () -> DriveCommands.getNearestReefPose(drive.getPose()), true);
+                    //     }
+
+                }
+            ).repeatedly().until(() -> autoAlignController.atGoal())
+            );
+
 
     // Reset gyro to 0° when B button is pressed
     controller
@@ -193,7 +224,7 @@ public class RobotContainer {
             Commands.runOnce(
                     () ->
                         drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+                            new Pose2d(3.442369222640991, 5.234981060028076, Rotation2d.fromRadians(-1.0486071798869254))),
                     drive)
                 .ignoringDisable(true));
   }

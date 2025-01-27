@@ -15,19 +15,23 @@ package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.elevator.elevator.elevatorState;
 import frc.robot.util.LoggedTunableNumber;
+import frc.robot.util.swerve.ModuleLimits;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -98,7 +102,11 @@ public class elevator extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("elevator", inputs);
     io.updateShuffleboard();
-
+    
+    if (inputs.motorType.equals("Sparkmax"))
+    {
+      io.periodic();
+    }
 
     applyStates();
   }
@@ -151,6 +159,16 @@ public class elevator extends SubsystemBase {
   public double getHeight() {
       return inputs.positionRads;
   }
+
+  public boolean elevatorup(){
+    return getHeight() >= elevatorState.L2.get();
+  }
+
+  public ModuleLimits getModuleLimits() {
+            return elevatorup() && !DriverStation.isAutonomousEnabled()
+            ? TunerConstants.moduleLimitsElevatorUp
+            : TunerConstants.moduleLimitsFree;
+    }
 
   /** Resets the angle of the intake to positionRads. */
   public void setHeight(double positionRads) {

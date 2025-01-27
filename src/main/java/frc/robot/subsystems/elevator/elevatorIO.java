@@ -14,6 +14,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public interface elevatorIO {
   @AutoLog
   class elevatorIOInputs {
+
+    public String motorType = "";
     public boolean motorConnected = false;
     public double positionRads = 0.0;
     public double velocityRadsPerSec = 0.0;
@@ -34,6 +36,10 @@ public interface elevatorIO {
   /** Sets the elevator to a height, as in "resetting" the elevator */
   default void setHeight(double posRads) {}
 
+  /** used only for SparkMaxIO, in order to properly run the trapezoidal profile. Not needed for motion magic */
+  default void periodic(){
+
+  }
   /** Stop slam elevator */
   default void stop() {}
 

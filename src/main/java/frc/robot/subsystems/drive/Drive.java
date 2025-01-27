@@ -50,10 +50,14 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.util.swerve.SwerveSetpoint;
+import frc.robot.util.swerve.SwerveSetpointGenerator;
+
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import frc.robot.subsystems.elevator.elevator;
 
 public class Drive extends SubsystemBase {
   // TunerConstants doesn't include these constants, so they are declared locally
@@ -68,6 +72,26 @@ public class Drive extends SubsystemBase {
               Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
               Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 
+  static double trackWidthX = 28;
+  static double trackWidthY = 28;
+  public static final Translation2d[] moduleTranslations =
+      new Translation2d[] {
+        new Translation2d(trackWidthX / 2.0, trackWidthY / 2.0),
+        new Translation2d(trackWidthX / 2.0, -trackWidthY / 2.0),
+        new Translation2d(-trackWidthX / 2.0, trackWidthY / 2.0),
+        new Translation2d(-trackWidthX / 2.0, -trackWidthY / 2.0)
+      };
+  private SwerveSetpoint currentSetpoint =
+  new SwerveSetpoint(
+      new ChassisSpeeds(),
+      new SwerveModuleState[] {
+        new SwerveModuleState(),
+        new SwerveModuleState(),
+        new SwerveModuleState(),
+        new SwerveModuleState()
+      });
+
+  private final SwerveSetpointGenerator setpointGenerator;
   // PathPlanner config constants
   private static final double ROBOT_MASS_KG = 50;
   private static final double ROBOT_MOI = 6.883;
@@ -121,6 +145,14 @@ public class Drive extends SubsystemBase {
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
 
+  
+    setpointGenerator =
+        SwerveSetpointGenerator.builder()
+            .kinematics(kinematics)
+            .moduleLocations(moduleTranslations)
+            .build();
+
+            
     // Start odometry thread
     PhoenixOdometryThread.getInstance().start();
 
@@ -226,6 +258,9 @@ public class Drive extends SubsystemBase {
     // Calculate module setpoints
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
     SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
+    currentSetpoint =
+          setpointGenerator.generateSetpoint(
+              currentModuleLimits, currentSetpoint, desiredSpeeds, Constants.loopPeriodSecs);
     SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
 
     // Log unoptimized setpoints and setpoint speeds

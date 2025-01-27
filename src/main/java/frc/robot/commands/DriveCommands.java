@@ -13,6 +13,20 @@
 
 package frc.robot.commands;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -28,17 +42,12 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
-  private static final double ANGLE_KP = 5.0;
+  private static final double ANGLE_KP = 4.0;
   private static final double ANGLE_KD = 0.4;
   private static final double ANGLE_MAX_VELOCITY = 8.0;
   private static final double ANGLE_MAX_ACCELERATION = 20.0;
@@ -46,6 +55,26 @@ public class DriveCommands {
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
+
+
+  private static Pose2d[] reefscoringPositions = //not finalized or tuned. pose2d of all the blue reef scoring positions
+  { //use alliancefliputil to flip to get corresponding red scoring pose2ds
+    new Pose2d(3.2292869091033936, 3.8667519092559814, Rotation2d.fromDegrees(0)),
+    new Pose2d(3.2235898971557617, 4.180093288421631, Rotation2d.fromDegrees(0)),
+
+    new Pose2d(3.707775115966797, 5.033270359039307, Rotation2d.fromRadians(-1.0466175637493382)),
+    new Pose2d(3.985335350036621, 5.185656547546387, Rotation2d.fromRadians(-1.0466175637493382)),
+    
+    new Pose2d(4.970402717590332, 5.174771785736084, Rotation2d.fromRadians(-2.0988710476023327)),
+    new Pose2d(5.264289855957031 , 5.011500835418701, Rotation2d.fromRadians(-2.0988710476023327)),
+
+    new Pose2d(5.726890563964844, 4.184262275695801, Rotation2d.fromDegrees(180)),
+    new Pose2d(5.732332706451416 , 3.868605375289917, Rotation2d.fromDegrees(180)),
+    
+  };
+  
+  
+
 
   private DriveCommands() {}
 
@@ -86,9 +115,9 @@ public class DriveCommands {
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds =
               new ChassisSpeeds(
-                  linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-                  linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-                  omega * drive.getMaxAngularSpeedRadPerSec());
+                  linearVelocity.getX() * TunerConstants.driveConfig.maxAngularVelocity(),
+                  linearVelocity.getY() * TunerConstants.driveConfig.maxAngularVelocity(),
+                  omega * TunerConstants.driveConfig.maxAngularVelocity());
           boolean isFlipped =
               DriverStation.getAlliance().isPresent()
                   && DriverStation.getAlliance().get() == Alliance.Red;
@@ -100,6 +129,42 @@ public class DriveCommands {
                       : drive.getRotation()));
         },
         drive);
+  }
+
+  /**
+   * uses joystickDriveAtAngle, just provides a the Rotation2d supplier depending on the current estimated pose,
+   * looks at the nearest coral station.
+   * 
+   * joystickDriveCoralStation already flips the pose by PI radians if it's red alliance.
+   * @return
+   */
+  public static Command joystickDriveCoralStation(
+      Drive drive,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      DoubleSupplier yCoordinateSupplier
+  ){
+    
+    // // Logger.recordOutput("Odometry/botPoseY>4", 4.0 > drive.getPose().getY());
+    // if (4.0 > yCoordinateSupplier.getAsDouble()) //doesn't work right now
+    // {
+    //   //blue left side coral station
+
+
+    //extremely jank solution
+    return DriveCommands.joystickDriveAtAngle(drive, xSupplier, ySupplier, () -> Rotation2d.fromRadians(-2.2020204805272137)).onlyIf(() -> 4.0 > yCoordinateSupplier.getAsDouble())
+    .andThen(DriveCommands.joystickDriveAtAngle(drive, xSupplier, ySupplier, () -> Rotation2d.fromRadians(2.2025756098633624)).onlyIf(() -> 4.0 <= yCoordinateSupplier.getAsDouble()));
+  // }
+  // else if (4.0 <= yCoordinateSupplier.getAsDouble())
+  // { //blue right side coral station
+    // return DriveCommands.joystickDriveAtAngle(drive, xSupplier, ySupplier, () -> Rotation2d.fromRadians(-2.2025756098633624)).onlyIf(() -> 4.0 <= yCoordinateSupplier.getAsDouble());
+  // }
+  // else{
+    // return Commands.none();
+  // }
+    // return DriveCommands.joystickDriveAtAngle(drive, xSupplier, ySupplier, drive.getPose().getY() > 4.0 ? () -> Rotation2d.fromRadians(2.2020204805272137) : () -> Rotation2d.fromRadians(-2.2020204805272137));
+  
+
   }
 
   /**
@@ -156,6 +221,92 @@ public class DriveCommands {
         .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
   }
 
+
+  public static double getDistanceToNearestReef(Pose2d pose){
+    double mindistance = Double.POSITIVE_INFINITY;
+      int index = -1;
+      for (int i=0; i < reefscoringPositions.length; i++){
+        if (pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation()) < mindistance)
+        {
+          index = i;
+          mindistance = pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation());
+        }
+      }
+
+      return mindistance;
+  }
+
+  public static Pose2d getNearestReefPose(Pose2d pose){
+    double mindistance = Double.POSITIVE_INFINITY;
+      int index = -1;
+      for (int i=0; i < reefscoringPositions.length; i++){
+        if (pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation()) < mindistance)
+        {
+          index = i;
+          mindistance = pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation());
+        }
+      }
+
+      return reefscoringPositions[index];
+  }
+  public static PathPlannerPath getPathToNearestReef(Pose2d pose){
+    
+      double mindistance = Double.POSITIVE_INFINITY;
+      int index = -1;
+      for (int i=0; i < reefscoringPositions.length; i++){
+        if (pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation()) < mindistance)
+        {
+          index = i;
+          mindistance = pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation());
+        }
+      }
+      
+      /**
+       * The waypointsFromPoses method required that the rotation component 
+       * of each pose is the direction of travel, not the rotation of a swerve chassis.
+       *
+       * To set the rotation the path should end with, use the GoalEndState.
+       */
+  
+       //if this works i'm gonna go crazy
+      List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
+          new Pose2d(pose.getX(), pose.getY(), Rotation2d.fromDegrees(0)),
+          new Pose2d(pose.getTranslation().interpolate(reefscoringPositions[index].getTranslation(), 0.5), reefscoringPositions[index].getTranslation().minus(pose.getTranslation()).getAngle()),
+          reefscoringPositions[index]
+      );
+
+      // List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
+      //   new Pose2d(0,4,Rotation2d.fromDegrees(0)),
+      //   new Pose2d(2,4,Rotation2d.fromDegrees(0))
+      //   //,
+      //   // new Pose2d(4,4,Rotation2d.fromDegrees(0))
+      //   );
+
+
+
+  
+      PathConstraints constraints = new PathConstraints(TunerConstants.moduleLimitsFree.maxDriveVelocity() * .8, TunerConstants.moduleLimitsFree.maxDriveAcceleration() * .8, TunerConstants.moduleLimitsFree.maxSteeringVelocity() * .8, TunerConstants.moduleLimitsFree.maxSteeringVelocity() * 1.5); // The constraints for this path.
+      // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also use unlimited constraints, only limited by motor torque and nominal battery voltage
+  
+      // Create the path using the waypoints created above
+      PathPlannerPath path = new PathPlannerPath(
+              waypoints,
+              constraints,
+              null, // The ideal starting state, this is only relevant for pre-planned paths, so can be null for on-the-fly paths.
+              new GoalEndState(0.0, reefscoringPositions[index].getRotation()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
+      );
+      
+  
+      // Prevent the path from being flipped if the coordinates are already correct
+      path.preventFlipping = true;
+      
+    return path;
+  }
+
+  public static Command lineUpToNearestReef(Supplier<Pose2d> pose){
+    //have to seperate making the path and running it because making the path is not a "runnable"
+    return (AutoBuilder.followPath(getPathToNearestReef(pose.get())));
+  }
   /**
    * Measures the velocity feedforward constants for the drive motors.
    *

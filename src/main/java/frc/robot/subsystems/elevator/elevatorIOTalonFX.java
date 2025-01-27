@@ -64,7 +64,7 @@ public class elevatorIOTalonFX implements elevatorIO {
   private final TalonFX motor1;
 
     private static final LoggedTunableNumber kP = new LoggedTunableNumber("Arm/Gains/kP", 0);
-    private static final LoggedTunableNumber kI = new LoggedTunableNumber("Arm/Gains/kI", 0);
+    // private static final LoggedTunableNumber kI = new LoggedTunableNumber("Arm/Gains/kI", 0);
     private static final LoggedTunableNumber kD = new LoggedTunableNumber("Arm/Gains/kD", 0);
     private static final LoggedTunableNumber kS =
         new LoggedTunableNumber("Arm/Gains/kS", 0);
@@ -77,11 +77,11 @@ public class elevatorIOTalonFX implements elevatorIO {
 
 
     private static final LoggedTunableNumber motionMagicVelocity =
-        new LoggedTunableNumber("Arm/Velocity", .1);
+        new LoggedTunableNumber("Arm/maxVelocity", .1);
     private static final LoggedTunableNumber motionMagicAcceleration =
-        new LoggedTunableNumber("Arm/Acceleration", .1);
+        new LoggedTunableNumber("Arm/maxAcceleration", .1);
     private static final LoggedTunableNumber motionMagicJerk =
-        new LoggedTunableNumber("Arm/Acceleration", .1);
+        new LoggedTunableNumber("Arm/maxJerk", .1);
     
 
     private final StatusSignal<Angle> elevatorPosition;
