@@ -80,4 +80,28 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
             () -> setRollerVoltage(0),
             this
     ).withName("intake.runOuttakeRollers");
+
+    public class RunAlgaeRollers extends Command {
+        public boolean isRollingIn;
+
+        public RunAlgaeRollers(boolean isRollingIn) {
+            this.isRollingIn = isRollingIn;
+            addRequirements(AlgaeIntakeSubsystem.this);
+        }
+
+        @Override
+        public void initialize() {
+            if (isRollingIn) {
+                setRollerVoltage(AlgaeIntakeConstants.ALGAE_INTAKE_SPEED);
+            } else {
+                setRollerVoltage(AlgaeIntakeConstants.ALGAE_OUTTAKE_SPEED);
+            }
+        }
+
+        @Override
+        public void end(boolean interrupted) {
+            setRollerVoltage(0);
+        }
+    }
+
 }
