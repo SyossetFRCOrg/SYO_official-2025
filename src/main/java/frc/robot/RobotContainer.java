@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.AutoAlignController;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.ReefAlignController;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.elevator;
@@ -58,7 +59,7 @@ public class RobotContainer {
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
 
-    private AutoAlignController autoAlignController;
+    private ReefAlignController reefAlignController;
 
 
 //   // Dashboard inputs
@@ -66,6 +67,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -162,6 +164,7 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+    reefAlignController = new ReefAlignController(drive, () -> false);
   }
 
   /**
@@ -195,26 +198,17 @@ public class RobotContainer {
             DriveCommands.lineUpToNearestReef(() -> drive.getPose())
         );
     
-    controller
+        controller
         .y()
         .whileTrue(
             new InstantCommand(() -> {
-                autoAlignController = new AutoAlignController(drive, () -> DriveCommands.getNearestReefPose(drive.getPose()), () -> DriveCommands.getDistanceToNearestReef(drive.getPose()) < 1.5);
-            })
-            .andThen(
+                reefAlignController = new ReefAlignController(drive, () -> RobotState.getInstance().getDistanceToNearestReef(drive.getPose()) < 1.5);
+            }).andThen(new InstantCommand(
                 () -> {
-                    drive.runVelocity(autoAlignController.update());
-
-                    // //does this every loop, make it more efficient??
-                    // //makes a new align controller with slow mode when it's nearby
-                    // //maybe change the slowmode boolean to a booleanSupplier
-                    // if (DriveCommands.getDistanceToNearestReef(drive.getPose()) < 1.5) 
-                    //     {
-                    //         autoAlignController = new AutoAlignController(drive, () -> DriveCommands.getNearestReefPose(drive.getPose()), true);
-                    //     }
-
-                }
-            ).repeatedly().until(() -> autoAlignController.atGoal())
+                    drive.runVelocity(reefAlignController.update().get());
+                    
+                },drive).repeatedly()
+            ).until(() -> reefAlignController.atGoal())
             );
 
 
