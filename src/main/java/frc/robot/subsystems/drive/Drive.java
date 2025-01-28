@@ -1,16 +1,3 @@
-// Copyright 2021-2025 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-
 package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
@@ -52,11 +39,11 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.swerve.SwerveSetpoint;
 import frc.robot.util.swerve.SwerveSetpointGenerator;
-
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+
 // import frc.robot.subsystems.elevator.elevator;
 
 public class Drive extends SubsystemBase {
@@ -82,14 +69,14 @@ public class Drive extends SubsystemBase {
         new Translation2d(-trackWidthX / 2.0, -trackWidthY / 2.0)
       };
   private SwerveSetpoint currentSetpoint =
-  new SwerveSetpoint(
-      new ChassisSpeeds(),
-      new SwerveModuleState[] {
-        new SwerveModuleState(),
-        new SwerveModuleState(),
-        new SwerveModuleState(),
-        new SwerveModuleState()
-      });
+      new SwerveSetpoint(
+          new ChassisSpeeds(),
+          new SwerveModuleState[] {
+            new SwerveModuleState(),
+            new SwerveModuleState(),
+            new SwerveModuleState(),
+            new SwerveModuleState()
+          });
 
   private final SwerveSetpointGenerator setpointGenerator;
   // PathPlanner config constants
@@ -145,14 +132,12 @@ public class Drive extends SubsystemBase {
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
 
-  
     setpointGenerator =
         SwerveSetpointGenerator.builder()
             .kinematics(kinematics)
             .moduleLocations(moduleTranslations)
             .build();
 
-            
     // Start odometry thread
     PhoenixOdometryThread.getInstance().start();
 
@@ -259,9 +244,10 @@ public class Drive extends SubsystemBase {
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
     // SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
     currentSetpoint =
-          setpointGenerator.generateSetpoint(
-              TunerConstants.moduleLimitsFree, currentSetpoint, discreteSpeeds, 0.02);
-    SwerveDriveKinematics.desaturateWheelSpeeds(currentSetpoint.moduleStates(), TunerConstants.driveConfig.maxLinearVelocity());
+        setpointGenerator.generateSetpoint(
+            TunerConstants.moduleLimitsFree, currentSetpoint, discreteSpeeds, 0.02);
+    SwerveDriveKinematics.desaturateWheelSpeeds(
+        currentSetpoint.moduleStates(), TunerConstants.driveConfig.maxLinearVelocity());
 
     // Log unoptimized setpoints and setpoint speeds
     Logger.recordOutput("SwerveStates/Setpoints", currentSetpoint.moduleStates());
@@ -334,7 +320,7 @@ public class Drive extends SubsystemBase {
 
   /** Returns the measured chassis speeds of the robot. */
   @AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
-public ChassisSpeeds getChassisSpeeds() {
+  public ChassisSpeeds getChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
   }
 

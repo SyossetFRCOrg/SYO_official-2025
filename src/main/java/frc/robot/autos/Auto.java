@@ -1,29 +1,23 @@
 package frc.robot.autos;
 
-/**
- * Compile-time constants for autonomous programs.
- */
+/** Compile-time constants for autonomous programs. */
 public enum Auto {
-    /**
-     * Remain idle
-     */
-    IDLE,
-    
-    ONETOTHREETOC,
+  /** Remain idle */
+  IDLE,
 
-    THREETOONETOA,
+  ONETOTHREETOC,
 
-    MIDFIELDABC,
+  THREETOONETOA,
 
-    MIDFIELDACB,
+  MIDFIELDABC,
 
-    MIDFIELDBAC,
+  MIDFIELDACB,
 
-    MIDFIELDBCA,
+  MIDFIELDBAC,
 
-    MIDFIELDED,
+  MIDFIELDBCA,
 
-    MIDFIELDDE,
+  MIDFIELDED,
 
-
+  MIDFIELDDE,
 }

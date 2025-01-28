@@ -1,19 +1,5 @@
-// Copyright 2021-2025 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -129,6 +115,7 @@ public class ModuleIOTalonFX implements ModuleIO {
           case RemoteCANcoder -> FeedbackSensorSourceValue.RemoteCANcoder;
           case FusedCANcoder -> FeedbackSensorSourceValue.FusedCANcoder;
           case SyncCANcoder -> FeedbackSensorSourceValue.SyncCANcoder;
+          default -> null;
         };
     turnConfig.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
     turnConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / constants.SteerMotorGearRatio;
@@ -146,9 +133,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     // Configure CANCoder
     CANcoderConfiguration cancoderConfig = constants.EncoderInitialConfigs;
 
-
     // somewhat janky way of doing offsets. first, make the swerve modules face forward, then
-    // get the rotation count that it returns and apply that here. therefore, there should be 
+    // get the rotation count that it returns and apply that here. therefore, there should be
     // no need to do any other sort of offset in the way we need to in the sparkmax code, because
     // cancoders are part of the ctre ecosystem.
     // cancoderConfig.MagnetSensor.withMagnetOffset(
@@ -160,7 +146,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     //         default -> Rotations.of(0);
 
     //     });
-    
+
     cancoderConfig.MagnetSensor.MagnetOffset = constants.EncoderOffset;
 
     cancoderConfig.MagnetSensor.SensorDirection =
@@ -278,8 +264,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     turnTalon.setControl(
         switch (constants.SteerMotorClosedLoopOutput) {
           case Voltage -> positionVoltageRequest.withPosition(rotation.getRotations());
-          case TorqueCurrentFOC -> positionTorqueCurrentRequest.withPosition(
-              rotation.getRotations());
+          case TorqueCurrentFOC ->
+              positionTorqueCurrentRequest.withPosition(rotation.getRotations());
         });
   }
 }

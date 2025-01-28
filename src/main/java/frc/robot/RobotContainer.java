@@ -1,47 +1,25 @@
-// Copyright 2021-2025 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-
 package frc.robot;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.AutoAlignController;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.elevator.elevator;
-import frc.robot.subsystems.elevator.elevatorIO;
-import frc.robot.subsystems.elevator.elevatorIOTalonFX;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
-import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionIOLimelight;
-
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import frc.robot.subsystems.elevator.elevator;
+import frc.robot.subsystems.elevator.elevatorIO;
+import frc.robot.subsystems.elevator.elevatorIOTalonFX;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -50,19 +28,18 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-    // Subsystems
-    // private final Vision vision;
-    private final Drive drive;
-    private final elevator elevator;
+  // Subsystems
+  // private final Vision vision;
+  private final Drive drive;
+  private final elevator elevator;
 
-    // Controller
-    private final CommandXboxController controller = new CommandXboxController(0);
+  // Controller
+  private final CommandXboxController controller = new CommandXboxController(0);
 
-    private AutoAlignController autoAlignController;
+  private AutoAlignController autoAlignController;
 
-
-//   // Dashboard inputs
-//   private final LoggedDashboardChooser<Command> autoChooser;
+  //   // Dashboard inputs
+  //   private final LoggedDashboardChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -76,21 +53,19 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
-        elevator = new elevator(
-            new elevatorIOTalonFX()
-        );
+        elevator = new elevator(new elevatorIOTalonFX());
         break;
 
-    //   case SIM:
-    //     // Sim robot, instantiate physics sim IO implementations
-    //     drive =
-    //         new Drive(
-    //             new GyroIO() {},
-    //             new ModuleIOSim(TunerConstants.FrontLeft),
-    //             new ModuleIOSim(TunerConstants.FrontRight),
-    //             new ModuleIOSim(TunerConstants.BackLeft),
-    //             new ModuleIOSim(TunerConstants.BackRight));
-    //     break;
+        //   case SIM:
+        //     // Sim robot, instantiate physics sim IO implementations
+        //     drive =
+        //         new Drive(
+        //             new GyroIO() {},
+        //             new ModuleIOSim(TunerConstants.FrontLeft),
+        //             new ModuleIOSim(TunerConstants.FrontRight),
+        //             new ModuleIOSim(TunerConstants.BackLeft),
+        //             new ModuleIOSim(TunerConstants.BackRight));
+        //     break;
 
       default:
         // Replayed robot, disable IO implementations
@@ -101,10 +76,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        elevator =
-            new elevator(
-                new elevatorIO() {}
-            );
+        elevator = new elevator(new elevatorIO() {});
         break;
     }
     // switch (Constants.currentMode) {
@@ -117,13 +89,12 @@ public class RobotContainer {
     //             new VisionIOLimelight(camera0Name, drive::getRotation),
     //             new VisionIOLimelight(camera1Name, drive::getRotation));
 
-
-        // vision =
-        //     new Vision(
-        //         demoDrive::addVisionMeasurement,
-        //         new VisionIOPhotonVision(camera0Name, robotToCamera0),
-        //         new VisionIOPhotonVision(camera1Name, robotToCamera1));
-        // break;
+    // vision =
+    //     new Vision(
+    //         demoDrive::addVisionMeasurement,
+    //         new VisionIOPhotonVision(camera0Name, robotToCamera0),
+    //         new VisionIOPhotonVision(camera1Name, robotToCamera1));
+    // break;
 
     //   case SIM:
     //     // Sim robot, instantiate physics sim IO implementations
@@ -182,41 +153,42 @@ public class RobotContainer {
     // Lock to nearest coral station's angle when A button is held
     controller
         .a()
-        .whileTrue( 
+        .whileTrue(
             DriveCommands.joystickDriveCoralStation(
                 drive,
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () -> drive.getPose().getY()));
 
-    controller
-        .x()
-        .whileTrue(
-            DriveCommands.lineUpToNearestReef(() -> drive.getPose())
-        );
-    
+    controller.x().whileTrue(DriveCommands.lineUpToNearestReef(() -> drive.getPose()));
+
     controller
         .y()
         .whileTrue(
-            new InstantCommand(() -> {
-                autoAlignController = new AutoAlignController(drive, () -> DriveCommands.getNearestReefPose(drive.getPose()), () -> DriveCommands.getDistanceToNearestReef(drive.getPose()) < 1.5);
-            })
-            .andThen(
-                () -> {
-                    drive.runVelocity(autoAlignController.update());
+            new InstantCommand(
+                    () -> {
+                      autoAlignController =
+                          new AutoAlignController(
+                              drive,
+                              () -> DriveCommands.getNearestReefPose(drive.getPose()),
+                              () -> DriveCommands.getDistanceToNearestReef(drive.getPose()) < 1.5);
+                    })
+                .andThen(
+                    () -> {
+                      drive.runVelocity(autoAlignController.update());
 
-                    // //does this every loop, make it more efficient??
-                    // //makes a new align controller with slow mode when it's nearby
-                    // //maybe change the slowmode boolean to a booleanSupplier
-                    // if (DriveCommands.getDistanceToNearestReef(drive.getPose()) < 1.5) 
-                    //     {
-                    //         autoAlignController = new AutoAlignController(drive, () -> DriveCommands.getNearestReefPose(drive.getPose()), true);
-                    //     }
+                      // //does this every loop, make it more efficient??
+                      // //makes a new align controller with slow mode when it's nearby
+                      // //maybe change the slowmode boolean to a booleanSupplier
+                      // if (DriveCommands.getDistanceToNearestReef(drive.getPose()) < 1.5)
+                      //     {
+                      //         autoAlignController = new AutoAlignController(drive, () ->
+                      // DriveCommands.getNearestReefPose(drive.getPose()), true);
+                      //     }
 
-                }
-            ).repeatedly().until(() -> autoAlignController.atGoal())
-            );
-
+                    })
+                .repeatedly()
+                .until(() -> autoAlignController.atGoal()));
 
     // Reset gyro to 0° when B button is pressed
     controller
@@ -225,17 +197,20 @@ public class RobotContainer {
             Commands.runOnce(
                     () ->
                         drive.setPose(
-                            new Pose2d(3.442369222640991, 5.234981060028076, Rotation2d.fromRadians(-1.0486071798869254))),
+                            new Pose2d(
+                                3.442369222640991,
+                                5.234981060028076,
+                                Rotation2d.fromRadians(-1.0486071798869254))),
                     drive)
                 .ignoringDisable(true));
   }
 
-//   /**
-//    * Use this to pass the autonomous command to the main {@link Robot} class.
-//    *
-//    * @return the command to run in autonomous
-//    */
-//   public Command getAutonomousCommand() {
-//     return autoChooser.get();
-//   }
+  //   /**
+  //    * Use this to pass the autonomous command to the main {@link Robot} class.
+  //    *
+  //    * @return the command to run in autonomous
+  //    */
+  //   public Command getAutonomousCommand() {
+  //     return autoChooser.get();
+  //   }
 }

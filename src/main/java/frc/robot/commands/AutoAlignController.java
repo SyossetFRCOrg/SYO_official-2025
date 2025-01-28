@@ -1,10 +1,3 @@
-// Copyright (c) 2024 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by an MIT-style
-// license that can be found in the LICENSE file at
-// the root directory of this project.
-
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
@@ -14,14 +7,13 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
-
-import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
-import lombok.experimental.ExtensionMethod;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.LoggedTunableNumber;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
+import lombok.experimental.ExtensionMethod;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -69,8 +61,8 @@ public class AutoAlignController {
       new LoggedTunableNumber("AutoAlign/ffMaxRadius", 0.8);
 
   private final Supplier<Pose2d> desiredPoseSupplier;
-  private final Drive drive;    
-//   private final Supplier<Translation2d> feedforwardSupplier;
+  private final Drive drive;
+  //   private final Supplier<Translation2d> feedforwardSupplier;
   private final BooleanSupplier slowMode;
   private Translation2d lastSetpointTranslation;
 
@@ -80,9 +72,9 @@ public class AutoAlignController {
   private final Timer toleranceTimer = new Timer();
 
   public AutoAlignController(
-    Drive drive,
-    Supplier<Pose2d> desiredPoseSupplier,
-    //   Supplier<Translation2d> feedforwardSupplier,
+      Drive drive,
+      Supplier<Pose2d> desiredPoseSupplier,
+      //   Supplier<Translation2d> feedforwardSupplier,
       BooleanSupplier slowMode) {
     this.desiredPoseSupplier = desiredPoseSupplier;
     this.drive = drive;
@@ -170,8 +162,7 @@ public class AutoAlignController {
     Pose2d targetPose = desiredPoseSupplier.get();
 
     // Calculate drive speed
-    double currentDistance =
-        currentPose.getTranslation().getDistance(targetPose.getTranslation());
+    double currentDistance = currentPose.getTranslation().getDistance(targetPose.getTranslation());
     double ffScaler =
         MathUtil.clamp(
             (currentDistance - ffMinRadius.get()) / (ffMaxRadius.get() - ffMinRadius.get()),
@@ -221,13 +212,11 @@ public class AutoAlignController {
                 currentPose.getTranslation().minus(targetPose.getTranslation()).getAngle())
             .transformBy(GeomUtil.toTransform2d(driveVelocityScalar, 0.0))
             .getTranslation();
-            // .plus(feedforwardSupplier.get()); //I don't know what this does...?
-    
+    // .plus(feedforwardSupplier.get()); //I don't know what this does...?
+
     updateConstraints();
     return ChassisSpeeds.fromFieldRelativeSpeeds(
         driveVelocity.getX(), driveVelocity.getY(), thetaVelocity, currentPose.getRotation());
-    
-    
   }
 
   @AutoLogOutput(key = "AutoAlign/AtGoal")
