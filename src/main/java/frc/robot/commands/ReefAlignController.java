@@ -1,3 +1,10 @@
+// Copyright (c) 2024 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
+
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
@@ -10,13 +17,14 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import frc.robot.RobotState;
 import edu.wpi.first.wpilibj.Timer;
+
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
+import lombok.experimental.ExtensionMethod;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.LoggedTunableNumber;
-import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
-import lombok.experimental.ExtensionMethod;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -29,18 +37,18 @@ public class ReefAlignController {
   private static final LoggedTunableNumber linearkD =
       new LoggedTunableNumber("AutoAlign/drivekD", 0.0);
   private static final LoggedTunableNumber thetakP =
-      new LoggedTunableNumber("AutoAlign/thetakP", 4.0);
+      new LoggedTunableNumber("AutoAlign/thetakP", 2.5);
   private static final LoggedTunableNumber thetakD =
       new LoggedTunableNumber("AutoAlign/thetakD", 0.5);
   private static final LoggedTunableNumber linearTolerance =
-      new LoggedTunableNumber("AutoAlign/controllerLinearTolerance", 0.02);
+      new LoggedTunableNumber("AutoAlign/controllerLinearTolerance", 0.01);
   private static final LoggedTunableNumber thetaTolerance =
-      new LoggedTunableNumber("AutoAlign/controllerThetaTolerance", Units.degreesToRadians(4.0));
+      new LoggedTunableNumber("AutoAlign/controllerThetaTolerance", Units.degreesToRadians(2.0));
   private static final LoggedTunableNumber toleranceTime =
-      new LoggedTunableNumber("AutoAlign/controllerToleranceSecs", 0.5);
+      new LoggedTunableNumber("AutoAlign/controllerToleranceSecs", 0.25);
   private static final LoggedTunableNumber maxLinearVelocity =
       new LoggedTunableNumber(
-          "AutoAlign/maxLinearVelocity", TunerConstants.driveConfig.maxLinearVelocity() * .6);
+          "AutoAlign/maxLinearVelocity", TunerConstants.driveConfig.maxLinearVelocity() * .5);
   private static final LoggedTunableNumber maxLinearAcceleration =
       new LoggedTunableNumber(
           "AutoAlign/maxLinearAcceleration",
@@ -69,9 +77,9 @@ public class ReefAlignController {
   private static final LoggedTunableNumber ffMaxRadius =
       new LoggedTunableNumber("AutoAlign/ffMaxRadius", 0.8);
 
-  private final Supplier<Pose2d> desiredPoseSupplier;
-  private final Drive drive;
-  //   private final Supplier<Translation2d> feedforwardSupplier;
+  private final Pose2d desiredPose;
+  private final Drive drive;    
+//   private final Supplier<Translation2d> feedforwardSupplier;
   private final BooleanSupplier slowMode;
   private Translation2d lastSetpointTranslation;
 
@@ -87,10 +95,9 @@ public class ReefAlignController {
 
   private final Timer toleranceTimer = new Timer();
 
-  public AutoAlignController(
-      Drive drive,
-      Supplier<Pose2d> desiredPoseSupplier,
-      //   Supplier<Translation2d> feedforwardSupplier,
+  public ReefAlignController(
+    Drive drive,
+    //   Supplier<Translation2d> feedforwardSupplier,
       BooleanSupplier slowMode) {
     this.drive = drive;
     this.desiredPose = RobotState.getInstance().getNearestReefPose(drive.getPose());
@@ -176,19 +183,23 @@ public class ReefAlignController {
     Pose2d targetPose = desiredPose;
 
     // Calculate drive speed
-    double currentDistance = currentPose.getTranslation().getDistance(targetPose.getTranslation());
-    double ffScaler =
+    double currentDistance =
+        currentPose.getTranslation().getDistance(targetPose.getTranslation());
+    double ffScaler = //1.0;
         MathUtil.clamp(
             (currentDistance - ffMinRadius.get()) / (ffMaxRadius.get() - ffMinRadius.get()),
             0.0,
             1.0);
 
-    resetControllers();
+    linearController.reset(linearController.getSetpoint().position, linearController.getSetpoint().velocity);
+    // thetaController.reset(thetaController.getSetpoint().position, thetaController.getSetpoint().velocity);
     
+
     double driveVelocityScalar =
         linearController.getSetpoint().velocity * ffScaler
             + linearController.calculate(currentDistance, 0.0);
 
+    
     if (linearController.atGoal()) driveVelocityScalar = 0.0;
     lastSetpointTranslation =
         new Pose2d(
@@ -228,6 +239,8 @@ public class ReefAlignController {
         new Pose2d(
             lastSetpointTranslation, new Rotation2d(thetaController.getSetpoint().position)));
     Logger.recordOutput("Odometry/GoalPose", targetPose);
+    Logger.recordOutput("AutoAlign/AtGoal", atGoal());
+    
 
     // Command speeds
     var driveVelocity =
@@ -237,11 +250,12 @@ public class ReefAlignController {
                 currentPose.getTranslation().minus(targetPose.getTranslation()).getAngle())
             .transformBy(GeomUtil.toTransform2d(driveVelocityScalar, 0.0))
             .getTranslation();
-    // .plus(feedforwardSupplier.get()); //I don't know what this does...?
+            // .plus(feedforwardSupplier.get());
+    final double finalThetaVelocity = thetaVelocity;
 
     updateConstraints();
-    return ChassisSpeeds.fromFieldRelativeSpeeds(
-        driveVelocity.getX(), driveVelocity.getY(), thetaVelocity, currentPose.getRotation());
+    return () -> ChassisSpeeds.fromFieldRelativeSpeeds(
+        driveVelocity.getX(), driveVelocity.getY(), finalThetaVelocity, currentPose.getRotation());
   }
 
   @AutoLogOutput(key = "AutoAlign/AtGoal")

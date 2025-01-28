@@ -1,32 +1,16 @@
-// Copyright (c) 2024 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by an MIT-style
-// license that can be found in the LICENSE file at
-// the root directory of this project.
-
 package frc.robot;
 
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 import edu.wpi.first.math.*;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.*;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 // import edu.wpi.first.math.kinematics.SwerveDriveWheelPositions;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.GeomUtil;
-import frc.robot.util.LoggedTunableNumber;
-
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.function.BooleanSupplier;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.ExtensionMethod;
 // import org.littletonrobotics.frc2024.subsystems.drive.DriveConstants;
 // import org.littletonrobotics.frc2024.subsystems.superstructure.arm.ArmConstants;
@@ -36,12 +20,6 @@ import lombok.experimental.ExtensionMethod;
 // import org.littletonrobotics.frc2024.util.NoteVisualizer;
 // import org.littletonrobotics.frc2024.util.swerve.ModuleLimits;
 import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-
-import com.pathplanner.lib.path.GoalEndState;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.Waypoint;
 
 @ExtensionMethod({GeomUtil.class})
 public class RobotState {
@@ -53,110 +31,120 @@ public class RobotState {
     return instance;
   }
 
-  private Pose2d[] reefscoringPositions = //not finalized or tuned. pose2d of all the blue reef scoring positions
-  { //use alliancefliputil to flip to get corresponding red scoring pose2ds
+  private Pose2d[]
+      reefscoringPositions = // not finalized or tuned. pose2d of all the blue reef scoring
+  // positions
+  { // use alliancefliputil to flip to get corresponding red scoring pose2ds
     new Pose2d(3.2292869091033936, 3.8667519092559814, Rotation2d.fromDegrees(0)),
     new Pose2d(3.2235898971557617, 4.180093288421631, Rotation2d.fromDegrees(0)),
-
     new Pose2d(3.707775115966797, 5.033270359039307, Rotation2d.fromRadians(-1.0466175637493382)),
     new Pose2d(3.985335350036621, 5.185656547546387, Rotation2d.fromRadians(-1.0466175637493382)),
-    
     new Pose2d(4.970402717590332, 5.174771785736084, Rotation2d.fromRadians(-2.0988710476023327)),
-    new Pose2d(5.264289855957031 , 5.011500835418701, Rotation2d.fromRadians(-2.0988710476023327)),
-
+    new Pose2d(5.264289855957031, 5.011500835418701, Rotation2d.fromRadians(-2.0988710476023327)),
     new Pose2d(5.726890563964844, 4.184262275695801, Rotation2d.fromDegrees(180)),
-    new Pose2d(5.732332706451416 , 3.868605375289917, Rotation2d.fromDegrees(180)),
-    
+    new Pose2d(5.732332706451416, 3.868605375289917, Rotation2d.fromDegrees(180)),
   };
-  private RobotState(){
 
-  }
+  private RobotState() {}
 
-
-  
-  public double getDistanceToNearestReef(Pose2d pose){
+  public double getDistanceToNearestReef(Pose2d pose) {
     double mindistance = Double.POSITIVE_INFINITY;
-      int index = -1;
-      for (int i=0; i < reefscoringPositions.length; i++){
-        if (pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation()) < mindistance)
-        {
-          index = i;
-          mindistance = pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation());
-        }
+    int index = -1;
+    for (int i = 0; i < reefscoringPositions.length; i++) {
+      if (pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation())
+          < mindistance) {
+        index = i;
+        mindistance = pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation());
       }
+    }
 
-      return mindistance;
+    return mindistance;
   }
 
   @AutoLogOutput(key = "NearestReefPose")
-  public Pose2d getNearestReefPose(Pose2d pose){
+  public Pose2d getNearestReefPose(Pose2d pose) {
     double mindistance = Double.POSITIVE_INFINITY;
-      int index = -1;
-      for (int i=0; i < reefscoringPositions.length; i++){
-        if (pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation()) < mindistance)
-        {
-          index = i;
-          mindistance = pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation());
-        }
+    int index = -1;
+    for (int i = 0; i < reefscoringPositions.length; i++) {
+      if (pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation())
+          < mindistance) {
+        index = i;
+        mindistance = pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation());
       }
+    }
 
-      return reefscoringPositions[index];
+    return reefscoringPositions[index];
   }
-  public PathPlannerPath getPathToNearestReef(Pose2d pose){
-    
-      double mindistance = Double.POSITIVE_INFINITY;
-      int index = -1;
-      for (int i=0; i < reefscoringPositions.length; i++){
-        if (pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation()) < mindistance)
-        {
-          index = i;
-          mindistance = pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation());
-        }
+
+  public PathPlannerPath getPathToNearestReef(Pose2d pose) {
+
+    double mindistance = Double.POSITIVE_INFINITY;
+    int index = -1;
+    for (int i = 0; i < reefscoringPositions.length; i++) {
+      if (pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation())
+          < mindistance) {
+        index = i;
+        mindistance = pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation());
       }
-      
-      /**
-       * The waypointsFromPoses method required that the rotation component 
-       * of each pose is the direction of travel, not the rotation of a swerve chassis.
-       *
-       * To set the rotation the path should end with, use the GoalEndState.
-       */
-  
-       //if this works i'm gonna go crazy
-      List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
-          new Pose2d(pose.getX(), pose.getY(), Rotation2d.fromDegrees(0)),
-          new Pose2d(pose.getTranslation().interpolate(reefscoringPositions[index].getTranslation(), 0.5), reefscoringPositions[index].getTranslation().minus(pose.getTranslation()).getAngle()),
-          reefscoringPositions[index]
-      );
+    }
 
-      // List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
-      //   new Pose2d(0,4,Rotation2d.fromDegrees(0)),
-      //   new Pose2d(2,4,Rotation2d.fromDegrees(0))
-      //   //,
-      //   // new Pose2d(4,4,Rotation2d.fromDegrees(0))
-      //   );
+    /**
+     * The waypointsFromPoses method required that the rotation component of each pose is the
+     * direction of travel, not the rotation of a swerve chassis.
+     *
+     * <p>To set the rotation the path should end with, use the GoalEndState.
+     */
 
+    // if this works i'm gonna go crazy
+    List<Waypoint> waypoints =
+        PathPlannerPath.waypointsFromPoses(
+            new Pose2d(pose.getX(), pose.getY(), Rotation2d.fromDegrees(0)),
+            new Pose2d(
+                pose.getTranslation()
+                    .interpolate(reefscoringPositions[index].getTranslation(), 0.5),
+                reefscoringPositions[index]
+                    .getTranslation()
+                    .minus(pose.getTranslation())
+                    .getAngle()),
+            reefscoringPositions[index]);
 
+    // List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
+    //   new Pose2d(0,4,Rotation2d.fromDegrees(0)),
+    //   new Pose2d(2,4,Rotation2d.fromDegrees(0))
+    //   //,
+    //   // new Pose2d(4,4,Rotation2d.fromDegrees(0))
+    //   );
 
-  
-      PathConstraints constraints = new PathConstraints(TunerConstants.moduleLimitsFree.maxDriveVelocity() * .8, TunerConstants.moduleLimitsFree.maxDriveAcceleration() * .8, TunerConstants.moduleLimitsFree.maxSteeringVelocity() * .8, TunerConstants.moduleLimitsFree.maxSteeringVelocity() * 1.5); // The constraints for this path.
-      // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also use unlimited constraints, only limited by motor torque and nominal battery voltage
-  
-      // Create the path using the waypoints created above
-      PathPlannerPath path = new PathPlannerPath(
-              waypoints,
-              constraints,
-              null, // The ideal starting state, this is only relevant for pre-planned paths, so can be null for on-the-fly paths.
-              new GoalEndState(0.0, reefscoringPositions[index].getRotation()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
-      );
-      
-  
-      // Prevent the path from being flipped if the coordinates are already correct
-      path.preventFlipping = true;
-      
+    PathConstraints constraints =
+        new PathConstraints(
+            TunerConstants.moduleLimitsFree.maxDriveVelocity() * .8,
+            TunerConstants.moduleLimitsFree.maxDriveAcceleration() * .8,
+            TunerConstants.moduleLimitsFree.maxSteeringVelocity() * .8,
+            TunerConstants.moduleLimitsFree.maxSteeringVelocity()
+                * 1.5); // The constraints for this path.
+    // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also use
+    // unlimited constraints, only limited by motor torque and nominal battery voltage
+
+    // Create the path using the waypoints created above
+    PathPlannerPath path =
+        new PathPlannerPath(
+            waypoints,
+            constraints,
+            null, // The ideal starting state, this is only relevant for pre-planned paths, so can
+            // be null for on-the-fly paths.
+            new GoalEndState(
+                0.0,
+                reefscoringPositions[index]
+                    .getRotation()) // Goal end state. You can set a holonomic rotation here. If
+            // using a differential drivetrain, the rotation will have no
+            // effect.
+            );
+
+    // Prevent the path from being flipped if the coordinates are already correct
+    path.preventFlipping = true;
+
     return path;
   }
-
-
 
   // private RobotState() {
   //   for (int i = 0; i < 3; ++i) {
@@ -424,7 +412,8 @@ public class RobotState {
   // @AutoLogOutput(key = "RobotState/FieldVelocity")
   // public Twist2d fieldVelocity() {
   //   Translation2d linearFieldVelocity =
-  //       new Translation2d(robotVelocity.dx, robotVelocity.dy).rotateBy(estimatedPose.getRotation());
+  //       new Translation2d(robotVelocity.dx,
+  // robotVelocity.dy).rotateBy(estimatedPose.getRotation());
   //   return new Twist2d(
   //       linearFieldVelocity.getX(), linearFieldVelocity.getY(), robotVelocity.dtheta);
   // }
