@@ -1,10 +1,3 @@
-// Copyright (c) 2024 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by an MIT-style
-// license that can be found in the LICENSE file at
-// the root directory of this project.
-
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
@@ -17,14 +10,13 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import frc.robot.RobotState;
 import edu.wpi.first.wpilibj.Timer;
-
-import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
-import lombok.experimental.ExtensionMethod;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.LoggedTunableNumber;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
+import lombok.experimental.ExtensionMethod;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -77,9 +69,9 @@ public class ReefAlignController {
   private static final LoggedTunableNumber ffMaxRadius =
       new LoggedTunableNumber("AutoAlign/ffMaxRadius", 0.8);
 
-  private final Pose2d desiredPose;
-  private final Drive drive;    
-//   private final Supplier<Translation2d> feedforwardSupplier;
+  private final Supplier<Pose2d> desiredPoseSupplier;
+  private final Drive drive;
+  //   private final Supplier<Translation2d> feedforwardSupplier;
   private final BooleanSupplier slowMode;
   private Translation2d lastSetpointTranslation;
 
@@ -95,9 +87,10 @@ public class ReefAlignController {
 
   private final Timer toleranceTimer = new Timer();
 
-  public ReefAlignController(
-    Drive drive,
-    //   Supplier<Translation2d> feedforwardSupplier,
+  public AutoAlignController(
+      Drive drive,
+      Supplier<Pose2d> desiredPoseSupplier,
+      //   Supplier<Translation2d> feedforwardSupplier,
       BooleanSupplier slowMode) {
     this.drive = drive;
     this.desiredPose = RobotState.getInstance().getNearestReefPose(drive.getPose());
@@ -183,9 +176,8 @@ public class ReefAlignController {
     Pose2d targetPose = desiredPose;
 
     // Calculate drive speed
-    double currentDistance =
-        currentPose.getTranslation().getDistance(targetPose.getTranslation());
-    double ffScaler = //1.0;
+    double currentDistance = currentPose.getTranslation().getDistance(targetPose.getTranslation());
+    double ffScaler =
         MathUtil.clamp(
             (currentDistance - ffMinRadius.get()) / (ffMaxRadius.get() - ffMinRadius.get()),
             0.0,
@@ -245,12 +237,11 @@ public class ReefAlignController {
                 currentPose.getTranslation().minus(targetPose.getTranslation()).getAngle())
             .transformBy(GeomUtil.toTransform2d(driveVelocityScalar, 0.0))
             .getTranslation();
-            // .plus(feedforwardSupplier.get());
-    final double finalThetaVelocity = thetaVelocity;
+    // .plus(feedforwardSupplier.get()); //I don't know what this does...?
 
     updateConstraints();
-    return () -> ChassisSpeeds.fromFieldRelativeSpeeds(
-        driveVelocity.getX(), driveVelocity.getY(), finalThetaVelocity, currentPose.getRotation());
+    return ChassisSpeeds.fromFieldRelativeSpeeds(
+        driveVelocity.getX(), driveVelocity.getY(), thetaVelocity, currentPose.getRotation());
   }
 
   @AutoLogOutput(key = "AutoAlign/AtGoal")

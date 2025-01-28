@@ -1,19 +1,10 @@
-// Copyright (c) 2024 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by an MIT-style
-// license that can be found in the LICENSE file at
-// the root directory of this project.
-
 package frc.robot.subsystems.elevator;
 
 import org.littletonrobotics.junction.AutoLog;
 
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-
-public interface elevatorIO {
+public interface ElevatorIO {
   @AutoLog
-  class elevatorIOInputs {
+  class ElevatorIOInputs {
 
     public String motorType = "";
     public boolean motorConnected = false;
@@ -23,23 +14,26 @@ public interface elevatorIO {
     public double supplyCurrentAmps = 0.0;
     public double torqueCurrentAmps = 0.0;
     public double avgTempCelsius = 0.0;
-    // public TrapezoidProfile trapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(0,0));
+    // public TrapezoidProfile trapezoidProfile = new TrapezoidProfile(new
+    // TrapezoidProfile.Constraints(0,0));
     // public TrapezoidProfile.State trapezoidalProfileState = new TrapezoidProfile.State();
   }
 
   /** Update the inputs. */
-  default void updateInputs(elevatorIOInputs inputs) {}
+  default void updateInputs(ElevatorIOInputs inputs) {}
 
-  /** Run elevator to position - Motion Magic*/
+  /** Run elevator to position - Motion Magic */
   default void movetoHeight(double posRads) {}
 
   /** Sets the elevator to a height, as in "resetting" the elevator */
   default void setHeight(double posRads) {}
 
-  /** used only for SparkMaxIO, in order to properly run the trapezoidal profile. Not needed for motion magic */
-  default void periodic(){
+  /**
+   * used only for SparkMaxIO, in order to properly run the trapezoidal profile. Not needed for
+   * motion magic
+   */
+  default void periodic() {}
 
-  }
   /** Stop slam elevator */
   default void stop() {}
 

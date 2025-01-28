@@ -1,16 +1,3 @@
-// Copyright 2021-2025 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-
 package frc.robot.subsystems.vision;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;
@@ -114,11 +101,10 @@ public class Vision extends SubsystemBase {
                 || observation.pose().getX() > aprilTagLayout.getFieldLength()
                 || observation.pose().getY() < 0.0
                 || observation.pose().getY() > aprilTagLayout.getFieldWidth()
-                || (observation.pose().getX() == 0.0 
-                && observation.pose().getY() == 0.0)
-                || Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond) > Math.PI //reject if omega too high
-                
-                ;
+                || (observation.pose().getX() == 0.0 && observation.pose().getY() == 0.0)
+                || Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond)
+                    > Math.PI // reject if omega too high
+            ;
 
         // Add pose to log
         robotPoses.add(observation.pose());
