@@ -17,9 +17,9 @@ import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.elevator.elevator;
-import frc.robot.subsystems.elevator.elevatorIO;
-import frc.robot.subsystems.elevator.elevatorIOTalonFX;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -31,7 +31,7 @@ public class RobotContainer {
   // Subsystems
   // private final Vision vision;
   private final Drive drive;
-  private final elevator elevator;
+  private final Elevator elevator;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -53,7 +53,7 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
-        elevator = new elevator(new elevatorIOTalonFX());
+        elevator = new Elevator(new ElevatorIOTalonFX());
         break;
 
         //   case SIM:
@@ -76,7 +76,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        elevator = new elevator(new elevatorIO() {});
+        elevator = new Elevator(new ElevatorIO() {});
         break;
     }
     // switch (Constants.currentMode) {

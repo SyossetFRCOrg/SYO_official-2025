@@ -6,7 +6,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.elevator.elevator.elevatorState;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.swerve.ModuleLimits;
 import java.util.function.DoubleSupplier;
@@ -16,12 +15,12 @@ import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class elevator extends SubsystemBase {
-  private final elevatorIO io;
-  private final elevatorIOInputsAutoLogged inputs = new elevatorIOInputsAutoLogged();
+public class Elevator extends SubsystemBase {
+  private final ElevatorIO io;
+  private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
   @RequiredArgsConstructor
-  public static enum elevatorState {
+  public static enum ElevatorState {
     // ALL OF THESE VALUES DEPEND ON THE MOTOR BEING USED FOR POWERING THE ELEVATOR
     // IT CAN CHANGE IF THERE IS A DIFFERENT MOTOR (Hence, different gear ratio/encoder sensitivity
     // and whatnot)
@@ -51,10 +50,9 @@ public class elevator extends SubsystemBase {
     }
   }
 
-  @AutoLogOutput @Getter @Setter private elevatorState state = elevatorState.STOW;
+  @AutoLogOutput @Getter @Setter private ElevatorState state = ElevatorState.STOW;
 
-  /** Creates a new Flywheel. */
-  public elevator(elevatorIO io) {
+  public Elevator(ElevatorIO io) {
     this.io = io;
     io.setBrakeMode(true);
 
@@ -129,7 +127,7 @@ public class elevator extends SubsystemBase {
   }
 
   public boolean elevatorup() {
-    return getHeight() >= elevatorState.L2.get();
+    return getHeight() >= ElevatorState.L2.get();
   }
 
   public ModuleLimits getModuleLimits() {
@@ -147,7 +145,7 @@ public class elevator extends SubsystemBase {
     io.stop();
   }
 
-  public void setWantedState(elevatorState wantedState) {
+  public void setWantedState(ElevatorState wantedState) {
     this.state = wantedState;
   }
 }

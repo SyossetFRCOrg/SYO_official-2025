@@ -23,7 +23,7 @@ import java.util.function.Supplier;
  * NOTE: To use the Spark Flex / NEO Vortex, replace all instances of "CANSparkMax" with
  * "CANSparkFlex".
  */
-public class elevatorIOSparkMax implements elevatorIO {
+public class ElevatorIOSparkMax implements ElevatorIO {
 
   private static final double GEAR_RATIO = 10.0;
   public static final double maxEvelatorRate = 5600.0 * GEAR_RATIO; // rpm
@@ -78,7 +78,7 @@ public class elevatorIOSparkMax implements elevatorIO {
   private final GenericEntry m_rotateAngularSpeedEntry =
       intakeLayout.add("Intake Angular Speed", 0 + " rad/s").getEntry();
 
-  public elevatorIOSparkMax() {
+  public ElevatorIOSparkMax() {
 
     profile =
         new TrapezoidProfile(
@@ -109,7 +109,7 @@ public class elevatorIOSparkMax implements elevatorIO {
   }
 
   @Override
-  public void updateInputs(elevatorIOInputs inputs) {
+  public void updateInputs(ElevatorIOInputs inputs) {
 
     inputs.motorType = "Sparkmax";
 

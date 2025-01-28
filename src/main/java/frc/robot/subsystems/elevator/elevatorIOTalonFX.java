@@ -25,14 +25,15 @@ import frc.robot.util.LoggedTunableNumber;
  * NOTE: To use the Spark Flex / NEO Vortex, replace all instances of "CANSparkMax" with
  * "CANSparkFlex".
  */
-public class elevatorIOTalonFX implements elevatorIO {
+public class ElevatorIOTalonFX implements ElevatorIO {
 
   private static final double GEAR_RATIO = 1.0 / 5.0;
   public static final double maxIntakeRate = 5600.0 * GEAR_RATIO; // rpm
 
   final MotionMagicVoltage elevatorRequest = new MotionMagicVoltage(0);
 
-  private final TalonFX motor1;
+  private final TalonFX talon;
+  private static TalonFXConfiguration talonConfig = new TalonFXConfiguration();
 
   private static final LoggedTunableNumber kP = new LoggedTunableNumber("Arm/Gains/kP", 0);
   // private static final LoggedTunableNumber kI = new LoggedTunableNumber("Arm/Gains/kI", 0);
@@ -68,48 +69,45 @@ public class elevatorIOTalonFX implements elevatorIO {
   //   private final GenericEntry m_rotateAngularSpeedEntry = intakeLayout.add("Intake Angular
   // Speed", 0 + " rad/s").getEntry();
 
-  public elevatorIOTalonFX() {
+  public ElevatorIOTalonFX() {
+    talon = new TalonFX(16, "rio");
 
-    motor1 = new TalonFX(16, "rio");
+    talonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    talonConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+    talonConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
+    talonConfig.Slot0.kA = kA.get();
+    talonConfig.Slot0.kD = kD.get();
+    talonConfig.Slot0.kG = kG.get();
+    talonConfig.Slot0.kP = kP.get();
+    talonConfig.Slot0.kS = kS.get();
+    talonConfig.Slot0.kV = kV.get();
 
-    var motor1config = new TalonFXConfiguration();
+    talonConfig.MotionMagic.MotionMagicAcceleration = motionMagicAcceleration.get();
+    talonConfig.MotionMagic.MotionMagicCruiseVelocity = motionMagicVelocity.get();
+    talonConfig.MotionMagic.MotionMagicJerk = motionMagicJerk.get();
 
-    motor1config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    motor1config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
-    motor1config.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
-    motor1config.Slot0.kA = kA.get();
-    motor1config.Slot0.kD = kD.get();
-    motor1config.Slot0.kG = kG.get();
-    motor1config.Slot0.kP = kP.get();
-    motor1config.Slot0.kS = kS.get();
-    motor1config.Slot0.kV = kV.get();
+    talonConfig.Feedback.SensorToMechanismRatio = 1.0;
+    // talonConfig.TorqueCurrent.PeakForwardTorqueCurrent = constants.SlipCurrent;
+    // talonConfig.TorqueCurrent.PeakReverseTorqueCurrent = -constants.SlipCurrent;
+    talonConfig.CurrentLimits.StatorCurrentLimit = 80;
+    talonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    talonConfig.CurrentLimits.SupplyCurrentLimit = 60;
+    talonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-    motor1config.MotionMagic.MotionMagicAcceleration = motionMagicAcceleration.get();
-    motor1config.MotionMagic.MotionMagicCruiseVelocity = motionMagicVelocity.get();
-    motor1config.MotionMagic.MotionMagicJerk = motionMagicJerk.get();
-
-    motor1config.Feedback.SensorToMechanismRatio = 1.0;
-    // motor1config.TorqueCurrent.PeakForwardTorqueCurrent = constants.SlipCurrent;
-    // motor1config.TorqueCurrent.PeakReverseTorqueCurrent = -constants.SlipCurrent;
-    motor1config.CurrentLimits.StatorCurrentLimit = 80;
-    motor1config.CurrentLimits.StatorCurrentLimitEnable = true;
-    motor1config.CurrentLimits.SupplyCurrentLimit = 60;
-    motor1config.CurrentLimits.SupplyCurrentLimitEnable = true;
-
-    motor1config.MotorOutput.Inverted =
+    talonConfig.MotorOutput.Inverted =
         false // fix this, test this.  Positive should be upward
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
 
-    tryUntilOk(5, () -> motor1.getConfigurator().apply(motor1config, 0.25));
-    tryUntilOk(5, () -> motor1.setPosition(0.0, 0.25));
+    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
+    tryUntilOk(5, () -> talon.setPosition(0.0, 0.25));
 
-    elevatorPosition = motor1.getPosition();
-    elevatorVelocity = motor1.getVelocity();
-    elevatorAppliedVolts = motor1.getMotorVoltage();
-    elevatorCurrent = motor1.getSupplyCurrent();
-    elevatorTorqueCurrent = motor1.getTorqueCurrent();
-    tempCelsius = motor1.getDeviceTemp();
+    elevatorPosition = talon.getPosition();
+    elevatorVelocity = talon.getVelocity();
+    elevatorAppliedVolts = talon.getMotorVoltage();
+    elevatorCurrent = talon.getSupplyCurrent();
+    elevatorTorqueCurrent = talon.getTorqueCurrent();
+    tempCelsius = talon.getDeviceTemp();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
@@ -119,13 +117,40 @@ public class elevatorIOTalonFX implements elevatorIO {
         elevatorCurrent,
         elevatorTorqueCurrent,
         tempCelsius);
-    ParentDevice.optimizeBusUtilizationForAll(motor1);
+    ParentDevice.optimizeBusUtilizationForAll(talon);
   }
 
   @Override
-  public void updateInputs(elevatorIOInputs inputs) {
-
-    var motor1Status =
+  public void updateInputs(ElevatorIOInputs inputs) {
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () -> {
+          talonConfig.Slot0.kA = kA.get();
+          talonConfig.Slot0.kD = kD.get();
+          talonConfig.Slot0.kG = kG.get();
+          talonConfig.Slot0.kP = kP.get();
+          talonConfig.Slot0.kS = kS.get();
+          talonConfig.Slot0.kV = kV.get();
+          tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
+        },
+        kA,
+        kD,
+        kG,
+        kP,
+        kS,
+        kV);
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () -> {
+          talonConfig.MotionMagic.MotionMagicAcceleration = motionMagicAcceleration.get();
+          talonConfig.MotionMagic.MotionMagicCruiseVelocity = motionMagicVelocity.get();
+          talonConfig.MotionMagic.MotionMagicJerk = motionMagicJerk.get();
+          tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
+        },
+        motionMagicAcceleration,
+        motionMagicJerk,
+        motionMagicVelocity);
+    var talonStatus =
         BaseStatusSignal.refreshAll(
             elevatorPosition,
             elevatorVelocity,
@@ -134,7 +159,9 @@ public class elevatorIOTalonFX implements elevatorIO {
             elevatorTorqueCurrent,
             tempCelsius);
 
-    inputs.motorConnected = elevatorConnectedDebounce.calculate(motor1Status.isOK());
+    inputs.motorType = "Talon";
+
+    inputs.motorConnected = elevatorConnectedDebounce.calculate(talonStatus.isOK());
 
     inputs.positionRads = Units.rotationsToRadians(elevatorPosition.getValueAsDouble());
     inputs.velocityRadsPerSec = Units.rotationsToRadians(elevatorVelocity.getValueAsDouble());
@@ -146,17 +173,17 @@ public class elevatorIOTalonFX implements elevatorIO {
 
   @Override
   public void stop() {
-    motor1.stopMotor();
+    talon.stopMotor();
   }
 
   /** Resets the angle of the intake to 0. */
   public void set(double positionRads) {
-    motor1.setPosition(Units.radiansToRotations(positionRads));
+    talon.setPosition(Units.radiansToRotations(positionRads));
   }
 
   /** Run elevator to position - Motion Magic */
   public void movetoHeight(double posRads) {
-    motor1.setControl(elevatorRequest.withPosition(Units.radiansToRotations(posRads)));
+    talon.setControl(elevatorRequest.withPosition(Units.radiansToRotations(posRads)));
   }
 
   //   /** Displays the periodically updated intake rate on the Shuffleboard */

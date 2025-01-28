@@ -7,8 +7,8 @@ import frc.robot.RobotContainer;
 // import frc.robot.subsystems.climber.ClimberSubsystem;
 // import frc.robot.config.FieldConstants;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.elevator.elevator;
-import frc.robot.subsystems.elevator.elevator.elevatorState;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.Elevator.ElevatorState;
 import java.util.function.BooleanSupplier;
 
 // import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -18,7 +18,7 @@ import java.util.function.BooleanSupplier;
 public class Superstructure extends SubsystemBase {
 
   private Drive drive;
-  private elevator elevator;
+  private Elevator elevator;
 
   // private ClimberSubsystem climber;
   private RobotContainer container;
@@ -71,10 +71,10 @@ public class Superstructure extends SubsystemBase {
   // private Rotation2d manualTurretSetpoint = new Rotation2d();
   // private Rotation2d manualPitchSetpoint = new Rotation2d();
 
-  public Superstructure(Drive drive, elevator Elevator, RobotContainer container) {
+  public Superstructure(Drive drive, Elevator elevator, RobotContainer container) {
 
     this.drive = drive;
-    this.elevator = Elevator;
+    this.elevator = elevator;
     this.container = container;
   }
 
@@ -246,52 +246,52 @@ public class Superstructure extends SubsystemBase {
 
   /** moves subsystems to intake position */
   private void intake() {
-    elevator.setWantedState(elevatorState.INTAKE);
+    elevator.setWantedState(ElevatorState.INTAKE);
   }
 
   /** moves subsystems to L1 position, prepare */
   private void L1prepare() {
-    elevator.setWantedState(elevatorState.L1PREPARE);
+    elevator.setWantedState(ElevatorState.L1PREPARE);
   }
 
   /** Shoots Coral to L1 */
   private void L1() {
-    elevator.setWantedState(elevatorState.L1);
+    elevator.setWantedState(ElevatorState.L1);
   }
 
   /** moves subsystems to L2 position, prepare */
   private void L2prepare() {
-    elevator.setWantedState(elevatorState.L2PREPARE);
+    elevator.setWantedState(ElevatorState.L2PREPARE);
   }
 
   /** Shoots Coral to L2 */
   private void L2() {
-    elevator.setWantedState(elevatorState.L2);
+    elevator.setWantedState(ElevatorState.L2);
   }
 
   /** moves subsystems to L3 position, prepare */
   private void L3prepare() {
-    elevator.setWantedState(elevatorState.L3PREPARE);
+    elevator.setWantedState(ElevatorState.L3PREPARE);
   }
 
   /** Shoots Coral to L1 */
   private void L3() {
-    elevator.setWantedState(elevatorState.L3);
+    elevator.setWantedState(ElevatorState.L3);
   }
 
   /** moves subsystems to L1 position, prepare */
   private void L4prepare() {
-    elevator.setWantedState(elevatorState.L4PREPARE);
+    elevator.setWantedState(ElevatorState.L4PREPARE);
   }
 
   /** Shoots Coral to L4 */
   private void L4() {
-    elevator.setWantedState(elevatorState.L4);
+    elevator.setWantedState(ElevatorState.L4);
   }
 
   /** brings elevator down, stow everything */
   private void stow() {
-    elevator.setWantedState(elevatorState.STOW);
+    elevator.setWantedState(ElevatorState.STOW);
   }
 
   private void handleStopped() {
