@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.ControllerRumbleCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ReefAlignController;
 import frc.robot.generated.TunerConstants;
@@ -34,7 +36,7 @@ public class RobotContainer {
   private final Elevator elevator;
 
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
+  private final XboxController controller = new XboxController(0);
 
   private ReefAlignController autoAlignController;
   private ReefAlignController reefAlignController;
@@ -154,8 +156,9 @@ public class RobotContainer {
             () -> -controller.getRightX()));
 
     // Lock to nearest coral station's angle when A button is held
-    controller
-        .a()
+
+    Trigger a = new Trigger(() -> controller.getAButton());
+        a
         .whileTrue(
             DriveCommands.joystickDriveCoralStation(
                 drive,
@@ -163,12 +166,13 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 () -> drive.getPose().getY()));
 
-    controller.x().whileTrue(DriveCommands.lineUpToNearestReef(() -> drive.getPose()));
+    
 
-    controller.x().whileTrue(DriveCommands.lineUpToNearestReef(() -> drive.getPose()));
+    // controller.x().whileTrue(DriveCommands.lineUpToNearestReef(() -> drive.getPose()));
 
-    controller
-        .y()
+    // controller.x().whileTrue(DriveCommands.lineUpToNearestReef(() -> drive.getPose()));
+    Trigger y = new Trigger(() -> controller.getYButton());
+        y
         .whileTrue(
             new InstantCommand(
                     () -> {
@@ -186,11 +190,14 @@ public class RobotContainer {
                             },
                             drive)
                         .repeatedly())
-                .until(() -> reefAlignController.atGoal()));
+                .until(() -> reefAlignController.atGoal())
+                .andThen(new ControllerRumbleCommand(
+                    controller, () -> true))
+                );
 
     // Reset gyro to 0° when B button is pressed
-    controller
-        .b()
+    Trigger b = new Trigger(() -> controller.getBButton());
+        b
         .onTrue(
             Commands.runOnce(
                     () ->
