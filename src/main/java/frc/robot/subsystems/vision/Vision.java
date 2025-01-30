@@ -109,7 +109,7 @@ public class Vision extends SubsystemBase {
                 || observation.pose().getY() > aprilTagLayout.getFieldWidth()
                 || (observation.pose().getX() == 0.0 && observation.pose().getY() == 0.0)
                 || Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond)
-                    > Math.PI // reject if omega too high
+                    > (2 * Math.PI) // reject if omega too high
             ;
 
         // Add pose to log

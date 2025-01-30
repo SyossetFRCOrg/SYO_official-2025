@@ -8,19 +8,18 @@ import frc.robot.RobotContainer;
 // import frc.robot.config.FieldConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
+import java.util.function.BooleanSupplier;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.function.BooleanSupplier;
 
 // import frc.robot.subsystems.shooter.ShooterSubsystem;
 // import frc.robot.subsystems.swerve.SwerveSubsystem;
 // import frc.robot.subsystems.turret.TurretSubsystem;
 
 public class Superstructure extends SubsystemBase {
-
   private Drive drive;
   private Elevator elevator;
+  private RobotContainer container;
 
   // private ClimberSubsystem climber;
 
@@ -57,9 +56,10 @@ public class Superstructure extends SubsystemBase {
   // private Rotation2d manualTurretSetpoint = new Rotation2d();
   // private Rotation2d manualPitchSetpoint = new Rotation2d();
 
-  public Superstructure(Drive drive, Elevator elevator) {
+  public Superstructure(Drive drive, Elevator elevator, RobotContainer container) {
     this.drive = drive;
     this.elevator = elevator;
+    this.container = container;
   }
 
   @Override
@@ -141,9 +141,10 @@ public class Superstructure extends SubsystemBase {
   }
 
   public Command setWantedSuperStateCommand(SuperState desiredState) {
-    return new InstantCommand(() -> {
-      Superstructure.desiredState = desiredState;
-    });
+    return new InstantCommand(
+        () -> {
+          Superstructure.desiredState = desiredState;
+        });
   }
 }
 

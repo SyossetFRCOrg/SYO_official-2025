@@ -37,7 +37,7 @@ public class RobotContainer {
   // Controller
   private final XboxController controller = new XboxController(0);
 
-  private ReefAlignController autoAlignController;
+  //   private ReefAlignController autoAlignController;
   private ReefAlignController reefAlignController;
 
   //   // Dashboard inputs
@@ -145,6 +145,8 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+
+    // controller.setRumble(null, 0);
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
