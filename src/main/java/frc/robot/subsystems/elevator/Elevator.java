@@ -112,16 +112,12 @@ public class Elevator extends SubsystemBase {
   //   return sysId.dynamic(direction);
   // }
 
-  /**
-   * Check if the intake is close enough to desired setpoint
-   */
+  /** Check if the intake is close enough to desired setpoint */
   public boolean atSetPoint() {
     return MathUtil.isNear(state.get(), getHeight(), 0.1);
   }
 
-  /**
-   * Returns the current angle of the intake (rad). 
-   */
+  /** Returns the current angle of the intake (rad). */
   public double getHeight() {
     return inputs.positionRads;
   }
@@ -136,8 +132,9 @@ public class Elevator extends SubsystemBase {
         : TunerConstants.moduleLimitsFree;
   }
 
-  /** 
+  /**
    * Resets the angle of the elevator
+   *
    * @param positionRads The angle in radians
    */
   public void setHeight(double positionRads) {

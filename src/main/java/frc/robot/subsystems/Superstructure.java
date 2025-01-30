@@ -118,8 +118,9 @@ public class Superstructure extends SubsystemBase {
     // Logger.recordOutput("FeedShotDistance", RobotState.getInstance().getDistanceToFeedTarget());
   }
 
-  /** 
-   * Sets currentSuperState to the appropiate transition state based on wantedSuperState 
+  /**
+   * Sets currentSuperState to the appropiate transition state based on wantedSuperState
+   *
    * @return The current super state
    */
   private CurrentSuperState handleStateTransitions() {
