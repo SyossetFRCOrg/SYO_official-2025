@@ -11,9 +11,10 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import com.moandjiezana.toml.Toml;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -25,6 +26,9 @@ public class DeepHangSubsystem extends SubsystemBase {
   private final SparkMax deepHangMotor;
   private final RelativeEncoder deepHangEncoder;
   private final SparkMaxConfig deepHangMotorConfig;
+
+  //TODO 
+  public final SetPosition grab = new SetPosition(50);
 
   private final PIDController pidController;
 
@@ -39,13 +43,12 @@ public class DeepHangSubsystem extends SubsystemBase {
 
     deepHangMotorConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(DeepHangConstants.DEEP_HANG_CURRENT_LIMIT);
 
-    deepHangMotor.configure(deepHangMotorConfig,ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    
+    deepHangMotor.configure(deepHangMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    //TODO these values are placeholders and need to be tuned
+    // TODO these values are placeholders and need to be tuned
     pidController = new PIDController(0.2, 0.0, 0.0);
     pidController.reset();
-  
+
   }
 
   @Override
@@ -57,10 +60,44 @@ public class DeepHangSubsystem extends SubsystemBase {
     deepHangMotor.set(MathUtil.clamp(voltage, -3, 3));
   }
 
-  public final Command runDeepHangMotor = Commands.startEnd(
-    () -> setDeepHangVoltage(DeepHangConstants.DEEP_HANG_VOLTAGE),
-    () -> setDeepHangVoltage(0.0)
-  );
+  public double getPosition() {
+    return deepHangEncoder.getPosition();
+  }
 
-  
+  public void setVoltage(double voltage) {
+    deepHangMotor.set(voltage);
+  }
+
+  public final Command runDeepHangMotorForward = Commands.startEnd(
+      () -> setDeepHangVoltage(DeepHangConstants.DEEP_HANG_VOLTAGE),
+      () -> setDeepHangVoltage(0.0));
+
+  public final Command runDeepHangMotorBackward = Commands.startEnd(
+      () -> setDeepHangVoltage(-DeepHangConstants.DEEP_HANG_VOLTAGE),
+      () -> setDeepHangVoltage(0.0));
+
+  public class SetPosition extends Command {
+    private double target;
+
+    public SetPosition(double target) {
+      this.target = target;
+      addRequirements(DeepHangSubsystem.this);
+    }
+
+    @Override
+    public void initialize() {
+      pidController.reset();
+      pidController.setSetpoint(target);
+    }
+
+    @Override
+    public void execute() {
+      setVoltage(pidController.calculate(getPosition()));
+    }
+
+    @Override
+    public boolean isFinished() {
+      return Math.abs(getPosition() - target) < 10;
+    }
+  }
 }

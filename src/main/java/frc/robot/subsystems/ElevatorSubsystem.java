@@ -68,7 +68,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void setVoltage(double voltage) {
-        voltage = MathUtil.clamp(voltage, -1.0, 2.0); //TO DO, CLAMP VALUES
+        voltage = MathUtil.clamp(voltage, -1.0, 2.0); //TODO , CLAMP VALUES
         leftMotor.setVoltage(voltage);
         rightMotor.setVoltage(voltage);
     }
