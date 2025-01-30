@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.swerve.ModuleLimits;
@@ -38,7 +39,7 @@ public class Elevator extends SubsystemBase {
 
   private double targetHeight = 0;
 
-  @AutoLogOutput @Getter @Setter private SuperState state = SuperState.STOW;
+  // @AutoLogOutput @Getter @Setter private SuperState state = SuperState.STOW;
 
   public Elevator(ElevatorIO io) {
     this.io = io;
@@ -69,6 +70,7 @@ public class Elevator extends SubsystemBase {
   }
 
   private void applyStates() {
+    var state = Superstructure.getDesiredState();
     if (heights.containsKey(state)) targetHeight = heights.get(state).get();
     io.movetoHeight(targetHeight);
   }
@@ -85,6 +87,8 @@ public class Elevator extends SubsystemBase {
 
   /** Check if the intake is close enough to desired setpoint */
   public boolean atSetPoint() {
+    var state = Superstructure.getDesiredState();
+    if (heights.containsKey(state)) targetHeight = heights.get(state).get();
     return MathUtil.isNear(targetHeight, getHeight(), 0.1);
   }
 

@@ -8,6 +8,8 @@ import frc.robot.RobotContainer;
 // import frc.robot.config.FieldConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
+import lombok.Getter;
+
 import java.util.function.BooleanSupplier;
 
 // import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -42,9 +44,9 @@ public class Superstructure extends SubsystemBase {
     STOW,
   }
 
-  private SuperState wantedState = SuperState.STOPPED;
-  public static SuperState currentState = SuperState.STOPPED;
-  private SuperState previousState = SuperState.STOPPED;
+  private static @Getter SuperState desiredState = SuperState.STOPPED;
+  private static SuperState currentState = SuperState.STOPPED;
+  private static SuperState previousState = SuperState.STOPPED;
 
   // RobotState.AimingParameters aimingParameters =
   //         new RobotState.AimingParameters(new Rotation2d(), new Rotation2d(), new
@@ -88,7 +90,7 @@ public class Superstructure extends SubsystemBase {
     //         "TeleopShotReady/PredictedPoseWithin8Meters",
     //         aimingParameters.effectiveDistance().getX() <= 8.0);
 
-    // Logger.recordOutput("DesiredSuperstate", wantedState);
+    // Logger.recordOutput("DesiredSuperstate", desiredState);
     // if (currentState != previousState) {
     //     Logger.recordOutput("CurrentSuperstate", currentState);
     // }
@@ -103,20 +105,20 @@ public class Superstructure extends SubsystemBase {
   }
 
   /**
-   * Sets currentState to the appropiate transition state based on wantedState
+   * Sets currentState to the appropiate transition state based on desiredState
    *
    * @return The current super state
    */
   private SuperState handleStateTransitions() {
     previousState = currentState;
-    var ready = ready(wantedState);
+    var ready = ready(desiredState);
     currentState =
-        switch (wantedState) {
+        switch (desiredState) {
           case L1 -> ready ? SuperState.L1 : SuperState.L1PREPARE;
           case L2 -> ready ? SuperState.L2 : SuperState.L2PREPARE;
           case L3 -> ready ? SuperState.L3 : SuperState.L3PREPARE;
           case L4 -> ready ? SuperState.L4 : SuperState.L4PREPARE;
-          default -> wantedState;
+          default -> desiredState;
         };
 
     return currentState;
@@ -131,8 +133,6 @@ public class Superstructure extends SubsystemBase {
       default:
         break;
     }
-
-    elevator.setState(currentState);
   }
 
   private void handleStopped() {
@@ -152,12 +152,12 @@ public class Superstructure extends SubsystemBase {
   }
 
   /** State pushers */
-  public void setWantedSuperState(SuperState wantedState) {
-    this.wantedState = wantedState;
+  public void setWantedSuperState(SuperState desiredState) {
+    this.desiredState = desiredState;
   }
 
-  public Command setWantedSuperStateCommand(SuperState wantedState) {
-    return new InstantCommand(() -> setWantedSuperState(wantedState));
+  public Command setWantedSuperStateCommand(SuperState desiredState) {
+    return new InstantCommand(() -> setWantedSuperState(desiredState));
   }
 }
 
@@ -245,7 +245,7 @@ public class Superstructure extends SubsystemBase {
 //         STOPPED,
 //     }
 
-//     private SuperState wantedState = SuperState.STOPPED;
+//     private SuperState desiredState = SuperState.STOPPED;
 //     public static SuperState currentState = SuperState.STOPPED;
 //     private SuperState previousState;
 //     // RobotState.AimingParameters aimingParameters =
@@ -303,7 +303,7 @@ public class Superstructure extends SubsystemBase {
 //         //         "TeleopShotReady/PredictedPoseWithin8Meters",
 //         //         aimingParameters.effectiveDistance().getX() <= 8.0);
 
-//         // Logger.recordOutput("DesiredSuperstate", wantedState);
+//         // Logger.recordOutput("DesiredSuperstate", desiredState);
 //         // if (currentState != previousState) {
 //         //     Logger.recordOutput("CurrentSuperstate", currentState);
 //         // }
@@ -320,7 +320,7 @@ public class Superstructure extends SubsystemBase {
 
 //     private SuperState handleStateTransitions() {
 //         previousState = currentState;
-//         switch (wantedState) {
+//         switch (desiredState) {
 //             case HOLD_FIX_PIECE:
 
 //                 currentState = SuperState.HOLD_FIX_PIECE;
@@ -435,7 +435,7 @@ public class Superstructure extends SubsystemBase {
 //     private boolean areSystemsReadyForSubwooferShot(){
 //         boolean isReady = flywheel.atSetpoint(flywheel.getSubwooferAngle(),
 //         flywheel.getsubwooferRPM(),
-//         wantedState)
+//         desiredState)
 //                 && intake.atShootPoint();
 
 //         return isReady;
@@ -445,7 +445,7 @@ public class Superstructure extends SubsystemBase {
 //     private boolean areSystemsReadyForLimelightShot() {
 //         boolean isReady = flywheel.atSetpoint(drive.calculateShootAngle(),
 //         flywheel.getLimelightAndPassRPM(),
-//         wantedState)
+//         desiredState)
 //                 && intake.atShootPoint()
 //                 && drive.atShootSetPoint()
 //                 && drive.stopped();
@@ -459,7 +459,7 @@ public class Superstructure extends SubsystemBase {
 //     private boolean areSystemsReadyForPassShot() {
 //         boolean isReady = flywheel.atSetpoint(drive.calculatePassAngle(),
 //         flywheel.getMaxOuttakeRate() * .75,
-//         wantedState)
+//         desiredState)
 //                 && intake.atShootPoint()
 //                 && drive.atPassSetPoint()
 //                 && drive.stopped();
@@ -502,7 +502,7 @@ public class Superstructure extends SubsystemBase {
 // () -> -700.0)))));
 
 //         intake.intake(() -> 0);
-//         wantedState = SuperState.REGULAR_STATE;
+//         desiredState = SuperState.REGULAR_STATE;
 //     }
 
 //     /**
@@ -526,7 +526,7 @@ public class Superstructure extends SubsystemBase {
 // () -> -700.0)))));
 
 //         intake.intake(() -> 0);
-//         wantedState = SuperState.REGULAR_STATE;
+//         desiredState = SuperState.REGULAR_STATE;
 //     }
 
 //     /**
@@ -576,7 +576,7 @@ public class Superstructure extends SubsystemBase {
 //         Commands.run(() -> makeSureIntakeUp(false))
 //         )
 //         );
-//         wantedState = SuperState.REGULAR_STATE;
+//         desiredState = SuperState.REGULAR_STATE;
 //         currentState = SuperState.REGULAR_STATE;
 
 //     }
@@ -598,7 +598,7 @@ public class Superstructure extends SubsystemBase {
 //         )
 //         ).andThen(() -> drive.disableRotationLock());
 
-//         wantedState = SuperState.REGULAR_STATE;
+//         desiredState = SuperState.REGULAR_STATE;
 //         currentState = SuperState.REGULAR_STATE;
 //     }
 
@@ -635,7 +635,7 @@ public class Superstructure extends SubsystemBase {
 //         )
 //         ).andThen(() -> drive.disableRotationLock());
 
-//         wantedState = SuperState.REGULAR_STATE;
+//         desiredState = SuperState.REGULAR_STATE;
 //         currentState = SuperState.REGULAR_STATE;
 //     }
 
@@ -684,12 +684,12 @@ public class Superstructure extends SubsystemBase {
 //     }
 
 //     /** State pushers */
-//     public void setWantedSuperState(SuperState wantedState) {
-//         this.wantedState = wantedState;
+//     public void setWantedSuperState(SuperState desiredState) {
+//         this.desiredState = desiredState;
 //     }
 
-//     public Command setWantedSuperStateCommand(SuperState wantedState) {
-//         return new InstantCommand(() -> setWantedSuperState(wantedState));
+//     public Command setWantedSuperStateCommand(SuperState desiredState) {
+//         return new InstantCommand(() -> setWantedSuperState(desiredState));
 //     }
 
 // }
