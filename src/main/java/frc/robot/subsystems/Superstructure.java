@@ -132,39 +132,44 @@ public class Superstructure extends SubsystemBase {
 
       case INTAKE:
         currentSuperState = CurrentSuperState.INTAKE;
+        break;
       case L1PREPARE:
         currentSuperState = CurrentSuperState.L1PREPARE;
+        break;
 
       case L1:
         currentSuperState =
             subsystemsL1ready() ? CurrentSuperState.L1 : CurrentSuperState.L1PREPARE;
+        break;
 
       case L2PREPARE:
         currentSuperState = CurrentSuperState.L2PREPARE;
+        break;
 
       case L2:
         currentSuperState =
             subsystemsL2ready() ? CurrentSuperState.L2 : CurrentSuperState.L2PREPARE;
+            break;
 
       case L3PREPARE:
         currentSuperState = CurrentSuperState.L3PREPARE;
+        break;
 
       case L3:
         currentSuperState =
             subsystemsL3ready() ? CurrentSuperState.L3 : CurrentSuperState.L3PREPARE;
+            break;
 
       case L4PREPARE:
         currentSuperState = CurrentSuperState.L4PREPARE;
+        break;
 
       case L4:
         currentSuperState =
             subsystemsL4ready() ? CurrentSuperState.L4 : CurrentSuperState.L4PREPARE;
+        break;
 
-        // case PASS:
-        //     currentSuperState = areSystemsReadyForPassShot()
-        //     ? CurrentSuperState.PASS
-        //     : CurrentSuperState.PREPARING_PASS;
-        //     break;
+        
 
       case STOPPED:
       default:
