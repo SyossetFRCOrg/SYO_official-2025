@@ -1,3 +1,16 @@
+// Copyright 2021-2025 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// version 3 as published by the Free Software Foundation or
+// available in the root directory of this project.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
 package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -5,9 +18,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
+import edu.wpi.first.networktables.DoubleArraySubscriber;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.subsystems.vision.LimelightHelpers.PoseEstimate;
+
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,12 +39,10 @@ public class VisionIOLimelight implements VisionIO {
   private double latencySubscriber;
   private double txSubscriber;
   private double tySubscriber;
-  private Optional<PoseEstimate> megatag1Subscriber = Optional.empty();
-  private Optional<PoseEstimate> megatag2Subscriber = Optional.empty();
-  ;
+  private PoseEstimate megatag1Subscriber;
+  private PoseEstimate megatag2Subscriber;
 
   private final String name;
-
   /**
    * Creates a new VisionIOLimelight.
    *
@@ -43,10 +57,10 @@ public class VisionIOLimelight implements VisionIO {
     latencySubscriber = LimelightHelpers.getLatency_Pipeline(name);
     txSubscriber = LimelightHelpers.getTX(name);
     tySubscriber = LimelightHelpers.getTY(name);
-    megatag1Subscriber = Optional.of((LimelightHelpers.getBotPoseEstimate_wpiBlue(name)));
+    megatag1Subscriber = (LimelightHelpers.getBotPoseEstimate_wpiBlue(name));
     // megatag2Subscriber =
     //     table.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(new double[] {});
-    megatag2Subscriber = Optional.of(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name));
+    megatag2Subscriber = (LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name));
   }
 
   @Override
@@ -56,15 +70,18 @@ public class VisionIOLimelight implements VisionIO {
     txSubscriber = LimelightHelpers.getTX(name);
     tySubscriber = LimelightHelpers.getTY(name);
 
-    megatag1Subscriber = Optional.of(LimelightHelpers.getBotPoseEstimate_wpiBlue(name));
+    
+    megatag1Subscriber = (LimelightHelpers.getBotPoseEstimate_wpiBlue(name));
     // megatag2Subscriber =
     //     table.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(new double[] {});
-    megatag2Subscriber = Optional.of(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name));
+    megatag2Subscriber = (LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name));
     // Update connection status based on whether an update has been seen in the last 250ms
-    inputs.connected = ((RobotController.getFPGATime() - latencySubscriber) / 1000) < 250;
+    inputs.connected =
+        ((RobotController.getFPGATime() - latencySubscriber) / 1000) < 250;
 
     // Update target observation
     inputs.latestTargetObservation =
+
         new TargetObservation(
             Rotation2d.fromDegrees(txSubscriber), Rotation2d.fromDegrees(tySubscriber));
 
@@ -78,72 +95,81 @@ public class VisionIOLimelight implements VisionIO {
     Set<Integer> tagIds = new HashSet<>();
     List<PoseObservation> poseObservations = new LinkedList<>();
 
-    // if (megatag1Subscriber.tagCount ==0) //continue;
-
-    // for (int i = 11; i < rawSample.value.length; i += 7) {
-    //   tagIds.add((int) rawSample.value[i]);
-    // }
-    if (megatag1Subscriber.isPresent()) {
+    
+    
+      // if (megatag1Subscriber.tagCount ==0) continue;
+      
+      // for (int i = 11; i < rawSample.value.length; i += 7) {
+      //   tagIds.add((int) rawSample.value[i]);
+      // }
+      if (megatag1Subscriber.tagCount !=0){
       poseObservations.add(
           new PoseObservation(
               // Timestamp, based on server timestamp of publish and latency
-              megatag1Subscriber.get().timestampSeconds - megatag1Subscriber.get().latency * 1.0e-3,
+              megatag1Subscriber.timestampSeconds - megatag1Subscriber.latency * 1.0e-3,
 
               // 3D pose estimate
-              new Pose3d(megatag1Subscriber.get().pose),
-              megatag1Subscriber.get().rawFiducials[0].ambiguity,
+              new Pose3d(megatag1Subscriber.pose),
+
+              
+              megatag1Subscriber.rawFiducials[0].ambiguity,
 
               // Tag count
-              megatag1Subscriber.get().tagCount,
+              megatag1Subscriber.tagCount,
 
               // Average tag distance
-              megatag1Subscriber.get().avgTagDist,
+              megatag1Subscriber.avgTagDist,
 
               // Observation type
               PoseObservationType.MEGATAG_1));
-    }
+      }
+      // else{
+        
+      // }
 
-    // if (megatag2Subscriber.tagSpan == 0) continue;
 
-    // for (int i = 11; i < rawSample.value.length; i += 7) {
-    //   tagIds.add((int) rawSample.value[i]);
-    // }
-    if (megatag2Subscriber.isPresent()) {
+    
+      // if (megatag2Subscriber.tagSpan != 0) continue;
+      
+      // for (int i = 11; i < rawSample.value.length; i += 7) {
+      //   tagIds.add((int) rawSample.value[i]);
+      // }
+      if((megatag2Subscriber.tagSpan != 0)){
       poseObservations.add(
           new PoseObservation(
               // Timestamp, based on server timestamp of publish and latency
-              megatag2Subscriber.get().timestampSeconds - megatag2Subscriber.get().latency * 1.0e-3,
+              megatag2Subscriber.timestampSeconds - megatag2Subscriber.latency * 1.0e-3,
 
               // 3D pose estimate
-              new Pose3d(megatag2Subscriber.get().pose),
+              new Pose3d(megatag2Subscriber.pose),
 
               // Ambiguity, zeroed because the pose is already disambiguated
               0.0,
 
               // Tag count
-              megatag2Subscriber.get().tagCount,
+              megatag2Subscriber.tagCount,
 
               // Average tag distance
-              megatag2Subscriber.get().avgTagDist,
+              megatag2Subscriber.avgTagDist,
 
               // Observation type
               PoseObservationType.MEGATAG_2));
-    }
-
-    if (megatag1Subscriber.isPresent() || megatag2Subscriber.isPresent()) {
-      // Save pose observations to inputs object
-      inputs.poseObservations = new PoseObservation[poseObservations.size()];
-      for (int i = 0; i < poseObservations.size(); i++) {
-        inputs.poseObservations[i] = poseObservations.get(i);
       }
 
-      // Save tag IDs to inputs objects
-      inputs.tagIds = new int[tagIds.size()];
-      int i = 0;
-      for (int id : tagIds) {
-        inputs.tagIds[i++] = id;
-      }
+    if (megatag1Subscriber != null || megatag2Subscriber != null){
+    // Save pose observations to inputs object
+    inputs.poseObservations = new PoseObservation[poseObservations.size()];
+    for (int i = 0; i < poseObservations.size(); i++) {
+      inputs.poseObservations[i] = poseObservations.get(i);
     }
+
+    // Save tag IDs to inputs objects
+    inputs.tagIds = new int[tagIds.size()];
+    int i = 0;
+    for (int id : tagIds) {
+      inputs.tagIds[i++] = id;
+    }
+  }
   }
 
   /** Parses the 3D pose from a Limelight botpose array. */
