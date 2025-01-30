@@ -28,19 +28,15 @@ public class Elevator extends SubsystemBase {
     map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 6));
     map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 7));
 
+    map.put(SuperState.L1PREPARE, map.get(SuperState.L1));
+    map.put(SuperState.L2PREPARE, map.get(SuperState.L2));
+    map.put(SuperState.L3PREPARE, map.get(SuperState.L3));
+    map.put(SuperState.L4PREPARE, map.get(SuperState.L4));
+
     return map;
   }
 
   private double targetHeight = 0;
-
-  // private LoggedTunableNumber[] heights = new LoggedTunableNumber[]{
-  //   new LoggedTunableNumber("Elevator/Stow", 0),
-  //   new LoggedTunableNumber("Elevator/Intake", 3),
-  //   new LoggedTunableNumber("Elevator/L1Position", 4),
-  //   new LoggedTunableNumber("Elevator/L2Position", 5),
-  //   new LoggedTunableNumber("Elevator/L3Position", 6),
-  //   new LoggedTunableNumber("Elevator/L4Position", 7),
-  // };
 
   @AutoLogOutput @Getter @Setter private SuperState state = SuperState.STOW;
 
