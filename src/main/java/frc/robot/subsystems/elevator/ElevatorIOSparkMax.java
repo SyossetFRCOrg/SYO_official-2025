@@ -167,6 +167,7 @@ public class ElevatorIOSparkMax implements ElevatorIO {
   }
 
   /** Resets the angle of the elevator to whatever we desire (rads) */
+  @Override
   public void setHeight(double posRads) {
     leader_encoder.setPosition(Units.radiansToRotations(posRads));
   }

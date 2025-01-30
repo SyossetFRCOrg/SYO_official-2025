@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ControllerRumbleCommand;
 import frc.robot.commands.DriveCommands;
@@ -156,58 +155,50 @@ public class RobotContainer {
             () -> -controller.getRightX()));
 
     // Lock to nearest coral station's angle when A button is held
-
     Trigger a = new Trigger(() -> controller.getAButton());
-        a
-        .whileTrue(
-            DriveCommands.joystickDriveCoralStation(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> drive.getPose().getY()));
-
-    
+    a.whileTrue(
+        DriveCommands.joystickDriveCoralStation(
+            drive,
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> drive.getPose().getY()));
 
     // controller.x().whileTrue(DriveCommands.lineUpToNearestReef(() -> drive.getPose()));
 
     // controller.x().whileTrue(DriveCommands.lineUpToNearestReef(() -> drive.getPose()));
     Trigger y = new Trigger(() -> controller.getYButton());
-        y
-        .whileTrue(
-            new InstantCommand(
-                    () -> {
-                      reefAlignController =
-                          new ReefAlignController(
-                              drive,
-                              () ->
-                                  RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
-                                      < 1.5);
-                    })
-                .andThen(
-                    new InstantCommand(
-                            () -> {
-                              drive.runVelocity(reefAlignController.update().get());
-                            },
-                            drive)
-                        .repeatedly())
-                .until(() -> reefAlignController.atGoal())
-                .andThen(new ControllerRumbleCommand(
-                    controller, () -> true))
-                );
+    y.whileTrue(
+        new InstantCommand(
+                () -> {
+                  reefAlignController =
+                      new ReefAlignController(
+                          drive,
+                          () ->
+                              RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
+                                  < 1.5);
+                })
+            .andThen(
+                new InstantCommand(
+                        () -> {
+                          drive.runVelocity(reefAlignController.update().get());
+                        },
+                        drive)
+                    .repeatedly())
+            .until(() -> reefAlignController.atGoal())
+            .andThen(new ControllerRumbleCommand(controller, () -> true)));
 
     // Reset gyro to 0° when B button is pressed
     Trigger b = new Trigger(() -> controller.getBButton());
-        b
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(
-                                3.442369222640991,
-                                5.234981060028076,
-                                Rotation2d.fromRadians(-1.0486071798869254))),
-                    drive)
-                .ignoringDisable(true));
+    b.onTrue(
+        Commands.runOnce(
+                () ->
+                    drive.setPose(
+                        new Pose2d(
+                            3.442369222640991,
+                            5.234981060028076,
+                            Rotation2d.fromRadians(-1.0486071798869254))),
+                drive)
+            .ignoringDisable(true));
   }
 
   //   /**
