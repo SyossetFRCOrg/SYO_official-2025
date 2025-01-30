@@ -72,7 +72,6 @@ public class Superstructure extends SubsystemBase {
   // private Rotation2d manualPitchSetpoint = new Rotation2d();
 
   public Superstructure(Drive drive, Elevator elevator, RobotContainer container) {
-
     this.drive = drive;
     this.elevator = elevator;
     this.container = container;
@@ -119,6 +118,11 @@ public class Superstructure extends SubsystemBase {
     // Logger.recordOutput("FeedShotDistance", RobotState.getInstance().getDistanceToFeedTarget());
   }
 
+  /**
+   * Sets currentSuperState to the appropiate transition state based on wantedSuperState
+   *
+   * @return The current super state
+   */
   private CurrentSuperState handleStateTransitions() {
     previousSuperState = currentSuperState;
     switch (wantedSuperState) {
@@ -170,6 +174,7 @@ public class Superstructure extends SubsystemBase {
     return currentSuperState;
   }
 
+  /** Sets subsystem states */
   private void applyStates() {
     switch (currentSuperState) {
       case INTAKE:
@@ -216,40 +221,40 @@ public class Superstructure extends SubsystemBase {
     }
   }
 
-  /** checks if the subsystems are ready for L1 shooting */
+  /** Checks if the subsystems are ready for L1 shooting */
   private boolean subsystemsL1ready() {
     boolean isReady = elevator.atSetPoint();
 
     return isReady;
   }
 
-  /** checks if the subsystems are ready for L2 shooting */
+  /** Checks if the subsystems are ready for L2 shooting */
   private boolean subsystemsL2ready() {
     boolean isReady = elevator.atSetPoint();
 
     return isReady;
   }
 
-  /** checks if the subsystems are ready for L2 shooting */
+  /** Checks if the subsystems are ready for L2 shooting */
   private boolean subsystemsL3ready() {
     boolean isReady = elevator.atSetPoint();
 
     return isReady;
   }
 
-  /** checks if the subsystems are ready for L2 shooting */
+  /** Checks if the subsystems are ready for L2 shooting */
   private boolean subsystemsL4ready() {
     boolean isReady = elevator.atSetPoint();
 
     return isReady;
   }
 
-  /** moves subsystems to intake position */
+  /** Moves subsystems to intake position */
   private void intake() {
     elevator.setWantedState(ElevatorState.INTAKE);
   }
 
-  /** moves subsystems to L1 position, prepare */
+  /** Moves subsystems to L1 position, prepare */
   private void L1prepare() {
     elevator.setWantedState(ElevatorState.L1PREPARE);
   }
@@ -259,7 +264,7 @@ public class Superstructure extends SubsystemBase {
     elevator.setWantedState(ElevatorState.L1);
   }
 
-  /** moves subsystems to L2 position, prepare */
+  /** Moves subsystems to L2 position, prepare */
   private void L2prepare() {
     elevator.setWantedState(ElevatorState.L2PREPARE);
   }
@@ -269,7 +274,7 @@ public class Superstructure extends SubsystemBase {
     elevator.setWantedState(ElevatorState.L2);
   }
 
-  /** moves subsystems to L3 position, prepare */
+  /** Moves subsystems to L3 position, prepare */
   private void L3prepare() {
     elevator.setWantedState(ElevatorState.L3PREPARE);
   }
@@ -279,7 +284,7 @@ public class Superstructure extends SubsystemBase {
     elevator.setWantedState(ElevatorState.L3);
   }
 
-  /** moves subsystems to L1 position, prepare */
+  /** Moves subsystems to L1 position, prepare */
   private void L4prepare() {
     elevator.setWantedState(ElevatorState.L4PREPARE);
   }
@@ -289,7 +294,7 @@ public class Superstructure extends SubsystemBase {
     elevator.setWantedState(ElevatorState.L4);
   }
 
-  /** brings elevator down, stow everything */
+  /** Brings elevator down, stow everything */
   private void stow() {
     elevator.setWantedState(ElevatorState.STOW);
   }

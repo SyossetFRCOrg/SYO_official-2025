@@ -84,8 +84,6 @@ public class Vision extends SubsystemBase {
       List<Pose3d> robotPosesRejectedMT1 = new LinkedList<>();
       List<Pose3d> robotPosesRejectedMT2 = new LinkedList<>();
 
-
-
       // Add tag poses
       for (int tagId : inputs[cameraIndex].tagIds) {
         var tagPose = aprilTagLayout.getTagPose(tagId);
@@ -118,18 +116,16 @@ public class Vision extends SubsystemBase {
         robotPoses.add(observation.pose());
         if (rejectPose) {
           robotPosesRejected.add(observation.pose());
-          if (observation.type() == PoseObservationType.MEGATAG_1){
+          if (observation.type() == PoseObservationType.MEGATAG_1) {
             robotPosesRejectedMT1.add(observation.pose());
-          }
-          else if (observation.type() == PoseObservationType.MEGATAG_2){
+          } else if (observation.type() == PoseObservationType.MEGATAG_2) {
             robotPosesRejectedMT2.add(observation.pose());
           }
         } else {
           robotPosesAccepted.add(observation.pose());
-          if (observation.type() == PoseObservationType.MEGATAG_1){
+          if (observation.type() == PoseObservationType.MEGATAG_1) {
             robotPosesAcceptedMT1.add(observation.pose());
-          }
-          else if (observation.type() == PoseObservationType.MEGATAG_2){
+          } else if (observation.type() == PoseObservationType.MEGATAG_2) {
             robotPosesAcceptedMT2.add(observation.pose());
           }
         }
@@ -145,9 +141,11 @@ public class Vision extends SubsystemBase {
         double linearStdDev = linearStdDevBaseline * stdDevFactor;
         double angularStdDev = angularStdDevBaseline * stdDevFactor;
 
-        //have to do standard deviation tuning originally from MT1 values. 
-        //then also tune it for MT2, then the ratio of MT2 stddev / MT1 stddev is the stddev factor for linear
-        //except for angular stddev because it just uses the gyro's angle anyway, so stddev is infinite
+        // have to do standard deviation tuning originally from MT1 values.
+        // then also tune it for MT2, then the ratio of MT2 stddev / MT1 stddev is the stddev factor
+        // for linear
+        // except for angular stddev because it just uses the gyro's angle anyway, so stddev is
+        // infinite
         if (observation.type() == PoseObservationType.MEGATAG_2) {
           linearStdDev *= linearStdDevMegatag2Factor;
           angularStdDev *= angularStdDevMegatag2Factor;
@@ -192,11 +190,6 @@ public class Vision extends SubsystemBase {
           "Vision/Camera" + Integer.toString(cameraIndex) + "/MT2RobotPosesRejected",
           robotPosesRejectedMT2.toArray(new Pose3d[robotPosesRejectedMT2.size()]));
 
-
-
-
-
-          
       allTagPoses.addAll(tagPoses);
       allRobotPoses.addAll(robotPoses);
       allRobotPosesAccepted.addAll(robotPosesAccepted);

@@ -1,7 +1,5 @@
 package frc.robot.subsystems.elevator;
 
-import static edu.wpi.first.units.Units.*;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,18 +26,18 @@ public class Elevator extends SubsystemBase {
     //
 
     // initially, this is going to be tuned for NEOS.
-    STOW(new LoggedTunableNumber("elevator/StowPosition", 0)),
-    INTAKE(new LoggedTunableNumber("elevator/IntakePosition", 3)),
+    STOW(new LoggedTunableNumber("Elevator/StowPosition", 0)),
+    INTAKE(new LoggedTunableNumber("Elevator/IntakePosition", 3)),
 
-    L1PREPARE(new LoggedTunableNumber("elevator/L1Position", 4)),
-    L2PREPARE(new LoggedTunableNumber("elevator/L2Position", 5)),
-    L3PREPARE(new LoggedTunableNumber("elevator/L3Position", 6)),
-    L4PREPARE(new LoggedTunableNumber("elevator/L4Position", 7)),
+    L1PREPARE(new LoggedTunableNumber("Elevator/L1Position", 4)),
+    L2PREPARE(new LoggedTunableNumber("Elevator/L2Position", 5)),
+    L3PREPARE(new LoggedTunableNumber("Elevator/L3Position", 6)),
+    L4PREPARE(new LoggedTunableNumber("Elevator/L4Position", 7)),
 
-    L1(new LoggedTunableNumber("elevator/L1Position", 5)),
-    L2(new LoggedTunableNumber("elevator/L2Position", 6)),
-    L3(new LoggedTunableNumber("elevator/L3Position", 7)),
-    L4(new LoggedTunableNumber("elevator/L4Position", 8));
+    L1(new LoggedTunableNumber("Elevator/L1Position", 5)),
+    L2(new LoggedTunableNumber("Elevator/L2Position", 6)),
+    L3(new LoggedTunableNumber("Elevator/L3Position", 7)),
+    L4(new LoggedTunableNumber("Elevator/L4Position", 8));
 
     // CUSTOM(new LoggedTunableNumber("Elevator/CustomSetpoint", 20.0));
 
@@ -70,7 +68,7 @@ public class Elevator extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("elevator", inputs);
+    Logger.processInputs("Elevator", inputs);
     io.updateShuffleboard();
 
     if (inputs.motorType.equals("Sparkmax")) {
@@ -114,9 +112,7 @@ public class Elevator extends SubsystemBase {
   //   return sysId.dynamic(direction);
   // }
 
-  /**
-   * @return boolean: if the intake is close enough to desired setpoint
-   */
+  /** Check if the intake is close enough to desired setpoint */
   public boolean atSetPoint() {
     return MathUtil.isNear(state.get(), getHeight(), 0.1);
   }
@@ -126,21 +122,26 @@ public class Elevator extends SubsystemBase {
     return inputs.positionRads;
   }
 
-  public boolean elevatorup() {
+  public boolean elevatorUp() {
     return getHeight() >= ElevatorState.L2.get();
   }
 
   public ModuleLimits getModuleLimits() {
-    return elevatorup() && !DriverStation.isAutonomousEnabled()
+    return elevatorUp() && !DriverStation.isAutonomousEnabled()
         ? TunerConstants.moduleLimitsElevatorUp
         : TunerConstants.moduleLimitsFree;
   }
 
-  /** Resets the angle of the intake to positionRads. */
+  /**
+   * Resets the angle of the elevator
+   *
+   * @param positionRads The angle in radians
+   */
   public void setHeight(double positionRads) {
     io.setHeight(positionRads);
   }
 
+  /** Stop slam elevator */
   public void stop() {
     io.stop();
   }

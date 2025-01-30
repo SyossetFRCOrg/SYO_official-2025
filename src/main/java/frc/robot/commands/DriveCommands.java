@@ -111,7 +111,7 @@ public class DriveCommands {
   }
 
   /**
-   * uses joystickDriveAtAngle, just provides a the Rotation2d supplier depending on the current
+   * Uses joystickDriveAtAngle, just provides a the Rotation2d supplier depending on the current
    * estimated pose, looks at the nearest coral station.
    *
    * <p>joystickDriveCoralStation already flips the pose by PI radians if it's red alliance.

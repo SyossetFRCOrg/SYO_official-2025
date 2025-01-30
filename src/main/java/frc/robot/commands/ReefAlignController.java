@@ -1,112 +1,95 @@
-// Copyright (c) 2024 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by an MIT-style
-// license that can be found in the LICENSE file at
-// the root directory of this project.
-
 package frc.robot.commands;
 
-import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
-import frc.robot.RobotState;
 import edu.wpi.first.wpilibj.Timer;
-
-import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
-import lombok.experimental.ExtensionMethod;
+import frc.robot.RobotState;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.LoggedTunableNumber;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
+import lombok.experimental.ExtensionMethod;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import com.pathplanner.lib.config.PIDConstants;
-
-
-
 @ExtensionMethod({GeomUtil.class})
 public class ReefAlignController {
-    private static final LoggedTunableNumber linearkP =
-        new LoggedTunableNumber("AutoAlign/drivekP", .8);
-    private static final LoggedTunableNumber linearkD =
-        new LoggedTunableNumber("AutoAlign/drivekD", 0.0);
+  private static final LoggedTunableNumber linearkP =
+      new LoggedTunableNumber("AutoAlign/drivekP", .8);
+  private static final LoggedTunableNumber linearkD =
+      new LoggedTunableNumber("AutoAlign/drivekD", 0.0);
 
-    private static final LoggedTunableNumber linearkI =
-        new LoggedTunableNumber("AutoAlign/drivekI", 0.04);
+  private static final LoggedTunableNumber linearkI =
+      new LoggedTunableNumber("AutoAlign/drivekI", 0.04);
 
+  private static final LoggedTunableNumber thetakP =
+      new LoggedTunableNumber("AutoAlign/thetakP", 2.5);
+  private static final LoggedTunableNumber thetakD =
+      new LoggedTunableNumber("AutoAlign/thetakD", 0.5);
+  private static final LoggedTunableNumber linearTolerance =
+      new LoggedTunableNumber("AutoAlign/controllerLinearTolerance", 0.03);
+  private static final LoggedTunableNumber thetaTolerance =
+      new LoggedTunableNumber("AutoAlign/controllerThetaTolerance", Units.degreesToRadians(2.5));
+  private static final LoggedTunableNumber toleranceTime =
+      new LoggedTunableNumber("AutoAlign/controllerToleranceSecs", 0.25);
+  private static final LoggedTunableNumber maxLinearVelocity =
+      new LoggedTunableNumber(
+          "AutoAlign/maxLinearVelocity", TunerConstants.driveConfig.maxLinearVelocity() * .5);
+  private static final LoggedTunableNumber maxLinearAcceleration =
+      new LoggedTunableNumber(
+          "AutoAlign/maxLinearAcceleration",
+          TunerConstants.driveConfig.maxLinearAcceleration() * 0.8);
+  private static final LoggedTunableNumber maxAngularVelocity =
+      new LoggedTunableNumber(
+          "AutoAlign/maxAngularVelocity", TunerConstants.driveConfig.maxAngularVelocity() * 0.6);
+  private static final LoggedTunableNumber maxAngularAcceleration =
+      new LoggedTunableNumber(
+          "AutoAlign/maxAngularAcceleration",
+          TunerConstants.driveConfig.maxAngularAcceleration() * 0.6);
+  //   private static final LoggedTunableNumber slowLinearVelocity =
+  //       new LoggedTunableNumber("AutoAlign/slowLinearVelocity",
+  //       TunerConstants.driveConfig.maxLinearVelocity() * .4);
+  //   private static final LoggedTunableNumber slowLinearAcceleration =
+  //       new LoggedTunableNumber("AutoAlign/slowLinearAcceleration",
+  //       TunerConstants.driveConfig.maxLinearAcceleration() * .7);
+  //   private static final LoggedTunableNumber slowAngularVelocity =
+  //       new LoggedTunableNumber("AutoAlign/slowAngularVelocity",
+  //       TunerConstants.driveConfig.maxAngularVelocity() * 0.4);
+  //   private static final LoggedTunableNumber slowAngularAcceleration =
+  //       new LoggedTunableNumber("AutoAlign/slowAngularAcceleration",
+  //       TunerConstants.driveConfig.maxAngularAcceleration() * 0.8);
+  private static final LoggedTunableNumber ffMinRadius =
+      new LoggedTunableNumber("AutoAlign/ffMinRadius", 0.2);
+  private static final LoggedTunableNumber ffMaxRadius =
+      new LoggedTunableNumber("AutoAlign/ffMaxRadius", 0.8);
 
-    private static final LoggedTunableNumber thetakP =
-        new LoggedTunableNumber("AutoAlign/thetakP", 2.5);
-    private static final LoggedTunableNumber thetakD =
-        new LoggedTunableNumber("AutoAlign/thetakD", 0.5);
-    private static final LoggedTunableNumber linearTolerance =
-        new LoggedTunableNumber("AutoAlign/controllerLinearTolerance", 0.03);
-    private static final LoggedTunableNumber thetaTolerance =
-        new LoggedTunableNumber("AutoAlign/controllerThetaTolerance", Units.degreesToRadians(2.5));
-    private static final LoggedTunableNumber toleranceTime =
-        new LoggedTunableNumber("AutoAlign/controllerToleranceSecs", 0.25);
-    private static final LoggedTunableNumber maxLinearVelocity =
-        new LoggedTunableNumber(
-            "AutoAlign/maxLinearVelocity", TunerConstants.driveConfig.maxLinearVelocity() * .5);
-    private static final LoggedTunableNumber maxLinearAcceleration =
-        new LoggedTunableNumber(
-            "AutoAlign/maxLinearAcceleration",
-            TunerConstants.driveConfig.maxLinearAcceleration() * 0.8);
-    private static final LoggedTunableNumber maxAngularVelocity =
-        new LoggedTunableNumber(
-            "AutoAlign/maxAngularVelocity", TunerConstants.driveConfig.maxAngularVelocity() * 0.6);
-    private static final LoggedTunableNumber maxAngularAcceleration =
-        new LoggedTunableNumber(
-            "AutoAlign/maxAngularAcceleration",
-            TunerConstants.driveConfig.maxAngularAcceleration() * 0.6);
-    //   private static final LoggedTunableNumber slowLinearVelocity =
-//       new LoggedTunableNumber("AutoAlign/slowLinearVelocity", 
-//       TunerConstants.driveConfig.maxLinearVelocity() * .4);
-//   private static final LoggedTunableNumber slowLinearAcceleration =
-//       new LoggedTunableNumber("AutoAlign/slowLinearAcceleration", 
-//       TunerConstants.driveConfig.maxLinearAcceleration() * .7);
-//   private static final LoggedTunableNumber slowAngularVelocity =
-//       new LoggedTunableNumber("AutoAlign/slowAngularVelocity", 
-//       TunerConstants.driveConfig.maxAngularVelocity() * 0.4);
-//   private static final LoggedTunableNumber slowAngularAcceleration =
-//       new LoggedTunableNumber("AutoAlign/slowAngularAcceleration", 
-//       TunerConstants.driveConfig.maxAngularAcceleration() * 0.8);
-    private static final LoggedTunableNumber ffMinRadius =
-        new LoggedTunableNumber("AutoAlign/ffMinRadius", 0.2);
-    private static final LoggedTunableNumber ffMaxRadius =
-        new LoggedTunableNumber("AutoAlign/ffMaxRadius", 0.8);
+  private final Pose2d desiredPose;
+  private final Drive drive;
+  //   private final Supplier<Translation2d> feedforwardSupplier;
+  private final BooleanSupplier slowMode;
+  private Translation2d lastSetpointTranslation;
 
-    private final Pose2d desiredPose;
-    private final Drive drive;    
-    //   private final Supplier<Translation2d> feedforwardSupplier;
-    private final BooleanSupplier slowMode;
-    private Translation2d lastSetpointTranslation;
+  // Controllers for translation and rotation
+  //   private PIDController linearPID;
+  private ProfiledPIDController linearController;
+  //   private TrapezoidProfile.State linearSetpoint;
 
-    // Controllers for translation and rotation
-    //   private PIDController linearPID;
-    private ProfiledPIDController linearController;
-    //   private TrapezoidProfile.State linearSetpoint;
+  //   private PIDController thetaPID;
+  private ProfiledPIDController thetaController;
+  //   private TrapezoidProfile.State thetaSetpoint;
 
-    //   private PIDController thetaPID;
-    private ProfiledPIDController thetaController;
-    //   private TrapezoidProfile.State thetaSetpoint;
+  private final Timer toleranceTimer = new Timer();
 
-
-    private final Timer toleranceTimer = new Timer();
-
-    public ReefAlignController(
-    Drive drive,
-    //   Supplier<Translation2d> feedforwardSupplier,
-        BooleanSupplier slowMode) {
+  public ReefAlignController(
+      Drive drive,
+      //   Supplier<Translation2d> feedforwardSupplier,
+      BooleanSupplier slowMode) {
     this.drive = drive;
     this.desiredPose = RobotState.getInstance().getNearestReefPose(drive.getPose());
 
@@ -126,45 +109,43 @@ public class ReefAlignController {
     toleranceTimer.restart();
     updateConstraints();
     resetControllers();
-    }
+  }
 
-    private void updateConstraints() {
+  private void updateConstraints() {
     if (slowMode.getAsBoolean()) {
-    //   linearController.setConstraints(
-    //       new TrapezoidProfile.Constraints(slowLinearVelocity.get(), slowLinearAcceleration.get()));
-    //   thetaController.setConstraints(
-    //       new TrapezoidProfile.Constraints(
-    //           slowAngularVelocity.get(), slowAngularAcceleration.get()));
-        linearController.setPID(linearkP.get() * 2.2, linearkI.get(), linearkD.get() * 2.2);
-        linearController.setIZone(0.1);
-
+      //   linearController.setConstraints(
+      //       new TrapezoidProfile.Constraints(slowLinearVelocity.get(),
+      // slowLinearAcceleration.get()));
+      //   thetaController.setConstraints(
+      //       new TrapezoidProfile.Constraints(
+      //           slowAngularVelocity.get(), slowAngularAcceleration.get()));
+      linearController.setPID(linearkP.get() * 2.2, linearkI.get(), linearkD.get() * 2.2);
+      linearController.setIZone(0.1);
 
     } else {
-        linearController.setConstraints(
-            new TrapezoidProfile.Constraints(maxLinearVelocity.get(), maxLinearAcceleration.get()));
-        thetaController.setConstraints(
-            new TrapezoidProfile.Constraints(maxAngularVelocity.get(), maxAngularAcceleration.get()));
-        linearController.setPID(linearkP.get(), 0, linearkD.get());
+      linearController.setConstraints(
+          new TrapezoidProfile.Constraints(maxLinearVelocity.get(), maxLinearAcceleration.get()));
+      thetaController.setConstraints(
+          new TrapezoidProfile.Constraints(maxAngularVelocity.get(), maxAngularAcceleration.get()));
+      linearController.setPID(linearkP.get(), 0, linearkD.get());
+    }
+  }
 
-    }   
-}   
-
-    private void resetControllers() {
+  private void resetControllers() {
     // Reset measurements and velocities
     Pose2d currentPose = drive.getPose();
     Pose2d goalPose = desiredPose;
     Twist2d fieldVelocity = GeomUtil.toTwist2d(drive.getChassisSpeeds());
     // Rotation2d robotToGoalAngle =
     //     goalPose.getTranslation().minus(currentPose.getTranslation()).getAngle();
-    double linearVelocity =
-        new Translation2d(fieldVelocity.dx, fieldVelocity.dy).getNorm();
+    double linearVelocity = new Translation2d(fieldVelocity.dx, fieldVelocity.dy).getNorm();
     linearController.reset(
         currentPose.getTranslation().getDistance(goalPose.getTranslation()), linearVelocity);
     thetaController.reset(currentPose.getRotation().getRadians());
     lastSetpointTranslation = currentPose.getTranslation();
-}
+  }
 
-    public Supplier<ChassisSpeeds> update() {
+  public Supplier<ChassisSpeeds> update() {
     // Update Controllers
     LoggedTunableNumber.ifChanged(
         hashCode(),
@@ -198,22 +179,21 @@ public class ReefAlignController {
     Pose2d targetPose = desiredPose;
 
     // Calculate drive speed
-    double currentDistance =
-        currentPose.getTranslation().getDistance(targetPose.getTranslation());
-    double ffScaler = //1.0;
+    double currentDistance = currentPose.getTranslation().getDistance(targetPose.getTranslation());
+    double ffScaler = // 1.0;
         MathUtil.clamp(
             (currentDistance - ffMinRadius.get()) / (ffMaxRadius.get() - ffMinRadius.get()),
             0.0,
             1.0);
 
-    linearController.reset(linearController.getSetpoint().position, linearController.getSetpoint().velocity);
-    // thetaController.reset(thetaController.getSetpoint().position, thetaController.getSetpoint().velocity);
-
+    linearController.reset(
+        linearController.getSetpoint().position, linearController.getSetpoint().velocity);
+    // thetaController.reset(thetaController.getSetpoint().position,
+    // thetaController.getSetpoint().velocity);
 
     double driveVelocityScalar =
         linearController.getSetpoint().velocity * ffScaler
             + linearController.calculate(currentDistance, 0.0);
-
 
     if (linearController.atGoal()) driveVelocityScalar = 0.0;
     lastSetpointTranslation =
@@ -227,16 +207,15 @@ public class ReefAlignController {
     double thetaVelocity =
         // thetaController.getSetpoint().velocity * ffScaler
         thetaController.calculate(
-                currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
+            currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
     if (thetaController.atGoal()) thetaVelocity = 0.0;
 
     // Reset tolerance timer
     if (!linearController.atGoal() || !thetaController.atGoal()) {
-        toleranceTimer.reset();
-}   
+      toleranceTimer.reset();
+    }
 
     // Log data
-
 
     Logger.recordOutput("AutoAlign/MaxVel", linearController.getConstraints().maxVelocity);
     Logger.recordOutput("AutoAlign/MaxAccel", linearController.getConstraints().maxAcceleration);
@@ -245,7 +224,8 @@ public class ReefAlignController {
     Logger.recordOutput("AutoAlign/DistanceSetpoint", linearController.getSetpoint().position);
 
     Logger.recordOutput("AutoAlign/VelocitySetpoint", driveVelocityScalar);
-    Logger.recordOutput("AutoAlign/'calculate'velocitySetPoint", linearController.calculate(currentDistance, 0.0));
+    Logger.recordOutput(
+        "AutoAlign/'calculate'velocitySetPoint", linearController.calculate(currentDistance, 0.0));
 
     Logger.recordOutput("AutoAlign/ThetaMeasured", currentPose.getRotation().getRadians());
     Logger.recordOutput("AutoAlign/ThetaSetpoint", thetaController.getSetpoint().position);
@@ -255,30 +235,32 @@ public class ReefAlignController {
             lastSetpointTranslation, new Rotation2d(thetaController.getSetpoint().position)));
     Logger.recordOutput("Odometry/GoalPose", targetPose);
     // Logger.recordOutput("AutoAlign/AtGoal", atGoal());
-    Logger.recordOutput("AutoAlign/AtGoalCondition", (!linearController.atGoal() || !thetaController.atGoal()));
+    Logger.recordOutput(
+        "AutoAlign/AtGoalCondition", (!linearController.atGoal() || !thetaController.atGoal()));
     Logger.recordOutput("AutoAlign/ToleranceTimer", toleranceTimer.get());
-
 
     // Command speeds
     var driveVelocity =
         new Pose2d(
                 new Translation2d(0, 0),
-                
                 currentPose.getTranslation().minus(targetPose.getTranslation()).getAngle())
             .transformBy(GeomUtil.toTransform2d(driveVelocityScalar, 0.0))
             .getTranslation();
-            // .plus(feedforwardSupplier.get());
+    // .plus(feedforwardSupplier.get());
     final double finalThetaVelocity = thetaVelocity;
 
     updateConstraints();
-    return () -> ChassisSpeeds.fromFieldRelativeSpeeds(
-        driveVelocity.getX(), driveVelocity.getY(), finalThetaVelocity, currentPose.getRotation());
-}
+    return () ->
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+            driveVelocity.getX(),
+            driveVelocity.getY(),
+            finalThetaVelocity,
+            currentPose.getRotation());
+  }
 
-    @AutoLogOutput(key = "AutoAlign/AtGoal")
-    public boolean atGoal() {
+  @AutoLogOutput(key = "AutoAlign/AtGoal")
+  public boolean atGoal() {
     // Logger.recordOutput("AutoAlign/AtGoal", toleranceTimer.get() > toleranceTime.get());
     return toleranceTimer.get() > toleranceTime.get();
-
-}
+  }
 }
