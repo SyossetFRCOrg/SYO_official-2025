@@ -11,8 +11,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.drive.DefaultDriveCommand;
-import frc.robot.subsystems.drive.Drivetrain;
+import frc.robot.subsystems.drive.swerve.Drivetrain;
 
 public class Superstructure extends SubsystemBase {
     private final CommandXboxController controller;
@@ -31,14 +30,12 @@ public class Superstructure extends SubsystemBase {
         controller = new CommandXboxController(0);
 
         if (subsystems.get("drivetrain").getBoolean("enabled")) {
-            drivetrain = Optional.of(Drivetrain.create(new Toml().read(new File(configDir, subsystems.get("drivetrain").getString("config")))));
+            drivetrain = Optional.of(new Drivetrain());
             drivetrain.ifPresent(drive -> {
-                drive.setDefaultCommand(new DefaultDriveCommand(
-                    drive, 
-                    () -> controller.getLeftY(), 
-                    () -> controller.getLeftX(), 
-                    () -> -controller.getRightX(), 
-                    4.0, 2.0
+                drive.setDefaultCommand(drive.new DefaultDrive(
+                    () -> controller.getLeftY(),
+                    () -> controller.getLeftX(),
+                    () -> -controller.getRightX()
                 ));
             });
         } else {

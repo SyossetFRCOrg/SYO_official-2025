@@ -1,0 +1,200 @@
+package frc.robot.subsystems.drive.swerve;
+
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
+
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+public class ModuleIOSpark implements ModuleIO {
+    private final SparkBase driveSpark;
+    private final SparkBase turnSpark;
+
+    private final RelativeEncoder driveEncoder;
+    private final RelativeEncoder turnEncoder;
+
+    private final SparkClosedLoopController driveController;
+    private final SparkClosedLoopController turnController;
+
+    private final CANcoder cancoder;
+
+    private final Rotation2d zeroRotation;
+    private Rotation2d angleOffset = null;
+
+    public static class Config implements Cloneable {
+        public static class Drive implements Cloneable {
+            public int canid;
+            public MotorType motorType;
+
+            public IdleMode idleMode = IdleMode.kBrake;
+            public boolean inverted = false;
+            public int stallLimit;
+            public int freeLimit;
+
+            public Object clone() throws CloneNotSupportedException {
+                return super.clone();
+            }
+        }
+        
+        public static class Turn implements Cloneable {
+            public int canid;
+            public MotorType motorType;
+
+            public IdleMode idleMode = IdleMode.kBrake;
+            public boolean inverted = false;
+            public int stallLimit;
+            public int freeLimit;
+            
+            public double zeroRotationRad;
+            
+            public Object clone() throws CloneNotSupportedException {
+                return super.clone();
+            }
+        }
+
+        public static class Cancoder implements Cloneable {
+            public int canid;
+            public double zeroRotationRad;
+            
+            public Object clone() throws CloneNotSupportedException {
+                return super.clone();
+            }
+        }
+        
+        public Drive drive = new Drive();
+        public Turn turn = new Turn();
+        public Cancoder cancoder = new Cancoder();
+
+        @Override
+        public Object clone() throws CloneNotSupportedException {
+            Config out = new Config();
+
+            out.drive = (Drive)drive.clone();
+            out.turn = (Turn)turn.clone();
+            out.cancoder = (Cancoder)cancoder.clone();
+
+            return out;
+        }
+    }
+
+    public ModuleIOSpark(Config config) {
+        driveSpark = new SparkMax(config.drive.canid, config.drive.motorType);
+        turnSpark = new SparkMax(config.turn.canid, config.turn.motorType);
+
+        driveEncoder = driveSpark.getEncoder();
+        turnEncoder = turnSpark.getEncoder();
+
+        driveController = driveSpark.getClosedLoopController();
+        turnController = turnSpark.getClosedLoopController();
+
+        var driveConfig = new SparkMaxConfig();
+
+        driveConfig
+            .inverted(config.drive.inverted)
+            .idleMode(config.drive.idleMode)
+            .smartCurrentLimit(config.drive.stallLimit, config.drive.freeLimit)
+            .voltageCompensation(12.0);
+        
+        driveConfig.encoder
+            .positionConversionFactor(2 * Math.PI)         // Rotations -> Radians
+            .velocityConversionFactor(2 * Math.PI / 60.0); // Rotations -> Radians
+        
+        driveConfig.closedLoop
+            .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+            .pidf(2.0, 0.0, 0.0, 0.0);
+
+        driveSpark.configure(driveConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+
+        var turnConfig = new SparkMaxConfig();
+
+        turnConfig
+            .inverted(config.turn.inverted)
+            .idleMode(config.turn.idleMode)
+            .smartCurrentLimit(config.turn.stallLimit, config.turn.freeLimit)
+            .voltageCompensation(12.0);
+        
+        turnConfig.encoder
+            .positionConversionFactor(2 * Math.PI)         // Rotations -> Radians
+            .velocityConversionFactor(2 * Math.PI / 60.0); // Rotations -> Radians
+        
+        turnConfig.closedLoop
+            .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+            .pidf(2.0, 0.0, 0.0, 0.0);
+            
+        turnSpark.configure(turnConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+
+        if (config.cancoder.canid == 0) {
+            cancoder = null;
+            zeroRotation = new Rotation2d(config.turn.zeroRotationRad);
+        } else {
+            cancoder = new CANcoder(config.cancoder.canid, "rio");
+            zeroRotation = new Rotation2d(config.cancoder.zeroRotationRad);
+        }
+
+        driveSpark.setVoltage(0.0);
+        turnSpark.setVoltage(0.0);
+    }
+
+    @Override
+    public void updateInputs(Inputs inputs) {
+        inputs.driveConnected = true;
+        inputs.drivePositionRad = driveEncoder.getPosition();
+        inputs.driveVelocityRadPerSec = driveEncoder.getVelocity();
+        inputs.driveAppliedVolts = driveSpark.getAppliedOutput() * driveSpark.getBusVoltage();
+        inputs.driveCurrentAmps = driveSpark.getOutputCurrent();
+        
+        inputs.turnConnected = true;
+        inputs.turnPositionRad = turnEncoder.getPosition();
+        inputs.turnVelocityRadPerSec = turnEncoder.getVelocity();
+        inputs.turnAppliedVolts = turnSpark.getAppliedOutput() * turnSpark.getBusVoltage();
+        inputs.turnCurrentAmps = turnSpark.getOutputCurrent();
+
+        if (cancoder != null) {
+            if (cancoder.isConnected() && angleOffset == null) {
+                var absAngle = Rotation2d.fromRotations(cancoder.getAbsolutePosition().getValueAsDouble()).minus(zeroRotation);
+                angleOffset = Rotation2d.fromRadians(inputs.turnPositionRad).minus(absAngle);
+            }
+
+            inputs.turnPosition = Rotation2d.fromRadians(inputs.turnPositionRad).minus(angleOffset != null ? angleOffset : new Rotation2d(0.0));
+        } else {
+            inputs.turnPosition = Rotation2d.fromRadians(inputs.turnPositionRad).minus(zeroRotation);
+        }
+        
+        inputs.turnVelocity = Rotation2d.fromRadians(inputs.turnVelocityRadPerSec);
+    }
+
+    @Override
+    public void setDriveVoltage(double voltage) {
+        driveSpark.setVoltage(MathUtil.clamp(voltage, -6.0, 6.0));
+    }
+
+    @Override
+    public void setTurnVoltage(double voltage) {
+        turnSpark.setVoltage(MathUtil.clamp(voltage, -6.0, 6.0));
+    }
+
+    @Override
+    public void setDriveVelocity(double radPerSec) {
+        double ffVolts = 0.1 * radPerSec;
+        driveController.setReference(radPerSec, ControlType.kVelocity, ClosedLoopSlot.kSlot0, ffVolts, ArbFFUnits.kVoltage);
+    }
+    
+    @Override
+    public void setTurnVelocity(double radPerSec) {
+        double ffVolts = 0.1 * radPerSec;
+        turnController.setReference(radPerSec, ControlType.kVelocity, ClosedLoopSlot.kSlot0, ffVolts, ArbFFUnits.kVoltage);
+    }
+}
