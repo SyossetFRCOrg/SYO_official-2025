@@ -111,10 +111,10 @@ public class Superstructure extends SubsystemBase {
     previousSuperState = currentSuperState;
     currentSuperState =
         switch (wantedSuperState) {
-          case L1 -> subsystemsL1ready() ? SuperState.L1 : SuperState.L1PREPARE;
-          case L2 -> subsystemsL2ready() ? SuperState.L2 : SuperState.L2PREPARE;
-          case L3 -> subsystemsL3ready() ? SuperState.L3 : SuperState.L3PREPARE;
-          case L4 -> subsystemsL4ready() ? SuperState.L4 : SuperState.L4PREPARE;
+          case L1 -> ready(SuperState.L1) ? SuperState.L1 : SuperState.L1PREPARE;
+          case L2 -> ready(SuperState.L2) ? SuperState.L2 : SuperState.L2PREPARE;
+          case L3 -> ready(SuperState.L3) ? SuperState.L3 : SuperState.L3PREPARE;
+          case L4 -> ready(SuperState.L4) ? SuperState.L4 : SuperState.L4PREPARE;
           default -> wantedSuperState;
         };
 
@@ -130,6 +130,7 @@ public class Superstructure extends SubsystemBase {
       default:
         break;
     }
+
     elevator.setState(currentSuperState);
   }
 
@@ -138,32 +139,11 @@ public class Superstructure extends SubsystemBase {
     elevator.stop();
   }
 
-  /** Checks if the subsystems are ready for L1 shooting */
-  private boolean subsystemsL1ready() {
-    boolean isReady = elevator.atSetPoint();
-
-    return isReady;
-  }
-
-  /** Checks if the subsystems are ready for L2 shooting */
-  private boolean subsystemsL2ready() {
-    boolean isReady = elevator.atSetPoint();
-
-    return isReady;
-  }
-
-  /** Checks if the subsystems are ready for L2 shooting */
-  private boolean subsystemsL3ready() {
-    boolean isReady = elevator.atSetPoint();
-
-    return isReady;
-  }
-
-  /** Checks if the subsystems are ready for L2 shooting */
-  private boolean subsystemsL4ready() {
-    boolean isReady = elevator.atSetPoint();
-
-    return isReady;
+  private boolean ready(SuperState state) {
+    return switch (state) {
+      case L1, L2, L3, L4 -> elevator.atSetPoint();
+      default -> true;
+    };
   }
 
   public BooleanSupplier doesCommandMatch(SuperState currentSuperState) {
