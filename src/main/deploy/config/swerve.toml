@@ -1,111 +1,75 @@
-type = "sonic_swerve"
-name = "Sonic Swerve Drivetrain"
+[baseModule]
+wheelRadius = 0.04318
 
-[turn_pid]
-kp = 5.0
-ki = 0.0
-kd = 0.0
+[baseModule.io.drive]
+motorType = "kBrushless"
+idleMode = "kBrake"
+stallLimit = 50
+gearRatio = 8.14
 
-[drive_pid]
-kp = 5.0
-ki = 0.0
-kd = 0.0
-
-[default_module]
-    type = "sonic_swerve"
-
-    [default_module.drive_motor]
-    type = "sparkmax"
-    motor_type = "brushless"
-    idle_mode = "brake"
-    inverted = true
-    stall_limit = 20
-    free_limit = 20
-    volts = 12.0
-    wheel_radius = 0.04318
-
-    [default_module.turn_motor]
-    type = "sparkmax"
-    motor_type = "brushless"
-    idle_mode = "brake"
-    inverted = true
-    stall_limit = 20
-    volts = 12.0
-
-    [[default_module.drive_encoders]]
-    type = "sparkmax"
-
-    # [[default_module.turn_encoders]]
-    # type = "sparkmax"
-    # reduction = 21.429
-
-    [[default_module.turn_encoders]]
-    type = "cancoder"
+[baseModule.io.turn]
+inverted = true
+idleMode = "kBrake"
+motorType = "kBrushless"
+stallLimit = 20
+gearRatio = 21.43
 
 [[modules]]
     name = "Front Left"
-    x = 3.175
-    y = 3.175
+    xPos = 3.175
+    yPos = 3.175
 
-    [modules.drive_motor]
+    [modules.io.drive]
     canid = 1
 
-    [modules.turn_motor]
+    [modules.io.turn]
     canid = 2
 
-    [[modules.drive_encoders]]
-    # [[modules.turn_encoders]]
-    [[modules.turn_encoders]]
-    zero_rotation = 0.204
+    [modules.io.cancoder]
     canid = 3
+    zeroRotationRad = -3.00
 
 [[modules]]
     name = "Front Right"
-    x = 3.175
-    y = -3.175
+    xPos = 3.175
+    yPos = -3.175
 
-    [modules.drive_motor]
+    [modules.io.drive]
     canid = 4
 
-    [modules.turn_motor]
+    [modules.io.turn]
     canid = 5
 
-    [[modules.drive_encoders]]
-    # [[modules.turn_encoders]]
-    [[modules.turn_encoders]]
-    zero_rotation = -0.508
+    [modules.io.cancoder]
     canid = 6
+    zeroRotationRad = 0.32
 
 [[modules]]
     name = "Back Left"
-    x = -3.175
-    y = 3.175
+    xPos = -3.175
+    yPos = 3.175
 
-    [modules.drive_motor]
+    [modules.io.drive]
     canid = 7
 
-    [modules.turn_motor]
+    [modules.io.turn]
     canid = 8
 
-    [[modules.drive_encoders]]
-    # [[modules.turn_encoders]]
-    [[modules.turn_encoders]]
-    zero_rotation = -1.281
+    [modules.io.cancoder]
     canid = 9
+    zeroRotationRad = 2.11
 
 [[modules]]
     name = "Back Right"
-    x = -3.175
-    y = -3.175
+    xPos = -3.175
+    yPos = -3.175
 
-    [modules.drive_motor]
+    [modules.io.drive]
     canid = 10
 
-    [modules.turn_motor]
+    [modules.io.turn]
     canid = 11
 
-    [[modules.drive_encoders]]
-    # [[modules.turn_encoders]]
-    [[modules.turn_encoders]]
-    zero_rotation = 1.654
+    [modules.io.cancoder]
     canid = 12
+    zeroRotationRad = -1.33

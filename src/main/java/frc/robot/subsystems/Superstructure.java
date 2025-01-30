@@ -30,12 +30,12 @@ public class Superstructure extends SubsystemBase {
         controller = new CommandXboxController(0);
 
         if (subsystems.get("drivetrain").getBoolean("enabled")) {
-            drivetrain = Optional.of(new Drivetrain());
+            drivetrain = Optional.of(new Drivetrain(new Toml().read(new File(configDir, "swerve.toml"))));
             drivetrain.ifPresent(drive -> {
                 drive.setDefaultCommand(drive.new DefaultDrive(
                     () -> controller.getLeftY(),
                     () -> controller.getLeftX(),
-                    () -> -controller.getRightX()
+                    () -> controller.getRightX()
                 ));
             });
         } else {

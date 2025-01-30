@@ -16,6 +16,7 @@ public interface ModuleIO {
         public double turnAppliedVolts = 0.0;
         public double turnCurrentAmps = 0.0;
 
+        public Rotation2d turnZeroRotation = new Rotation2d();
         public Rotation2d turnPosition = new Rotation2d();
         public Rotation2d turnVelocity = new Rotation2d();
     }
@@ -27,4 +28,6 @@ public interface ModuleIO {
     
     public void setDriveVelocity(double radPerSec);
     public void setTurnVelocity(double radPerSec);
+
+    public void setTurnPosition(double rad);
 }
