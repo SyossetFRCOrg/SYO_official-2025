@@ -8,7 +8,6 @@ import frc.robot.RobotContainer;
 // import frc.robot.config.FieldConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.Elevator.ElevatorState;
 import java.util.function.BooleanSupplier;
 
 // import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -28,7 +27,7 @@ public class Superstructure extends SubsystemBase {
   private boolean subwooferShotMode = false;
   private boolean feedShotMode = false;
 
-  public static enum WantedSuperState {
+  public static enum SuperState {
     // MANUAL,
     INTAKE,
     L1,
@@ -43,24 +42,9 @@ public class Superstructure extends SubsystemBase {
     STOW,
   }
 
-  public static enum CurrentSuperState {
-    // MANUAL,
-    INTAKE,
-    L1,
-    L2,
-    L3,
-    L4,
-    L1PREPARE,
-    L2PREPARE,
-    L3PREPARE,
-    L4PREPARE,
-    STOPPED,
-    STOW,
-  }
-
-  private WantedSuperState wantedSuperState = WantedSuperState.STOPPED;
-  public static CurrentSuperState currentSuperState = CurrentSuperState.STOPPED;
-  private CurrentSuperState previousSuperState;
+  private SuperState wantedSuperState = SuperState.STOPPED;
+  public static SuperState currentSuperState = SuperState.STOPPED;
+  private SuperState previousSuperState = SuperState.STOPPED;
 
   // RobotState.AimingParameters aimingParameters =
   //         new RobotState.AimingParameters(new Rotation2d(), new Rotation2d(), new
@@ -123,102 +107,35 @@ public class Superstructure extends SubsystemBase {
    *
    * @return The current super state
    */
-  private CurrentSuperState handleStateTransitions() {
+  private SuperState handleStateTransitions() {
     previousSuperState = currentSuperState;
-    switch (wantedSuperState) {
-      case STOW:
-        currentSuperState = CurrentSuperState.STOW;
-        break;
+    currentSuperState =
+        switch (wantedSuperState) {
+          case L1 -> subsystemsL1ready() ? SuperState.L1 : SuperState.L1PREPARE;
+          case L2 -> subsystemsL2ready() ? SuperState.L2 : SuperState.L2PREPARE;
+          case L3 -> subsystemsL3ready() ? SuperState.L3 : SuperState.L3PREPARE;
+          case L4 -> subsystemsL4ready() ? SuperState.L4 : SuperState.L4PREPARE;
+          default -> wantedSuperState;
+        };
 
-      case INTAKE:
-        currentSuperState = CurrentSuperState.INTAKE;
-      case L1PREPARE:
-        currentSuperState = CurrentSuperState.L1PREPARE;
-
-      case L1:
-        currentSuperState =
-            subsystemsL1ready() ? CurrentSuperState.L1 : CurrentSuperState.L1PREPARE;
-
-      case L2PREPARE:
-        currentSuperState = CurrentSuperState.L2PREPARE;
-
-      case L2:
-        currentSuperState =
-            subsystemsL2ready() ? CurrentSuperState.L2 : CurrentSuperState.L2PREPARE;
-
-      case L3PREPARE:
-        currentSuperState = CurrentSuperState.L3PREPARE;
-
-      case L3:
-        currentSuperState =
-            subsystemsL3ready() ? CurrentSuperState.L3 : CurrentSuperState.L3PREPARE;
-
-      case L4PREPARE:
-        currentSuperState = CurrentSuperState.L4PREPARE;
-
-      case L4:
-        currentSuperState =
-            subsystemsL4ready() ? CurrentSuperState.L4 : CurrentSuperState.L4PREPARE;
-
-        // case PASS:
-        //     currentSuperState = areSystemsReadyForPassShot()
-        //     ? CurrentSuperState.PASS
-        //     : CurrentSuperState.PREPARING_PASS;
-        //     break;
-
-      case STOPPED:
-      default:
-        currentSuperState = CurrentSuperState.STOPPED;
-        break;
-    }
     return currentSuperState;
   }
 
   /** Sets subsystem states */
   private void applyStates() {
     switch (currentSuperState) {
-      case INTAKE:
-        intake();
-        break;
-      case L1PREPARE:
-        L1prepare();
-        break;
-      case L1:
-        L1();
-        break;
-      case L2PREPARE:
-        L2prepare();
-        break;
-      case L2:
-        L2();
-        break;
-      case L3PREPARE:
-        L3prepare();
-        break;
-      case L3:
-        L3();
-        break;
-      case L4PREPARE:
-        L4prepare();
-        break;
-      case L4:
-        L4();
-        break;
-      case STOW:
-        stow();
-        break;
-
-        // case CLIMBER_DOWN:
-        //     climbDown();
-        //     break;
-        // case CLIMBER_UP:
-        //     climbUp();
-        //     break;
       case STOPPED:
-      default:
         handleStopped();
         break;
+      default:
+        break;
     }
+    elevator.setState(currentSuperState);
+  }
+
+  private void handleStopped() {
+    drive.stop();
+    elevator.stop();
   }
 
   /** Checks if the subsystems are ready for L1 shooting */
@@ -249,71 +166,16 @@ public class Superstructure extends SubsystemBase {
     return isReady;
   }
 
-  /** Moves subsystems to intake position */
-  private void intake() {
-    elevator.setWantedState(ElevatorState.INTAKE);
-  }
-
-  /** Moves subsystems to L1 position, prepare */
-  private void L1prepare() {
-    elevator.setWantedState(ElevatorState.L1PREPARE);
-  }
-
-  /** Shoots Coral to L1 */
-  private void L1() {
-    elevator.setWantedState(ElevatorState.L1);
-  }
-
-  /** Moves subsystems to L2 position, prepare */
-  private void L2prepare() {
-    elevator.setWantedState(ElevatorState.L2PREPARE);
-  }
-
-  /** Shoots Coral to L2 */
-  private void L2() {
-    elevator.setWantedState(ElevatorState.L2);
-  }
-
-  /** Moves subsystems to L3 position, prepare */
-  private void L3prepare() {
-    elevator.setWantedState(ElevatorState.L3PREPARE);
-  }
-
-  /** Shoots Coral to L1 */
-  private void L3() {
-    elevator.setWantedState(ElevatorState.L3);
-  }
-
-  /** Moves subsystems to L1 position, prepare */
-  private void L4prepare() {
-    elevator.setWantedState(ElevatorState.L4PREPARE);
-  }
-
-  /** Shoots Coral to L4 */
-  private void L4() {
-    elevator.setWantedState(ElevatorState.L4);
-  }
-
-  /** Brings elevator down, stow everything */
-  private void stow() {
-    elevator.setWantedState(ElevatorState.STOW);
-  }
-
-  private void handleStopped() {
-    drive.stop();
-    elevator.stop();
-  }
-
-  public BooleanSupplier doesCommandMatch(CurrentSuperState currentSuperState) {
+  public BooleanSupplier doesCommandMatch(SuperState currentSuperState) {
     return () -> Superstructure.currentSuperState == currentSuperState;
   }
 
   /** State pushers */
-  public void setWantedSuperState(WantedSuperState wantedSuperState) {
+  public void setWantedSuperState(SuperState wantedSuperState) {
     this.wantedSuperState = wantedSuperState;
   }
 
-  public Command setWantedSuperStateCommand(WantedSuperState wantedSuperState) {
+  public Command setWantedSuperStateCommand(SuperState wantedSuperState) {
     return new InstantCommand(() -> setWantedSuperState(wantedSuperState));
   }
 }
@@ -368,7 +230,7 @@ public class Superstructure extends SubsystemBase {
 //     private boolean subwooferShotMode = false;
 //     private boolean feedShotMode = false;
 
-//     public static enum WantedSuperState {
+//     public static enum SuperState {
 //         HOLD_FIX_PIECE,
 //         REGULAR_STATE,
 //         PREPARING_SUBWOOFER_SHOT,
@@ -385,7 +247,7 @@ public class Superstructure extends SubsystemBase {
 //         STOPPED,
 //     }
 
-//     public static enum CurrentSuperState {
+//     public static enum SuperState {
 //         HOLD_FIX_PIECE,
 //         REGULAR_STATE,
 //         PREPARING_SUBWOOFER_SHOT,
@@ -402,9 +264,9 @@ public class Superstructure extends SubsystemBase {
 //         STOPPED,
 //     }
 
-//     private WantedSuperState wantedSuperState = WantedSuperState.STOPPED;
-//     public static CurrentSuperState currentSuperState = CurrentSuperState.STOPPED;
-//     private CurrentSuperState previousSuperState;
+//     private SuperState wantedSuperState = SuperState.STOPPED;
+//     public static SuperState currentSuperState = SuperState.STOPPED;
+//     private SuperState previousSuperState;
 //     // RobotState.AimingParameters aimingParameters =
 //     //         new RobotState.AimingParameters(new Rotation2d(), new Rotation2d(), new
 // Translation2d(), 0.0);
@@ -475,68 +337,68 @@ public class Superstructure extends SubsystemBase {
 // RobotState.getInstance().getDistanceToFeedTarget());
 //     }
 
-//     private CurrentSuperState handleStateTransitions() {
+//     private SuperState handleStateTransitions() {
 //         previousSuperState = currentSuperState;
 //         switch (wantedSuperState) {
 //             case HOLD_FIX_PIECE:
 
-//                 currentSuperState = CurrentSuperState.HOLD_FIX_PIECE;
+//                 currentSuperState = SuperState.HOLD_FIX_PIECE;
 //                 break;
 
 //             case REGULAR_STATE:
-//                 currentSuperState = CurrentSuperState.REGULAR_STATE;
+//                 currentSuperState = SuperState.REGULAR_STATE;
 //                 break;
 //             case PREPARING_SUBWOOFER_SHOT:
-//                 currentSuperState = CurrentSuperState.PREPARING_SUBWOOFER_SHOT;
+//                 currentSuperState = SuperState.PREPARING_SUBWOOFER_SHOT;
 //                 break;
 //             // case READY_FOR_SUBWOOFER_SHOT:
-//             //     currentSuperState = CurrentSuperState.READY_FOR_SUBWOOFER_SHOT;
+//             //     currentSuperState = SuperState.READY_FOR_SUBWOOFER_SHOT;
 //             //     break;
 //             case SUBWOOFER_SHOT:
 //                 currentSuperState = areSystemsReadyForSubwooferShot()
-//                         ? CurrentSuperState.SUBWOOFER_SHOT
-//                         : CurrentSuperState.PREPARING_SUBWOOFER_SHOT;
+//                         ? SuperState.SUBWOOFER_SHOT
+//                         : SuperState.PREPARING_SUBWOOFER_SHOT;
 
 //                 break;
 //             case PREPARING_LIMELIGHT_SHOT:
-//                 currentSuperState = CurrentSuperState.PREPARING_LIMELIGHT_SHOT;
+//                 currentSuperState = SuperState.PREPARING_LIMELIGHT_SHOT;
 //                 break;
 //             // case READY_FOR_LIMELIGHT_SHOT:
-//             //     currentSuperState = CurrentSuperState.READY_FOR_LIMELIGHT_SHOT;
+//             //     currentSuperState = SuperState.READY_FOR_LIMELIGHT_SHOT;
 //             //     break;
 //             case LIMELIGHT_SHOT:
 //                 currentSuperState = areSystemsReadyForLimelightShot()
-//                 ? CurrentSuperState.LIMELIGHT_SHOT
-//                 : CurrentSuperState.PREPARING_LIMELIGHT_SHOT;
+//                 ? SuperState.LIMELIGHT_SHOT
+//                 : SuperState.PREPARING_LIMELIGHT_SHOT;
 //                 break;
 //             case PREPARING_PASS:
-//                 currentSuperState = CurrentSuperState.PREPARING_PASS;
+//                 currentSuperState = SuperState.PREPARING_PASS;
 //                 break;
 //             case PASS:
 
-//                 currentSuperState = areSystemsReadyForPassShot() ? CurrentSuperState.PASS :
-// CurrentSuperState.PREPARING_PASS;
+//                 currentSuperState = areSystemsReadyForPassShot() ? SuperState.PASS :
+// SuperState.PREPARING_PASS;
 //                 break;
 
 //             // case READY_FOR_INTAKE:
-//             //     currentSuperState = CurrentSuperState.READY_FOR_INTAKE;
+//             //     currentSuperState = SuperState.READY_FOR_INTAKE;
 //             //     break;
 //             case INTAKE_DOWN:
-//                 currentSuperState = CurrentSuperState.INTAKE_DOWN;
+//                 currentSuperState = SuperState.INTAKE_DOWN;
 //                 break;
 //             case INTAKE_UP:
-//                 currentSuperState = CurrentSuperState.INTAKE_UP;
+//                 currentSuperState = SuperState.INTAKE_UP;
 //                 break;
 //             case CLIMBER_UP:
-//                 currentSuperState = CurrentSuperState.CLIMBER_UP;
+//                 currentSuperState = SuperState.CLIMBER_UP;
 //                 break;
 //             case CLIMBER_DOWN:
-//                 currentSuperState = CurrentSuperState.CLIMBER_DOWN;
+//                 currentSuperState = SuperState.CLIMBER_DOWN;
 //                 break;
 
 //             case STOPPED:
 //             default:
-//                 currentSuperState = CurrentSuperState.STOPPED;
+//                 currentSuperState = SuperState.STOPPED;
 //                 break;
 
 //         }
@@ -659,7 +521,7 @@ public class Superstructure extends SubsystemBase {
 // () -> -700.0)))));
 
 //         intake.intake(() -> 0);
-//         wantedSuperState = WantedSuperState.REGULAR_STATE;
+//         wantedSuperState = SuperState.REGULAR_STATE;
 //     }
 
 //     /**
@@ -683,7 +545,7 @@ public class Superstructure extends SubsystemBase {
 // () -> -700.0)))));
 
 //         intake.intake(() -> 0);
-//         wantedSuperState = WantedSuperState.REGULAR_STATE;
+//         wantedSuperState = SuperState.REGULAR_STATE;
 //     }
 
 //     /**
@@ -733,8 +595,8 @@ public class Superstructure extends SubsystemBase {
 //         Commands.run(() -> makeSureIntakeUp(false))
 //         )
 //         );
-//         wantedSuperState = WantedSuperState.REGULAR_STATE;
-//         currentSuperState = CurrentSuperState.REGULAR_STATE;
+//         wantedSuperState = SuperState.REGULAR_STATE;
+//         currentSuperState = SuperState.REGULAR_STATE;
 
 //     }
 
@@ -755,8 +617,8 @@ public class Superstructure extends SubsystemBase {
 //         )
 //         ).andThen(() -> drive.disableRotationLock());
 
-//         wantedSuperState = WantedSuperState.REGULAR_STATE;
-//         currentSuperState = CurrentSuperState.REGULAR_STATE;
+//         wantedSuperState = SuperState.REGULAR_STATE;
+//         currentSuperState = SuperState.REGULAR_STATE;
 //     }
 
 //      /**
@@ -792,8 +654,8 @@ public class Superstructure extends SubsystemBase {
 //         )
 //         ).andThen(() -> drive.disableRotationLock());
 
-//         wantedSuperState = WantedSuperState.REGULAR_STATE;
-//         currentSuperState = CurrentSuperState.REGULAR_STATE;
+//         wantedSuperState = SuperState.REGULAR_STATE;
+//         currentSuperState = SuperState.REGULAR_STATE;
 //     }
 
 //     /**
@@ -841,11 +703,11 @@ public class Superstructure extends SubsystemBase {
 //     }
 
 //     /** State pushers */
-//     public void setWantedSuperState(WantedSuperState wantedSuperState) {
+//     public void setWantedSuperState(SuperState wantedSuperState) {
 //         this.wantedSuperState = wantedSuperState;
 //     }
 
-//     public Command setWantedSuperStateCommand(WantedSuperState wantedSuperState) {
+//     public Command setWantedSuperStateCommand(SuperState wantedSuperState) {
 //         return new InstantCommand(() -> setWantedSuperState(wantedSuperState));
 //     }
 
