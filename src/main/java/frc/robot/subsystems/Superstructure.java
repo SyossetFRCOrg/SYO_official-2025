@@ -9,6 +9,7 @@ import frc.robot.RobotContainer;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.function.BooleanSupplier;
 
@@ -22,12 +23,11 @@ public class Superstructure extends SubsystemBase {
   private Elevator elevator;
 
   // private ClimberSubsystem climber;
-  private RobotContainer container;
 
   // private final Timer climberHeadingLockTimer = new Timer();
 
-  private boolean subwooferShotMode = false;
-  private boolean feedShotMode = false;
+  // private boolean subwooferShotMode = false;
+  // private boolean feedShotMode = false;
 
   public static enum SuperState {
     // MANUAL,
@@ -44,7 +44,7 @@ public class Superstructure extends SubsystemBase {
     STOW,
   }
 
-  private static @Getter SuperState desiredState = SuperState.STOPPED;
+  private static @Getter @Setter SuperState desiredState = SuperState.STOPPED;
   private static SuperState currentState = SuperState.STOPPED;
   private static SuperState previousState = SuperState.STOPPED;
 
@@ -57,10 +57,9 @@ public class Superstructure extends SubsystemBase {
   // private Rotation2d manualTurretSetpoint = new Rotation2d();
   // private Rotation2d manualPitchSetpoint = new Rotation2d();
 
-  public Superstructure(Drive drive, Elevator elevator, RobotContainer container) {
+  public Superstructure(Drive drive, Elevator elevator) {
     this.drive = drive;
     this.elevator = elevator;
-    this.container = container;
   }
 
   @Override
@@ -73,7 +72,7 @@ public class Superstructure extends SubsystemBase {
     //         .getAimingParameters(0.6 * percentageOfThreeMetersPerSecond, 0.25 *
     // percentageOfThreeMetersPerSecond);
     currentState = handleStateTransitions();
-    applyStates();
+    if (currentState == SuperState.STOPPED) handleStopped();
 
     // Logger.recordOutput("TeleopShotReady/PivotAtSetpoint", pivot.pivotAtSetpoint());
     // Logger.recordOutput("TeleopShotReady/PivotGreaterThan10", pivot.getCurrentPosition() > 10.0);
@@ -124,17 +123,6 @@ public class Superstructure extends SubsystemBase {
     return currentState;
   }
 
-  /** Update subsystem states */
-  private void applyStates() {
-    switch (currentState) {
-      case STOPPED:
-        handleStopped();
-        break;
-      default:
-        break;
-    }
-  }
-
   private void handleStopped() {
     drive.stop();
     elevator.stop();
@@ -143,7 +131,8 @@ public class Superstructure extends SubsystemBase {
   private boolean ready(SuperState state) {
     return switch (state) {
       case L1, L2, L3, L4 -> elevator.atSetPoint();
-      default -> true;
+      case INTAKE, STOW -> true;
+      default -> false;
     };
   }
 
@@ -151,13 +140,10 @@ public class Superstructure extends SubsystemBase {
     return () -> Superstructure.currentState == currentState;
   }
 
-  /** State pushers */
-  public void setWantedSuperState(SuperState desiredState) {
-    this.desiredState = desiredState;
-  }
-
   public Command setWantedSuperStateCommand(SuperState desiredState) {
-    return new InstantCommand(() -> setWantedSuperState(desiredState));
+    return new InstantCommand(() -> {
+      Superstructure.desiredState = desiredState;
+    });
   }
 }
 

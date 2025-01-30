@@ -9,9 +9,6 @@ import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.swerve.ModuleLimits;
 import java.util.HashMap;
-import lombok.Getter;
-import lombok.Setter;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
@@ -38,8 +35,6 @@ public class Elevator extends SubsystemBase {
   }
 
   private double targetHeight = 0;
-
-  // @AutoLogOutput @Getter @Setter private SuperState state = SuperState.STOW;
 
   public Elevator(ElevatorIO io) {
     this.io = io;

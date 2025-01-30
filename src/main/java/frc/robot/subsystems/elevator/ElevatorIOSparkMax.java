@@ -11,7 +11,6 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
@@ -71,12 +70,12 @@ public class ElevatorIOSparkMax implements ElevatorIO {
   ShuffleboardTab tab = Shuffleboard.getTab("Subsystems");
   ShuffleboardLayout intakeLayout =
       tab.getLayout("Intake", BuiltInLayouts.kList).withSize(2, 4).withPosition(0, 0);
-  private final GenericEntry m_intakeRateEntry =
-      intakeLayout.add("Intake Rate", 0 + " rpm").getEntry();
-  private final GenericEntry m_rotateAngleEntry =
-      intakeLayout.add("Intake Angle", 0 + " rad").getEntry();
-  private final GenericEntry m_rotateAngularSpeedEntry =
-      intakeLayout.add("Intake Angular Speed", 0 + " rad/s").getEntry();
+//   private final GenericEntry m_intakeRateEntry =
+//       intakeLayout.add("Intake Rate", 0 + " rpm").getEntry();
+//   private final GenericEntry m_rotateAngleEntry =
+//       intakeLayout.add("Intake Angle", 0 + " rad").getEntry();
+//   private final GenericEntry m_rotateAngularSpeedEntry =
+//       intakeLayout.add("Intake Angular Speed", 0 + " rad/s").getEntry();
 
   public ElevatorIOSparkMax() {
 
