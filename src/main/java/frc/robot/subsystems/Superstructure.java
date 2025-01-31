@@ -128,9 +128,10 @@ public class Superstructure extends SubsystemBase {
     elevator.stop();
   }
 
+  /** Transition check */
   private boolean ready(SuperState state) {
     return switch (state) {
-      case L1, L2, L3, L4 -> elevator.atSetPoint();
+      case L1, L2, L3, L4 -> elevator.atSetPoint(state);
       case INTAKE, STOW -> true;
       default -> false;
     };

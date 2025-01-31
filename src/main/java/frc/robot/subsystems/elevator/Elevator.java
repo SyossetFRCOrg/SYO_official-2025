@@ -12,12 +12,13 @@ import java.util.HashMap;
 import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
+
   private final ElevatorIO io;
   private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
-  private HashMap<SuperState, LoggedTunableNumber> heights = initializeHeights();
+  private static HashMap<SuperState, LoggedTunableNumber> heights = initializeHeights();
 
-  private HashMap<SuperState, LoggedTunableNumber> initializeHeights() {
+  private static final HashMap<SuperState, LoggedTunableNumber> initializeHeights() {
     var map = new HashMap<SuperState, LoggedTunableNumber>();
     map.put(SuperState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 0));
     map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 3));
@@ -80,11 +81,19 @@ public class Elevator extends SubsystemBase {
   //   return sysId.dynamic(direction);
   // }
 
-  /** Check if the intake is close enough to desired setpoint */
+  /** Check if the intake is close enough to desired state setpoint */
   public boolean atSetPoint() {
+    // Make sure the targetHeight is updated
     var state = Superstructure.getDesiredState();
     if (heights.containsKey(state)) targetHeight = heights.get(state).get();
     return MathUtil.isNear(targetHeight, getHeight(), 0.1);
+  }
+
+  /** Check if the intake is close enough to the given state setpoint */
+  public boolean atSetPoint(SuperState state) {
+    var height = targetHeight;
+    if (heights.containsKey(state)) height = heights.get(state).get();
+    return MathUtil.isNear(height, getHeight(), 0.1);
   }
 
   /** Returns the current angle of the intake in radians. */

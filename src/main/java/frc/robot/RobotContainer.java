@@ -21,6 +21,9 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOSparkMax;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -33,6 +36,7 @@ public class RobotContainer {
   // private final Vision vision;
   private final Drive drive;
   private final Elevator elevator;
+  private final Intake intake;
 
   // Controller
   private final XboxController controller = new XboxController(0);
@@ -56,6 +60,7 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
         elevator = new Elevator(new ElevatorIOTalonFX());
+        intake = new Intake(new IntakeIOSparkMax());
         break;
 
         //   case SIM:
@@ -79,6 +84,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
         elevator = new Elevator(new ElevatorIO() {});
+        intake = new Intake(new IntakeIO() {});
         break;
     }
     // switch (Constants.currentMode) {
