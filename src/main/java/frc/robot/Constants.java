@@ -90,5 +90,16 @@ public final class Constants {
         public static final int ARM_MOTOR_ID = 19;
         public static final int ARM_CURRENT_LIMIT = 40;
         public static final int ARM_VOLTAGE = 2;
+
+        // PID Constants
+        public static final double ARM_MAX_VELOCITY = 0.0; // TODO
+        public static final double ARM_MAX_ACCELERATION = 0.0; // TODO
+
+        public static final double kP = 0.0; // TODO
+        public static final double kI = 0.0; // TODO
+        public static final double kD = 0.0; // TODO
+
+        public static final double kGravityFF = 0.0; // TODO
+
     }
 }
