@@ -1,10 +1,10 @@
-package frc.robot.subsystems.intake;
+package frc.robot.subsystems.wrist;
 
 import org.littletonrobotics.junction.AutoLog;
 
-public interface IntakeIO {
+public interface WristIO {
   @AutoLog
-  public static class IntakeIOInputs {
+  public static class WristIOInputs {
     public boolean connected = false;
     public double positionRad = 0.0;
     public double velocityRadPerSec = 0.0;
@@ -12,8 +12,7 @@ public interface IntakeIO {
     public double currentAmps = 0.0;
   }
 
-  public default void updateInputs(IntakeIOInputs inputs) {}
+  public default void updateInputs(WristIOInputs inputs) {}
 
-  /** Sets velocity in radians/sec */
-  public default void setVelocity(double velocity) {}
+  public default void runPosition(double position) {}
 }

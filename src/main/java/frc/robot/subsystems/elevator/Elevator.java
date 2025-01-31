@@ -16,7 +16,7 @@ public class Elevator extends SubsystemBase {
   private final ElevatorIO io;
   private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
-  private static HashMap<SuperState, LoggedTunableNumber> heights = initializeHeights();
+  private static final HashMap<SuperState, LoggedTunableNumber> heights = initializeHeights();
 
   private static final HashMap<SuperState, LoggedTunableNumber> initializeHeights() {
     var map = new HashMap<SuperState, LoggedTunableNumber>();

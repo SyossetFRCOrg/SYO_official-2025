@@ -1,4 +1,4 @@
-package frc.robot.subsystems.intake;
+package frc.robot.subsystems.wrist;
 
 import static frc.robot.util.SparkUtil.*;
 
@@ -9,18 +9,35 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 
-public class IntakeIOSparkMax implements IntakeIO {
+public class WristIOSparkMax implements WristIO {
   private final SparkMax sparkMax;
   private final RelativeEncoder encoder;
   private final SparkMaxConfig sparkConfig = new SparkMaxConfig();
 
   private final Debouncer connectedDebounce = new Debouncer(0.5);
 
-  public IntakeIOSparkMax() {
+  private static final LoggedTunableNumber kP = new LoggedTunableNumber("Wrist/kP", 0);
+  private static final LoggedTunableNumber kD = new LoggedTunableNumber("Wrist/kD", 0);
+  private static final LoggedTunableNumber maxVelocity =
+      new LoggedTunableNumber("Wrist/MaxVelocity", 0);
+  private static final LoggedTunableNumber maxAcceleration =
+      new LoggedTunableNumber("Wrist/MaxAcceleration", 0);
+
+  private ProfiledPIDController pidController =
+      new ProfiledPIDController(
+          kP.get(),
+          0,
+          kD.get(),
+          new TrapezoidProfile.Constraints(maxVelocity.get(), maxAcceleration.get()));
+
+  public WristIOSparkMax() {
     sparkMax = new SparkMax(-2, MotorType.kBrushless);
     encoder = sparkMax.getEncoder();
 
@@ -31,7 +48,12 @@ public class IntakeIOSparkMax implements IntakeIO {
   }
 
   @Override
-  public void updateInputs(IntakeIOInputs inputs) {
+  public void runPosition(double position) {
+    sparkMax.setVoltage(pidController.calculate(position, encoder.getPosition()));
+  }
+
+  @Override
+  public void updateInputs(WristIOInputs inputs) {
     sparkStickyFault = false;
 
     ifOk(
@@ -49,10 +71,5 @@ public class IntakeIOSparkMax implements IntakeIO {
     ifOk(sparkMax, sparkMax::getOutputCurrent, (value) -> inputs.currentAmps = value);
 
     inputs.connected = connectedDebounce.calculate(!sparkStickyFault);
-  }
-
-  @Override
-  public void setVelocity(double velocity) {
-    sparkMax.set(Units.radiansToRotations(velocity));
   }
 }
