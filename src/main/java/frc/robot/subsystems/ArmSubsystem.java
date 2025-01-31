@@ -31,9 +31,9 @@ public class ArmSubsystem extends SubsystemBase {
     private final RelativeEncoder armEncoder;
     private final SparkMaxConfig armMotorConfig;
 
-    //private final PIDController pidController;
-    private final TrapezoidProfile.Constraints armConstraints;
-    private final ProfiledPIDController armPID;
+    private final PIDController pidController;
+    // private final TrapezoidProfile.Constraints armConstraints;
+    // private final ProfiledPIDController armPID;
 
     /** Creates a new ArmSubsystem. */
     public ArmSubsystem() {
@@ -49,8 +49,8 @@ public class ArmSubsystem extends SubsystemBase {
 
         setArmVoltage(0.0);
 
-        armConstraints = new TrapezoidProfile.Constraints(ARM_MAX_VELOCITY, ARM_MAX_ACCELERATION);
-        armPID = new ProfiledPIDController(kP, kI, kD, armConstraints);
+        pidController = new PIDController(0.1, 0.0, 0.0);
+        pidController.reset();
     }
 
     @Override
@@ -77,15 +77,24 @@ public class ArmSubsystem extends SubsystemBase {
 
         @Override
         public void initialize() {
-            this.target = armEncoder.getPosition();
-
-            armPID.reset(armEncoder.getPosition());
-            armPID.setGoal(target);
+            target = armEncoder.getPosition();
+            pidController.reset();
+            pidController.setSetpoint(target);
         }
 
         @Override
         public void execute() {
-            setArmVoltage(armPID.calculate(armEncoder.getPosition()));
+            setArmVoltage(pidController.calculate(armEncoder.getPosition()));
+        }
+
+        public double getTarget() {
+            return target;
+        }
+
+        public void setTarget(double target) {
+            this.target = target;
+            pidController.reset();
+            pidController.setSetpoint(target);
         }
     }
 
@@ -100,13 +109,13 @@ public class ArmSubsystem extends SubsystemBase {
 
         @Override
         public void initialize() {
-            armPID.reset(armEncoder.getPosition());
-            armPID.setGoal(target);
+            pidController.reset();
+            pidController.setSetpoint(target);
         }
 
         @Override
         public void execute() {
-            pidOutput = armPID.calculate(armEncoder.getPosition(), target);
+            pidOutput = pidController.calculate(armEncoder.getPosition(), target);
             setArmVoltage(pidOutput * ARM_VOLTAGE + kGravityFF);
         }
 
@@ -118,6 +127,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     public class FreeMove extends Command {
         private final Supplier<Double> movementSupplier;
+        private double target;
 
         public FreeMove(Supplier<Double> movementSupplier) {
             this.movementSupplier = movementSupplier;
@@ -125,13 +135,18 @@ public class ArmSubsystem extends SubsystemBase {
         }
 
         @Override
-        public void execute() {
-            setArmVoltage(movementSupplier.get());
+        public void initialize() {
+            target = armEncoder.getPosition();
+            pidController.setSetpoint(target);
         }
 
         @Override
-        public void end(boolean interrupted) {
-            setArmVoltage(0.0);
+        public void execute() {
+            if (movementSupplier.get() != 0.0) {
+                target += movementSupplier.get();
+                pidController.setSetpoint(target);
+            }
+            setArmVoltage(pidController.calculate(armEncoder.getPosition()));
         }
     }
 }

@@ -23,59 +23,62 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class ElevatorSubsystem extends SubsystemBase {
     private final SparkBase leftMotor;
-    private final SparkBase rightMotor;
+    // private final SparkBase rightMotor;
 
     private final RelativeEncoder leftEncoder;
-    private final RelativeEncoder rightEncoder;
+    // private final RelativeEncoder rightEncoder;
 
     private final PIDController pidController;
 
     /** Creates a new ElevatorSubsystem. */
     public ElevatorSubsystem() {
         leftMotor = new SparkMax(16, MotorType.kBrushless);
-        rightMotor = new SparkMax(17, MotorType.kBrushless);
+        // rightMotor = new SparkMax(17, MotorType.kBrushless);
 
         leftEncoder = leftMotor.getEncoder();
-        rightEncoder = rightMotor.getEncoder();
+        // rightEncoder = rightMotor.getEncoder();
 
         //configuring motors 
         var leftMotorConfig = new SparkMaxConfig();
-        var rightMotorConfig = new SparkMaxConfig();
+        // var rightMotorConfig = new SparkMaxConfig();
         
         leftMotorConfig
             .idleMode(IdleMode.kBrake)
-            .smartCurrentLimit(40, 40)
+            .smartCurrentLimit(60)
             .voltageCompensation(12.0);
 
-        rightMotorConfig
-            .inverted(true)
-            .idleMode(IdleMode.kBrake)
-            .smartCurrentLimit(40, 40)
-            .voltageCompensation(12.0);
+        // rightMotorConfig
+        //     .inverted(true)
+        //     .idleMode(IdleMode.kBrake)
+        //     .smartCurrentLimit(40, 40)
+        //     .voltageCompensation(12.0);
 
         leftMotor.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-        rightMotor.configure(rightMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        // rightMotor.configure(rightMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
         //reset voltage to 0
         setVoltage(0.0);
 
-        pidController = new PIDController(2.0, 0.0, 0.0);
+        pidController = new PIDController(4.0, 0.0, 0.0);
     }
 
     public double getPosition() {
         //averages encoder positions and returns position
-        return (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
+        return leftEncoder.getPosition();
+        // return (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
     }
 
     public void setVoltage(double voltage) {
-        voltage = MathUtil.clamp(voltage, -1.0, 2.0); //TO DO, CLAMP VALUES
+        voltage = MathUtil.clamp(voltage, -1.5, 10.0); //TO DO, CLAMP VALUES
         leftMotor.setVoltage(voltage);
-        rightMotor.setVoltage(voltage);
+        // rightMotor.setVoltage(voltage);
     }
 
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Elevator Position", getPosition());
+        SmartDashboard.putNumber("Elevator Applied Volts", leftMotor.getAppliedOutput() * leftMotor.getBusVoltage());
+        SmartDashboard.putNumber("Elevator Current", leftMotor.getOutputCurrent());
     }
     
     public class Hover extends Command {
@@ -126,6 +129,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public class FreeMove extends Command {
         private final Supplier<Double> movementSupplier;
+        private double target;
 
         public FreeMove(Supplier<Double> movementSupplier) {
             this.movementSupplier = movementSupplier;
@@ -133,8 +137,18 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
 
         @Override
+        public void initialize() {
+            target = getPosition();
+            pidController.setSetpoint(target);
+        }
+
+        @Override
         public void execute() {
-            setVoltage(movementSupplier.get());
+            if (movementSupplier.get() != 0.0) {
+                target += movementSupplier.get();
+                pidController.setSetpoint(target);
+            }
+            setVoltage(pidController.calculate(getPosition()));
         }
 
         @Override
