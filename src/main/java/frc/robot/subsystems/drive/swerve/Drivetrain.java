@@ -57,22 +57,22 @@ public class Drivetrain extends SubsystemBase {
         sparkConfigs[0].drive.canid = 1;
         sparkConfigs[0].turn.canid = 2;
         sparkConfigs[0].cancoder.canid = 3;
-        sparkConfigs[0].cancoder.zeroRotationRad = -3.00;
+        sparkConfigs[0].cancoder.zeroRotationRad = -2.908;
         
         sparkConfigs[1].drive.canid = 4;
         sparkConfigs[1].turn.canid = 5;
         sparkConfigs[1].cancoder.canid = 6;
-        sparkConfigs[1].cancoder.zeroRotationRad = 0.32;
+        sparkConfigs[1].cancoder.zeroRotationRad = 0.552;
         
         sparkConfigs[2].drive.canid = 7;
         sparkConfigs[2].turn.canid = 8;
         sparkConfigs[2].cancoder.canid = 9;
-        sparkConfigs[2].cancoder.zeroRotationRad = 2.11;
+        sparkConfigs[2].cancoder.zeroRotationRad = 1.941;
         
         sparkConfigs[3].drive.canid = 10;
         sparkConfigs[3].turn.canid = 11;
         sparkConfigs[3].cancoder.canid = 12;
-        sparkConfigs[3].cancoder.zeroRotationRad = -1.33;
+        sparkConfigs[3].cancoder.zeroRotationRad = -1.588;
 
         moduleConfigs[0].xPos = 3.175;
         moduleConfigs[0].yPos = 3.175;
@@ -143,7 +143,7 @@ public class Drivetrain extends SubsystemBase {
 
         @Override
         public void execute() {
-            setSpeeds(new ChassisSpeeds(xSupplier.get() * 2.0, ySupplier.get() * 2.0, omegaSupplier.get() * 4.0));
+            setSpeeds(new ChassisSpeeds(xSupplier.get(), ySupplier.get(), omegaSupplier.get()));
         }
     }
 }

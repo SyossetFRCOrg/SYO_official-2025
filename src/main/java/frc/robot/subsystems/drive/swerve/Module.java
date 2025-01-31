@@ -87,9 +87,9 @@ public class Module extends SubsystemBase {
 
         @Override
         public void execute() {
-            // io.setDriveVelocity(state.speedMetersPerSecond / wheelRadius);
-            // io.setTurnVelocity(state.angle.minus(inputs.turnPosition).getRadians());
-            io.setTurnPosition(state.angle.minus(inputs.turnZeroRotation).getRadians());
+            io.setDriveVelocity(state.speedMetersPerSecond / wheelRadius);
+            io.setTurnVelocity(state.angle.minus(inputs.turnPosition).getRadians());
+            // io.setTurnPosition(state.angle.minus(inputs.turnZeroRotation).getRadians());
         }
     }
 }

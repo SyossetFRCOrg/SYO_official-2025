@@ -2,15 +2,15 @@
 wheelRadius = 0.04318
 
 [baseModule.io.drive]
-motorType = "kBrushless"
-idleMode = "kBrake"
+motorType = "MotorType.kBrushless"
+idleMode = "IdleMode.kBrake"
 stallLimit = 50
 gearRatio = 8.14
 
 [baseModule.io.turn]
 inverted = true
-idleMode = "kBrake"
-motorType = "kBrushless"
+idleMode = "IdleMode.kBrake"
+motorType = "MotorType.kBrushless"
 stallLimit = 20
 gearRatio = 21.43
 
@@ -27,7 +27,7 @@ gearRatio = 21.43
 
     [modules.io.cancoder]
     canid = 3
-    zeroRotationRad = -3.00
+    zeroRotationRad = 0.0
 
 [[modules]]
     name = "Front Right"
@@ -42,7 +42,7 @@ gearRatio = 21.43
 
     [modules.io.cancoder]
     canid = 6
-    zeroRotationRad = 0.32
+    zeroRotationRad = 0.0
 
 [[modules]]
     name = "Back Left"
@@ -57,7 +57,7 @@ gearRatio = 21.43
 
     [modules.io.cancoder]
     canid = 9
-    zeroRotationRad = 2.11
+    zeroRotationRad = 0.0
 
 [[modules]]
     name = "Back Right"
@@ -72,4 +72,4 @@ gearRatio = 21.43
 
     [modules.io.cancoder]
     canid = 12
-    zeroRotationRad = -1.33
+    zeroRotationRad = 0.0

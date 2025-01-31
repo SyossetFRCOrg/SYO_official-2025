@@ -30,12 +30,13 @@ public class Superstructure extends SubsystemBase {
         controller = new CommandXboxController(0);
 
         if (subsystems.get("drivetrain").getBoolean("enabled")) {
-            drivetrain = Optional.of(new Drivetrain(new Toml().read(new File(configDir, "swerve.toml"))));
+            drivetrain = Optional.of(new Drivetrain());
+            // drivetrain = Optional.of(new Drivetrain(new Toml().read(new File(configDir, "swerve.toml"))));
             drivetrain.ifPresent(drive -> {
                 drive.setDefaultCommand(drive.new DefaultDrive(
-                    () -> controller.getLeftY(),
-                    () -> controller.getLeftX(),
-                    () -> controller.getRightX()
+                    () -> 0.3 * controller.getLeftY(),
+                    () -> 0.3 * controller.getLeftX(),
+                    () -> 0.1 * controller.getRightX()
                 ));
             });
         } else {
@@ -56,16 +57,18 @@ public class Superstructure extends SubsystemBase {
         if (subsystems.get("elevator_structure").getBoolean("enabled")) {
             elevatorStructure = Optional.of(new ElevatorStructure());
             elevatorStructure.ifPresent(structure -> {
-                controller.leftTrigger().and(controller.x().or(controller.y()))
+                controller.x().or(controller.y())
                     .whileTrue(structure.getMoveElevator(() ->
-                        (controller.y().getAsBoolean() ? 1.0 : 0.0) +
-                        (controller.x().getAsBoolean() ? -0.4 : 0.0)
+                        (controller.y().getAsBoolean() ? 2.0 : 0.0) +
+                        (controller.x().getAsBoolean() ? -0.8 : 0.0)
                     ));
                  
-                controller.leftTrigger().and(controller.a().or(controller.b()))
+                controller.a().or(controller.b())
                     .whileTrue(structure.getMoveArm(() ->
-                        (controller.b().getAsBoolean() ? 0.5 : 0.0) +
-                        (controller.a().getAsBoolean() ? -0.25 : 0.0)
+                        (controller.b().getAsBoolean() ? 0.1 : 0.0) +
+                        (controller.a().getAsBoolean() ? -0.1 : 0.0)
+                        // (controller.b().getAsBoolean() ? 0.25 * (controller.rightTrigger().getAsBoolean() ? 8.0 : 1.0): 0.0) +
+                        // (controller.a().getAsBoolean() ? -0.125 : 0.0)
                     ));
             });
         } else {

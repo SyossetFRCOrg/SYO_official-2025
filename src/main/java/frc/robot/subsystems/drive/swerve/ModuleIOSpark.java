@@ -25,6 +25,7 @@ public class ModuleIOSpark implements ModuleIO {
     private final RelativeEncoder driveEncoder;
     private final RelativeEncoder turnEncoder;
 
+    @SuppressWarnings("unused")
     private final SparkClosedLoopController driveController;
     private final SparkClosedLoopController turnController;
 
@@ -93,8 +94,8 @@ public class ModuleIOSpark implements ModuleIO {
     }
 
     public ModuleIOSpark(Config config) {
-        driveSpark = new SparkMax(config.drive.canid, config.drive.motorType);
-        turnSpark = new SparkMax(config.turn.canid, config.turn.motorType);
+        driveSpark = new SparkMax(config.drive.canid, MotorType.kBrushless);
+        turnSpark = new SparkMax(config.turn.canid, MotorType.kBrushless);
 
         driveEncoder = driveSpark.getEncoder();
         turnEncoder = turnSpark.getEncoder();
@@ -106,7 +107,7 @@ public class ModuleIOSpark implements ModuleIO {
 
         driveConfig
             .inverted(config.drive.inverted)
-            .idleMode(config.drive.idleMode)
+            .idleMode(IdleMode.kBrake)
             .smartCurrentLimit(config.drive.stallLimit, config.drive.freeLimit)
             .voltageCompensation(12.0);
         
@@ -117,6 +118,16 @@ public class ModuleIOSpark implements ModuleIO {
         driveConfig.closedLoop
             .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .pidf(2.0, 0.0, 0.0, 0.0);
+        
+        driveConfig.signals
+            .primaryEncoderPositionAlwaysOn(true)
+            .primaryEncoderPositionPeriodMs(5)
+            .primaryEncoderVelocityAlwaysOn(true)
+            .primaryEncoderVelocityPeriodMs(20)
+            .primaryEncoderVelocityPeriodMs(20)
+            .appliedOutputPeriodMs(20)
+            .busVoltagePeriodMs(20)
+            .outputCurrentPeriodMs(20);
 
         driveSpark.configure(driveConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -124,7 +135,7 @@ public class ModuleIOSpark implements ModuleIO {
 
         turnConfig
             .inverted(config.turn.inverted)
-            .idleMode(config.turn.idleMode)
+            .idleMode(IdleMode.kBrake)
             .smartCurrentLimit(config.turn.stallLimit, config.turn.freeLimit)
             .voltageCompensation(12.0);
         
@@ -135,6 +146,16 @@ public class ModuleIOSpark implements ModuleIO {
         turnConfig.closedLoop
             .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .pidf(2.0, 0.0, 0.0, 0.0);
+        
+        turnConfig.signals
+            .primaryEncoderPositionAlwaysOn(true)
+            .primaryEncoderPositionPeriodMs(5)
+            .primaryEncoderVelocityAlwaysOn(true)
+            .primaryEncoderVelocityPeriodMs(20)
+            .primaryEncoderVelocityPeriodMs(20)
+            .appliedOutputPeriodMs(20)
+            .busVoltagePeriodMs(20)
+            .outputCurrentPeriodMs(20);
             
         turnSpark.configure(turnConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -193,15 +214,15 @@ public class ModuleIOSpark implements ModuleIO {
 
     @Override
     public void setDriveVelocity(double radPerSec) {
-        // setDriveVoltage(4.0 * radPerSec);
-        driveController.setReference(radPerSec, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+        setDriveVoltage(0.25 * radPerSec);
+        // driveController.setReference(radPerSec, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     }
     
     @Override
     public void setTurnVelocity(double radPerSec) {
-        // setTurnVoltage(4.0 * radPerSec);
+        setTurnVoltage(4.0 * radPerSec);
         // double ffVolts = 0.1 * radPerSec;
-        turnController.setReference(radPerSec, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+        // turnController.setReference(radPerSec, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     }
 
     @Override

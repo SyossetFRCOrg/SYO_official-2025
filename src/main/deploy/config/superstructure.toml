@@ -7,7 +7,7 @@ enabled = true
 [[subsystems]]
 id = "elevator_structure"
 name = "Elevator Structure"
-enabled = false
+enabled = true
 
 [[subsystems]]
 id = "algae_intake"
