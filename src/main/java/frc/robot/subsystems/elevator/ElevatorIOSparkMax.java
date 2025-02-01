@@ -46,8 +46,7 @@ public class ElevatorIOSparkMax implements ElevatorIO {
               / ((5600.0 / 60.0)
                   / (GEAR_RATIO)
                   * 2
-                  * Math.PI)); // it didn't want me to divide by 2PI on Kraken swerve, let's see I
-  // guess?
+                  * Math.PI)); // it didn't want me to divide by 2PI on Kraken swerve, let's see I guess?
   private static final LoggedTunableNumber kA = new LoggedTunableNumber("Arm/Gains/kA", 0);
   private static final LoggedTunableNumber kG = new LoggedTunableNumber("Arm/Gains/kG", 0);
 

@@ -131,7 +131,8 @@ public class Superstructure extends SubsystemBase {
   /** Transition check */
   private boolean ready(SuperState state) {
     return switch (state) {
-      case L1, L2, L3, L4 -> elevator.atSetPoint(state);
+                                                          //also has to be at alignment goal to score
+      case L1, L2, L3, L4 -> elevator.atSetPoint(state) && container.getReefAlignController().atGoal();  
       case INTAKE, STOW -> true;
       default -> false;
     };

@@ -24,6 +24,8 @@ import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSparkMax;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIOLimelight;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -33,7 +35,7 @@ import frc.robot.subsystems.intake.IntakeIOSparkMax;
  */
 public class RobotContainer {
   // Subsystems
-  // private final Vision vision;
+  private final Vision vision;
   private final Drive drive;
   private final Elevator elevator;
   private final Intake intake;
@@ -90,12 +92,12 @@ public class RobotContainer {
     // switch (Constants.currentMode) {
     //   case REAL:
     //     // Real robot, instantiate hardware IO implementations
-    //     vision =
-    //         new Vision(
-    //             drive::addVisionMeasurement,
-    //             drive,
-    //             new VisionIOLimelight(camera0Name, drive::getRotation),
-    //             new VisionIOLimelight(camera1Name, drive::getRotation));
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                drive,
+                new VisionIOLimelight(camera0Name, drive::getRotation),
+                new VisionIOLimelight(camera1Name, drive::getRotation));
 
     // vision =
     //     new Vision(
@@ -141,7 +143,7 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
-    reefAlignController = new ReefAlignController(drive, () -> false);
+    reefAlignController = new ReefAlignController(drive, () -> false, () -> false);
   }
 
   /**
@@ -182,7 +184,8 @@ public class RobotContainer {
                           drive,
                           () ->
                               RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
-                                  < 1.5);
+                                  < 1.5,
+                            () -> false);
                 })
             .andThen(
                 new InstantCommand(
@@ -193,6 +196,16 @@ public class RobotContainer {
                     .repeatedly())
             .until(() -> reefAlignController.atGoal())
             .andThen(new ControllerRumbleCommand(controller, () -> true)));
+
+    Trigger leftBumper = new Trigger(() -> controller.getLeftBumperButton());
+    leftBumper.onTrue(
+        new InstantCommand( () -> reefAlignController =
+    new ReefAlignController(
+        drive,
+        () ->
+            RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
+                < 1.5,
+        () -> true)));
 
     // Reset gyro to 0° when B button is pressed
     Trigger b = new Trigger(() -> controller.getBButton());
@@ -216,4 +229,8 @@ public class RobotContainer {
   //   public Command getAutonomousCommand() {
   //     return autoChooser.get();
   //   }
+  
+  public ReefAlignController getReefAlignController(){
+    return reefAlignController;
+  }
 }

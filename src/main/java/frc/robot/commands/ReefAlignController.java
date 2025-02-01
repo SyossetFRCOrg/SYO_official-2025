@@ -7,6 +7,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotState;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -26,18 +27,18 @@ public class ReefAlignController {
       new LoggedTunableNumber("AutoAlign/drivekD", 0.0);
 
   private static final LoggedTunableNumber linearkI =
-      new LoggedTunableNumber("AutoAlign/drivekI", 0.04);
+      new LoggedTunableNumber("AutoAlign/drivekI", 20);
 
   private static final LoggedTunableNumber thetakP =
       new LoggedTunableNumber("AutoAlign/thetakP", 2.5);
   private static final LoggedTunableNumber thetakD =
       new LoggedTunableNumber("AutoAlign/thetakD", 0.5);
   private static final LoggedTunableNumber linearTolerance =
-      new LoggedTunableNumber("AutoAlign/controllerLinearTolerance", 0.03);
+      new LoggedTunableNumber("AutoAlign/controllerLinearTolerance", 0.008);
   private static final LoggedTunableNumber thetaTolerance =
-      new LoggedTunableNumber("AutoAlign/controllerThetaTolerance", Units.degreesToRadians(2.5));
+      new LoggedTunableNumber("AutoAlign/controllerThetaTolerance", Units.degreesToRadians(3));
   private static final LoggedTunableNumber toleranceTime =
-      new LoggedTunableNumber("AutoAlign/controllerToleranceSecs", 0.25);
+      new LoggedTunableNumber("AutoAlign/controllerToleranceSecs", 0.1);
   private static final LoggedTunableNumber maxLinearVelocity =
       new LoggedTunableNumber(
           "AutoAlign/maxLinearVelocity", TunerConstants.driveConfig.maxLinearVelocity() * .5);
@@ -73,6 +74,7 @@ public class ReefAlignController {
   private final Drive drive;
   //   private final Supplier<Translation2d> feedforwardSupplier;
   private final BooleanSupplier slowMode;
+  private final BooleanSupplier toggle;
   private Translation2d lastSetpointTranslation;
 
   // Controllers for translation and rotation
@@ -89,9 +91,11 @@ public class ReefAlignController {
   public ReefAlignController(
       Drive drive,
       //   Supplier<Translation2d> feedforwardSupplier,
-      BooleanSupplier slowMode) {
+      BooleanSupplier slowMode,
+      BooleanSupplier toggle) {
     this.drive = drive;
-    this.desiredPose = RobotState.getInstance().getNearestReefPose(drive.getPose());
+    this.toggle = toggle;
+    this.desiredPose = RobotState.getInstance().getNearestReefPose(drive.getPose(), toggle);
 
     // this.feedforwardSupplier = feedforwardSupplier;
     this.slowMode = slowMode;
@@ -112,6 +116,17 @@ public class ReefAlignController {
   }
 
   private void updateConstraints() {
+
+    if (drive.getPose().getTranslation().getDistance(desiredPose.getTranslation()) < .1){
+
+        linearController.setI(linearkI.get() * 15);
+        }
+    if (drive.getPose().getTranslation().getDistance(desiredPose.getTranslation()) > .1){
+
+        linearController.setI(linearkI.get());
+        }
+        
+
     if (slowMode.getAsBoolean()) {
       //   linearController.setConstraints(
       //       new TrapezoidProfile.Constraints(slowLinearVelocity.get(),
@@ -119,15 +134,18 @@ public class ReefAlignController {
       //   thetaController.setConstraints(
       //       new TrapezoidProfile.Constraints(
       //           slowAngularVelocity.get(), slowAngularAcceleration.get()));
-      linearController.setPID(linearkP.get() * 2.2, linearkI.get(), linearkD.get() * 2.2);
-      linearController.setIZone(0.1);
+    //   linearController.setPID(linearkP.get() * 2.2, linearkI.get(), linearkD.get() * 2.1);
+      linearController.setP(linearkP.get() * 2.2);
+      linearController.setD(linearkD.get() * 2.1);
+    //   linearController.setIZone(0.2);
 
     } else {
       linearController.setConstraints(
           new TrapezoidProfile.Constraints(maxLinearVelocity.get(), maxLinearAcceleration.get()));
       thetaController.setConstraints(
           new TrapezoidProfile.Constraints(maxAngularVelocity.get(), maxAngularAcceleration.get()));
-      linearController.setPID(linearkP.get(), 0, linearkD.get());
+      linearController.setPID(linearkP.get(), linearkI.get(), linearkD.get());
+      linearController.setIZone(0.2);
     }
   }
 
