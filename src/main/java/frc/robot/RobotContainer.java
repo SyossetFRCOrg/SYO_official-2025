@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ControllerRumbleCommand;
 import frc.robot.commands.DriveCommands;
@@ -22,6 +21,9 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOSparkMax;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -34,12 +36,12 @@ public class RobotContainer {
   // private final Vision vision;
   private final Drive drive;
   private final Elevator elevator;
+  private final Intake intake;
 
   // Controller
   private final XboxController controller = new XboxController(0);
-  
 
-//   private ReefAlignController autoAlignController;
+  //   private ReefAlignController autoAlignController;
   private ReefAlignController reefAlignController;
 
   //   // Dashboard inputs
@@ -47,7 +49,6 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -59,6 +60,7 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
         elevator = new Elevator(new ElevatorIOTalonFX());
+        intake = new Intake(new IntakeIOSparkMax());
         break;
 
         //   case SIM:
@@ -82,6 +84,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
         elevator = new Elevator(new ElevatorIO() {});
+        intake = new Intake(new IntakeIO() {});
         break;
     }
     // switch (Constants.currentMode) {
@@ -159,58 +162,50 @@ public class RobotContainer {
             () -> -controller.getRightX()));
 
     // Lock to nearest coral station's angle when A button is held
-
     Trigger a = new Trigger(() -> controller.getAButton());
-        a
-        .whileTrue(
-            DriveCommands.joystickDriveCoralStation(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> drive.getPose().getY()));
-
-    
+    a.whileTrue(
+        DriveCommands.joystickDriveCoralStation(
+            drive,
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> drive.getPose().getY()));
 
     // controller.x().whileTrue(DriveCommands.lineUpToNearestReef(() -> drive.getPose()));
 
     // controller.x().whileTrue(DriveCommands.lineUpToNearestReef(() -> drive.getPose()));
     Trigger y = new Trigger(() -> controller.getYButton());
-        y
-        .whileTrue(
-            new InstantCommand(
-                    () -> {
-                      reefAlignController =
-                          new ReefAlignController(
-                              drive,
-                              () ->
-                                  RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
-                                      < 1.5);
-                    })
-                .andThen(
-                    new InstantCommand(
-                            () -> {
-                              drive.runVelocity(reefAlignController.update().get());
-                            },
-                            drive)
-                        .repeatedly())
-                .until(() -> reefAlignController.atGoal())
-                .andThen(new ControllerRumbleCommand(
-                    controller, () -> true))
-                );
+    y.whileTrue(
+        new InstantCommand(
+                () -> {
+                  reefAlignController =
+                      new ReefAlignController(
+                          drive,
+                          () ->
+                              RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
+                                  < 1.5);
+                })
+            .andThen(
+                new InstantCommand(
+                        () -> {
+                          drive.runVelocity(reefAlignController.update().get());
+                        },
+                        drive)
+                    .repeatedly())
+            .until(() -> reefAlignController.atGoal())
+            .andThen(new ControllerRumbleCommand(controller, () -> true)));
 
     // Reset gyro to 0° when B button is pressed
     Trigger b = new Trigger(() -> controller.getBButton());
-        b
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(
-                                3.442369222640991,
-                                5.234981060028076,
-                                Rotation2d.fromRadians(-1.0486071798869254))),
-                    drive)
-                .ignoringDisable(true));
+    b.onTrue(
+        Commands.runOnce(
+                () ->
+                    drive.setPose(
+                        new Pose2d(
+                            3.442369222640991,
+                            5.234981060028076,
+                            Rotation2d.fromRadians(-1.0486071798869254))),
+                drive)
+            .ignoringDisable(true));
   }
 
   //   /**

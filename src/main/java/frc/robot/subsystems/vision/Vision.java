@@ -87,8 +87,6 @@ public class Vision extends SubsystemBase {
       List<Pose3d> robotPosesRejectedMT1 = new LinkedList<>();
       List<Pose3d> robotPosesRejectedMT2 = new LinkedList<>();
 
-
-
       // Add tag poses
       for (int tagId : inputs[cameraIndex].tagIds) {
         var tagPose = aprilTagLayout.getTagPose(tagId);
@@ -125,18 +123,16 @@ public class Vision extends SubsystemBase {
         robotPoses.add(observation.pose());
         if (rejectPose) {
           robotPosesRejected.add(observation.pose());
-          if (observation.type() == PoseObservationType.MEGATAG_1){
+          if (observation.type() == PoseObservationType.MEGATAG_1) {
             robotPosesRejectedMT1.add(observation.pose());
-          }
-          else if (observation.type() == PoseObservationType.MEGATAG_2){
+          } else if (observation.type() == PoseObservationType.MEGATAG_2) {
             robotPosesRejectedMT2.add(observation.pose());
           }
         } else {
           robotPosesAccepted.add(observation.pose());
-          if (observation.type() == PoseObservationType.MEGATAG_1){
+          if (observation.type() == PoseObservationType.MEGATAG_1) {
             robotPosesAcceptedMT1.add(observation.pose());
-          }
-          else if (observation.type() == PoseObservationType.MEGATAG_2){
+          } else if (observation.type() == PoseObservationType.MEGATAG_2) {
             robotPosesAcceptedMT2.add(observation.pose());
           }
         }

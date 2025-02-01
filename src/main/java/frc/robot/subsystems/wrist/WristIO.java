@@ -1,0 +1,18 @@
+package frc.robot.subsystems.wrist;
+
+import org.littletonrobotics.junction.AutoLog;
+
+public interface WristIO {
+  @AutoLog
+  public static class WristIOInputs {
+    public boolean connected = false;
+    public double positionRad = 0.0;
+    public double velocityRadPerSec = 0.0;
+    public double appliedVolts = 0.0;
+    public double currentAmps = 0.0;
+  }
+
+  public default void updateInputs(WristIOInputs inputs) {}
+
+  public default void runPosition(double position) {}
+}
