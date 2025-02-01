@@ -9,6 +9,9 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -23,6 +26,7 @@ public class WristIOSparkMax implements WristIO {
 
   private final Debouncer connectedDebounce = new Debouncer(0.5);
 
+  // private ArmFeedforward ff;
   private static final LoggedTunableNumber kP = new LoggedTunableNumber("Wrist/kP", 0);
   private static final LoggedTunableNumber kD = new LoggedTunableNumber("Wrist/kD", 0);
   private static final LoggedTunableNumber maxVelocity =
@@ -30,6 +34,7 @@ public class WristIOSparkMax implements WristIO {
   private static final LoggedTunableNumber maxAcceleration =
       new LoggedTunableNumber("Wrist/MaxAcceleration", 0);
 
+  
   private ProfiledPIDController pidController =
       new ProfiledPIDController(
           kP.get(),
@@ -42,7 +47,7 @@ public class WristIOSparkMax implements WristIO {
     encoder = sparkMax.getEncoder();
 
     sparkConfig.inverted(false);
-    sparkConfig.idleMode(IdleMode.kCoast);
+    sparkConfig.idleMode(IdleMode.kBrake);
 
     sparkMax.configure(sparkConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }

@@ -16,6 +16,8 @@ public class Elevator extends SubsystemBase {
   private final ElevatorIO io;
   private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
+  private double heightTolerance = 0.1;
+
   private static final HashMap<SuperState, LoggedTunableNumber> heights = initializeHeights();
 
   private static final HashMap<SuperState, LoggedTunableNumber> initializeHeights() {
@@ -66,7 +68,7 @@ public class Elevator extends SubsystemBase {
   }
 
   private void applyStates() {
-    var state = Superstructure.getDesiredState();
+    var state = Superstructure.getCurrentState();
     if (heights.containsKey(state)) targetHeight = heights.get(state).get();
     io.movetoHeight(targetHeight);
   }
@@ -84,9 +86,9 @@ public class Elevator extends SubsystemBase {
   /** Check if the intake is close enough to desired state setpoint */
   public boolean atSetPoint() {
     // Make sure the targetHeight is updated
-    var state = Superstructure.getDesiredState();
+    var state = Superstructure.getCurrentState();
     if (heights.containsKey(state)) targetHeight = heights.get(state).get();
-    return MathUtil.isNear(targetHeight, getHeight(), 0.1);
+    return MathUtil.isNear(targetHeight, getHeight(), heightTolerance);
   }
 
   /** Check if the intake is close enough to the given state setpoint */

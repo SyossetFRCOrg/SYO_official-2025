@@ -11,6 +11,8 @@ public class Intake extends SubsystemBase {
     INTAKE_OUT,
     INTAKING,
     OUTTAKING,
+    STOW,
+
   }
 
   private final LoggedTunableNumber intakeVelocity =
@@ -35,6 +37,7 @@ public class Intake extends SubsystemBase {
       case OUTTAKING:
         intakeIO.setVelocity(outtakeVelocity.get());
         break;
+      case STOW:
       default:
         intakeIO.setVelocity(0);
         break;

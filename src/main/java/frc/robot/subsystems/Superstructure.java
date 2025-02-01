@@ -44,7 +44,7 @@ public class Superstructure extends SubsystemBase {
   }
 
   private static @Getter @Setter SuperState desiredState = SuperState.STOPPED;
-  private static SuperState currentState = SuperState.STOPPED;
+  private static @Getter @Setter SuperState currentState = SuperState.STOPPED;
   private static SuperState previousState = SuperState.STOPPED;
 
   // RobotState.AimingParameters aimingParameters =

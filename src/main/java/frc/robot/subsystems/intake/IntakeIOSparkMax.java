@@ -52,7 +52,7 @@ public class IntakeIOSparkMax implements IntakeIO {
   }
 
   @Override
-  public void setVelocity(double velocity) {
-    sparkMax.set(Units.radiansToRotations(velocity));
+  public void setVelocity(double velocityRadPerSec) {
+    sparkMax.set(Units.radiansToRotations(velocityRadPerSec));
   }
 }
