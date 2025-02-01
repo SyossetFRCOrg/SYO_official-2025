@@ -9,6 +9,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.GenericEntry;
@@ -17,6 +18,8 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.util.LoggedTunableNumber;
+
+import java.security.Provider;
 import java.util.function.Supplier;
 
 /**
@@ -31,8 +34,8 @@ public class ElevatorIOSparkMax implements ElevatorIO {
   private final SparkMax leader = new SparkMax(24, MotorType.kBrushless);
   private final SparkMaxConfig leaderconfig = new SparkMaxConfig();
 
-  private final SparkMax follower = new SparkMax(45, MotorType.kBrushless);
-  private final SparkMaxConfig followerconfig = new SparkMaxConfig();
+//   private final SparkMax follower = new SparkMax(45, MotorType.kBrushless);
+//   private final SparkMaxConfig followerconfig = new SparkMaxConfig();
 
   private static final LoggedTunableNumber kP = new LoggedTunableNumber("Arm/Gains/kP", 0);
   //   private static final LoggedTunableNumber kI = new LoggedTunableNumber("Arm/Gains/kI", 0);
@@ -56,17 +59,17 @@ public class ElevatorIOSparkMax implements ElevatorIO {
       new LoggedTunableNumber("Arm/maxAcceleration", .1);
 
   private final RelativeEncoder leader_encoder = leader.getEncoder();
-  private final RelativeEncoder follower_encoder = follower.getEncoder();
+//   private final RelativeEncoder follower_encoder = follower.getEncoder();
 
   public static final Supplier<TrapezoidProfile.Constraints> maxProfileConstraints =
       () -> new TrapezoidProfile.Constraints(maxVelocity.get(), maxAcceleration.get());
 
-  private TrapezoidProfile profile;
+  private ProfiledPIDController profile;
   private ElevatorFeedforward ff;
-  private TrapezoidProfile.State setpointState = new TrapezoidProfile.State();
+//   private TrapezoidProfile.State setpointState = new TrapezoidProfile.State();
   private TrapezoidProfile.State endState = new TrapezoidProfile.State();
 
-  private PIDController elevatorPID;
+//   private PIDController elevatorPID;
 
   ShuffleboardTab tab = Shuffleboard.getTab("Subsystems");
   ShuffleboardLayout intakeLayout =
@@ -80,32 +83,34 @@ public class ElevatorIOSparkMax implements ElevatorIO {
 
   public ElevatorIOSparkMax() {
 
-    profile =
-        new TrapezoidProfile(
+    profile = new ProfiledPIDController(kP.get(), 0, kD.get(),
             new TrapezoidProfile.Constraints(maxVelocity.get(), maxAcceleration.get()));
+
+
+    
     ff = new ElevatorFeedforward(kS.get(), kG.get(), kV.get(), kA.get());
-    elevatorPID = new PIDController(kP.get(), 0, kD.get());
+    // elevatorPID = new PIDController(kP.get(), 0, kD.get());
 
     leaderconfig.inverted(false);
 
     // followerconfig.inverted(true); //inverting already done in the next line
-    followerconfig.follow(leader.getDeviceId(), true);
+    // followerconfig.follow(leader.getDeviceId(), true);
 
     leaderconfig.idleMode(IdleMode.kBrake);
-    followerconfig.idleMode(IdleMode.kBrake);
+    // followerconfig.idleMode(IdleMode.kBrake);
 
-    leaderconfig.signals.absoluteEncoderPositionPeriodMs(20);
-    followerconfig.signals.absoluteEncoderPositionPeriodMs(20);
+    // leaderconfig.signals.absoluteEncoderPositionPeriodMs(20);
+    // followerconfig.signals.absoluteEncoderPositionPeriodMs(20);
 
-    leaderconfig.signals.absoluteEncoderVelocityPeriodMs(20);
-    followerconfig.signals.absoluteEncoderVelocityPeriodMs(20);
+    // leaderconfig.signals.absoluteEncoderVelocityPeriodMs(20);
+    // followerconfig.signals.absoluteEncoderVelocityPeriodMs(20);
 
     leaderconfig.smartCurrentLimit(80, 60);
-    followerconfig.smartCurrentLimit(80, 60);
+    // followerconfig.smartCurrentLimit(80, 60);
 
     leader.configure(leaderconfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    follower.configure(
-        followerconfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // follower.configure(
+    //     followerconfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -117,18 +122,16 @@ public class ElevatorIOSparkMax implements ElevatorIO {
 
     inputs.velocityRadsPerSec =
         Units.rotationsToRadians(
-            (leader_encoder.getVelocity() + follower_encoder.getVelocity()) / 2.0 / GEAR_RATIO);
+            leader_encoder.getVelocity() / GEAR_RATIO);
 
     inputs.appliedVoltage =
-        ((leader.getAppliedOutput() * leader.getBusVoltage())
-                + follower.getAppliedOutput() * follower.getBusVoltage())
-            / 2.0;
+        ((leader.getAppliedOutput() * leader.getBusVoltage()));
 
-    inputs.supplyCurrentAmps = (leader.getOutputCurrent() + follower.getOutputCurrent()) / 2.0;
+    inputs.supplyCurrentAmps = (leader.getOutputCurrent()) / 1.0;
 
     inputs.torqueCurrentAmps = 0; // can't measure torque/stator current output for sparkamx
 
-    inputs.avgTempCelsius = (leader.getMotorTemperature() + follower.getMotorTemperature()) / 2.0;
+    inputs.avgTempCelsius = (leader.getMotorTemperature()) / 1.0;
   }
 
   public void periodic() {
@@ -140,30 +143,37 @@ public class ElevatorIOSparkMax implements ElevatorIO {
         kV,
         kA);
 
-    LoggedTunableNumber.ifChanged(
-        hashCode(), () -> elevatorPID = new PIDController(kP.get(), 0, kD.get()), kP, kD);
 
-    setpointState = profile.calculate(0.02, setpointState, endState);
+    profile.reset(profile.getSetpoint().position, profile.getSetpoint().velocity);
 
     leader.setVoltage(
-        elevatorPID.calculate(getHeight(), setpointState.position)
-            + ff.calculate(setpointState.velocity));
+        profile.calculate(getHeight(), profile.getSetpoint().position)
+            + ff.calculate(profile.getSetpoint().velocity));
   }
 
   private double getHeight() {
     return Units.rotationsToRadians(
-        (leader_encoder.getPosition() + follower_encoder.getPosition()) / 2.0 / GEAR_RATIO);
+        (leader_encoder.getPosition() / GEAR_RATIO));
+  }
+
+  private double getElevatorSpeed(){
+    return Units.rotationsPerMinuteToRadiansPerSecond(
+        leader_encoder.getVelocity() / GEAR_RATIO
+    );
   }
 
   @Override
   public void stop() {
     leader.stopMotor();
-    follower.stopMotor();
+    // follower.stopMotor();
   }
 
   @Override
   public void movetoHeight(double posRads) {
-    endState = new TrapezoidProfile.State(posRads, 0);
+    profile.reset(
+        getHeight(), getElevatorSpeed());
+    
+    profile.setGoal(new TrapezoidProfile.State(posRads, 0));
   }
 
   /** Resets the angle of the elevator to whatever we desire (rads) */

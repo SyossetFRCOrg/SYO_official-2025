@@ -7,6 +7,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
@@ -14,6 +15,8 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
+import frc.robot.util.GeomUtil;
+
 import java.util.LinkedList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -97,6 +100,7 @@ public class Vision extends SubsystemBase {
       // Loop over pose observations
       for (var observation : inputs[cameraIndex].poseObservations) {
         // Check whether to reject pose
+        Translation2d velocity = new Translation2d(drive.getChassisSpeeds().vxMetersPerSecond, drive.getChassisSpeeds().vyMetersPerSecond);
         boolean rejectPose =
             observation.tagCount() == 0 // Must have at least one tag
                 || (observation.tagCount() == 1
@@ -110,8 +114,11 @@ public class Vision extends SubsystemBase {
                 || observation.pose().getY() < 0.0
                 || observation.pose().getY() > aprilTagLayout.getFieldWidth()
                 || (observation.pose().getX() == 0.0 && observation.pose().getY() == 0.0)
+                || velocity.getNorm() > 2.5
                 || Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond)
                     > (2 * Math.PI) // reject if omega too high
+
+                || (observation.type() == PoseObservationType.MEGATAG_1 && observation.averageTagDistance() < .75)
             ;
 
         // Add pose to log
@@ -140,21 +147,78 @@ public class Vision extends SubsystemBase {
         }
 
         // Calculate standard deviations
-        double stdDevFactor =
+        double linearstdDevFactor =
             Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
-        double linearStdDev = linearStdDevBaseline * stdDevFactor;
-        double angularStdDev = angularStdDevBaseline * stdDevFactor;
+        double thetastdDevFactor = 
+            Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
+
+        //The farther we are from the pose right now, the less we trust it. 
+        //It should still allow for correction when we are very off because of the multiple poses coming in continuously.
+        //This is meant to allow for that extreme correction while making occasional nonsense negligible.
+        if (observation.pose().toPose2d().getTranslation().getDistance(drive.getPose().getTranslation()) > .5){
+          linearstdDevFactor *= 5;
+        }
+        if (observation.pose().toPose2d().getTranslation().getDistance(drive.getPose().getTranslation()) > 1){
+          linearstdDevFactor *= 5;
+        }
+        if (observation.pose().toPose2d().getTranslation().getDistance(drive.getPose().getTranslation()) > 1.5){
+          linearstdDevFactor *= 5;
+        }
+        if (observation.pose().toPose2d().getTranslation().getDistance(drive.getPose().getTranslation()) > 2){
+          linearstdDevFactor *= 10;
+        }
+        if (observation.pose().toPose2d().getTranslation().getDistance(drive.getPose().getTranslation()) > 2.5){
+          // linearstdDevFactor *= 10;
+        }
+
+        //same for rotational corrections.
+        if (observation.pose().toPose2d().getRotation().minus(drive.getPose().getRotation()).getDegrees() > 10){
+          thetastdDevFactor *= 10;
+        }
+        if (observation.pose().toPose2d().getRotation().minus(drive.getPose().getRotation()).getDegrees() > 15){
+          thetastdDevFactor *= 10;
+        }
+        if (observation.pose().toPose2d().getRotation().minus(drive.getPose().getRotation()).getDegrees() > 20){
+          thetastdDevFactor *= 10;
+        }
+        if (observation.pose().toPose2d().getRotation().minus(drive.getPose().getRotation()).getDegrees() > 25){
+          thetastdDevFactor *= 10;
+        }
+        if (observation.pose().toPose2d().getRotation().minus(drive.getPose().getRotation()).getDegrees() > 30){
+          thetastdDevFactor *= 10;
+        }
+
+
+
+        double linearStdDev = linearStdDevBaseline * linearstdDevFactor;
+        double angularStdDev = angularStdDevBaseline * thetastdDevFactor;
 
         //have to do standard deviation tuning originally from MT1 values. 
         //then also tune it for MT2, then the ratio of MT2 stddev / MT1 stddev is the stddev factor for linear
         //except for angular stddev because it just uses the gyro's angle anyway, so stddev is infinite
-        if (observation.type() == PoseObservationType.MEGATAG_2) {
+        
+        
+        //it doesn't work. it also does this for MT1
+        if (observation.type() == PoseObservationType.MEGATAG_2){
           linearStdDev *= linearStdDevMegatag2Factor;
           angularStdDev *= angularStdDevMegatag2Factor;
         }
+
         if (cameraIndex < cameraStdDevFactors.length) {
           linearStdDev *= cameraStdDevFactors[cameraIndex];
           angularStdDev *= cameraStdDevFactors[cameraIndex];
+        }
+
+        if (observation.type() == PoseObservationType.MEGATAG_1){
+          Logger.recordOutput(
+          "Vision/Camera" + Integer.toString(cameraIndex) + "/MT1StdDevs",
+          new double[] {linearStdDev, angularStdDev});
+        }
+
+        if (observation.type() == PoseObservationType.MEGATAG_2){
+          Logger.recordOutput(
+          "Vision/Camera" + Integer.toString(cameraIndex) + "/MT2StdDevs",
+          new double[] {linearStdDev, angularStdDev});
         }
 
         // Send vision observation
@@ -163,6 +227,7 @@ public class Vision extends SubsystemBase {
             observation.timestamp(),
             VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
       }
+
 
       // Log camera datadata
       Logger.recordOutput(
@@ -191,10 +256,6 @@ public class Vision extends SubsystemBase {
       Logger.recordOutput(
           "Vision/Camera" + Integer.toString(cameraIndex) + "/MT2RobotPosesRejected",
           robotPosesRejectedMT2.toArray(new Pose3d[robotPosesRejectedMT2.size()]));
-
-
-
-
 
           
       allTagPoses.addAll(tagPoses);

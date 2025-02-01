@@ -159,7 +159,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             elevatorTorqueCurrent,
             tempCelsius);
 
-    inputs.motorType = "Talon";
+    inputs.motorType = "Kraken";
 
     inputs.motorConnected = elevatorConnectedDebounce.calculate(talonStatus.isOK());
 
