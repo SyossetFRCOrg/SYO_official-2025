@@ -92,12 +92,12 @@ public class RobotContainer {
     // switch (Constants.currentMode) {
     //   case REAL:
     //     // Real robot, instantiate hardware IO implementations
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                drive,
-                new VisionIOLimelight(camera0Name, drive::getRotation),
-                new VisionIOLimelight(camera1Name, drive::getRotation));
+    vision =
+        new Vision(
+            drive::addVisionMeasurement,
+            drive,
+            new VisionIOLimelight(camera0Name, drive::getRotation),
+            new VisionIOLimelight(camera1Name, drive::getRotation));
 
     // vision =
     //     new Vision(
@@ -185,7 +185,7 @@ public class RobotContainer {
                           () ->
                               RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
                                   < 1.5,
-                            () -> false);
+                          () -> false);
                 })
             .andThen(
                 new InstantCommand(
@@ -199,13 +199,15 @@ public class RobotContainer {
 
     Trigger leftBumper = new Trigger(() -> controller.getLeftBumperButton());
     leftBumper.onTrue(
-        new InstantCommand( () -> reefAlignController =
-    new ReefAlignController(
-        drive,
-        () ->
-            RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
-                < 1.5,
-        () -> true)));
+        new InstantCommand(
+            () ->
+                reefAlignController =
+                    new ReefAlignController(
+                        drive,
+                        () ->
+                            RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
+                                < 1.5,
+                        () -> true)));
 
     // Reset gyro to 0° when B button is pressed
     Trigger b = new Trigger(() -> controller.getBButton());
@@ -229,8 +231,8 @@ public class RobotContainer {
   //   public Command getAutonomousCommand() {
   //     return autoChooser.get();
   //   }
-  
-  public ReefAlignController getReefAlignController(){
+
+  public ReefAlignController getReefAlignController() {
     return reefAlignController;
   }
 }

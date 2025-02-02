@@ -1,13 +1,17 @@
 package frc.robot.subsystems.wrist;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.HashMap;
+import org.littletonrobotics.junction.Logger;
 
 public class Wrist extends SubsystemBase {
   private final WristIO wristIO;
+
+  private final WristIOInputsAutoLogged inputs = new WristIOInputsAutoLogged();
 
   private static final HashMap<SuperState, LoggedTunableNumber> positions = initializePositions();
 
@@ -32,14 +36,24 @@ public class Wrist extends SubsystemBase {
 
   public Wrist(WristIO wristIO) {
     this.wristIO = wristIO;
+    wristIO.resetPosition(0);
   }
 
   @Override
   public void periodic() {
+    wristIO.updateInputs(inputs);
+    Logger.processInputs("Wrist", inputs);
     if (positions.containsKey(Superstructure.getDesiredState())) {
       position = positions.get(Superstructure.getDesiredState()).get();
     }
 
+    // for wrist, everything is in radians
     wristIO.runPosition(position);
+  }
+
+  public boolean atSetPoint(SuperState setpointState) {
+
+    if (positions.containsKey(setpointState)) position = positions.get(setpointState).get();
+    return MathUtil.isNear(position, inputs.positionRad, 0.01 /*rad*/);
   }
 }

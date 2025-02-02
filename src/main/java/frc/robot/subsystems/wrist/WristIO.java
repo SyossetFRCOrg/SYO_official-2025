@@ -15,4 +15,6 @@ public interface WristIO {
   public default void updateInputs(WristIOInputs inputs) {}
 
   public default void runPosition(double position) {}
+
+  public default void resetPosition(double position) {}
 }

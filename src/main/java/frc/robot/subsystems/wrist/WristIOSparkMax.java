@@ -9,9 +9,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
-import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -34,7 +31,6 @@ public class WristIOSparkMax implements WristIO {
   private static final LoggedTunableNumber maxAcceleration =
       new LoggedTunableNumber("Wrist/MaxAcceleration", 0);
 
-  
   private ProfiledPIDController pidController =
       new ProfiledPIDController(
           kP.get(),
@@ -54,7 +50,13 @@ public class WristIOSparkMax implements WristIO {
 
   @Override
   public void runPosition(double position) {
-    sparkMax.setVoltage(pidController.calculate(position, encoder.getPosition()));
+    sparkMax.setVoltage(
+        pidController.calculate(Units.radiansToRotations(position), encoder.getPosition()));
+  }
+
+  @Override
+  public void resetPosition(double position) {
+    encoder.setPosition(Units.radiansToRotations(position));
   }
 
   @Override
@@ -68,11 +70,12 @@ public class WristIOSparkMax implements WristIO {
     ifOk(
         sparkMax,
         encoder::getVelocity,
-        (value) -> inputs.velocityRadPerSec = Units.rotationsToRadians(value));
+        (value) -> inputs.velocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(value));
     ifOk(
         sparkMax,
         new DoubleSupplier[] {sparkMax::getAppliedOutput, sparkMax::getBusVoltage},
-        (values) -> inputs.positionRad = values[0] * values[1]);
+        (values) -> inputs.appliedVolts = values[0] * values[1]);
+
     ifOk(sparkMax, sparkMax::getOutputCurrent, (value) -> inputs.currentAmps = value);
 
     inputs.connected = connectedDebounce.calculate(!sparkStickyFault);

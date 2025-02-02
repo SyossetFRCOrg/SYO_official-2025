@@ -7,7 +7,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotState;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -117,15 +116,14 @@ public class ReefAlignController {
 
   private void updateConstraints() {
 
-    if (drive.getPose().getTranslation().getDistance(desiredPose.getTranslation()) < .1){
+    if (drive.getPose().getTranslation().getDistance(desiredPose.getTranslation()) < .1) {
 
-        linearController.setI(linearkI.get() * 15);
-        }
-    if (drive.getPose().getTranslation().getDistance(desiredPose.getTranslation()) > .1){
+      linearController.setI(linearkI.get() * 15);
+    }
+    if (drive.getPose().getTranslation().getDistance(desiredPose.getTranslation()) > .1) {
 
-        linearController.setI(linearkI.get());
-        }
-        
+      linearController.setI(linearkI.get());
+    }
 
     if (slowMode.getAsBoolean()) {
       //   linearController.setConstraints(
@@ -134,10 +132,10 @@ public class ReefAlignController {
       //   thetaController.setConstraints(
       //       new TrapezoidProfile.Constraints(
       //           slowAngularVelocity.get(), slowAngularAcceleration.get()));
-    //   linearController.setPID(linearkP.get() * 2.2, linearkI.get(), linearkD.get() * 2.1);
+      //   linearController.setPID(linearkP.get() * 2.2, linearkI.get(), linearkD.get() * 2.1);
       linearController.setP(linearkP.get() * 2.2);
       linearController.setD(linearkD.get() * 2.1);
-    //   linearController.setIZone(0.2);
+      //   linearController.setIZone(0.2);
 
     } else {
       linearController.setConstraints(

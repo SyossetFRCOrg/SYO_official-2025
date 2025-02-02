@@ -8,7 +8,6 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -17,8 +16,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.util.LoggedTunableNumber;
-
-import java.security.Provider;
 import java.util.function.Supplier;
 
 /**
@@ -32,8 +29,8 @@ public class ElevatorIOSparkMax implements ElevatorIO {
   private final SparkMax leader = new SparkMax(24, MotorType.kBrushless);
   private final SparkMaxConfig leaderConfig = new SparkMaxConfig();
 
-//   private final SparkMax follower = new SparkMax(45, MotorType.kBrushless);
-//   private final SparkMaxConfig followerconfig = new SparkMaxConfig();
+  //   private final SparkMax follower = new SparkMax(45, MotorType.kBrushless);
+  //   private final SparkMaxConfig followerconfig = new SparkMaxConfig();
 
   private static final LoggedTunableNumber kP = new LoggedTunableNumber("Arm/Gains/kP", 0);
   //   private static final LoggedTunableNumber kI = new LoggedTunableNumber("Arm/Gains/kI", 0);
@@ -46,7 +43,8 @@ public class ElevatorIOSparkMax implements ElevatorIO {
               / ((5600.0 / 60.0)
                   / (GEAR_RATIO)
                   * 2
-                  * Math.PI)); // it didn't want me to divide by 2PI on Kraken swerve, let's see I guess?
+                  * Math.PI)); // it didn't want me to divide by 2PI on Kraken swerve, let's see I
+  // guess?
   private static final LoggedTunableNumber kA = new LoggedTunableNumber("Arm/Gains/kA", 0);
   private static final LoggedTunableNumber kG = new LoggedTunableNumber("Arm/Gains/kG", 0);
 
@@ -56,17 +54,17 @@ public class ElevatorIOSparkMax implements ElevatorIO {
       new LoggedTunableNumber("Arm/maxAcceleration", .1);
 
   private final RelativeEncoder leader_encoder = leader.getEncoder();
-//   private final RelativeEncoder follower_encoder = follower.getEncoder();
+  //   private final RelativeEncoder follower_encoder = follower.getEncoder();
 
   public static final Supplier<TrapezoidProfile.Constraints> maxProfileConstraints =
       () -> new TrapezoidProfile.Constraints(maxVelocity.get(), maxAcceleration.get());
 
   private ProfiledPIDController profile;
   private ElevatorFeedforward ff;
-//   private TrapezoidProfile.State setpointState = new TrapezoidProfile.State();
+  //   private TrapezoidProfile.State setpointState = new TrapezoidProfile.State();
   private TrapezoidProfile.State endState = new TrapezoidProfile.State();
 
-//   private PIDController elevatorPID;
+  //   private PIDController elevatorPID;
 
   ShuffleboardTab tab = Shuffleboard.getTab("Subsystems");
   ShuffleboardLayout intakeLayout =
@@ -81,11 +79,13 @@ public class ElevatorIOSparkMax implements ElevatorIO {
 
   public ElevatorIOSparkMax() {
 
-    profile = new ProfiledPIDController(kP.get(), 0, kD.get(),
+    profile =
+        new ProfiledPIDController(
+            kP.get(),
+            0,
+            kD.get(),
             new TrapezoidProfile.Constraints(maxVelocity.get(), maxAcceleration.get()));
 
-
-    
     ff = new ElevatorFeedforward(kS.get(), kG.get(), kV.get(), kA.get());
     // elevatorPID = new PIDController(kP.get(), 0, kD.get());
 
@@ -117,12 +117,9 @@ public class ElevatorIOSparkMax implements ElevatorIO {
 
     inputs.positionRads = getHeight();
 
-    inputs.velocityRadsPerSec =
-        Units.rotationsToRadians(
-            leader_encoder.getVelocity() / GEAR_RATIO);
+    inputs.velocityRadsPerSec = Units.rotationsToRadians(leader_encoder.getVelocity() / GEAR_RATIO);
 
-    inputs.appliedVoltage =
-        ((leader.getAppliedOutput() * leader.getBusVoltage()));
+    inputs.appliedVoltage = ((leader.getAppliedOutput() * leader.getBusVoltage()));
 
     inputs.supplyCurrentAmps = (leader.getOutputCurrent()) / 1.0;
 
@@ -136,7 +133,7 @@ public class ElevatorIOSparkMax implements ElevatorIO {
         hashCode(),
         () ->
             profile.setConstraints(
-                    new TrapezoidProfile.Constraints(maxVelocity.get(), maxAcceleration.get())),
+                new TrapezoidProfile.Constraints(maxVelocity.get(), maxAcceleration.get())),
         maxVelocity,
         maxAcceleration);
 
@@ -148,7 +145,6 @@ public class ElevatorIOSparkMax implements ElevatorIO {
         kV,
         kA);
 
-
     profile.reset(profile.getSetpoint().position, profile.getSetpoint().velocity);
 
     leader.setVoltage(
@@ -157,14 +153,11 @@ public class ElevatorIOSparkMax implements ElevatorIO {
   }
 
   private double getHeight() {
-    return Units.rotationsToRadians(
-        (leader_encoder.getPosition() / GEAR_RATIO));
+    return Units.rotationsToRadians((leader_encoder.getPosition() / GEAR_RATIO));
   }
 
-  private double getElevatorSpeed(){
-    return Units.rotationsPerMinuteToRadiansPerSecond(
-        leader_encoder.getVelocity() / GEAR_RATIO
-    );
+  private double getElevatorSpeed() {
+    return Units.rotationsPerMinuteToRadiansPerSecond(leader_encoder.getVelocity() / GEAR_RATIO);
   }
 
   @Override
@@ -175,9 +168,8 @@ public class ElevatorIOSparkMax implements ElevatorIO {
 
   @Override
   public void movetoHeight(double posRads) {
-    profile.reset(
-        getHeight(), getElevatorSpeed());
-    
+    profile.reset(getHeight(), getElevatorSpeed());
+
     profile.setGoal(new TrapezoidProfile.State(posRads, 0));
   }
 

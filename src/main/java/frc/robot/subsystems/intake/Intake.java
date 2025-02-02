@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.LoggedTunableNumber;
 import lombok.Getter;
 import lombok.Setter;
+import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
   public static enum SubState {
@@ -12,8 +13,9 @@ public class Intake extends SubsystemBase {
     INTAKING,
     OUTTAKING,
     STOW,
-
   }
+
+  private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
 
   private final LoggedTunableNumber intakeVelocity =
       new LoggedTunableNumber("Intake/IntakeVelocity", 1);
@@ -30,6 +32,9 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
+    intakeIO.updateInputs(inputs);
+    Logger.processInputs("Intake", inputs);
+
     switch (state) {
       case INTAKING:
         intakeIO.setVelocity(intakeVelocity.get());
