@@ -30,8 +30,7 @@ public class Superstructure extends SubsystemBase {
         controller = new CommandXboxController(0);
 
         if (subsystems.get("drivetrain").getBoolean("enabled")) {
-            drivetrain = Optional.of(new Drivetrain());
-            // drivetrain = Optional.of(new Drivetrain(new Toml().read(new File(configDir, "swerve.toml"))));
+            drivetrain = Optional.of(new Drivetrain(new Toml().read(new File(configDir, "swerve.toml"))));
             drivetrain.ifPresent(drive -> {
                 drive.setDefaultCommand(drive.new DefaultDrive(
                     () -> 0.3 * controller.getLeftY(),
@@ -57,19 +56,17 @@ public class Superstructure extends SubsystemBase {
         if (subsystems.get("elevator_structure").getBoolean("enabled")) {
             elevatorStructure = Optional.of(new ElevatorStructure());
             elevatorStructure.ifPresent(structure -> {
-                controller.x().or(controller.y())
-                    .whileTrue(structure.getMoveElevator(() ->
-                        (controller.y().getAsBoolean() ? 2.0 : 0.0) +
-                        (controller.x().getAsBoolean() ? -0.8 : 0.0)
-                    ));
-                 
-                controller.a().or(controller.b())
-                    .whileTrue(structure.getMoveArm(() ->
-                        (controller.b().getAsBoolean() ? 0.1 : 0.0) +
-                        (controller.a().getAsBoolean() ? -0.1 : 0.0)
-                        // (controller.b().getAsBoolean() ? 0.25 * (controller.rightTrigger().getAsBoolean() ? 8.0 : 1.0): 0.0) +
-                        // (controller.a().getAsBoolean() ? -0.125 : 0.0)
-                    ));
+                controller.x().and(controller.y().negate())
+                    .whileTrue(structure.getMoveElevator(-24.0));
+                controller.y().and(controller.x().negate())
+                    .whileTrue(structure.getMoveElevator(24.0));
+                controller.povLeft().onTrue(structure.getResetElevator());
+                
+                controller.b().and(controller.a().negate())
+                    .whileTrue(structure.getMoveArm(-2.0));
+                controller.a().and(controller.b().negate())
+                    .whileTrue(structure.getMoveArm(2.0));
+                controller.povRight().onTrue(structure.getResetArm());
             });
         } else {
             elevatorStructure = Optional.empty();

@@ -1,33 +1,39 @@
 package frc.robot.subsystems;
 
-import java.util.function.Supplier;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ElevatorStructure extends SubsystemBase {
-    private final ElevatorSubsystem elevator = new ElevatorSubsystem();
-    private final ArmSubsystem coralArm = new ArmSubsystem();
+    private final Elevator elevator = new Elevator();
+    private final CoralArm coralArm = new CoralArm();
     
     public ElevatorStructure() {
         coralArm.setDefaultCommand(coralArm.new Hover());
         elevator.setDefaultCommand(elevator.new Hover());
     }
 
-    public Command getMoveElevator(Supplier<Double> movementSupplier) {
-        return elevator.new FreeMove(movementSupplier);
+    public Command getMoveElevator(double velocity) {
+        return elevator.new SetVelocity(velocity);
     }
 
-    public Command getMoveArm(Supplier<Double> movementSupplier) {
-        return coralArm.new FreeMove(movementSupplier);
+    public Command getResetElevator() {
+        return elevator.new ResetPosition();
+    }
+
+    public Command getResetArm() {
+        return coralArm.new ResetPosition();
+    }
+
+    public Command getMoveArm(double velocity) {
+        return coralArm.new SetVelocity(velocity);
     }
 
     public class PositionCommand extends StructureCommand {
         public PositionCommand(double armPos, double elevatorPos) {
             super(
-                command(coralArm, coralArm.new SetPosition(armPos)),
-                command(elevator, elevator.new SetPosition(elevatorPos))
+                // command(coralArm, coralArm.new SetPosition(armPos))
+                // command(elevator, elevator.new SetPosition(elevatorPos))
             );
         }
     }

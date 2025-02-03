@@ -2,7 +2,7 @@
 id = "drivetrain"
 name = "Drivetrain"
 config = "swerve.toml"
-enabled = true
+enabled = false
 
 [[subsystems]]
 id = "elevator_structure"
