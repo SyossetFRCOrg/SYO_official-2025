@@ -30,7 +30,7 @@ public class MotorIOSpark implements MotorIO, Sendable {
         public int freeLimit;
 
         public double gearRatio;
-        public int frequency = 200;
+        public int frequency = 500;
 
         public double minOutput = -1.0;
         public double maxOutput = 1.0;
@@ -76,7 +76,7 @@ public class MotorIOSpark implements MotorIO, Sendable {
         
         sparkConfig.encoder
             .positionConversionFactor(1 / config.gearRatio * 2 * Math.PI)
-            .positionConversionFactor(1 / config.gearRatio * 2 * Math.PI / 60.0);
+            .velocityConversionFactor(1 / config.gearRatio * 2 * Math.PI / 60.0);
         
         sparkConfig.closedLoop
             .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
@@ -143,13 +143,15 @@ public class MotorIOSpark implements MotorIO, Sendable {
 
     @Override
     public void setSetpoint(double position) {
-        controller.setReference(position, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
+        controller.setReference(position, ControlType.kPosition, ClosedLoopSlot.kSlot0);
     }
 
     @Override
-    public void setPosition(double rad) {
+    public void resetPosition(double rad) {
         encoder.setPosition(rad);
     }
+
+    private double testVoltage;
 
     @Override
     public void initSendable(SendableBuilder builder) {
@@ -157,5 +159,10 @@ public class MotorIOSpark implements MotorIO, Sendable {
         builder.addDoubleProperty("kV", () -> kV, x -> kV = x);
         builder.addDoubleProperty("kA", () -> kA, x -> kA = x);
         builder.addDoubleProperty("kG", () -> kG, x -> kG = x);
+
+        builder.addDoubleProperty("Set Voltage", () -> testVoltage, x -> {
+            spark.setVoltage(x);
+            testVoltage = x;
+        });
     }
 }

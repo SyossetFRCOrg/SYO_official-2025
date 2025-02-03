@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -13,8 +15,12 @@ public class ElevatorStructure extends SubsystemBase {
         elevator.setDefaultCommand(elevator.new Hover());
     }
 
-    public Command getMoveElevator(double velocity) {
-        return elevator.new SetVelocity(velocity);
+    public Command getMoveElevator(Supplier<Double> velocity) {
+        return elevator.new FreeMove(velocity);
+    }
+    
+    public Command getMoveArm(Supplier<Double> velocity) {
+        return coralArm.new FreeMove(velocity);
     }
 
     public Command getResetElevator() {
@@ -25,8 +31,12 @@ public class ElevatorStructure extends SubsystemBase {
         return coralArm.new ResetPosition();
     }
 
-    public Command getMoveArm(double velocity) {
-        return coralArm.new SetVelocity(velocity);
+    public Command getMoveArmToPosition(double position) {
+        return coralArm.new MoveToPosition(position);
+    }
+
+    public Command getMoveElevatorToPosition(double position) {
+        return elevator.new MoveToPosition(position);
     }
 
     public class PositionCommand extends StructureCommand {

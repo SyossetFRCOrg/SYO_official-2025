@@ -56,17 +56,29 @@ public class Superstructure extends SubsystemBase {
         if (subsystems.get("elevator_structure").getBoolean("enabled")) {
             elevatorStructure = Optional.of(new ElevatorStructure());
             elevatorStructure.ifPresent(structure -> {
-                controller.x().and(controller.y().negate())
-                    .whileTrue(structure.getMoveElevator(-24.0));
-                controller.y().and(controller.x().negate())
-                    .whileTrue(structure.getMoveElevator(24.0));
+                controller.x().or(controller.y())
+                    .whileTrue(structure.getMoveElevator(() -> 
+                        (controller.rightTrigger().getAsBoolean() ? 0.5 : 1.0) * (
+                            (controller.y().getAsBoolean() ? 12.0 : 0.0) +
+                            (controller.x().getAsBoolean() ? -12.0 : 0.0)
+                        )
+                    ));
+                    
+                controller.a().or(controller.b())
+                    .whileTrue(structure.getMoveArm(() -> 
+                        (controller.rightTrigger().getAsBoolean() ? 0.5 : 1.0) * (
+                            (controller.b().getAsBoolean() ? 2.0 : 0.0) +
+                            (controller.a().getAsBoolean() ? -2.0 : 0.0)
+                        )
+                    ));
+
                 controller.povLeft().onTrue(structure.getResetElevator());
-                
-                controller.b().and(controller.a().negate())
-                    .whileTrue(structure.getMoveArm(-2.0));
-                controller.a().and(controller.b().negate())
-                    .whileTrue(structure.getMoveArm(2.0));
                 controller.povRight().onTrue(structure.getResetArm());
+                controller.leftBumper().and(controller.leftTrigger()).onTrue(structure.getMoveArmToPosition(Math.PI / 2));
+                controller.rightBumper().and(controller.leftTrigger()).onTrue(structure.getMoveArmToPosition(0));
+
+                controller.leftBumper().and(controller.leftTrigger().negate()).onTrue(structure.getMoveElevatorToPosition(16.0));
+                controller.rightBumper().and(controller.leftTrigger().negate()).onTrue(structure.getMoveElevatorToPosition(0));
             });
         } else {
             elevatorStructure = Optional.empty();

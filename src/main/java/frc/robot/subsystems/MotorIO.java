@@ -15,5 +15,5 @@ public interface MotorIO {
     public void setVelocity(double velocity);
 
     public void setSetpoint(double rad);
-    public void setPosition(double rad);
+    public void resetPosition(double rad);
 }
