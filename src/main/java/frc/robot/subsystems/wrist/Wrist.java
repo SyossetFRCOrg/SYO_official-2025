@@ -29,6 +29,8 @@ public class Wrist extends SubsystemBase {
     map.put(SuperState.L3PREPARE, map.get(SuperState.L3));
     map.put(SuperState.L4PREPARE, map.get(SuperState.L4));
 
+    map.put(SuperState.INTAKE, map.get(SuperState.STOW));
+
     return map;
   }
 
@@ -43,8 +45,8 @@ public class Wrist extends SubsystemBase {
   public void periodic() {
     wristIO.updateInputs(inputs);
     Logger.processInputs("Wrist", inputs);
-    if (positions.containsKey(Superstructure.getDesiredState())) {
-      position = positions.get(Superstructure.getDesiredState()).get();
+    if (positions.containsKey(Superstructure.getCurrentState())) {
+      position = positions.get(Superstructure.getCurrentState()).get();
     }
 
     // for wrist, everything is in radians

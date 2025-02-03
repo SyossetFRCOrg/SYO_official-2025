@@ -4,10 +4,15 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ControllerRumbleCommand;
 import frc.robot.commands.DriveCommands;
@@ -26,6 +31,7 @@ import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSparkMax;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.util.Container;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -153,8 +159,9 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+    
+    Container<Translation2d> CoralStationAlignFeedForward = new Container<>();
 
-    // controller.setRumble(null, 0);
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
@@ -164,8 +171,54 @@ public class RobotContainer {
             () -> -controller.getRightX()));
 
     // Lock to nearest coral station's angle when A button is held
-    Trigger a = new Trigger(() -> controller.getAButton());
-    a.whileTrue(
+    //also go towards it, still allowing for driver translation
+
+    Trigger rightBumper = new Trigger(() -> controller.getRawButton(6));
+    rightBumper
+        // .whileTrue(
+        // new InstantCommand(
+        //         () -> {
+        //           final double maxVelocity = 1.5;
+        //           CoralStationAlignFeedForward.value =
+        //               DriveCommands.getLinearVelocityFromJoysticks(
+        //                       -controller.getLeftX(), -controller.getLeftY())
+        //                   .times(maxVelocity)
+        //                   .rotateBy(
+        //                       DriverStation.getAlliance().get() == Alliance.Blue
+        //                           ? new Rotation2d(Math.PI)
+        //                           : new Rotation2d());
+
+        //           coralStationAlignController =
+        //               new CoralStationAlignController(
+        //                   drive,
+        //                   () -> CoralStationAlignFeedForward.value,
+        //                   () ->
+        //                       RobotState.getInstance()
+        //                               .getDistanceToNearestCoralStation(drive.getPose())
+        //                           < 1.5);
+        //         })
+        //     .andThen(
+        //         new InstantCommand(
+        //                 () -> {
+        //                   final double maxVelocity = 1.5;
+        //                   CoralStationAlignFeedForward.value =
+        //                       DriveCommands.getLinearVelocityFromJoysticks(
+        //                               -controller.getLeftY() * 0.5, -controller.getLeftX() * .5)
+        //                           .times(maxVelocity)
+        //                           .rotateBy(
+        //                               DriverStation.getAlliance().get() == Alliance.Blue
+        //                                   ? new Rotation2d(Math.PI)
+        //                                   : new Rotation2d());
+        //                   drive.runVelocity(coralStationAlignController.update().get());
+        //                 },
+        //                 drive)
+        //             .repeatedly())
+        //     .andThen(
+        //         new ParallelRaceGroup(
+        //             new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
+
+    // auto align to nearest coral station
+    .whileTrue(
         DriveCommands.joystickDriveCoralStation(
             drive,
             () -> -controller.getLeftY(),
@@ -185,7 +238,7 @@ public class RobotContainer {
                           () ->
                               RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
                                   < 1.5,
-                          () -> false);
+                            () -> false);
                 })
             .andThen(
                 new InstantCommand(
@@ -195,32 +248,38 @@ public class RobotContainer {
                         drive)
                     .repeatedly())
             .until(() -> reefAlignController.atGoal())
-            .andThen(new ControllerRumbleCommand(controller, () -> true)));
-
+            .andThen(
+                new ParallelRaceGroup(
+                    new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
+    
+    
     Trigger leftBumper = new Trigger(() -> controller.getLeftBumperButton());
-    leftBumper.onTrue(
-        new InstantCommand(
+        leftBumper.onTrue(
+            new InstantCommand( () -> reefAlignController =
+        new ReefAlignController(
+            drive,
             () ->
-                reefAlignController =
-                    new ReefAlignController(
-                        drive,
-                        () ->
-                            RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
-                                < 1.5,
-                        () -> true)));
-
+                RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
+                    < 1.5,
+            () -> true)));
+    
     // Reset gyro to 0° when B button is pressed
-    Trigger b = new Trigger(() -> controller.getBButton());
-    b.onTrue(
+    Trigger resetPoseTrigger = new Trigger(() -> controller.getRawButton(8));
+    resetPoseTrigger.onTrue(
         Commands.runOnce(
                 () ->
                     drive.setPose(
                         new Pose2d(
-                            3.442369222640991,
-                            5.234981060028076,
-                            Rotation2d.fromRadians(-1.0486071798869254))),
+                            0,
+                            0,
+                            DriverStation.getAlliance().get() == Alliance.Blue
+                                ? Rotation2d.fromRadians(0)
+                                : Rotation2d.fromDegrees(180))),
                 drive)
             .ignoringDisable(true));
+
+    
+
   }
 
   //   /**

@@ -30,6 +30,7 @@ public class Superstructure extends SubsystemBase {
 
   public static enum SuperState {
     // MANUAL,
+    INTAKEPREPARE,
     INTAKE,
     L1,
     L2,
@@ -64,6 +65,8 @@ public class Superstructure extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // complex logging stuff for later on...? If we want to 
+
     // double percentageOfThreeMetersPerSecond = Math.hypot(
     //                 RobotState.getInstance().getChassisSpeeds().vxMetersPerSecond,
     //                 RobotState.getInstance().getChassisSpeeds().vyMetersPerSecond)
@@ -117,6 +120,7 @@ public class Superstructure extends SubsystemBase {
           case L2 -> ready ? SuperState.L2 : SuperState.L2PREPARE;
           case L3 -> ready ? SuperState.L3 : SuperState.L3PREPARE;
           case L4 -> ready ? SuperState.L4 : SuperState.L4PREPARE;
+          case INTAKE -> ready ? SuperState.INTAKE : SuperState.INTAKEPREPARE;
           default -> desiredState;
         };
 
@@ -126,6 +130,7 @@ public class Superstructure extends SubsystemBase {
   private void handleStopped() {
     drive.stop();
     elevator.stop();
+
   }
 
   /** Transition check */
@@ -134,7 +139,7 @@ public class Superstructure extends SubsystemBase {
         // also has to be at alignment goal to score
       case L1, L2, L3, L4 ->
           elevator.atSetPoint(state) && container.getReefAlignController().atGoal();
-
+      case INTAKEPREPARE -> elevator.atSetPoint(state);
       case INTAKE, STOW -> true;
       default -> false;
     };

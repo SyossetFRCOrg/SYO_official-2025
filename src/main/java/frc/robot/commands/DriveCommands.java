@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.RobotState;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -130,13 +131,10 @@ public class DriveCommands {
     //   //blue left side coral station
 
     // extremely jank solution
+
     return DriveCommands.joystickDriveAtAngle(
-            drive, xSupplier, ySupplier, () -> Rotation2d.fromRadians(-2.2020204805272137))
-        .onlyIf(() -> 4.0 > yCoordinateSupplier.getAsDouble())
-        .andThen(
-            DriveCommands.joystickDriveAtAngle(
-                    drive, xSupplier, ySupplier, () -> Rotation2d.fromRadians(2.2025756098633624))
-                .onlyIf(() -> 4.0 <= yCoordinateSupplier.getAsDouble()));
+            drive, xSupplier, ySupplier, 
+            () -> RobotState.getInstance().getNearestCoralStationPose(drive.getPose()).getRotation());
     // }
     // else if (4.0 <= yCoordinateSupplier.getAsDouble())
     // { //blue right side coral station

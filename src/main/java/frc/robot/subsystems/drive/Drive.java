@@ -106,6 +106,7 @@ public class Drive extends SubsystemBase {
       new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
 
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
+  
   private Rotation2d rawGyroRotation = new Rotation2d();
   private SwerveModulePosition[] lastModulePositions = // For delta tracking
       new SwerveModulePosition[] {
@@ -247,7 +248,7 @@ public class Drive extends SubsystemBase {
         setpointGenerator.generateSetpoint(
             TunerConstants.moduleLimitsFree, currentSetpoint, discreteSpeeds, 0.02);
     SwerveDriveKinematics.desaturateWheelSpeeds(
-        currentSetpoint.moduleStates(), TunerConstants.driveConfig.maxLinearVelocity());
+        currentSetpoint.moduleStates(), TunerConstants.moduleLimitsFree.maxDriveVelocity());
 
     // Log unoptimized setpoints and setpoint speeds
     Logger.recordOutput("SwerveStates/Setpoints", currentSetpoint.moduleStates());

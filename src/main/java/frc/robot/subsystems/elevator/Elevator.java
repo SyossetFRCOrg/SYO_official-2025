@@ -34,6 +34,8 @@ public class Elevator extends SubsystemBase {
     map.put(SuperState.L2PREPARE, map.get(SuperState.L2));
     map.put(SuperState.L3PREPARE, map.get(SuperState.L3));
     map.put(SuperState.L4PREPARE, map.get(SuperState.L4));
+    
+    map.put(SuperState.INTAKEPREPARE, map.get(SuperState.INTAKE));
 
     return map;
   }
@@ -84,7 +86,7 @@ public class Elevator extends SubsystemBase {
   //   return sysId.dynamic(direction);
   // }
 
-  /** Check if the intake is close enough to desired state setpoint */
+  /** Check if the height is close enough to desired state setpoint */
   public boolean atSetPoint() {
     // Make sure the targetHeight is updated
     var state = Superstructure.getCurrentState();
@@ -92,7 +94,7 @@ public class Elevator extends SubsystemBase {
     return MathUtil.isNear(targetHeight, getHeight(), heightTolerance);
   }
 
-  /** Check if the intake is close enough to the given state setpoint */
+  /** Check if the height is close enough to the given state setpoint */
   public boolean atSetPoint(SuperState state) {
     var height = targetHeight;
     if (heights.containsKey(state)) height = heights.get(state).get();

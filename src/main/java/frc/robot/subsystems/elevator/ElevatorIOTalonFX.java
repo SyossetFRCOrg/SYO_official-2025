@@ -27,7 +27,7 @@ import frc.robot.util.LoggedTunableNumber;
  */
 public class ElevatorIOTalonFX implements ElevatorIO {
 
-  private static final double GEAR_RATIO = 1.0 / 5.0;
+  private static final double GEAR_RATIO = 5.0 / 1.0;
   public static final double maxIntakeRate = 5600.0 * GEAR_RATIO; // rpm
 
   final MotionMagicVoltage elevatorRequest = new MotionMagicVoltage(0);
@@ -39,12 +39,15 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   // private static final LoggedTunableNumber kI = new LoggedTunableNumber("Arm/Gains/kI", 0);
   private static final LoggedTunableNumber kD = new LoggedTunableNumber("Arm/Gains/kD", 0);
   private static final LoggedTunableNumber kS = new LoggedTunableNumber("Arm/Gains/kS", 0);
-  private static final LoggedTunableNumber kV = new LoggedTunableNumber("Arm/Gains/kV", 0);
+  //kV is Voltage given per unit of velocity, in this case volts / rad / s 
+  private static final LoggedTunableNumber kV = new LoggedTunableNumber("Arm/Gains/kV", 12.0 / 5600.0 * GEAR_RATIO);
+  //kA is Voltage given per unit of acceleration, volts / rad / s^2
   private static final LoggedTunableNumber kA = new LoggedTunableNumber("Arm/Gains/kA", 0);
+  //kG is a constant voltage needed to keep the elevator at that height, the Voltage needed to counteract gravity
   private static final LoggedTunableNumber kG = new LoggedTunableNumber("Arm/Gains/kG", 0);
 
   private static final LoggedTunableNumber motionMagicVelocity =
-      new LoggedTunableNumber("Arm/maxVelocity", .1);
+      new LoggedTunableNumber("Arm/maxVelocity", .2);
   private static final LoggedTunableNumber motionMagicAcceleration =
       new LoggedTunableNumber("Arm/maxAcceleration", .1);
   private static final LoggedTunableNumber motionMagicJerk =
@@ -86,7 +89,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     talonConfig.MotionMagic.MotionMagicCruiseVelocity = motionMagicVelocity.get();
     talonConfig.MotionMagic.MotionMagicJerk = motionMagicJerk.get();
 
-    talonConfig.Feedback.SensorToMechanismRatio = 1.0;
+    talonConfig.Feedback.SensorToMechanismRatio = GEAR_RATIO;
     // talonConfig.TorqueCurrent.PeakForwardTorqueCurrent = constants.SlipCurrent;
     // talonConfig.TorqueCurrent.PeakReverseTorqueCurrent = -constants.SlipCurrent;
     talonConfig.CurrentLimits.StatorCurrentLimit = 80;
@@ -110,7 +113,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     tempCelsius = talon.getDeviceTemp();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0,
+        100.0,
         elevatorPosition,
         elevatorVelocity,
         elevatorAppliedVolts,
@@ -164,7 +167,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     inputs.motorConnected = elevatorConnectedDebounce.calculate(talonStatus.isOK());
 
     inputs.positionRads = Units.rotationsToRadians(elevatorPosition.getValueAsDouble());
-    inputs.velocityRadsPerSec = Units.rotationsToRadians(elevatorVelocity.getValueAsDouble());
+    inputs.velocityRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(elevatorVelocity.getValueAsDouble());
     inputs.appliedVoltage = elevatorAppliedVolts.getValueAsDouble();
     inputs.supplyCurrentAmps = elevatorCurrent.getValueAsDouble();
     inputs.torqueCurrentAmps = elevatorTorqueCurrent.getValueAsDouble();

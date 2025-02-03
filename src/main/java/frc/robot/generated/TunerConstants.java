@@ -64,28 +64,56 @@ public class TunerConstants {
           .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
   // When using closed-loop control, the drive motor uses the control
   // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
-  private static final Slot0Configs driveGains =
-      new Slot0Configs()
-          .withKP(0.1)
-          .withKI(0)
-          .withKD(0)
-          .withKS(0)
-          .withKV(
-              12.0
-                  / ((5800.0 / 60.0)
-                      / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
-                      * 2
-                      * Math.PI)
-                  * 2
-                  * Math.PI);
+
+
+  
 
   // The closed-loop output type to use for the steer motors;
   // This affects the PID/FF gains for the steer motors
   private static final ClosedLoopOutputType kSteerClosedLoopOutput = ClosedLoopOutputType.Voltage;
   // The closed-loop output type to use for the drive motors;
   // This affects the PID/FF gains for the drive motors
-  private static final ClosedLoopOutputType kDriveClosedLoopOutput = ClosedLoopOutputType.Voltage;
+  public static final ClosedLoopOutputType kDriveClosedLoopOutput = ClosedLoopOutputType.Voltage;
+  
 
+  private static final Slot0Configs driveGains =
+    switch(kDriveClosedLoopOutput){
+   
+    case TorqueCurrentFOC ->
+    
+        new Slot0Configs()
+          .withKP(35.0)
+          .withKI(0.0)
+          .withKD(0.0)
+          .withKS(5.0)
+          .withKV(0.0);
+
+    
+    case Voltage ->
+        new Slot0Configs()
+            .withKP(0.5)
+            .withKI(0)
+            .withKD(0)
+            .withKS(0)
+            .withKV(
+                12.0
+                    / ((5800.0 / 60.0)
+                        / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
+                        ));
+    default ->
+    
+        new Slot0Configs()
+            .withKP(0.5)
+            .withKI(0)
+            .withKD(0)
+            .withKS(0)
+            .withKV(
+                12.0
+                    / ((5800.0 / 60.0)
+                        / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
+                        ));
+
+    };
   // The type of motor used for the drive motor
   private static final DriveMotorArrangement kDriveMotorType =
       DriveMotorArrangement.TalonFX_Integrated;
@@ -285,8 +313,8 @@ public class TunerConstants {
 
   public static final ModuleLimits moduleLimitsFree =
       new ModuleLimits(
-          driveConfig.maxLinearVelocity(),
-          driveConfig.maxLinearAcceleration(),
+          driveConfig.maxLinearVelocity() * 1.5,
+          driveConfig.maxLinearAcceleration() * 1.5,
           Units.degreesToRadians(1080.0));
 
   public static final ModuleLimits moduleLimitsElevatorUp =

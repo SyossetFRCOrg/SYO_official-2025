@@ -1,9 +1,11 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
@@ -154,9 +156,25 @@ public class ReefAlignController {
     Twist2d fieldVelocity = GeomUtil.toTwist2d(drive.getChassisSpeeds());
     // Rotation2d robotToGoalAngle =
     //     goalPose.getTranslation().minus(currentPose.getTranslation()).getAngle();
+
+
+    // The following few lines of code are to reset the controller based on the current position and the current velocity.
+    // The vector stuff is to find the magnitude of the velocity going towards the setpoint already
+    // where negative direction is towards the setpoint. (negated in the reset line at the end)
+
     double linearVelocity = new Translation2d(fieldVelocity.dx, fieldVelocity.dy).getNorm();
+    Vector<N2> currentPoseToDesiredPoseVector = desiredPose.minus(drive.getPose()).getTranslation().toVector();
+    Vector<N2> currentVelocityVector = new Translation2d(fieldVelocity.dx, fieldVelocity.dy).toVector();
+    // Translation2d currentVelocityTranslation = new Translation2d(fieldVelocity.dx, fieldVelocity.dy);
+    
+    double poseToDesiredPoseCosAngle = currentPoseToDesiredPoseVector.dot(currentVelocityVector)
+                                        / currentPoseToDesiredPoseVector.norm() / currentVelocityVector.norm();
+    // double poseToDesiredPoseActualAngle = Math.acos(poseToDesiredPoseCosAngle); turns out we didn't need it
     linearController.reset(
-        currentPose.getTranslation().getDistance(goalPose.getTranslation()), linearVelocity);
+        currentPose.getTranslation().getDistance(goalPose.getTranslation()), 
+        linearVelocity * /* negated because positive is away from the setpoint, negative is towards the setpoint*/ -poseToDesiredPoseCosAngle);
+    
+    
     thetaController.reset(currentPose.getRotation().getRadians());
     lastSetpointTranslation = currentPose.getTranslation();
   }
@@ -202,8 +220,8 @@ public class ReefAlignController {
             0.0,
             1.0);
 
-    linearController.reset(
-        linearController.getSetpoint().position, linearController.getSetpoint().velocity);
+    // linearController.reset(
+    //     linearController.getSetpoint().position, linearController.getSetpoint().velocity);
     // thetaController.reset(thetaController.getSetpoint().position,
     // thetaController.getSetpoint().velocity);
 

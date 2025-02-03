@@ -185,6 +185,8 @@ public class ElevatorIOSparkMax implements ElevatorIO {
     // followerConfig.idleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
     leader.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     // follower.configure(
+
+    
     //     followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
