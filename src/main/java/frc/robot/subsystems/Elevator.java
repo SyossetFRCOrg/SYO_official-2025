@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -39,19 +40,14 @@ public class Elevator extends SubsystemBase {
         config.kI = 0.0;
         config.kD = 0.2;
 
-        config.kS = 0.1;
-        config.kV = 0.18;
-        config.kA = 0.0;
-        config.kG = 0.0; // TODO
-
         config.maxVelocity = 12.0;
         config.maxAcceleration = 24.0;
 
-        config.feedForward = FeedForwardType.ELEVATOR;
+        config.feedForward = new ElevatorFeedForward(0.0, 0.2, 0.0, 0.0);
 
         motor = new MotorIOSpark(config);
         motor.resetPosition(0.0);
-        SmartDashboard.putData("Elevator Motor", (MotorIOSpark)motor);
+        SmartDashboard.putData("Elevator Feed Forward", (ElevatorFeedForward)((MotorIOSpark)motor).getFeedForward());
         SmartDashboard.putData("Elevator", this);
     }
 
@@ -59,6 +55,8 @@ public class Elevator extends SubsystemBase {
     public void initSendable(SendableBuilder builder) {
         builder.addDoubleProperty("Position", () -> inputs.positionRad, null);
         builder.addDoubleProperty("Velocity", () -> inputs.velocityRadPerSec, null);
+        builder.addDoubleProperty("Voltage", () -> inputs.appliedVolts, null);
+        builder.addDoubleProperty("Current", () -> inputs.currentAmps, null);
     }
 
     @Override
@@ -130,6 +128,32 @@ public class Elevator extends SubsystemBase {
         @Override
         public void initialize() {
             motor.setSetpoint(position);
+        }
+    }
+
+    public class ElevatorFeedForward implements FeedForward, Sendable {
+        private double kS;
+        private double kV;
+        private double kA;
+        private double kG;
+
+        public ElevatorFeedForward(double kS, double kV, double kA, double kG) {
+            this.kS = kS;
+            this.kV = kV;
+            this.kA = kA;
+            this.kG = kG;
+        }
+
+        @Override
+        public void initSendable(SendableBuilder builder) {
+            builder.addDoubleProperty("kS", () -> kS, x -> kS = x);
+            builder.addDoubleProperty("kV", () -> kV, x -> kV = x);
+            builder.addDoubleProperty("kA", () -> kA, x -> kA = x);
+            builder.addDoubleProperty("kG", () -> kG, x -> kG = x);
+        }
+        @Override
+        public double calculate(double position, double velocity, double acceleration) {
+            return kS * Math.signum(velocity) + kV * velocity + kA * acceleration + kG;   
         }
     }
 }

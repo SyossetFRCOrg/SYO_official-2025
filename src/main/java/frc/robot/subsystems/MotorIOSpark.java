@@ -13,13 +13,10 @@ import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
-
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-public class MotorIOSpark implements MotorIO, Sendable {
+public class MotorIOSpark implements MotorIO {
     public static class Config {
         public int canid;
         public MotorType motorType;
@@ -39,27 +36,17 @@ public class MotorIOSpark implements MotorIO, Sendable {
         public double kI;
         public double kD;
 
-        public double kS;
-        public double kV;
-        public double kA;
-        public double kG;
-
         public double maxVelocity;
         public double maxAcceleration;
 
-        public FeedForwardType feedForward = FeedForwardType.NONE;
+        public FeedForward feedForward;
     }
 
     private final SparkBase spark;
     private final RelativeEncoder encoder;
     private final SparkClosedLoopController controller;
 
-    private double kS;
-    private double kV;
-    private double kA;
-    private double kG;
-
-    private FeedForwardType feedForward;
+    private FeedForward feedForward;
 
     public MotorIOSpark(Config config) {
         spark = new SparkMax(config.canid, config.motorType);
@@ -103,11 +90,6 @@ public class MotorIOSpark implements MotorIO, Sendable {
         spark.configure(sparkConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
         spark.setVoltage(0.0);
 
-        kS = config.kS;
-        kV = config.kV;
-        kA = config.kA;
-        kG = config.kG;
-
         feedForward = config.feedForward;
     }
 
@@ -132,12 +114,7 @@ public class MotorIOSpark implements MotorIO, Sendable {
 
     @Override
     public void setVelocity(double velocity) {
-        double ffVolts = kS * Math.signum(velocity) + kV * velocity;
-        ffVolts += switch (feedForward) {
-            case NONE, DRIVE -> 0.0;
-            case ELEVATOR -> kG;
-            case ARM -> kG * Math.cos(encoder.getPosition());
-        };
+        double ffVolts = feedForward != null ? feedForward.calculate(encoder.getPosition(), velocity) : 0.0;
         controller.setReference(velocity, ControlType.kMAXMotionVelocityControl, ClosedLoopSlot.kSlot1, ffVolts, ArbFFUnits.kVoltage);
     }
 
@@ -151,18 +128,7 @@ public class MotorIOSpark implements MotorIO, Sendable {
         encoder.setPosition(rad);
     }
 
-    private double testVoltage;
-
-    @Override
-    public void initSendable(SendableBuilder builder) {
-        builder.addDoubleProperty("kS", () -> kS, x -> kS = x);
-        builder.addDoubleProperty("kV", () -> kV, x -> kV = x);
-        builder.addDoubleProperty("kA", () -> kA, x -> kA = x);
-        builder.addDoubleProperty("kG", () -> kG, x -> kG = x);
-
-        builder.addDoubleProperty("Set Voltage", () -> testVoltage, x -> {
-            spark.setVoltage(x);
-            testVoltage = x;
-        });
+    public FeedForward getFeedForward() {
+        return feedForward;
     }
 }

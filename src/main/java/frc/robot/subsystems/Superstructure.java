@@ -55,31 +55,7 @@ public class Superstructure extends SubsystemBase {
 
         if (subsystems.get("elevator_structure").getBoolean("enabled")) {
             elevatorStructure = Optional.of(new ElevatorStructure());
-            elevatorStructure.ifPresent(structure -> {
-                controller.x().or(controller.y())
-                    .whileTrue(structure.getMoveElevator(() -> 
-                        (controller.rightTrigger().getAsBoolean() ? 0.5 : 1.0) * (
-                            (controller.y().getAsBoolean() ? 12.0 : 0.0) +
-                            (controller.x().getAsBoolean() ? -12.0 : 0.0)
-                        )
-                    ));
-                    
-                controller.a().or(controller.b())
-                    .whileTrue(structure.getMoveArm(() -> 
-                        (controller.rightTrigger().getAsBoolean() ? 0.5 : 1.0) * (
-                            (controller.b().getAsBoolean() ? 2.0 : 0.0) +
-                            (controller.a().getAsBoolean() ? -2.0 : 0.0)
-                        )
-                    ));
-
-                controller.povLeft().onTrue(structure.getResetElevator());
-                controller.povRight().onTrue(structure.getResetArm());
-                controller.leftBumper().and(controller.leftTrigger()).onTrue(structure.getMoveArmToPosition(Math.PI / 2));
-                controller.rightBumper().and(controller.leftTrigger()).onTrue(structure.getMoveArmToPosition(0));
-
-                controller.leftBumper().and(controller.leftTrigger().negate()).onTrue(structure.getMoveElevatorToPosition(16.0));
-                controller.rightBumper().and(controller.leftTrigger().negate()).onTrue(structure.getMoveElevatorToPosition(0));
-            });
+            elevatorStructure.ifPresent(structure -> structure.bindControls(controller));
         } else {
             elevatorStructure = Optional.empty();
         }

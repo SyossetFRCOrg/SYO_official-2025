@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -40,19 +41,14 @@ public class CoralArm extends SubsystemBase {
         config.kI = 0.0;
         config.kD = 0.0;
 
-        config.kS = 0.05;
-        config.kV = 0.35;
-        config.kA = 0.0;
-        config.kG = 0.03; // TODO
-
         config.maxVelocity = 8.0;
         config.maxAcceleration = 8.0;
 
-        config.feedForward = FeedForwardType.ARM;
+        config.feedForward = new ArmFeedForward(0.05, 0.35, 0.0, 0.03);
 
         motor = new MotorIOSpark(config);
         motor.resetPosition(0.0);
-        SmartDashboard.putData("Coral Arm Motor", (MotorIOSpark)motor);
+        SmartDashboard.putData("Coral Arm Feed Forward", (ArmFeedForward)((MotorIOSpark)motor).getFeedForward());
         SmartDashboard.putData("Coral Arm", this);
     }
 
@@ -141,6 +137,33 @@ public class CoralArm extends SubsystemBase {
         @Override
         public void initialize() {
             motor.setSetpoint(position);
+        }
+    }
+
+    public class ArmFeedForward implements FeedForward, Sendable {
+        private double kS;
+        private double kV;
+        private double kA;
+        private double kG;
+
+        public ArmFeedForward(double kS, double kV, double kA, double kG) {
+            this.kS = kS;
+            this.kV = kV;
+            this.kA = kA;
+            this.kG = kG;
+        }
+
+        @Override
+        public void initSendable(SendableBuilder builder) {
+            builder.addDoubleProperty("kS", () -> kS, x -> kS = x);
+            builder.addDoubleProperty("kV", () -> kV, x -> kV = x);
+            builder.addDoubleProperty("kA", () -> kA, x -> kA = x);
+            builder.addDoubleProperty("kG", () -> kG, x -> kG = x);
+        }
+
+        @Override
+        public double calculate(double position, double velocity, double acceleration) {
+            return Math.cos(position) * kG + Math.signum(velocity) * kS + velocity * kV + acceleration * kA;
         }
     }
 }
