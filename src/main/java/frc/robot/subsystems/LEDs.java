@@ -1,11 +1,13 @@
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.Consumer;
 
 /* Relevant Documentation for LED Customization
  * https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/wpilibj/AddressableLED.html#%3Cinit%3E(int)
@@ -25,9 +27,48 @@ public class LEDs extends SubsystemBase
         buffer = new AddressableLEDBuffer(60); // TODO: Change the number of LEDs to the correct one
         leds.setLength(buffer.getLength());
         leds.setData(buffer);
+        
         leds.start();
     }
 
+    private ArrayList<LEDState> currentStates = new ArrayList<LEDState>();
+    private static final ArrayList<LEDState> DEFAULT_STATES = new ArrayList<LEDState>();
+
+    //
+    public enum LEDState 
+    {
+        DEMO_RED(
+
+        ),
+        DEMO_BLACK(
+
+        ),
+        DEMO_RAINBOW(
+
+        );
+
+        
+        private ArrayList<Consumer<AddressableLEDBuffer>> bufferConsumers = new ArrayList<>();
+        private LEDState(Consumer<AddressableLEDBuffer>... consumers) {
+            for (Consumer<AddressableLEDBuffer> consumer : consumers) {
+                bufferConsumers.add(consumer);
+            }
+        }
+    }
+
+    public Command updateBufferCommand() {
+        return run(() -> {
+            this.clearLEDs();
+            // default LED states
+            currentStates.addAll(DEFAULT_STATES);
+            currentStates.sort((s1, s2) -> s2.ordinal() - s1.ordinal());
+            currentStates.forEach(s -> s.bufferConsumers.forEach(c -> c.accept(buffer)));
+            leds.setData(buffer);
+            currentStates.clear();
+        })
+                .ignoringDisable(true)
+                .withName("leds.updateBuffer");
+    }
 
     public void clearLEDs()
     {
@@ -36,11 +77,6 @@ public class LEDs extends SubsystemBase
             buffer.setLED(i, Color.kBlack);
         }
 
-    }
-
-    public void periodic() 
-    {
-        leds.setData(buffer);
     }
 
 }
