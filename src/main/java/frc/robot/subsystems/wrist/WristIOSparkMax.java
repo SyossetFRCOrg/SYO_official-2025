@@ -9,8 +9,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.Debouncer;
@@ -24,7 +22,7 @@ public class WristIOSparkMax implements WristIO {
   private final RelativeEncoder encoder;
   private final SparkMaxConfig sparkConfig = new SparkMaxConfig();
 
-  private final double GEAR_RATIO = 1;
+  private final double GEAR_RATIO = 15;
 
   private final Debouncer connectedDebounce = new Debouncer(0.5);
 
@@ -46,7 +44,6 @@ public class WristIOSparkMax implements WristIO {
   public WristIOSparkMax() {
     ff = new SimpleMotorFeedforward(0, 12 / 5600 * GEAR_RATIO, 0);
 
-    
     sparkMax = new SparkMax(-2, MotorType.kBrushless);
     encoder = sparkMax.getEncoder();
 
@@ -56,7 +53,6 @@ public class WristIOSparkMax implements WristIO {
     sparkMax.configure(sparkConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     pidController.reset(Units.rotationsToRadians(encoder.getPosition()));
-
   }
 
   @Override
@@ -64,8 +60,8 @@ public class WristIOSparkMax implements WristIO {
     pidController.setGoal(position);
 
     sparkMax.setVoltage(
-        ff.calculate(pidController.getSetpoint().velocity) +
-        pidController.calculate(Units.radiansToRotations(position), encoder.getPosition()));
+        ff.calculate(pidController.getSetpoint().velocity)
+            + pidController.calculate(Units.radiansToRotations(position), encoder.getPosition()));
   }
 
   @Override
@@ -80,11 +76,13 @@ public class WristIOSparkMax implements WristIO {
     ifOk(
         sparkMax,
         encoder::getPosition,
-        (value) -> inputs.positionRad = Units.rotationsToRadians(value));
+        (value) -> inputs.positionRad = Units.rotationsToRadians(value) / GEAR_RATIO);
     ifOk(
         sparkMax,
         encoder::getVelocity,
-        (value) -> inputs.velocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(value));
+        (value) ->
+            inputs.velocityRadPerSec =
+                Units.rotationsPerMinuteToRadiansPerSecond(value) / GEAR_RATIO);
     ifOk(
         sparkMax,
         new DoubleSupplier[] {sparkMax::getAppliedOutput, sparkMax::getBusVoltage},

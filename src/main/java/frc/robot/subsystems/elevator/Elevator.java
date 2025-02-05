@@ -23,18 +23,18 @@ public class Elevator extends SubsystemBase {
   private static final HashMap<SuperState, LoggedTunableNumber> initializeHeights() {
     var map = new HashMap<SuperState, LoggedTunableNumber>();
     // to be tuned
-    map.put(SuperState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 0));
-    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 3));
-    map.put(SuperState.L1, new LoggedTunableNumber("Elevator/L1Position", 4));
-    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 5));
-    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 6));
-    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 7));
+    map.put(SuperState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 10));
+    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 50));
+    map.put(SuperState.L1, new LoggedTunableNumber("Elevator/L1Position", 40));
+    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 70));
+    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 100));
+    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 140));
 
     map.put(SuperState.L1PREPARE, map.get(SuperState.L1));
     map.put(SuperState.L2PREPARE, map.get(SuperState.L2));
     map.put(SuperState.L3PREPARE, map.get(SuperState.L3));
     map.put(SuperState.L4PREPARE, map.get(SuperState.L4));
-    
+
     map.put(SuperState.INTAKEPREPARE, map.get(SuperState.INTAKE));
 
     return map;
@@ -67,6 +67,8 @@ public class Elevator extends SubsystemBase {
       io.periodic();
     }
 
+    Logger.recordOutput("Elevator/AtGoal", atSetPoint());
+
     applyStates();
   }
 
@@ -89,16 +91,14 @@ public class Elevator extends SubsystemBase {
   /** Check if the height is close enough to desired state setpoint */
   public boolean atSetPoint() {
     // Make sure the targetHeight is updated
-    var state = Superstructure.getCurrentState();
-    if (heights.containsKey(state)) targetHeight = heights.get(state).get();
-    return MathUtil.isNear(targetHeight, getHeight(), heightTolerance);
+    return atSetPoint(Superstructure.getCurrentState());
   }
 
   /** Check if the height is close enough to the given state setpoint */
   public boolean atSetPoint(SuperState state) {
     var height = targetHeight;
     if (heights.containsKey(state)) height = heights.get(state).get();
-    return MathUtil.isNear(height, getHeight(), 0.1);
+    return MathUtil.isNear(height, getHeight(), heightTolerance);
   }
 
   /** Returns the current angle of the intake in radians. */

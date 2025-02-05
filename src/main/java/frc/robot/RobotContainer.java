@@ -11,13 +11,12 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.ControllerRumbleCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ReefAlignController;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -25,12 +24,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
-import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeIOSparkMax;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.subsystems.elevator.ElevatorIOSparkMax;
 import frc.robot.util.Container;
 
 /**
@@ -41,10 +35,11 @@ import frc.robot.util.Container;
  */
 public class RobotContainer {
   // Subsystems
-  private final Vision vision;
+  //   private final Vision vision;
   private final Drive drive;
   private final Elevator elevator;
-  private final Intake intake;
+  //   private final Intake intake;
+  private final Superstructure superstructure;
 
   // Controller
   private final XboxController controller = new XboxController(0);
@@ -59,6 +54,13 @@ public class RobotContainer {
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
+        // drive =
+        //     new Drive(
+        //         new GyroIO() {},
+        //         new ModuleIO() {},
+        //         new ModuleIO() {},
+        //         new ModuleIO() {},
+        //         new ModuleIO() {});
         // Real robot, instantiate hardware IO implementations
         drive =
             new Drive(
@@ -67,8 +69,8 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
-        elevator = new Elevator(new ElevatorIOTalonFX());
-        intake = new Intake(new IntakeIOSparkMax());
+        elevator = new Elevator(new ElevatorIOSparkMax());
+        // intake = new Intake(new IntakeIOSparkMax());
         break;
 
         //   case SIM:
@@ -92,18 +94,18 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
         elevator = new Elevator(new ElevatorIO() {});
-        intake = new Intake(new IntakeIO() {});
+        // intake = new Intake(new IntakeIO() {});
         break;
     }
     // switch (Constants.currentMode) {
     //   case REAL:
     //     // Real robot, instantiate hardware IO implementations
-    vision =
-        new Vision(
-            drive::addVisionMeasurement,
-            drive,
-            new VisionIOLimelight(camera0Name, drive::getRotation),
-            new VisionIOLimelight(camera1Name, drive::getRotation));
+    // vision =
+    //     new Vision(
+    //         drive::addVisionMeasurement,
+    //         drive,
+    //         new VisionIOLimelight(camera0Name, drive::getRotation),
+    //         new VisionIOLimelight(camera1Name, drive::getRotation));
 
     // vision =
     //     new Vision(
@@ -147,9 +149,11 @@ public class RobotContainer {
     // autoChooser.addOption(
     //     "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
+    reefAlignController = new ReefAlignController(drive, () -> false, () -> false);
+
+    superstructure = new Superstructure(drive, elevator, this);
     // Configure the button bindings
     configureButtonBindings();
-    reefAlignController = new ReefAlignController(drive, () -> false, () -> false);
   }
 
   /**
@@ -159,7 +163,7 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    
+
     Container<Translation2d> CoralStationAlignFeedForward = new Container<>();
 
     // Default command, normal field-relative drive
@@ -171,7 +175,7 @@ public class RobotContainer {
             () -> -controller.getRightX()));
 
     // Lock to nearest coral station's angle when A button is held
-    //also go towards it, still allowing for driver translation
+    // also go towards it, still allowing for driver translation
 
     Trigger rightBumper = new Trigger(() -> controller.getRawButton(6));
     rightBumper
@@ -217,8 +221,8 @@ public class RobotContainer {
         //         new ParallelRaceGroup(
         //             new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
 
-    // auto align to nearest coral station
-    .whileTrue(
+        // auto align to nearest coral station
+        .whileTrue(
         DriveCommands.joystickDriveCoralStation(
             drive,
             () -> -controller.getLeftY(),
@@ -228,41 +232,64 @@ public class RobotContainer {
     // controller.x().whileTrue(DriveCommands.lineUpToNearestReef(() -> drive.getPose()));
 
     // controller.x().whileTrue(DriveCommands.lineUpToNearestReef(() -> drive.getPose()));
+
+    Trigger b = new Trigger(() -> controller.getBButton());
+
+    b.onTrue(superstructure.setWantedSuperStateCommand(SuperState.L1));
+
+    Trigger a = new Trigger(() -> controller.getAButton());
+
+    a.onTrue(superstructure.setWantedSuperStateCommand(SuperState.L2));
+
+    Trigger x = new Trigger(() -> controller.getXButton());
+
+    x.onTrue(superstructure.setWantedSuperStateCommand(SuperState.L3));
+
     Trigger y = new Trigger(() -> controller.getYButton());
-    y.whileTrue(
-        new InstantCommand(
-                () -> {
-                  reefAlignController =
-                      new ReefAlignController(
-                          drive,
-                          () ->
-                              RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
-                                  < 1.5,
-                            () -> false);
-                })
-            .andThen(
-                new InstantCommand(
-                        () -> {
-                          drive.runVelocity(reefAlignController.update().get());
-                        },
-                        drive)
-                    .repeatedly())
-            .until(() -> reefAlignController.atGoal())
-            .andThen(
-                new ParallelRaceGroup(
-                    new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
-    
-    
+
+    y.onTrue(superstructure.setWantedSuperStateCommand(SuperState.L4));
+
+    Trigger leftBackTrigger = new Trigger(() -> controller.getPOV() == 90);
+
+    leftBackTrigger.onTrue(superstructure.setWantedSuperStateCommand(SuperState.STOW));
+
+    // Trigger y = new Trigger(() -> controller.getYButton());
+    // y.whileTrue(
+    // new InstantCommand(
+    //         () -> {
+    //           reefAlignController =
+    //               new ReefAlignController(
+    //                   drive,
+    //                   () ->
+    //                       RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
+    //                           < 1.5,
+    //                     () -> false);
+    //         })
+    //     .andThen(
+    //         new InstantCommand(
+    //                 () -> {
+    //                   drive.runVelocity(reefAlignController.update().get());
+    //                 },
+    //                 drive)
+    //             .repeatedly())
+    //     .until(() -> reefAlignController.atGoal())
+    //     .andThen(
+    //         new ParallelRaceGroup(
+    //             new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4)))
+    // );
+
     Trigger leftBumper = new Trigger(() -> controller.getLeftBumperButton());
-        leftBumper.onTrue(
-            new InstantCommand( () -> reefAlignController =
-        new ReefAlignController(
-            drive,
+    leftBumper.onTrue(
+        new InstantCommand(
             () ->
-                RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
-                    < 1.5,
-            () -> true)));
-    
+                reefAlignController =
+                    new ReefAlignController(
+                        drive,
+                        () ->
+                            RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
+                                < 1.5,
+                        () -> true)));
+
     // Reset gyro to 0° when B button is pressed
     Trigger resetPoseTrigger = new Trigger(() -> controller.getRawButton(8));
     resetPoseTrigger.onTrue(
@@ -277,9 +304,6 @@ public class RobotContainer {
                                 : Rotation2d.fromDegrees(180))),
                 drive)
             .ignoringDisable(true));
-
-    
-
   }
 
   //   /**

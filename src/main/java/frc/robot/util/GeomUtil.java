@@ -18,6 +18,7 @@ public class GeomUtil {
    * @return The resulting transform
    */
   public static Transform2d toTransform2d(Translation2d translation) {
+
     return new Transform2d(translation, new Rotation2d());
   }
 
@@ -130,6 +131,17 @@ public class GeomUtil {
   public static Twist2d toTwist2d(ChassisSpeeds speeds) {
     return new Twist2d(
         speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond);
+  }
+
+  /**
+   * Converts a ChassisSpeeds to a Translation2d by extracting two dimensions (vx to x and vy to y).
+   * chain
+   *
+   * @param speeds The original translation
+   * @return The resulting translation
+   */
+  public static Translation2d toTranslation2d(ChassisSpeeds speeds) {
+    return new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
   }
 
   /**

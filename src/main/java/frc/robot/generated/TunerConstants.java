@@ -20,7 +20,7 @@ import lombok.Builder;
 // https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/tuner-swerve/index.html
 public class TunerConstants {
 
-  public static final double wheelRadius = Units.inchesToMeters(1.8 /*Wheel radius */);
+  public static final double wheelRadius = Units.inchesToMeters(1.906 /*Wheel radius */);
 
   public static final DriveConfig driveConfig =
       DriveConfig.builder()
@@ -31,9 +31,9 @@ public class TunerConstants {
                   * 2
                   * Math.PI
                   / 2.0)
-          .maxLinearAcceleration(Units.feetToMeters(10.0))
-          .maxAngularVelocity(2 * Math.PI) // test out units - rad/s? was 12.0
-          .maxAngularAcceleration(4 * Math.PI) // was 6.0
+          .maxLinearAcceleration(Units.feetToMeters(7.5     ))
+          .maxAngularVelocity(Math.PI) // test out units - rad/s? was 12.0
+          .maxAngularAcceleration(2 * Math.PI) // was 6.0
           .build();
 
   // Theoretical free speed (m/s) at 12 V applied output;
@@ -58,14 +58,10 @@ public class TunerConstants {
           .withKP(100)
           .withKI(0)
           .withKD(0.5)
-          .withKS(0.1)
-          .withKV(1.91)
+          .withKS(0.0)
+          .withKV(0)
           .withKA(0)
           .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
-  // When using closed-loop control, the drive motor uses the control
-  // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
-
-
   
 
   // The closed-loop output type to use for the steer motors;
@@ -73,47 +69,33 @@ public class TunerConstants {
   private static final ClosedLoopOutputType kSteerClosedLoopOutput = ClosedLoopOutputType.Voltage;
   // The closed-loop output type to use for the drive motors;
   // This affects the PID/FF gains for the drive motors
-  public static final ClosedLoopOutputType kDriveClosedLoopOutput = ClosedLoopOutputType.Voltage;
-  
+  private static final ClosedLoopOutputType kDriveClosedLoopOutput = ClosedLoopOutputType.TorqueCurrentFOC;
 
-  private static final Slot0Configs driveGains =
-    switch(kDriveClosedLoopOutput){
-   
-    case TorqueCurrentFOC ->
-    
-        new Slot0Configs()
-          .withKP(35.0)
-          .withKI(0.0)
-          .withKD(0.0)
-          .withKS(5.0)
-          .withKV(0.0);
 
-    
-    case Voltage ->
-        new Slot0Configs()
-            .withKP(0.5)
-            .withKI(0)
-            .withKD(0)
-            .withKS(0)
-            .withKV(
-                12.0
-                    / ((5800.0 / 60.0)
-                        / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
-                        ));
-    default ->
-    
-        new Slot0Configs()
-            .withKP(0.5)
-            .withKI(0)
-            .withKD(0)
-            .withKS(0)
-            .withKV(
-                12.0
-                    / ((5800.0 / 60.0)
-                        / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
-                        ));
+  // When using closed-loop control, the drive motor uses the control
+  // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
+  private static final Slot0Configs driveGains = //for torque current
+      new Slot0Configs()
+          .withKP(35)
+          .withKI(0)
+          .withKD(0)
+          .withKS(5)
+          .withKV(0);
+  //FOR VOLTAGE 
+//   new Slot0Configs()
+//           .withKP(0.1)
+//           .withKI(0)
+//           .withKD(0)
+//           .withKS(0)
+//           .withKV(
+//               12.0
+//                   / ((5800.0 / 60.0)
+//                       / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
+//                       * 2
+//                       * Math.PI)
+//                   * 2
+//                   * Math.PI);
 
-    };
   // The type of motor used for the drive motor
   private static final DriveMotorArrangement kDriveMotorType =
       DriveMotorArrangement.TalonFX_Integrated;
@@ -128,7 +110,7 @@ public class TunerConstants {
 
   // The stator current at which the wheels start to slip;
   // This needs to be tuned to your individual robot
-  private static final Current kSlipCurrent = Amps.of(80.0);
+  private static final Current kSlipCurrent = Amps.of(60.0);
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -313,8 +295,8 @@ public class TunerConstants {
 
   public static final ModuleLimits moduleLimitsFree =
       new ModuleLimits(
-          driveConfig.maxLinearVelocity() * 1.5,
-          driveConfig.maxLinearAcceleration() * 1.5,
+          driveConfig.maxLinearVelocity(),
+          driveConfig.maxLinearAcceleration(),
           Units.degreesToRadians(1080.0));
 
   public static final ModuleLimits moduleLimitsElevatorUp =

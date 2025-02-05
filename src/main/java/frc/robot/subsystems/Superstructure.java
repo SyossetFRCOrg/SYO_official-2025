@@ -11,6 +11,7 @@ import frc.robot.subsystems.elevator.Elevator;
 import java.util.function.BooleanSupplier;
 import lombok.Getter;
 import lombok.Setter;
+import org.littletonrobotics.junction.Logger;
 
 // import frc.robot.subsystems.shooter.ShooterSubsystem;
 // import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -65,7 +66,7 @@ public class Superstructure extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // complex logging stuff for later on...? If we want to 
+    // complex logging stuff for later on...? If we want to
 
     // double percentageOfThreeMetersPerSecond = Math.hypot(
     //                 RobotState.getInstance().getChassisSpeeds().vxMetersPerSecond,
@@ -74,7 +75,12 @@ public class Superstructure extends SubsystemBase {
     // aimingParameters = RobotState.getInstance()
     //         .getAimingParameters(0.6 * percentageOfThreeMetersPerSecond, 0.25 *
     // percentageOfThreeMetersPerSecond);
+
     currentState = handleStateTransitions();
+
+    Logger.recordOutput("Superstructure/CurrentSuperState", currentState.toString());
+    Logger.recordOutput("Superstructure/DesiredSuperState", desiredState.toString());
+
     if (currentState == SuperState.STOPPED) handleStopped();
 
     // Logger.recordOutput("TeleopShotReady/PivotAtSetpoint", pivot.pivotAtSetpoint());
@@ -130,7 +136,6 @@ public class Superstructure extends SubsystemBase {
   private void handleStopped() {
     drive.stop();
     elevator.stop();
-
   }
 
   /** Transition check */

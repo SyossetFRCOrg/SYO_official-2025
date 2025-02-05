@@ -36,7 +36,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
+import frc.robot.util.GeomUtil;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.swerve.SwerveSetpoint;
 import frc.robot.util.swerve.SwerveSetpointGenerator;
 import java.util.concurrent.locks.Lock;
@@ -47,6 +49,14 @@ import org.littletonrobotics.junction.Logger;
 // import frc.robot.subsystems.elevator.elevator;
 
 public class Drive extends SubsystemBase {
+
+  private ChassisSpeeds previousChassisSpeeds = new ChassisSpeeds();
+
+  private LoggedTunableNumber maxTranslationDeltaPerLoop =
+      new LoggedTunableNumber(
+          "Drive/maxTranslationOmegaRadPerSec",
+          TunerConstants.driveConfig.maxLinearAcceleration() * 0.02);
+
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY =
       new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
@@ -106,7 +116,6 @@ public class Drive extends SubsystemBase {
       new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
 
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
-  
   private Rotation2d rawGyroRotation = new Rotation2d();
   private SwerveModulePosition[] lastModulePositions = // For delta tracking
       new SwerveModulePosition[] {
@@ -124,6 +133,7 @@ public class Drive extends SubsystemBase {
       ModuleIO frModuleIO,
       ModuleIO blModuleIO,
       ModuleIO brModuleIO) {
+
     this.gyroIO = gyroIO;
     modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
     modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
@@ -241,6 +251,35 @@ public class Drive extends SubsystemBase {
    * @param speeds Speeds in meters/sec
    */
   public void runVelocity(ChassisSpeeds speeds) {
+
+    Logger.recordOutput("SwerveStates/desiredspeeds", speeds);
+
+    // the following serves as global translational acceleration limiting
+
+    Translation2d prevSpeedsTranslation = GeomUtil.toTranslation2d(previousChassisSpeeds);
+    // GeomUtil.toTranslation2d(getChassisSpeeds());
+
+    Translation2d desiredSpeedsTranslation = GeomUtil.toTranslation2d(speeds);
+
+    Translation2d TranslationDelta = desiredSpeedsTranslation.minus(prevSpeedsTranslation);
+
+    double maxTranslationDeltaPerLoopRatio =
+        TranslationDelta
+                .getNorm() /*magnitude of difference of current and desired velocity vectors*/
+            / maxTranslationDeltaPerLoop.get();
+
+    if (maxTranslationDeltaPerLoopRatio > 1) {
+      // have to make it so that it approaches prevSpeedsTranslation in a
+      // 1/maxTranslationDeltaPerSecRatio ratio,
+      // meant to reduce the delta so that we do not hit the tipping point.
+      TranslationDelta =
+          TranslationDelta.div(
+              Math.sqrt(maxTranslationDeltaPerLoopRatio)); // it works, do the math yourself.
+    }
+
+    desiredSpeedsTranslation = prevSpeedsTranslation.plus(TranslationDelta);
+    speeds.vxMetersPerSecond = desiredSpeedsTranslation.getX();
+    speeds.vyMetersPerSecond = desiredSpeedsTranslation.getY();
     // Calculate module setpoints
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
     // SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
@@ -261,6 +300,8 @@ public class Drive extends SubsystemBase {
 
     // Log optimized setpoints (runSetpoint mutates each state)
     Logger.recordOutput("SwerveStates/SetpointsOptimized", currentSetpoint.moduleStates());
+
+    previousChassisSpeeds = currentSetpoint.chassisSpeeds();
   }
 
   /** Runs the drive in a straight line with the specified drive output. */

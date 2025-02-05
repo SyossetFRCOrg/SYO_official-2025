@@ -16,11 +16,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.RobotState;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.RobotState;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import java.text.DecimalFormat;
@@ -95,8 +95,8 @@ public class DriveCommands {
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds =
               new ChassisSpeeds(
-                  linearVelocity.getX() * TunerConstants.driveConfig.maxAngularVelocity(),
-                  linearVelocity.getY() * TunerConstants.driveConfig.maxAngularVelocity(),
+                  linearVelocity.getX() * TunerConstants.driveConfig.maxLinearVelocity(),
+                  linearVelocity.getY() * TunerConstants.driveConfig.maxLinearVelocity(),
                   omega * TunerConstants.driveConfig.maxAngularVelocity());
           boolean isFlipped =
               DriverStation.getAlliance().isPresent()
@@ -133,8 +133,10 @@ public class DriveCommands {
     // extremely jank solution
 
     return DriveCommands.joystickDriveAtAngle(
-            drive, xSupplier, ySupplier, 
-            () -> RobotState.getInstance().getNearestCoralStationPose(drive.getPose()).getRotation());
+        drive,
+        xSupplier,
+        ySupplier,
+        () -> RobotState.getInstance().getNearestCoralStationPose(drive.getPose()).getRotation());
     // }
     // else if (4.0 <= yCoordinateSupplier.getAsDouble())
     // { //blue right side coral station

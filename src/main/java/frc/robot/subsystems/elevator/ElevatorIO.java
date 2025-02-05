@@ -5,7 +5,6 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ElevatorIO {
   @AutoLog
   class ElevatorIOInputs {
-
     public String motorType = "";
     public boolean motorConnected = false;
     public double positionRads = 0.0;

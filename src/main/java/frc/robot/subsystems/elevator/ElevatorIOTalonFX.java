@@ -39,11 +39,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   // private static final LoggedTunableNumber kI = new LoggedTunableNumber("Arm/Gains/kI", 0);
   private static final LoggedTunableNumber kD = new LoggedTunableNumber("Arm/Gains/kD", 0);
   private static final LoggedTunableNumber kS = new LoggedTunableNumber("Arm/Gains/kS", 0);
-  //kV is Voltage given per unit of velocity, in this case volts / rad / s 
-  private static final LoggedTunableNumber kV = new LoggedTunableNumber("Arm/Gains/kV", 12.0 / 5600.0 * GEAR_RATIO);
-  //kA is Voltage given per unit of acceleration, volts / rad / s^2
+  // kV is Voltage given per unit of velocity, in this case volts / rad / s
+  private static final LoggedTunableNumber kV =
+      new LoggedTunableNumber("Arm/Gains/kV", 12.0 / 5600.0 * GEAR_RATIO);
+  // kA is Voltage given per unit of acceleration, volts / rad / s^2
   private static final LoggedTunableNumber kA = new LoggedTunableNumber("Arm/Gains/kA", 0);
-  //kG is a constant voltage needed to keep the elevator at that height, the Voltage needed to counteract gravity
+  // kG is a constant voltage needed to keep the elevator at that height, the Voltage needed to
+  // counteract gravity
   private static final LoggedTunableNumber kG = new LoggedTunableNumber("Arm/Gains/kG", 0);
 
   private static final LoggedTunableNumber motionMagicVelocity =
@@ -167,7 +169,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     inputs.motorConnected = elevatorConnectedDebounce.calculate(talonStatus.isOK());
 
     inputs.positionRads = Units.rotationsToRadians(elevatorPosition.getValueAsDouble());
-    inputs.velocityRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(elevatorVelocity.getValueAsDouble());
+    inputs.velocityRadsPerSec =
+        Units.rotationsPerMinuteToRadiansPerSecond(elevatorVelocity.getValueAsDouble());
     inputs.appliedVoltage = elevatorAppliedVolts.getValueAsDouble();
     inputs.supplyCurrentAmps = elevatorCurrent.getValueAsDouble();
     inputs.torqueCurrentAmps = elevatorTorqueCurrent.getValueAsDouble();
