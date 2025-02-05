@@ -30,7 +30,8 @@ public class Superstructure extends SubsystemBase {
         controller = new CommandXboxController(0);
 
         if (subsystems.get("drivetrain").getBoolean("enabled")) {
-            drivetrain = Optional.of(new Drivetrain(new Toml().read(new File(configDir, "swerve.toml"))));
+            drivetrain = Optional.of(new Drivetrain());
+            // drivetrain = Optional.of(new Drivetrain(new Toml().read(new File(configDir, "swerve.toml"))));
             drivetrain.ifPresent(drive -> {
                 drive.setDefaultCommand(drive.new DefaultDrive(
                     () -> 0.3 * controller.getLeftY(),
@@ -55,7 +56,7 @@ public class Superstructure extends SubsystemBase {
 
         if (subsystems.get("elevator_structure").getBoolean("enabled")) {
             elevatorStructure = Optional.of(new ElevatorStructure());
-            elevatorStructure.ifPresent(structure -> structure.bindControls(controller));
+            elevatorStructure.ifPresent(structure -> structure.debugControls(controller));
         } else {
             elevatorStructure = Optional.empty();
         }

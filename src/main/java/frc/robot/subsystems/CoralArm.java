@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import java.util.function.Supplier;
-
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -13,7 +11,9 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class CoralArm extends SubsystemBase {
     public static final double LOWER_LIMIT = -Math.PI / 2;
@@ -21,6 +21,9 @@ public class CoralArm extends SubsystemBase {
 
     private final MotorIO motor;
     private final MotorIO.Inputs inputs = new MotorIO.Inputs();
+
+    private final MotorCommands commands;
+    private final ArmFeedForward feedForward;
 
     /** Creates a new ArmSubsystem. */
     public CoralArm() {
@@ -30,26 +33,30 @@ public class CoralArm extends SubsystemBase {
         config.inverted = true;
         config.motorType = MotorType.kBrushless;
         config.idleMode = IdleMode.kBrake;
-        config.stallLimit = 40;
+        config.stallLimit = 60;
         config.freeLimit = 0;
 
         config.gearRatio = 15.0; // TODO
         config.minOutput = -0.5;
         config.maxOutput = 0.5;
 
-        config.kP = 0.5;
+        config.kP = 4.0;
         config.kI = 0.0;
         config.kD = 0.0;
 
         config.maxVelocity = 8.0;
-        config.maxAcceleration = 8.0;
+        config.maxAcceleration = 16.0;
 
-        config.feedForward = new ArmFeedForward(0.05, 0.35, 0.0, 0.03);
+        feedForward = new ArmFeedForward(0.05, 0.35, 0.0, 0.4);
+        config.feedForward = feedForward;
 
         motor = new MotorIOSpark(config);
-        motor.resetPosition(0.0);
-        SmartDashboard.putData("Coral Arm Feed Forward", (ArmFeedForward)((MotorIOSpark)motor).getFeedForward());
+        motor.resetPosition(-Math.PI/2);
+        SmartDashboard.putData("Coral Arm PID", ((MotorIOSpark)motor).getPid());
         SmartDashboard.putData("Coral Arm", this);
+        
+        commands = new MotorCommands(this, motor);
+        setDefaultCommand(commands.new Hover());
     }
 
     @Override
@@ -61,83 +68,23 @@ public class CoralArm extends SubsystemBase {
     public void initSendable(SendableBuilder builder) {
         builder.addDoubleProperty("Position", () -> inputs.positionRad, null);
         builder.addDoubleProperty("Velocity", () -> inputs.velocityRadPerSec, null);
+        builder.addDoubleProperty("Voltage", () -> inputs.appliedVolts, null);
+        builder.addDoubleProperty("Current", () -> inputs.currentAmps, null);
     }
 
-    public class Hover extends Command {
-        public Hover() {
-            addRequirements(CoralArm.this);
-        }
-
-        @Override
-        public void execute() {
-            motor.setVelocity(0.0);
-        }
+    public Command getPositionCommand(double position) {
+        return commands.new MoveToPosition(position);
     }
 
-    public class SetVelocity extends Command {
-        public final double velocity;
-
-        public SetVelocity(double velocity) {
-            this.velocity = velocity;
-            addRequirements(CoralArm.this);
-            motor.setVelocity(velocity);
-        }
-
-        @Override
-        public void execute() {
-            motor.setVelocity(velocity);
-        }
-    }
-    
-    public class FreeMove extends Command {
-        public final Supplier<Double> velocitySupplier;
-
-        public FreeMove(Supplier<Double> velocitySupplier) {
-            this.velocitySupplier = velocitySupplier;
-            addRequirements(CoralArm.this);
-        }
-
-        @Override
-        public void execute() {
-            motor.setVelocity(velocitySupplier.get());
-            // motor.setVelocity(MathUtil.clamp(velocitySupplier.get(), LOWER_LIMIT - inputs.positionRad, UPPER_LIMIT - inputs.positionRad));
-        }
+    public Command getSetKg(double kG) {
+        return Commands.runOnce(() -> feedForward.kG = kG);
     }
 
-    public class ResetPosition extends Command {
-        private final double position;
-
-        public ResetPosition() {
-            position = 0.0;
-        }
-
-        public ResetPosition(double position) {
-            this.position = position;
-        }
-
-        @Override
-        public void initialize() {
-            motor.resetPosition(position);
-        }
-
-        @Override
-        public boolean isFinished() {
-            return true;
-        }
-    }
-
-    public class MoveToPosition extends Command {
-        public final double position;
-
-        public MoveToPosition(double position) {
-            this.position = position;
-            addRequirements(CoralArm.this);
-        }
-
-        @Override
-        public void initialize() {
-            motor.setSetpoint(position);
-        }
+    public void debugControls(CommandXboxController controller) {
+        var ctrlMode = controller.rightTrigger().and(controller.leftTrigger().negate());
+        ctrlMode.and(controller.a().or(controller.b()))
+            .whileTrue(commands.new FreeMove(() -> (controller.b().getAsBoolean() ? 4.0 : 0.0) - (controller.a().getAsBoolean() ? 4.0 : 0.0)));
+        ctrlMode.and(controller.povRight()).onTrue(commands.new ResetPosition(-Math.PI/2));
     }
 
     public class ArmFeedForward implements FeedForward, Sendable {

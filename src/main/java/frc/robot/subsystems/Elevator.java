@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import java.util.function.Supplier;
-
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -14,6 +12,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class Elevator extends SubsystemBase {
     public static final double LOWER_LIMIT = 0.0;
@@ -22,6 +21,8 @@ public class Elevator extends SubsystemBase {
     private final MotorIO motor;
     private final MotorIO.Inputs inputs = new MotorIO.Inputs();
 
+    private final MotorCommands commands;
+
     /** Creates a new ElevatorSubsystem. */
     public Elevator() {
         MotorIOSpark.Config config = new MotorIOSpark.Config();
@@ -29,26 +30,30 @@ public class Elevator extends SubsystemBase {
         config.canid = 16;
         config.motorType = MotorType.kBrushless;
         config.idleMode = IdleMode.kBrake;
-        config.stallLimit = 40;
+        config.stallLimit = 60;
         config.freeLimit = 0;
 
         config.gearRatio = 4.0;
         config.minOutput = -0.8;
         config.maxOutput = 0.8;
 
-        config.kP = 0.16;
+        config.kP = 32.0;
         config.kI = 0.0;
-        config.kD = 0.2;
+        config.kD = 0.0;
+        config.kF = 0.0;
 
-        config.maxVelocity = 12.0;
-        config.maxAcceleration = 24.0;
+        config.maxVelocity = 24.0;
+        config.maxAcceleration = 96.0;
 
-        config.feedForward = new ElevatorFeedForward(0.0, 0.2, 0.0, 0.0);
+        config.feedForward = new ElevatorFeedForward(0.5, 0.1, 0.0, 0.75);
 
         motor = new MotorIOSpark(config);
         motor.resetPosition(0.0);
-        SmartDashboard.putData("Elevator Feed Forward", (ElevatorFeedForward)((MotorIOSpark)motor).getFeedForward());
+        SmartDashboard.putData("Elevator PID", ((MotorIOSpark)motor).getPid());
         SmartDashboard.putData("Elevator", this);
+
+        commands = new MotorCommands(this, motor);
+        setDefaultCommand(commands.new Hover());
     }
 
     @Override
@@ -64,71 +69,15 @@ public class Elevator extends SubsystemBase {
         motor.updateInputs(inputs);
     }
 
-    public class Hover extends Command {
-        public Hover() {
-            addRequirements(Elevator.this);
-        }
-
-        @Override
-        public void execute() {
-            motor.setVelocity(0.0);
-        }
+    public void debugControls(CommandXboxController controller) {
+        var ctrlMode = controller.rightTrigger().and(controller.leftTrigger().negate());
+        ctrlMode.and(controller.x().or(controller.y()))
+            .whileTrue(commands.new FreeMove(() -> (controller.y().getAsBoolean() ? 24.0 : 0.0) - (controller.x().getAsBoolean() ? 24.0 : 0.0)));
+        ctrlMode.and(controller.povLeft()).onTrue(commands.new ResetPosition());
     }
 
-    public class SetVelocity extends Command {
-        public final double velocity;
-
-        public SetVelocity(double velocity) {
-            this.velocity = velocity;
-            addRequirements(Elevator.this);
-            motor.setVelocity(velocity);
-        }
-
-        @Override
-        public void execute() {
-            
-        }
-    }
-    
-    public class FreeMove extends Command {
-        public final Supplier<Double> velocitySupplier;
-
-        public FreeMove(Supplier<Double> velocitySupplier) {
-            this.velocitySupplier = velocitySupplier;
-            addRequirements(Elevator.this);
-        }
-
-        @Override
-        public void execute() {
-            motor.setVelocity(velocitySupplier.get());
-            // motor.setVelocity(MathUtil.clamp(velocitySupplier.get(), LOWER_LIMIT - inputs.positionRad, UPPER_LIMIT - inputs.positionRad));
-        }
-    }
-
-    public class ResetPosition extends Command {
-        @Override
-        public void initialize() {
-            motor.resetPosition(0.0);
-        }
-
-        @Override
-        public boolean isFinished() {
-            return true;
-        }
-    }
-
-    public class MoveToPosition extends Command {
-        public final double position;
-
-        public MoveToPosition(double position) {
-            this.position = position;
-            addRequirements(Elevator.this);
-        }
-
-        @Override
-        public void initialize() {
-            motor.setSetpoint(position);
-        }
+    public Command getPositionCommand(double position) {
+        return commands.new MoveToPosition(position);
     }
 
     public class ElevatorFeedForward implements FeedForward, Sendable {

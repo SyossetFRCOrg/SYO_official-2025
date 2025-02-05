@@ -9,7 +9,10 @@ public interface MotorIO {
         public double currentAmps;
     }
 
+    public void runSetpoint();
+
     public void updateInputs(Inputs inputs);
+    public double getPosition();
 
     public void setVoltage(double voltage);
     public void setVelocity(double velocity);

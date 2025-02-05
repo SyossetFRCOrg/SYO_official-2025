@@ -14,7 +14,11 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 public class MotorIOSpark implements MotorIO {
     public static class Config {
@@ -27,7 +31,7 @@ public class MotorIOSpark implements MotorIO {
         public int freeLimit;
 
         public double gearRatio;
-        public int frequency = 500;
+        public int frequency = 200;
 
         public double minOutput = -1.0;
         public double maxOutput = 1.0;
@@ -35,6 +39,7 @@ public class MotorIOSpark implements MotorIO {
         public double kP;
         public double kI;
         public double kD;
+        public double kF;
 
         public double maxVelocity;
         public double maxAcceleration;
@@ -45,6 +50,7 @@ public class MotorIOSpark implements MotorIO {
     private final SparkBase spark;
     private final RelativeEncoder encoder;
     private final SparkClosedLoopController controller;
+    private final ProfiledPIDController pid;
 
     private FeedForward feedForward;
 
@@ -69,15 +75,17 @@ public class MotorIOSpark implements MotorIO {
             .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .outputRange(config.minOutput, config.maxOutput, ClosedLoopSlot.kSlot0)
             .outputRange(config.minOutput, config.maxOutput, ClosedLoopSlot.kSlot1)
-            .pidf(config.kP, config.kI, config.kD, 0.0, ClosedLoopSlot.kSlot0)
+            .pidf(config.kP, config.kI, config.kD, config.kF, ClosedLoopSlot.kSlot0)
             .pidf(0.0, 0.0, 0.0, 0.0, ClosedLoopSlot.kSlot1);
         
         sparkConfig.closedLoop.maxMotion
-            .maxAcceleration(config.maxAcceleration, ClosedLoopSlot.kSlot0)
-            .maxAcceleration(config.maxAcceleration, ClosedLoopSlot.kSlot1)
+            .allowedClosedLoopError(0.05)
+            .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
             .maxVelocity(config.maxVelocity, ClosedLoopSlot.kSlot0)
-            .maxVelocity(config.maxVelocity, ClosedLoopSlot.kSlot1);
-        
+            .maxVelocity(config.maxVelocity, ClosedLoopSlot.kSlot1)
+            .maxAcceleration(config.maxAcceleration, ClosedLoopSlot.kSlot0)
+            .maxAcceleration(config.maxAcceleration, ClosedLoopSlot.kSlot1);
+
         sparkConfig.signals
             .primaryEncoderPositionAlwaysOn(true)
             .primaryEncoderPositionPeriodMs(1000 / config.frequency)
@@ -88,9 +96,11 @@ public class MotorIOSpark implements MotorIO {
             .outputCurrentPeriodMs(20);
         
         spark.configure(sparkConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        
         spark.setVoltage(0.0);
 
         feedForward = config.feedForward;
+        pid = new ProfiledPIDController(config.kP, config.kI, config.kD, new TrapezoidProfile.Constraints(config.maxVelocity, config.maxAcceleration));
     }
 
     @Override
@@ -108,6 +118,11 @@ public class MotorIOSpark implements MotorIO {
     }
 
     @Override
+    public double getPosition() {
+        return encoder.getPosition();
+    }
+
+    @Override
     public void setVoltage(double voltage) {
         spark.setVoltage(voltage);
     }
@@ -120,7 +135,14 @@ public class MotorIOSpark implements MotorIO {
 
     @Override
     public void setSetpoint(double position) {
-        controller.setReference(position, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+        pid.reset(encoder.getPosition());
+        pid.setGoal(position);
+    }
+
+    @Override
+    public void runSetpoint() {
+        var velocity = pid.calculate(encoder.getPosition());
+        setVelocity(velocity);
     }
 
     @Override
@@ -130,5 +152,9 @@ public class MotorIOSpark implements MotorIO {
 
     public FeedForward getFeedForward() {
         return feedForward;
+    }
+
+    public ProfiledPIDController getPid() {
+        return pid;
     }
 }
