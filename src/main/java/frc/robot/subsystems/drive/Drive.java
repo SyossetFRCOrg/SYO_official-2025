@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.RobotState;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.GeomUtil;
@@ -52,10 +53,7 @@ public class Drive extends SubsystemBase {
 
   private ChassisSpeeds previousChassisSpeeds = new ChassisSpeeds();
 
-  private LoggedTunableNumber maxTranslationDeltaPerLoop =
-      new LoggedTunableNumber(
-          "Drive/maxTranslationOmegaRadPerSec",
-          TunerConstants.driveConfig.maxLinearAcceleration() * 0.02);
+  // private double maxTranslationDeltaPerLoop = TunerConstants.driveConfig.maxLinearAcceleration() * 0.02;
 
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY =
@@ -266,7 +264,7 @@ public class Drive extends SubsystemBase {
     double maxTranslationDeltaPerLoopRatio =
         TranslationDelta
                 .getNorm() /*magnitude of difference of current and desired velocity vectors*/
-            / maxTranslationDeltaPerLoop.get();
+            / (RobotState.getInstance().getModuleLimits().maxDriveAcceleration() * 0.02);
 
     if (maxTranslationDeltaPerLoopRatio > 1) {
       // have to make it so that it approaches prevSpeedsTranslation in a

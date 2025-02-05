@@ -3,6 +3,7 @@ package frc.robot.subsystems.elevator;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotState;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
@@ -70,6 +71,40 @@ public class Elevator extends SubsystemBase {
     Logger.recordOutput("Elevator/AtGoal", atSetPoint());
 
     applyStates();
+
+
+    //modify the Elevator position in RobotState so that the moduleLimits changes so the max acceleration changes
+    //depending on the superstate of the superstructure. can technically do this anywhere, but makes most sense in elevator.
+    
+    switch (Superstructure.getCurrentState()){
+
+      case STOW:
+      RobotState.getInstance().setElevatorPosition(0);
+      break;
+
+      case L1PREPARE, L1:
+      RobotState.getInstance().setElevatorPosition(1);
+      
+
+      case L2PREPARE, L2, INTAKE, INTAKEPREPARE:
+      RobotState.getInstance().setElevatorPosition(2);
+      break;
+
+      case L3PREPARE, L3:
+      RobotState.getInstance().setElevatorPosition(3);
+      break;
+
+      case L4PREPARE, L4:
+      RobotState.getInstance().setElevatorPosition(4);
+      break;
+
+      case STOPPED:
+      default:
+      RobotState.getInstance().setElevatorPosition(4);
+      break;
+
+    }
+
   }
 
   private void applyStates() {
@@ -106,15 +141,10 @@ public class Elevator extends SubsystemBase {
     return inputs.positionRads;
   }
 
-  public boolean elevatorUp() {
-    return getHeight() >= heights.get(SuperState.L2).get();
-  }
+  // public boolean elevatorUp() {
+  //   return getHeight() >= heights.get(SuperState.L2).get();
+  // }
 
-  public ModuleLimits getModuleLimits() {
-    return elevatorUp() && !DriverStation.isAutonomousEnabled()
-        ? TunerConstants.moduleLimitsElevatorUp
-        : TunerConstants.moduleLimitsFree;
-  }
 
   /**
    * Resets the angle of the elevator

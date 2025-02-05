@@ -42,11 +42,11 @@ public class ReefAlignController {
       new LoggedTunableNumber("AutoAlign/controllerToleranceSecs", 0.1);
   private static final LoggedTunableNumber maxLinearVelocity =
       new LoggedTunableNumber(
-          "AutoAlign/maxLinearVelocity", TunerConstants.driveConfig.maxLinearVelocity() * .5);
+          "AutoAlign/maxLinearVelocity", RobotState.getInstance().getModuleLimits().maxDriveVelocity() * .5);
   private static final LoggedTunableNumber maxLinearAcceleration =
       new LoggedTunableNumber(
           "AutoAlign/maxLinearAcceleration",
-          TunerConstants.driveConfig.maxLinearAcceleration() * 0.8);
+          RobotState.getInstance().getModuleLimits().maxDriveAcceleration() * 0.8);
   private static final LoggedTunableNumber maxAngularVelocity =
       new LoggedTunableNumber(
           "AutoAlign/maxAngularVelocity", TunerConstants.driveConfig.maxAngularVelocity() * 0.6);

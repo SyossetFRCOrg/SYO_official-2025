@@ -3,9 +3,16 @@ package frc.robot;
 import edu.wpi.first.math.*;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.*;
+import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.generated.TunerConstants;
 // import edu.wpi.first.math.kinematics.SwerveDriveWheelPositions;
 import frc.robot.util.GeomUtil;
+import frc.robot.util.swerve.ModuleLimits;
+
 import java.util.function.BooleanSupplier;
+
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.ExtensionMethod;
 // import org.littletonrobotics.frc2024.subsystems.drive.DriveConstants;
 // import org.littletonrobotics.frc2024.subsystems.superstructure.arm.ArmConstants;
@@ -25,6 +32,9 @@ public class RobotState {
     if (instance == null) instance = new RobotState();
     return instance;
   }
+
+
+  @AutoLogOutput @Getter @Setter private int elevatorPosition = 0;
 
   private Pose2d[] coralStationPositions = {
     new Pose2d(1.1344856023788452, 7.127560615539551, Rotation2d.fromRadians(2.219791626297564)),
@@ -147,6 +157,22 @@ public class RobotState {
     return coralStationPositions[index];
   }
 
+  public ModuleLimits getModuleLimits() {
+    return switch (elevatorPosition){
+      case 0 -> TunerConstants.moduleLimitsFree;
+
+      case 1 -> TunerConstants.moduleLimitsL1Elevator;
+
+      case 2 -> TunerConstants.moduleLimitsL2Elevator;
+
+      case 3 -> TunerConstants.moduleLimitsL3Elevator;
+
+      case 4 -> TunerConstants.moduleLimitsL4Elevator;
+
+      default -> TunerConstants.moduleLimitsL4Elevator;
+    };
+    
+  }
   // public PathPlannerPath getPathToNearestReef(Pose2d pose) {
 
   //   double mindistance = Double.POSITIVE_INFINITY;
