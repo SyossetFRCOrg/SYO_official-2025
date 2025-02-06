@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -31,52 +32,49 @@ public class LEDs extends SubsystemBase
         leds.start();
     }
 
-    private ArrayList<LEDState> currentStates = new ArrayList<LEDState>();
-    private static final ArrayList<LEDState> DEFAULT_STATES = new ArrayList<LEDState>();
-
-    //
-    public enum LEDState 
-    {
-        DEMO_RED(
-
-        ),
-        DEMO_BLACK(
-
-        ),
-        DEMO_RAINBOW(
-
-        );
-
-        
-        private ArrayList<Consumer<AddressableLEDBuffer>> bufferConsumers = new ArrayList<>();
-        private LEDState(Consumer<AddressableLEDBuffer>... consumers) {
-            for (Consumer<AddressableLEDBuffer> consumer : consumers) {
-                bufferConsumers.add(consumer);
-            }
-        }
-    }
-
-    public Command updateBufferCommand() {
-        return run(() -> {
-            this.clearLEDs();
-            // default LED states
-            currentStates.addAll(DEFAULT_STATES);
-            currentStates.sort((s1, s2) -> s2.ordinal() - s1.ordinal());
-            currentStates.forEach(s -> s.bufferConsumers.forEach(c -> c.accept(buffer)));
-            leds.setData(buffer);
-            currentStates.clear();
-        })
-                .ignoringDisable(true)
-                .withName("leds.updateBuffer");
-    }
-
     public void clearLEDs()
     {
         for (int i=0; i<buffer.getLength(); i++)
         {
             buffer.setLED(i, Color.kBlack);
         }
-
     }
+    
 
+    public class RedDemo extends Command
+    {
+        public RedDemo()
+        {
+            addRequirements(LEDs.this);
+        }
+
+        @Override
+        public void initialize()
+        {
+            // Create an LED pattern that sets the entire strip to solid red
+            LEDPattern red = LEDPattern.solid(Color.kRed);
+
+            // Apply the LED pattern to the data buffer
+            red.applyTo(buffer);
+        }
+
+        @Override
+        public void execute()
+        {
+            // Write the data to the LED strip
+            leds.setData(buffer);
+        }
+
+        @Override
+        public void end(boolean interrupted)
+        {
+            
+        }
+
+        @Override
+        public boolean isFinished()
+        {
+            return true;
+        }
+    }
 }
