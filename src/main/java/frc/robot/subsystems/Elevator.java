@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,20 +36,27 @@ public class Elevator extends SubsystemBase {
         config.minOutput = -0.8;
         config.maxOutput = 0.8;
 
-        config.kP = 32.0;
+        config.kP = 4.0;
         config.kI = 0.0;
         config.kD = 0.0;
-        config.kF = 0.0;
 
-        config.maxVelocity = 24.0;
-        config.maxAcceleration = 96.0;
+        config.vkP = 0.7;
+        config.vkI = 0.0;
+        config.vkD = 0.0;
 
-        config.feedForward = new ElevatorFeedForward(0.5, 0.1, 0.0, 0.75);
+        config.maxVelocity = 16.0;
+        config.maxAcceleration = 64.0;
+        config.maxJerk = 256.0;
+
+        config.feedForward = new ElevatorFeedForward(0.0, 0.125, 0.0, 0.78);
+        
+        config.debounceTime = 0.2;
+        config.tolerance = 0.2;
 
         motor = new MotorIOSpark(config);
         motor.resetPosition(0.0);
-        SmartDashboard.putData("Elevator PID", ((MotorIOSpark)motor).getPid());
         SmartDashboard.putData("Elevator", this);
+        ((MotorIOSpark)motor).putData("Elevator");
 
         commands = new MotorCommands(this, motor);
         setDefaultCommand(commands.new Hover());
@@ -72,7 +78,7 @@ public class Elevator extends SubsystemBase {
     public void debugControls(CommandXboxController controller) {
         var ctrlMode = controller.rightTrigger().and(controller.leftTrigger().negate());
         ctrlMode.and(controller.x().or(controller.y()))
-            .whileTrue(commands.new FreeMove(() -> (controller.y().getAsBoolean() ? 24.0 : 0.0) - (controller.x().getAsBoolean() ? 24.0 : 0.0)));
+            .whileTrue(commands.new FreeMove(() -> (controller.y().getAsBoolean() ? 16.0 : 0.0) - (controller.x().getAsBoolean() ? 16.0 : 0.0)));
         ctrlMode.and(controller.povLeft()).onTrue(commands.new ResetPosition());
     }
 
@@ -80,7 +86,7 @@ public class Elevator extends SubsystemBase {
         return commands.new MoveToPosition(position);
     }
 
-    public class ElevatorFeedForward implements FeedForward, Sendable {
+    public class ElevatorFeedForward implements FeedForward {
         private double kS;
         private double kV;
         private double kA;
@@ -100,6 +106,7 @@ public class Elevator extends SubsystemBase {
             builder.addDoubleProperty("kA", () -> kA, x -> kA = x);
             builder.addDoubleProperty("kG", () -> kG, x -> kG = x);
         }
+
         @Override
         public double calculate(double position, double velocity, double acceleration) {
             return kS * Math.signum(velocity) + kV * velocity + kA * acceleration + kG;   

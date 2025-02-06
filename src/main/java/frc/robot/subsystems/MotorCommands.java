@@ -2,8 +2,6 @@ package frc.robot.subsystems;
 
 import java.util.function.Supplier;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
@@ -75,7 +73,6 @@ public class MotorCommands {
 
     public class MoveToPosition extends Command {
         public final double position;
-        private final Debouncer debouncer = new Debouncer(0.2);
 
         public MoveToPosition(double position) {
             this.position = position;
@@ -88,13 +85,8 @@ public class MotorCommands {
         }
 
         @Override
-        public void execute() {
-            motor.runSetpoint();
-        }
-
-        @Override
         public boolean isFinished() {
-            return debouncer.calculate(MathUtil.isNear(position, motor.getPosition(), 0.2));
+            return motor.atSetpoint();
         }
     }
 }

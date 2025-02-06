@@ -2,25 +2,24 @@ package frc.robot.subsystems;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class MotorIOSpark implements MotorIO {
+public class MotorIOSpark implements MotorIO, Sendable {
     public static class Config {
         public int canid;
         public MotorType motorType;
@@ -31,7 +30,7 @@ public class MotorIOSpark implements MotorIO {
         public int freeLimit;
 
         public double gearRatio;
-        public int frequency = 200;
+        public int frequency = 500;
 
         public double minOutput = -1.0;
         public double maxOutput = 1.0;
@@ -39,25 +38,39 @@ public class MotorIOSpark implements MotorIO {
         public double kP;
         public double kI;
         public double kD;
-        public double kF;
+
+        public double vkP;
+        public double vkI;
+        public double vkD;
 
         public double maxVelocity;
         public double maxAcceleration;
+        public double maxJerk;
 
         public FeedForward feedForward;
+
+        public double debounceTime;
+        public double tolerance;
     }
 
     private final SparkBase spark;
     private final RelativeEncoder encoder;
-    private final SparkClosedLoopController controller;
-    private final ProfiledPIDController pid;
+    private final ProfiledPIDController positionPid;
+    private final ProfiledPIDController velocityPid;
+    private final Notifier controller = new Notifier(this::runController);
+    
+    private ControlMode controlMode = ControlMode.NONE;
 
     private FeedForward feedForward;
+    private double targetVelocity;
+    private double targetVoltage;
 
+    private final Debouncer debouncer;
+    
     public MotorIOSpark(Config config) {
         spark = new SparkMax(config.canid, config.motorType);
         encoder = spark.getEncoder();
-        controller = spark.getClosedLoopController();
+        // controller = spark.getClosedLoopController();
 
         var sparkConfig = new SparkMaxConfig();
         
@@ -70,21 +83,6 @@ public class MotorIOSpark implements MotorIO {
         sparkConfig.encoder
             .positionConversionFactor(1 / config.gearRatio * 2 * Math.PI)
             .velocityConversionFactor(1 / config.gearRatio * 2 * Math.PI / 60.0);
-        
-        sparkConfig.closedLoop
-            .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .outputRange(config.minOutput, config.maxOutput, ClosedLoopSlot.kSlot0)
-            .outputRange(config.minOutput, config.maxOutput, ClosedLoopSlot.kSlot1)
-            .pidf(config.kP, config.kI, config.kD, config.kF, ClosedLoopSlot.kSlot0)
-            .pidf(0.0, 0.0, 0.0, 0.0, ClosedLoopSlot.kSlot1);
-        
-        sparkConfig.closedLoop.maxMotion
-            .allowedClosedLoopError(0.05)
-            .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal)
-            .maxVelocity(config.maxVelocity, ClosedLoopSlot.kSlot0)
-            .maxVelocity(config.maxVelocity, ClosedLoopSlot.kSlot1)
-            .maxAcceleration(config.maxAcceleration, ClosedLoopSlot.kSlot0)
-            .maxAcceleration(config.maxAcceleration, ClosedLoopSlot.kSlot1);
 
         sparkConfig.signals
             .primaryEncoderPositionAlwaysOn(true)
@@ -100,7 +98,20 @@ public class MotorIOSpark implements MotorIO {
         spark.setVoltage(0.0);
 
         feedForward = config.feedForward;
-        pid = new ProfiledPIDController(config.kP, config.kI, config.kD, new TrapezoidProfile.Constraints(config.maxVelocity, config.maxAcceleration));
+        positionPid = new ProfiledPIDController(config.kP, config.kI, config.kD, new TrapezoidProfile.Constraints(config.maxVelocity, config.maxAcceleration), 1.0 / config.frequency);
+        velocityPid = new ProfiledPIDController(config.vkP, config.vkI, config.vkD, new TrapezoidProfile.Constraints(config.maxAcceleration, config.maxJerk), 1.0 / config.frequency);
+
+        controller.startPeriodic(1.0 / config.frequency);
+
+        debouncer = new Debouncer(config.debounceTime);
+        positionPid.setTolerance(config.tolerance);
+    }
+
+    public void putData(String name) {
+        SmartDashboard.putData(name + "/Motor", this);
+        SmartDashboard.putData(name + "/Position PID", positionPid);
+        SmartDashboard.putData(name + "/Velocity PID", velocityPid);
+        SmartDashboard.putData(name + "/Feed Forward", feedForward);
     }
 
     @Override
@@ -118,31 +129,38 @@ public class MotorIOSpark implements MotorIO {
     }
 
     @Override
-    public double getPosition() {
-        return encoder.getPosition();
-    }
-
-    @Override
     public void setVoltage(double voltage) {
+        targetVoltage = voltage;
         spark.setVoltage(voltage);
     }
 
     @Override
     public void setVelocity(double velocity) {
-        double ffVolts = feedForward != null ? feedForward.calculate(encoder.getPosition(), velocity) : 0.0;
-        controller.setReference(velocity, ControlType.kMAXMotionVelocityControl, ClosedLoopSlot.kSlot1, ffVolts, ArbFFUnits.kVoltage);
+        velocityPid.reset(encoder.getVelocity());
+        velocityPid.setGoal(velocity);
+        targetVelocity = velocity;
+        controlMode = ControlMode.VELOCITY;
     }
 
     @Override
     public void setSetpoint(double position) {
-        pid.reset(encoder.getPosition());
-        pid.setGoal(position);
+        positionPid.reset(encoder.getPosition());
+        positionPid.setGoal(position);
+        controlMode = ControlMode.POSITION;
     }
 
-    @Override
-    public void runSetpoint() {
-        var velocity = pid.calculate(encoder.getPosition());
-        setVelocity(velocity);
+    public void runController() {
+        switch (controlMode) {
+            case NONE:
+                break;
+            case POSITION:
+                setVoltage(positionPid.calculate(encoder.getPosition()));
+                break;
+            case VELOCITY:
+                double ffVolts = feedForward != null ? feedForward.calculate(encoder.getPosition(), targetVelocity) : 0.0;
+                setVoltage(velocityPid.calculate(encoder.getVelocity()) + ffVolts);
+                break;
+        }
     }
 
     @Override
@@ -150,11 +168,14 @@ public class MotorIOSpark implements MotorIO {
         encoder.setPosition(rad);
     }
 
-    public FeedForward getFeedForward() {
-        return feedForward;
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        builder.addDoubleProperty("Voltage", () -> targetVoltage, volts -> setVoltage(volts));
+        builder.addDoubleProperty("Velocity", () -> targetVelocity, vel -> setVelocity(vel));
     }
 
-    public ProfiledPIDController getPid() {
-        return pid;
+    @Override
+    public boolean atSetpoint() {
+        return debouncer.calculate(positionPid.atGoal());
     }
 }

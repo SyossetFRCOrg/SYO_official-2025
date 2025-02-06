@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -36,24 +35,32 @@ public class CoralArm extends SubsystemBase {
         config.stallLimit = 60;
         config.freeLimit = 0;
 
-        config.gearRatio = 15.0; // TODO
+        config.gearRatio = 15.0;
         config.minOutput = -0.5;
         config.maxOutput = 0.5;
 
         config.kP = 4.0;
         config.kI = 0.0;
         config.kD = 0.0;
+        
+        config.vkP = 0.7;
+        config.vkI = 0.0;
+        config.vkD = 0.0;
 
         config.maxVelocity = 8.0;
         config.maxAcceleration = 16.0;
+        config.maxJerk = 32.0;
+        
+        config.debounceTime = 0.2;
+        config.tolerance = 0.1;
 
-        feedForward = new ArmFeedForward(0.05, 0.35, 0.0, 0.4);
+        feedForward = new ArmFeedForward(0.0, 0.25, 0.0, 0.35);
         config.feedForward = feedForward;
 
         motor = new MotorIOSpark(config);
         motor.resetPosition(-Math.PI/2);
-        SmartDashboard.putData("Coral Arm PID", ((MotorIOSpark)motor).getPid());
         SmartDashboard.putData("Coral Arm", this);
+        ((MotorIOSpark)motor).putData("Coral Arm");
         
         commands = new MotorCommands(this, motor);
         setDefaultCommand(commands.new Hover());
@@ -87,7 +94,7 @@ public class CoralArm extends SubsystemBase {
         ctrlMode.and(controller.povRight()).onTrue(commands.new ResetPosition(-Math.PI/2));
     }
 
-    public class ArmFeedForward implements FeedForward, Sendable {
+    public class ArmFeedForward implements FeedForward {
         private double kS;
         private double kV;
         private double kA;

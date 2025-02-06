@@ -68,11 +68,11 @@ public class ElevatorStructure extends SubsystemBase {
     }
 
     public Command setHoldCommand() {
-        return coralArm.getSetKg(0.74).finallyDo(() -> state = HOLD);
+        return coralArm.getSetKg(0.68).finallyDo(() -> state = HOLD);
     }
 
     public Command setNeutralCommand() {
-        return coralArm.getSetKg(0.44).finallyDo(() -> state = NEUTRAL);
+        return coralArm.getSetKg(0.35).finallyDo(() -> state = NEUTRAL);
     }
     
     private final State<Event> NEUTRAL = new State<>() {
