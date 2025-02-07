@@ -25,7 +25,7 @@ import org.littletonrobotics.junction.Logger;
  * "CANSparkFlex".
  */
 public class ElevatorIOSparkMax implements ElevatorIO {
-  private static final double GEAR_RATIO = 3.0;
+  private static final double GEAR_RATIO = 5.0;
 
   private final SparkMax leader = new SparkMax(24, MotorType.kBrushless);
   private final SparkMaxConfig leaderConfig = new SparkMaxConfig();
@@ -175,10 +175,9 @@ public class ElevatorIOSparkMax implements ElevatorIO {
 
     // leader.setVoltage(pid.calculate(getHeight(), desiredPositionRads));
     leader.setVoltage(
-        profile.calculate(getHeight(), profile.getSetpoint().position)
-        +.7
-          // + ff.calculate(profile.getSetpoint().velocity)
-            );
+        profile.calculate(getHeight(), profile.getSetpoint().position) + .7
+        // + ff.calculate(profile.getSetpoint().velocity)
+        );
 
     Logger.recordOutput("Elevator/MaxVel", profile.getConstraints().maxVelocity);
     Logger.recordOutput("Elevator/MaxAccel", profile.getConstraints().maxAcceleration);

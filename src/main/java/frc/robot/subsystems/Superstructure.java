@@ -45,7 +45,7 @@ public class Superstructure extends SubsystemBase {
     STOW,
   }
 
-  private static @Getter @Setter SuperState desiredState = SuperState.STOPPED;
+  private static @Getter @Setter SuperState desiredState = SuperState.STOW;
   private static @Getter @Setter SuperState currentState = SuperState.STOPPED;
   private static SuperState previousState = SuperState.STOPPED;
 

@@ -262,7 +262,7 @@ class AutoFactory {
   // private Command followWhileIntaking(PathPlannerPath path) {
   //     return deadline(follow(path),
   // superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.INTAKE_DOWN).repeatedly())
-  
+
   // .andThen(superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.REGULAR_STATE));
   // }
 

@@ -16,5 +16,11 @@ public interface WristIO {
 
   public default void runPosition(double position) {}
 
+  public default void stop() {}
+
+  public default void periodic() {}
+
+  public default void setBrakeMode(boolean enable) {}
+
   public default void resetPosition(double position) {}
 }

@@ -18,11 +18,11 @@ public class Wrist extends SubsystemBase {
   private static final HashMap<SuperState, LoggedTunableNumber> initializePositions() {
     var map = new HashMap<SuperState, LoggedTunableNumber>();
     map.put(SuperState.STOW, new LoggedTunableNumber("Wrist/StowPosition", 0));
-    map.put(SuperState.INTAKE, new LoggedTunableNumber("Wrist/IntakePosition", 0));
-    map.put(SuperState.L1, new LoggedTunableNumber("Wrist/L1Position", 0));
-    map.put(SuperState.L2, new LoggedTunableNumber("Wrist/L2Position", 0));
-    map.put(SuperState.L3, new LoggedTunableNumber("Wrist/L3Position", 0));
-    map.put(SuperState.L4, new LoggedTunableNumber("Wrist/L4Position", 0));
+    map.put(SuperState.INTAKE, new LoggedTunableNumber("Wrist/IntakePosition", -1));
+    map.put(SuperState.L1, new LoggedTunableNumber("Wrist/L1Position", -2));
+    map.put(SuperState.L2, new LoggedTunableNumber("Wrist/L2Position", -2));
+    map.put(SuperState.L3, new LoggedTunableNumber("Wrist/L3Position", -2));
+    map.put(SuperState.L4, new LoggedTunableNumber("Wrist/L4Position", -2));
 
     map.put(SuperState.L1PREPARE, map.get(SuperState.L1));
     map.put(SuperState.L2PREPARE, map.get(SuperState.L2));
@@ -39,12 +39,14 @@ public class Wrist extends SubsystemBase {
   public Wrist(WristIO wristIO) {
     this.wristIO = wristIO;
     wristIO.resetPosition(0);
+    wristIO.setBrakeMode(true);
   }
 
   @Override
   public void periodic() {
     wristIO.updateInputs(inputs);
     Logger.processInputs("Wrist", inputs);
+    wristIO.periodic();
     if (positions.containsKey(Superstructure.getCurrentState())) {
       position = positions.get(Superstructure.getCurrentState()).get();
     }

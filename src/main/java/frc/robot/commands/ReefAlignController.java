@@ -42,7 +42,8 @@ public class ReefAlignController {
       new LoggedTunableNumber("AutoAlign/controllerToleranceSecs", 0.1);
   private static final LoggedTunableNumber maxLinearVelocity =
       new LoggedTunableNumber(
-          "AutoAlign/maxLinearVelocity", RobotState.getInstance().getModuleLimits().maxDriveVelocity() * .5);
+          "AutoAlign/maxLinearVelocity",
+          RobotState.getInstance().getModuleLimits().maxDriveVelocity() * .5);
   private static final LoggedTunableNumber maxLinearAcceleration =
       new LoggedTunableNumber(
           "AutoAlign/maxLinearAcceleration",
@@ -128,20 +129,21 @@ public class ReefAlignController {
     }
 
     if (slowMode.getAsBoolean()) {
-      //   linearController.setConstraints(
-      //       new TrapezoidProfile.Constraints(slowLinearVelocity.get(),
-      // slowLinearAcceleration.get()));
-      //   thetaController.setConstraints(
-      //       new TrapezoidProfile.Constraints(
-      //           slowAngularVelocity.get(), slowAngularAcceleration.get()));
-      //   linearController.setPID(linearkP.get() * 2.2, linearkI.get(), linearkD.get() * 2.1);
+      linearController.setConstraints(
+          new TrapezoidProfile.Constraints(
+              RobotState.getInstance().getModuleLimits().maxDriveVelocity() * .5,
+              RobotState.getInstance().getModuleLimits().maxDriveAcceleration() * 0.8));
+      thetaController.setConstraints(
+          new TrapezoidProfile.Constraints(maxAngularVelocity.get(), maxAngularAcceleration.get()));
       linearController.setP(linearkP.get() * 2.2);
       linearController.setD(linearkD.get() * 2.1);
       //   linearController.setIZone(0.2);
 
     } else {
       linearController.setConstraints(
-          new TrapezoidProfile.Constraints(maxLinearVelocity.get(), maxLinearAcceleration.get()));
+          new TrapezoidProfile.Constraints(
+              RobotState.getInstance().getModuleLimits().maxDriveVelocity() * .5,
+              RobotState.getInstance().getModuleLimits().maxDriveAcceleration() * 0.8));
       thetaController.setConstraints(
           new TrapezoidProfile.Constraints(maxAngularVelocity.get(), maxAngularAcceleration.get()));
       linearController.setPID(linearkP.get(), linearkI.get(), linearkD.get());

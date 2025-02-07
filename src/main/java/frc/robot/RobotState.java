@@ -3,14 +3,11 @@ package frc.robot;
 import edu.wpi.first.math.*;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.*;
-import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.generated.TunerConstants;
 // import edu.wpi.first.math.kinematics.SwerveDriveWheelPositions;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.swerve.ModuleLimits;
-
 import java.util.function.BooleanSupplier;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.ExtensionMethod;
@@ -32,7 +29,6 @@ public class RobotState {
     if (instance == null) instance = new RobotState();
     return instance;
   }
-
 
   @AutoLogOutput @Getter @Setter private int elevatorPosition = 0;
 
@@ -158,7 +154,7 @@ public class RobotState {
   }
 
   public ModuleLimits getModuleLimits() {
-    return switch (elevatorPosition){
+    return switch (elevatorPosition) {
       case 0 -> TunerConstants.moduleLimitsFree;
 
       case 1 -> TunerConstants.moduleLimitsL1Elevator;
@@ -171,7 +167,6 @@ public class RobotState {
 
       default -> TunerConstants.moduleLimitsL4Elevator;
     };
-    
   }
   // public PathPlannerPath getPathToNearestReef(Pose2d pose) {
 

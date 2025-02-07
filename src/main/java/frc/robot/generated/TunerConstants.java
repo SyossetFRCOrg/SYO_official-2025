@@ -31,7 +31,7 @@ public class TunerConstants {
                   * 2
                   * Math.PI
                   / 2.0)
-          .maxLinearAcceleration(Units.feetToMeters(7.5     ))
+          .maxLinearAcceleration(Units.feetToMeters(15))
           .maxAngularVelocity(Math.PI) // test out units - rad/s? was 12.0
           .maxAngularAcceleration(2 * Math.PI) // was 6.0
           .build();
@@ -62,39 +62,33 @@ public class TunerConstants {
           .withKV(0)
           .withKA(0)
           .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
-  
 
   // The closed-loop output type to use for the steer motors;
   // This affects the PID/FF gains for the steer motors
   private static final ClosedLoopOutputType kSteerClosedLoopOutput = ClosedLoopOutputType.Voltage;
   // The closed-loop output type to use for the drive motors;
   // This affects the PID/FF gains for the drive motors
-  private static final ClosedLoopOutputType kDriveClosedLoopOutput = ClosedLoopOutputType.TorqueCurrentFOC;
-
+  private static final ClosedLoopOutputType kDriveClosedLoopOutput =
+      ClosedLoopOutputType.TorqueCurrentFOC;
 
   // When using closed-loop control, the drive motor uses the control
   // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
-  private static final Slot0Configs driveGains = //for torque current
-      new Slot0Configs()
-          .withKP(35)
-          .withKI(0)
-          .withKD(0)
-          .withKS(5)
-          .withKV(0);
-  //FOR VOLTAGE 
-//   new Slot0Configs()
-//           .withKP(0.1)
-//           .withKI(0)
-//           .withKD(0)
-//           .withKS(0)
-//           .withKV(
-//               12.0
-//                   / ((5800.0 / 60.0)
-//                       / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
-//                       * 2
-//                       * Math.PI)
-//                   * 2
-//                   * Math.PI);
+  private static final Slot0Configs driveGains = // for torque current
+      new Slot0Configs().withKP(35).withKI(0).withKD(0).withKS(5).withKV(0);
+  // FOR VOLTAGE
+  //   new Slot0Configs()
+  //           .withKP(0.1)
+  //           .withKI(0)
+  //           .withKD(0)
+  //           .withKS(0)
+  //           .withKV(
+  //               12.0
+  //                   / ((5800.0 / 60.0)
+  //                       / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
+  //                       * 2
+  //                       * Math.PI)
+  //                   * 2
+  //                   * Math.PI);
 
   // The type of motor used for the drive motor
   private static final DriveMotorArrangement kDriveMotorType =
@@ -305,23 +299,23 @@ public class TunerConstants {
           driveConfig.maxLinearAcceleration() * .9,
           Units.degreesToRadians(1080.0));
 
-    public static final ModuleLimits moduleLimitsL2Elevator =
-        new ModuleLimits(
-            driveConfig.maxLinearVelocity() * .9,
-            driveConfig.maxLinearAcceleration() * .75,
-            Units.degreesToRadians(1080.0));
+  public static final ModuleLimits moduleLimitsL2Elevator =
+      new ModuleLimits(
+          driveConfig.maxLinearVelocity() * .9,
+          driveConfig.maxLinearAcceleration() * .75,
+          Units.degreesToRadians(1080.0));
 
-    public static final ModuleLimits moduleLimitsL3Elevator =
-        new ModuleLimits(
-            driveConfig.maxLinearVelocity() * .9,
-            driveConfig.maxLinearAcceleration() * .5,
-            Units.degreesToRadians(1080.0));
+  public static final ModuleLimits moduleLimitsL3Elevator =
+      new ModuleLimits(
+          driveConfig.maxLinearVelocity() * .9,
+          driveConfig.maxLinearAcceleration() * .5,
+          Units.degreesToRadians(1080.0));
 
-    public static final ModuleLimits moduleLimitsL4Elevator =
-        new ModuleLimits(
-            driveConfig.maxLinearVelocity() * .9,
-            driveConfig.maxLinearAcceleration() * .3,
-            Units.degreesToRadians(1080.0));
+  public static final ModuleLimits moduleLimitsL4Elevator =
+      new ModuleLimits(
+          driveConfig.maxLinearVelocity() * .9,
+          driveConfig.maxLinearAcceleration() * .3,
+          Units.degreesToRadians(1080.0));
 
   /**
    * Creates a CommandSwerveDrivetrain instance. This should only be called once in your robot

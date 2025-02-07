@@ -167,7 +167,7 @@ public class Vision extends SubsystemBase {
                 .getTranslation()
                 .getDistance(drive.getPose().getTranslation())
             > 1) {
-          linearstdDevFactor *= 5;
+          linearstdDevFactor *= 3;
         }
         if (observation
                 .pose()
@@ -175,7 +175,7 @@ public class Vision extends SubsystemBase {
                 .getTranslation()
                 .getDistance(drive.getPose().getTranslation())
             > 1.5) {
-          linearstdDevFactor *= 5;
+          linearstdDevFactor *= 3;
         }
         if (observation
                 .pose()
@@ -183,7 +183,7 @@ public class Vision extends SubsystemBase {
                 .getTranslation()
                 .getDistance(drive.getPose().getTranslation())
             > 2) {
-          linearstdDevFactor *= 10;
+          linearstdDevFactor *= 3;
         }
         if (observation
                 .pose()

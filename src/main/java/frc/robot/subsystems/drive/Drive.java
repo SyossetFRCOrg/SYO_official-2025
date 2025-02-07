@@ -34,12 +34,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
-import frc.robot.RobotState;
 import frc.robot.Constants.Mode;
+import frc.robot.RobotState;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.LocalADStarAK;
-import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.swerve.SwerveSetpoint;
 import frc.robot.util.swerve.SwerveSetpointGenerator;
 import java.util.concurrent.locks.Lock;
@@ -53,7 +52,8 @@ public class Drive extends SubsystemBase {
 
   private ChassisSpeeds previousChassisSpeeds = new ChassisSpeeds();
 
-  // private double maxTranslationDeltaPerLoop = TunerConstants.driveConfig.maxLinearAcceleration() * 0.02;
+  // private double maxTranslationDeltaPerLoop = TunerConstants.driveConfig.maxLinearAcceleration()
+  // * 0.02;
 
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY =
@@ -299,7 +299,7 @@ public class Drive extends SubsystemBase {
     // Log optimized setpoints (runSetpoint mutates each state)
     Logger.recordOutput("SwerveStates/SetpointsOptimized", currentSetpoint.moduleStates());
 
-    previousChassisSpeeds = currentSetpoint.chassisSpeeds();
+    previousChassisSpeeds = discreteSpeeds;
   }
 
   /** Runs the drive in a straight line with the specified drive output. */

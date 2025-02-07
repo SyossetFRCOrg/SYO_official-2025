@@ -1,14 +1,11 @@
 package frc.robot.subsystems.elevator;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
-import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.util.LoggedTunableNumber;
-import frc.robot.util.swerve.ModuleLimits;
 import java.util.HashMap;
 import org.littletonrobotics.junction.Logger;
 
@@ -25,11 +22,11 @@ public class Elevator extends SubsystemBase {
     var map = new HashMap<SuperState, LoggedTunableNumber>();
     // to be tuned
     map.put(SuperState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 10));
-    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 50));
+    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 30));
     map.put(SuperState.L1, new LoggedTunableNumber("Elevator/L1Position", 40));
-    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 70));
-    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 100));
-    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 140));
+    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 50));
+    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 70));
+    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 80));
 
     map.put(SuperState.L1PREPARE, map.get(SuperState.L1));
     map.put(SuperState.L2PREPARE, map.get(SuperState.L2));
@@ -72,39 +69,36 @@ public class Elevator extends SubsystemBase {
 
     applyStates();
 
+    // modify the Elevator position in RobotState so that the moduleLimits changes so the max
+    // acceleration changes
+    // depending on the superstate of the superstructure. can technically do this anywhere, but
+    // makes most sense in elevator.
 
-    //modify the Elevator position in RobotState so that the moduleLimits changes so the max acceleration changes
-    //depending on the superstate of the superstructure. can technically do this anywhere, but makes most sense in elevator.
-    
-    switch (Superstructure.getCurrentState()){
-
+    switch (Superstructure.getCurrentState()) {
       case STOW:
-      RobotState.getInstance().setElevatorPosition(0);
-      break;
+        RobotState.getInstance().setElevatorPosition(0);
+        break;
 
       case L1PREPARE, L1:
-      RobotState.getInstance().setElevatorPosition(1);
-      
+        RobotState.getInstance().setElevatorPosition(1);
 
       case L2PREPARE, L2, INTAKE, INTAKEPREPARE:
-      RobotState.getInstance().setElevatorPosition(2);
-      break;
+        RobotState.getInstance().setElevatorPosition(2);
+        break;
 
       case L3PREPARE, L3:
-      RobotState.getInstance().setElevatorPosition(3);
-      break;
+        RobotState.getInstance().setElevatorPosition(3);
+        break;
 
       case L4PREPARE, L4:
-      RobotState.getInstance().setElevatorPosition(4);
-      break;
+        RobotState.getInstance().setElevatorPosition(4);
+        break;
 
       case STOPPED:
       default:
-      RobotState.getInstance().setElevatorPosition(4);
-      break;
-
+        RobotState.getInstance().setElevatorPosition(4);
+        break;
     }
-
   }
 
   private void applyStates() {
@@ -144,7 +138,6 @@ public class Elevator extends SubsystemBase {
   // public boolean elevatorUp() {
   //   return getHeight() >= heights.get(SuperState.L2).get();
   // }
-
 
   /**
    * Resets the angle of the elevator

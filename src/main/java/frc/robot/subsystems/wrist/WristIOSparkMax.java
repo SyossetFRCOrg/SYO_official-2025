@@ -1,95 +1,255 @@
 package frc.robot.subsystems.wrist;
 
-import static frc.robot.util.SparkUtil.*;
-
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkLowLevel.*;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.util.LoggedTunableNumber;
-import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
+/**
+ * NOTE: To use the Spark Flex / NEO Vortex, replace all instances of "CANSparkMax" with
+ * "CANSparkFlex".
+ */
 public class WristIOSparkMax implements WristIO {
-  private final SparkMax sparkMax;
-  private final RelativeEncoder encoder;
-  private final SparkMaxConfig sparkConfig = new SparkMaxConfig();
+  private static final double GEAR_RATIO = 15.0;
 
-  private final double GEAR_RATIO = 15;
+  private final SparkMax leader = new SparkMax(36, MotorType.kBrushless);
+  private final SparkMaxConfig leaderConfig = new SparkMaxConfig();
 
-  private final Debouncer connectedDebounce = new Debouncer(0.5);
+  //   private final SparkMax follower = new SparkMax(45, MotorType.kBrushless);
+  //   private final SparkMaxConfig followerconfig = new SparkMaxConfig();
 
-  private SimpleMotorFeedforward ff;
-  private static final LoggedTunableNumber kP = new LoggedTunableNumber("Wrist/kP", 0);
-  private static final LoggedTunableNumber kD = new LoggedTunableNumber("Wrist/kD", 0);
+  private static final LoggedTunableNumber kP = new LoggedTunableNumber("WristTuning/Gains/kP", 3);
+  //   private static final LoggedTunableNumber kI = new
+  // LoggedTunableNumber("WristTuning/Gains/kI", 0);
+  private static final LoggedTunableNumber kD = new LoggedTunableNumber("WristTuning/Gains/kD", 0);
+  private static final LoggedTunableNumber kS = new LoggedTunableNumber("WristTuning/Gains/kS", .5);
+  private static final LoggedTunableNumber kV =
+      new LoggedTunableNumber(
+          "WristTuning/Gains/kV", 12 / (5600.0 / 60.0) * (GEAR_RATIO)); // guess?
+  private static final LoggedTunableNumber kA = new LoggedTunableNumber("WristTuning/Gains/kA", 0);
+  private static final LoggedTunableNumber kG =
+      new LoggedTunableNumber("WristTuning/Gains/kG", 0.7);
+
   private static final LoggedTunableNumber maxVelocity =
-      new LoggedTunableNumber("Wrist/MaxVelocity", 0.3);
+      new LoggedTunableNumber(
+          "WristTuning/maxVelocity",
+          // Units.rotationsPerMinuteToRadiansPerSecond((5600.0)) * (GEAR_RATIO) * .1
+          400);
   private static final LoggedTunableNumber maxAcceleration =
-      new LoggedTunableNumber("Wrist/MaxAcceleration", 0.1);
+      new LoggedTunableNumber(
+          "WristTuning/maxAcceleration",
+          // Units.rotationsPerMinuteToRadiansPerSecond((5600.0)) * (GEAR_RATIO) * .1
+          800);
 
-  private ProfiledPIDController pidController =
-      new ProfiledPIDController(
-          kP.get(),
-          0,
-          kD.get(),
-          new TrapezoidProfile.Constraints(maxVelocity.get(), maxAcceleration.get()));
+  private final RelativeEncoder leader_encoder = leader.getEncoder();
+  //   private final RelativeEncoder follower_encoder = follower.getEncoder();
+
+  public static final Supplier<TrapezoidProfile.Constraints> maxProfileConstraints =
+      () -> new TrapezoidProfile.Constraints(maxVelocity.get(), maxAcceleration.get());
+
+  private ProfiledPIDController profile;
+  private PIDController pid;
+  private ArmFeedforward ff;
+  //   private TrapezoidProfile.State setpointState = new TrapezoidProfile.State();
+  private TrapezoidProfile.State endState = new TrapezoidProfile.State();
+
+  //   private PIDController elevatorPID;
+
+  ShuffleboardTab tab = Shuffleboard.getTab("Subsystems");
+  ShuffleboardLayout intakeLayout =
+      tab.getLayout("Intake", BuiltInLayouts.kList).withSize(2, 4).withPosition(0, 0);
+
+  //   private final GenericEntry m_intakeRateEntry =
+  //       intakeLayout.add("Intake Rate", 0 + " rpm").getEntry();
+  //   private final GenericEntry m_rotateAngleEntry =
+  //       intakeLayout.add("Intake Angle", 0 + " rad").getEntry();
+  //   private final GenericEntry m_rotateAngularSpeedEntry =
+  //       intakeLayout.add("Intake Angular Speed", 0 + " rad/s").getEntry();
+
+  double desiredPositionRads;
 
   public WristIOSparkMax() {
-    ff = new SimpleMotorFeedforward(0, 12 / 5600 * GEAR_RATIO, 0);
 
-    sparkMax = new SparkMax(-2, MotorType.kBrushless);
-    encoder = sparkMax.getEncoder();
+    profile =
+        new ProfiledPIDController(
+            kP.get(),
+            0,
+            kD.get(),
+            new TrapezoidProfile.Constraints(maxVelocity.get(), maxAcceleration.get()),
+            0.02);
 
-    sparkConfig.inverted(false);
-    sparkConfig.idleMode(IdleMode.kBrake);
+    // pid = new PIDController(kP.get() * 3, 0, kD.get());
 
-    sparkMax.configure(sparkConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    ff = new ArmFeedforward(kS.get(), kG.get(), kV.get(), kA.get());
+    // elevatorPID = new PIDController(kP.get(), 0, kD.get());
 
-    pidController.reset(Units.rotationsToRadians(encoder.getPosition()));
-  }
+    leaderConfig.inverted(false);
 
-  @Override
-  public void runPosition(double position) {
-    pidController.setGoal(position);
+    // followerconfig.inverted(true); //inverting already done in the next line
+    // followerconfig.follow(leader.getDeviceId(), true);
 
-    sparkMax.setVoltage(
-        ff.calculate(pidController.getSetpoint().velocity)
-            + pidController.calculate(Units.radiansToRotations(position), encoder.getPosition()));
-  }
+    leaderConfig.idleMode(IdleMode.kBrake);
+    // followerconfig.idleMode(IdleMode.kBrake);
 
-  @Override
-  public void resetPosition(double position) {
-    encoder.setPosition(Units.radiansToRotations(position));
+    // leaderConfig.signals.absoluteEncoderPositionPeriodMs(20);
+    // followerconfig.signals.absoluteEncoderPositionPeriodMs(20);
+
+    // leaderConfig.signals.absoluteEncoderVelocityPeriodMs(20);
+    // followerconfig.signals.absoluteEncoderVelocityPeriodMs(20);
+
+    leaderConfig.smartCurrentLimit(80, 60);
+    // followerconfig.smartCurrentLimit(80, 60);
+
+    leader.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    leader_encoder.setPosition(0);
+
+    profile.reset(getPosition());
+
+    // follower.configure(
+    //     followerconfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
   public void updateInputs(WristIOInputs inputs) {
-    sparkStickyFault = false;
+    inputs.connected = true;
 
-    ifOk(
-        sparkMax,
-        encoder::getPosition,
-        (value) -> inputs.positionRad = Units.rotationsToRadians(value) / GEAR_RATIO);
-    ifOk(
-        sparkMax,
-        encoder::getVelocity,
-        (value) ->
-            inputs.velocityRadPerSec =
-                Units.rotationsPerMinuteToRadiansPerSecond(value) / GEAR_RATIO);
-    ifOk(
-        sparkMax,
-        new DoubleSupplier[] {sparkMax::getAppliedOutput, sparkMax::getBusVoltage},
-        (values) -> inputs.appliedVolts = values[0] * values[1]);
+    inputs.positionRad = getPosition();
 
-    ifOk(sparkMax, sparkMax::getOutputCurrent, (value) -> inputs.currentAmps = value);
+    inputs.velocityRadPerSec = getSpeed();
 
-    inputs.connected = connectedDebounce.calculate(!sparkStickyFault);
+    inputs.appliedVolts = ((leader.getAppliedOutput() * leader.getBusVoltage()));
+
+    inputs.currentAmps = (leader.getOutputCurrent()) / 1.0;
   }
+
+  public void periodic() {
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () -> {
+          profile.setPID(kP.get(), 0, kD.get());
+        },
+        kP,
+        kD);
+
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () ->
+            profile.setConstraints(
+                new TrapezoidProfile.Constraints(maxVelocity.get(), maxAcceleration.get())),
+        maxVelocity,
+        maxAcceleration);
+
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () -> ff = new ArmFeedforward(kS.get(), kG.get(), kV.get(), kA.get()),
+        kS,
+        kG,
+        kV,
+        kA);
+
+    // profile.reset(profile.getSetpoint().position, profile.getSetpoint().velocity);
+
+    // leader.setVoltage(pid.calculate(getPosition(), desiredPositionRads));
+    leader.setVoltage(
+        profile.calculate(getPosition(), profile.getSetpoint().position)
+        // + ff.calculate(profile.getSetpoint().velocity)
+        );
+
+    Logger.recordOutput("Wrist/MaxVel", profile.getConstraints().maxVelocity);
+    Logger.recordOutput("Wrist/MaxAccel", profile.getConstraints().maxAcceleration);
+
+    Logger.recordOutput("Wrist/DistanceMeasured", desiredPositionRads - getPosition());
+
+    Logger.recordOutput("Wrist/DistanceSetpoint", profile.getSetpoint().position);
+    Logger.recordOutput("Wrist/desiredVelocity", profile.getSetpoint().velocity);
+
+    // Logger.recordOutput("Wrist/ffVoltage", ff.calculate(profile.getSetpoint().velocity));
+
+    // Logger.recordOutput(
+    //     "Wrist/CalculatedVoltage",
+    //     profile.calculate(getPosition(), profile.getSetpoint().position)
+    //         + ff.calculate(profile.getSetpoint().velocity));
+
+    Logger.recordOutput(
+        "Wrist/PIDVelocityOutput", profile.calculate(getPosition(), desiredPositionRads));
+
+    Logger.recordOutput("Wrist/desiredPositionRads", desiredPositionRads);
+  }
+
+  private double getPosition() {
+    return Units.rotationsToRadians((leader_encoder.getPosition() / GEAR_RATIO));
+  }
+
+  private double getSpeed() {
+    return Units.rotationsPerMinuteToRadiansPerSecond(leader_encoder.getVelocity() / GEAR_RATIO);
+  }
+
+  @Override
+  public void stop() {
+    leader.stopMotor();
+    // follower.stopMotor();
+  }
+
+  @Override
+  public void runPosition(double posRads) {
+
+    // profile.reset(getPosition(), getSpeed());
+
+    // constantly re-setting the goal might tweak the controller out
+    if (desiredPositionRads != posRads) {
+
+      desiredPositionRads = posRads;
+      profile.reset(getPosition(), getSpeed());
+
+      profile.setGoal(posRads);
+    }
+  }
+
+  /** Resets the angle of the elevator to whatever we desire (rads) */
+  @Override
+  public void resetPosition(double posRads) {
+    leader_encoder.setPosition(Units.radiansToRotations(posRads));
+  }
+
+  @Override
+  public void setBrakeMode(boolean enable) {
+    leaderConfig.idleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
+    // followerConfig.idleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
+    leader.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // follower.configure(
+
+    //     followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  }
+
+  /** Displays the periodically updated intake rate on the Shuffleboard */
+  public void updateShuffleboard() {
+    //   m_intakeRateEntry.setString(intake_encoder.getVelocity() + " rpm");
+    //   m_rotateAngleEntry.setString(rotate_encoder.getPosition() + " rad");
+    //   m_rotateAngularSpeedEntry.setString(rotate_encoder.getVelocity() + " rad/s");
+
+  }
+
+  // @Override
+  // public void configurePID(double kP, double kI, double kD) {
+  //   pid.setP(kP);
+  //   pid.setI(kI);
+  //   pid.setD(kD);
+  //   // pid.setFF(0);
+  // }
 }
