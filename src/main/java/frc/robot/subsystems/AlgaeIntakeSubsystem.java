@@ -20,7 +20,7 @@ import frc.robot.Constants.AlgaeIntakeConstants;
 
 public class AlgaeIntakeSubsystem extends SubsystemBase {  
    // private final SparkMax algaeIntakeRollerMotor;
-    private SparkMaxConfig motorConfig;
+    //private SparkMaxConfig motorConfig;
     private final MotorIO motor;
     private final MotorIO.Inputs inputs = new MotorIO.Inputs();
 
@@ -46,12 +46,12 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
         * This stores the configuration parameters for the Spark Max to be set below
         */
 
-        motorConfig = new SparkMaxConfig();
-        motorConfig
-                .inverted(true)
-                .idleMode(IdleMode.kBrake)
-                .smartCurrentLimit(40)
-                .voltageCompensation(12.0);
+        //motorConfig = new SparkMaxConfig();
+       // motorConfig
+              //  .inverted(true)
+        //        .idleMode(IdleMode.kBrake)
+        //        .smartCurrentLimit(40)
+        //        .voltageCompensation(12.0);
        // algaeIntakeRollerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
