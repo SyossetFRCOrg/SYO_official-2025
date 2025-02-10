@@ -240,7 +240,11 @@ public class RobotContainer {
             drive,
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
-            () -> drive.getPose().getY()));
+            () -> drive.getPose().getY())
+        .until(intake.intaked())
+        .andThen(
+            new ParallelRaceGroup(
+                new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
 
     // controller.x().whileTrue(DriveCommands.lineUpToNearestReef(() -> drive.getPose()));
 
