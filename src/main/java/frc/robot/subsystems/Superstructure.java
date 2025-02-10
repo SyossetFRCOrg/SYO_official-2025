@@ -8,6 +8,8 @@ import frc.robot.RobotContainer;
 // import frc.robot.config.FieldConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.wrist.Wrist;
+
 import java.util.function.BooleanSupplier;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +23,7 @@ public class Superstructure extends SubsystemBase {
   private Drive drive;
   private Elevator elevator;
   private RobotContainer container;
+  private Wrist wrist;
 
   // private ClimberSubsystem climber;
 
@@ -58,10 +61,11 @@ public class Superstructure extends SubsystemBase {
   // private Rotation2d manualTurretSetpoint = new Rotation2d();
   // private Rotation2d manualPitchSetpoint = new Rotation2d();
 
-  public Superstructure(Drive drive, Elevator elevator, RobotContainer container) {
+  public Superstructure(Drive drive, Elevator elevator, Wrist wrist, RobotContainer container) {
     this.drive = drive;
     this.elevator = elevator;
     this.container = container;
+    this.wrist = wrist;
   }
 
   @Override
@@ -136,16 +140,19 @@ public class Superstructure extends SubsystemBase {
   private void handleStopped() {
     drive.stop();
     elevator.stop();
+    
   }
 
   /** Transition check */
   private boolean ready(SuperState state) {
     return switch (state) {
         // also has to be at alignment goal to score
-      case L1, L2, L3, L4 ->
-          elevator.atSetPoint(state) && container.getReefAlignController().atGoal();
-      case INTAKEPREPARE -> elevator.atSetPoint(state);
-      case INTAKE, STOW -> true;
+      case L1, L2, L3, L4 -> elevator.atSetPoint(state)
+      && wrist.atSetPoint(state);
+        //  && container.getReefAlignController().atGoal();
+      case INTAKE -> elevator.atSetPoint(state)
+      && wrist.atSetPoint(state);
+      case STOW, INTAKEPREPARE -> true;
       default -> false;
     };
   }

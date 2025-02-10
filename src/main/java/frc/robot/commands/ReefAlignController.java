@@ -40,14 +40,19 @@ public class ReefAlignController {
       new LoggedTunableNumber("AutoAlign/controllerThetaTolerance", Units.degreesToRadians(3));
   private static final LoggedTunableNumber toleranceTime =
       new LoggedTunableNumber("AutoAlign/controllerToleranceSecs", 0.1);
-  private static final LoggedTunableNumber maxLinearVelocity =
-      new LoggedTunableNumber(
-          "AutoAlign/maxLinearVelocity",
-          RobotState.getInstance().getModuleLimits().maxDriveVelocity() * .5);
-  private static final LoggedTunableNumber maxLinearAcceleration =
-      new LoggedTunableNumber(
-          "AutoAlign/maxLinearAcceleration",
-          RobotState.getInstance().getModuleLimits().maxDriveAcceleration() * 0.8);
+  private static double maxLinearVelocity =
+      RobotState.getInstance().getModuleLimits().maxDriveVelocity() * .8;
+  //   private static final LoggedTunableNumber maxLinearVelocity =
+  //       new LoggedTunableNumber(
+  //           "AutoAlign/maxLinearVelocity",
+  //           RobotState.getInstance().getModuleLimits().maxDriveVelocity() * .5);
+  private static double maxLinearAcceleration =
+      RobotState.getInstance().getModuleLimits().maxDriveAcceleration() * 0.8;
+
+  //   private static final LoggedTunableNumber maxLinearAcceleration =
+  //       new LoggedTunableNumber(
+  //           "AutoAlign/maxLinearAcceleration",
+  //           RobotState.getInstance().getModuleLimits().maxDriveAcceleration() * 0.8);
   private static final LoggedTunableNumber maxAngularVelocity =
       new LoggedTunableNumber(
           "AutoAlign/maxAngularVelocity", TunerConstants.driveConfig.maxAngularVelocity() * 0.6);
@@ -119,6 +124,10 @@ public class ReefAlignController {
 
   private void updateConstraints() {
 
+    maxLinearVelocity = RobotState.getInstance().getModuleLimits().maxDriveVelocity() * .8;
+
+    maxLinearAcceleration = RobotState.getInstance().getModuleLimits().maxDriveAcceleration() * 0.8;
+
     if (drive.getPose().getTranslation().getDistance(desiredPose.getTranslation()) < .1) {
 
       linearController.setI(linearkI.get() * 15);
@@ -130,9 +139,7 @@ public class ReefAlignController {
 
     if (slowMode.getAsBoolean()) {
       linearController.setConstraints(
-          new TrapezoidProfile.Constraints(
-              RobotState.getInstance().getModuleLimits().maxDriveVelocity() * .5,
-              RobotState.getInstance().getModuleLimits().maxDriveAcceleration() * 0.8));
+          new TrapezoidProfile.Constraints(maxLinearVelocity, maxLinearAcceleration));
       thetaController.setConstraints(
           new TrapezoidProfile.Constraints(maxAngularVelocity.get(), maxAngularAcceleration.get()));
       linearController.setP(linearkP.get() * 2.2);
@@ -141,9 +148,7 @@ public class ReefAlignController {
 
     } else {
       linearController.setConstraints(
-          new TrapezoidProfile.Constraints(
-              RobotState.getInstance().getModuleLimits().maxDriveVelocity() * .5,
-              RobotState.getInstance().getModuleLimits().maxDriveAcceleration() * 0.8));
+          new TrapezoidProfile.Constraints(maxLinearVelocity, maxLinearAcceleration));
       thetaController.setConstraints(
           new TrapezoidProfile.Constraints(maxAngularVelocity.get(), maxAngularAcceleration.get()));
       linearController.setPID(linearkP.get(), linearkI.get(), linearkD.get());
@@ -203,18 +208,18 @@ public class ReefAlignController {
         hashCode(), () -> linearController.setTolerance(linearTolerance.get()), linearTolerance);
     LoggedTunableNumber.ifChanged(
         hashCode(), () -> thetaController.setTolerance(thetaTolerance.get()), thetaTolerance);
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        this::updateConstraints,
-        maxLinearVelocity,
-        maxLinearAcceleration,
-        // slowLinearVelocity,
-        // slowLinearAcceleration,
-        maxAngularVelocity,
-        maxAngularAcceleration
-        // slowAngularVelocity,
-        // slowAngularAcceleration
-        );
+    // LoggedTunableNumber.ifChanged(
+    //     hashCode(),
+    //     this::updateConstraints,
+    //     maxLinearVelocity,
+    //     maxLinearAcceleration,
+    //     // slowLinearVelocity,
+    //     // slowLinearAcceleration,
+    //     maxAngularVelocity,
+    //     maxAngularAcceleration
+    //     // slowAngularVelocity,
+    //     // slowAngularAcceleration
+    //     );
 
     // Control to setpoint
     Pose2d currentPose = drive.getPose();

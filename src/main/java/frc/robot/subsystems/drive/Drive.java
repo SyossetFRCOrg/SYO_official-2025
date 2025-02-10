@@ -291,6 +291,8 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput("SwerveStates/Setpoints", currentSetpoint.moduleStates());
     Logger.recordOutput("SwerveChassisSpeeds/Setpoints", currentSetpoint.chassisSpeeds());
 
+    Logger.recordOutput("SwerveChassisSpeeds/PreviousChassisSPeeds", previousChassisSpeeds);
+
     // Send setpoints to modules
     for (int i = 0; i < 4; i++) {
       modules[i].runSetpoint(currentSetpoint.moduleStates()[i]);

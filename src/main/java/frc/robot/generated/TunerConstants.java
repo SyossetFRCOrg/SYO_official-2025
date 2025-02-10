@@ -31,7 +31,7 @@ public class TunerConstants {
                   * 2
                   * Math.PI
                   / 2.0)
-          .maxLinearAcceleration(Units.feetToMeters(15))
+          .maxLinearAcceleration(Units.feetToMeters(30))
           .maxAngularVelocity(Math.PI) // test out units - rad/s? was 12.0
           .maxAngularAcceleration(2 * Math.PI) // was 6.0
           .build();
@@ -301,20 +301,20 @@ public class TunerConstants {
 
   public static final ModuleLimits moduleLimitsL2Elevator =
       new ModuleLimits(
-          driveConfig.maxLinearVelocity() * .9,
+          driveConfig.maxLinearVelocity() * .75,
           driveConfig.maxLinearAcceleration() * .75,
           Units.degreesToRadians(1080.0));
 
   public static final ModuleLimits moduleLimitsL3Elevator =
       new ModuleLimits(
-          driveConfig.maxLinearVelocity() * .9,
+          driveConfig.maxLinearVelocity() * .5,
           driveConfig.maxLinearAcceleration() * .5,
           Units.degreesToRadians(1080.0));
 
   public static final ModuleLimits moduleLimitsL4Elevator =
       new ModuleLimits(
-          driveConfig.maxLinearVelocity() * .9,
-          driveConfig.maxLinearAcceleration() * .3,
+          driveConfig.maxLinearVelocity() * .35,
+          driveConfig.maxLinearAcceleration() * .35,
           Units.degreesToRadians(1080.0));
 
   /**

@@ -25,6 +25,8 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOSparkMax;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.wrist.Wrist;
@@ -43,7 +45,7 @@ public class RobotContainer {
   private final Drive drive;
   private final Elevator elevator;
 
-  // private final Intake intake;
+  private final Intake intake;
   private final Wrist wrist;
   private final Superstructure superstructure;
 
@@ -80,7 +82,7 @@ public class RobotContainer {
     // break;
     // intake = new Intake(new IntakeIOSparkMax());
     wrist = new Wrist(new WristIOSparkMax());
-    // intake = new Intake(new IntakeIOSparkMax());
+    intake = new Intake(new IntakeIOTalonFX());
 
     //   case SIM:
     //     // Sim robot, instantiate physics sim IO implementations
@@ -160,7 +162,7 @@ public class RobotContainer {
 
     reefAlignController = new ReefAlignController(drive, () -> false, () -> false);
 
-    superstructure = new Superstructure(drive, elevator, this);
+    superstructure = new Superstructure(drive, elevator, wrist, this);
     // Configure the button bindings
     configureButtonBindings();
   }

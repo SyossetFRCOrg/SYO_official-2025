@@ -18,18 +18,18 @@ public class Wrist extends SubsystemBase {
   private static final HashMap<SuperState, LoggedTunableNumber> initializePositions() {
     var map = new HashMap<SuperState, LoggedTunableNumber>();
     map.put(SuperState.STOW, new LoggedTunableNumber("Wrist/StowPosition", 0));
-    map.put(SuperState.INTAKE, new LoggedTunableNumber("Wrist/IntakePosition", -1));
-    map.put(SuperState.L1, new LoggedTunableNumber("Wrist/L1Position", -2));
-    map.put(SuperState.L2, new LoggedTunableNumber("Wrist/L2Position", -2));
-    map.put(SuperState.L3, new LoggedTunableNumber("Wrist/L3Position", -2));
-    map.put(SuperState.L4, new LoggedTunableNumber("Wrist/L4Position", -2));
+    map.put(SuperState.INTAKE, new LoggedTunableNumber("Wrist/IntakePosition", -.65));
+    map.put(SuperState.L1, new LoggedTunableNumber("Wrist/L1Position", -1.7));
+    map.put(SuperState.L2, new LoggedTunableNumber("Wrist/L2Position", -1.7));
+    map.put(SuperState.L3, new LoggedTunableNumber("Wrist/L3Position", -1.7));
+    map.put(SuperState.L4, new LoggedTunableNumber("Wrist/L4Position", -1.7));
 
     map.put(SuperState.L1PREPARE, map.get(SuperState.L1));
     map.put(SuperState.L2PREPARE, map.get(SuperState.L2));
     map.put(SuperState.L3PREPARE, map.get(SuperState.L3));
     map.put(SuperState.L4PREPARE, map.get(SuperState.L4));
 
-    map.put(SuperState.INTAKE, map.get(SuperState.STOW));
+    map.put(SuperState.INTAKEPREPARE, map.get(SuperState.STOW));
 
     return map;
   }
@@ -58,6 +58,6 @@ public class Wrist extends SubsystemBase {
   public boolean atSetPoint(SuperState setpointState) {
 
     if (positions.containsKey(setpointState)) position = positions.get(setpointState).get();
-    return MathUtil.isNear(position, inputs.positionRad, 0.01 /*rad*/);
+    return MathUtil.isNear(position, inputs.positionRad, 0.05 /*rad*/);
   }
 }

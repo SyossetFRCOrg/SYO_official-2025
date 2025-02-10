@@ -33,7 +33,7 @@ public class WristIOSparkMax implements WristIO {
   //   private final SparkMax follower = new SparkMax(45, MotorType.kBrushless);
   //   private final SparkMaxConfig followerconfig = new SparkMaxConfig();
 
-  private static final LoggedTunableNumber kP = new LoggedTunableNumber("WristTuning/Gains/kP", 3);
+  private static final LoggedTunableNumber kP = new LoggedTunableNumber("WristTuning/Gains/kP", 5);
   //   private static final LoggedTunableNumber kI = new
   // LoggedTunableNumber("WristTuning/Gains/kI", 0);
   private static final LoggedTunableNumber kD = new LoggedTunableNumber("WristTuning/Gains/kD", 0);

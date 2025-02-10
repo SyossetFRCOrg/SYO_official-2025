@@ -53,7 +53,7 @@ public class ElevatorIOSparkMax implements ElevatorIO {
       new LoggedTunableNumber(
           "ElevatorTuning/maxVelocity",
           // Units.rotationsPerMinuteToRadiansPerSecond((5600.0)) * (GEAR_RATIO) * .1
-          4000);
+          6000);
   private static final LoggedTunableNumber maxAcceleration =
       new LoggedTunableNumber(
           "ElevatorTuning/maxAcceleration",
@@ -116,7 +116,8 @@ public class ElevatorIOSparkMax implements ElevatorIO {
     // leaderConfig.signals.absoluteEncoderVelocityPeriodMs(20);
     // followerconfig.signals.absoluteEncoderVelocityPeriodMs(20);
 
-    leaderConfig.smartCurrentLimit(80, 60);
+    leaderConfig.smartCurrentLimit(80, 65);
+    // leaderConfig.smartCurrentLimit(70);
     // followerconfig.smartCurrentLimit(80, 60);
 
     leader.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);

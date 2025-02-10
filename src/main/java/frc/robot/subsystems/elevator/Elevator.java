@@ -14,19 +14,19 @@ public class Elevator extends SubsystemBase {
   private final ElevatorIO io;
   private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
-  private double heightTolerance = 0.1; // rad
+  private double heightTolerance = 2; // rad
 
   private static final HashMap<SuperState, LoggedTunableNumber> heights = initializeHeights();
 
   private static final HashMap<SuperState, LoggedTunableNumber> initializeHeights() {
     var map = new HashMap<SuperState, LoggedTunableNumber>();
     // to be tuned
-    map.put(SuperState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 10));
+    map.put(SuperState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 15));
     map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 30));
     map.put(SuperState.L1, new LoggedTunableNumber("Elevator/L1Position", 40));
     map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 50));
     map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 70));
-    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 80));
+    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 160));
 
     map.put(SuperState.L1PREPARE, map.get(SuperState.L1));
     map.put(SuperState.L2PREPARE, map.get(SuperState.L2));

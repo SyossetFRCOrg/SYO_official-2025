@@ -9,7 +9,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.util.Units;
 import java.util.function.DoubleSupplier;
@@ -21,8 +20,8 @@ public class IntakeIOSparkMax implements IntakeIO {
 
   private final Debouncer connectedDebounce = new Debouncer(0.5);
 
-  private final SimpleMotorFeedforward ff =
-      new SimpleMotorFeedforward(0, 12 / Units.rotationsPerMinuteToRadiansPerSecond(5600));
+  // private final SimpleMotorFeedforward ff =
+  //     new SimpleMotorFeedforward(0, 12 / Units.rotationsPerMinuteToRadiansPerSecond(5600));
 
   public IntakeIOSparkMax() {
     sparkMax = new SparkMax(37, MotorType.kBrushless);
@@ -30,7 +29,7 @@ public class IntakeIOSparkMax implements IntakeIO {
 
     sparkConfig.inverted(false);
     sparkConfig.idleMode(IdleMode.kBrake);
-    sparkConfig.smartCurrentLimit(60);
+    sparkConfig.smartCurrentLimit(80);
 
     sparkMax.configure(sparkConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
@@ -59,6 +58,6 @@ public class IntakeIOSparkMax implements IntakeIO {
 
   @Override
   public void setVelocity(double velocityRadPerSec) {
-    sparkMax.setVoltage(ff.calculate(velocityRadPerSec));
+    sparkMax.setVoltage(velocityRadPerSec);
   }
 }
