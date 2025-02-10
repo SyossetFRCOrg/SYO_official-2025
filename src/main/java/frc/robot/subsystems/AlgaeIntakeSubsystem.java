@@ -19,13 +19,27 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AlgaeIntakeConstants;
 
 public class AlgaeIntakeSubsystem extends SubsystemBase {  
-    private final SparkMax algaeIntakeRollerMotor;
+   // private final SparkMax algaeIntakeRollerMotor;
     private SparkMaxConfig motorConfig;
+    private final MotorIO motor;
+    private final MotorIO.Inputs inputs = new MotorIO.Inputs();
 
+    private final MotorCommands commands;
+    
     /** Creates a new AlgaeIntakeSubsystem. */
     public AlgaeIntakeSubsystem() {
+        MotorIOSpark.Config config = new MotorIOSpark.Config();
         //Initializes Spark Max 
-        algaeIntakeRollerMotor = new SparkMax(AlgaeIntakeConstants.ALGAE_INTAKE_ID, MotorType.kBrushless);
+        config.canid = AlgaeIntakeConstants.ALGAE_INTAKE_ID;
+        config.motorType = MotorType.kBrushless;
+        config.inverted = true;
+        config.idleMode = IdleMode.kBrake;
+        config.stallLimit = 40;
+        config.freeLimit = 0;
+        config.gearRatio = 15.0;
+        motor = new MotorIOSpark(config);
+        commands = new MotorCommands(this, motor);
+       // algaeIntakeRollerMotor = new SparkMax(AlgaeIntakeConstants.ALGAE_INTAKE_ID, MotorType.kBrushless);
         
         /*
         * Create a new Spark Max configuration object. 
@@ -38,7 +52,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
                 .idleMode(IdleMode.kBrake)
                 .smartCurrentLimit(40)
                 .voltageCompensation(12.0);
-        algaeIntakeRollerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+       // algaeIntakeRollerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     /**
@@ -46,7 +60,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
      * @param voltage the voltage to set the motor to
      */
     public void setRollerVoltage(double voltage) {
-        algaeIntakeRollerMotor.setVoltage(MathUtil.clamp(voltage, -4.0, 4.0));
+
+        motor.setVoltage(MathUtil.clamp(voltage, -4.0, 4.0));
     }
 
     /**

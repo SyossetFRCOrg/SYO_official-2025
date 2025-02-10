@@ -151,15 +151,13 @@ public class MotorIOSpark implements MotorIO, Sendable {
 
     public void runController() {
         switch (controlMode) {
-            case NONE:
-                break;
-            case POSITION:
-                setVoltage(positionPid.calculate(encoder.getPosition()));
-                break;
-            case VELOCITY:
+            case NONE -> {}
+            case POSITION -> setVoltage(positionPid.calculate(encoder.getPosition()));
+            case VELOCITY ->
+            {
                 double ffVolts = feedForward != null ? feedForward.calculate(encoder.getPosition(), targetVelocity) : 0.0;
                 setVoltage(velocityPid.calculate(encoder.getVelocity()) + ffVolts);
-                break;
+            }
         }
     }
 
