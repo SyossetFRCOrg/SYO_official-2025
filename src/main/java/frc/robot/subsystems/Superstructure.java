@@ -56,21 +56,7 @@ public class Superstructure extends SubsystemBase {
 
         if (subsystems.get("elevator_structure").getBoolean("enabled")) {
             elevatorStructure = Optional.of(new ElevatorStructure());
-            elevatorStructure.ifPresent(structure -> {
-                controller.x().or(controller.y())
-                    .whileTrue(structure.getMoveElevator(() ->
-                        (controller.y().getAsBoolean() ? 2.0 : 0.0) +
-                        (controller.x().getAsBoolean() ? -0.8 : 0.0)
-                    ));
-                 
-                controller.a().or(controller.b())
-                    .whileTrue(structure.getMoveArm(() ->
-                        (controller.b().getAsBoolean() ? 0.1 : 0.0) +
-                        (controller.a().getAsBoolean() ? -0.1 : 0.0)
-                        // (controller.b().getAsBoolean() ? 0.25 * (controller.rightTrigger().getAsBoolean() ? 8.0 : 1.0): 0.0) +
-                        // (controller.a().getAsBoolean() ? -0.125 : 0.0)
-                    ));
-            });
+            elevatorStructure.ifPresent(structure -> structure.debugControls(controller));
         } else {
             elevatorStructure = Optional.empty();
         }
