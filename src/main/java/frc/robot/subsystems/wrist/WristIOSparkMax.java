@@ -33,28 +33,26 @@ public class WristIOSparkMax implements WristIO {
   //   private final SparkMax follower = new SparkMax(45, MotorType.kBrushless);
   //   private final SparkMaxConfig followerconfig = new SparkMaxConfig();
 
-  private static final LoggedTunableNumber kP = new LoggedTunableNumber("WristTuning/Gains/kP", 5);
+  private static final LoggedTunableNumber kP = new LoggedTunableNumber("Wrist/Gains/kP", 5);
   //   private static final LoggedTunableNumber kI = new
-  // LoggedTunableNumber("WristTuning/Gains/kI", 0);
-  private static final LoggedTunableNumber kD = new LoggedTunableNumber("WristTuning/Gains/kD", 0);
-  private static final LoggedTunableNumber kS = new LoggedTunableNumber("WristTuning/Gains/kS", .5);
+  // LoggedTunableNumber("Wrist/Gains/kI", 0);
+  private static final LoggedTunableNumber kD = new LoggedTunableNumber("Wrist/Gains/kD", 0.0);
+  private static final LoggedTunableNumber kS = new LoggedTunableNumber("Wrist/Gains/kS", .5);
   private static final LoggedTunableNumber kV =
-      new LoggedTunableNumber(
-          "WristTuning/Gains/kV", 12 / (5600.0 / 60.0) * (GEAR_RATIO)); // guess?
-  private static final LoggedTunableNumber kA = new LoggedTunableNumber("WristTuning/Gains/kA", 0);
-  private static final LoggedTunableNumber kG =
-      new LoggedTunableNumber("WristTuning/Gains/kG", 0.7);
+      new LoggedTunableNumber("Wrist/Gains/kV", 12 / (5600.0 / 60.0) * (GEAR_RATIO)); // guess?
+  private static final LoggedTunableNumber kA = new LoggedTunableNumber("Wrist/Gains/kA", 0);
+  private static final LoggedTunableNumber kG = new LoggedTunableNumber("Wrist/Gains/kG", 0.7);
 
   private static final LoggedTunableNumber maxVelocity =
       new LoggedTunableNumber(
-          "WristTuning/maxVelocity",
+          "Wrist/maxVelocity",
           // Units.rotationsPerMinuteToRadiansPerSecond((5600.0)) * (GEAR_RATIO) * .1
-          400);
+          200);
   private static final LoggedTunableNumber maxAcceleration =
       new LoggedTunableNumber(
-          "WristTuning/maxAcceleration",
+          "Wrist/maxAcceleration",
           // Units.rotationsPerMinuteToRadiansPerSecond((5600.0)) * (GEAR_RATIO) * .1
-          800);
+          400);
 
   private final RelativeEncoder leader_encoder = leader.getEncoder();
   //   private final RelativeEncoder follower_encoder = follower.getEncoder();

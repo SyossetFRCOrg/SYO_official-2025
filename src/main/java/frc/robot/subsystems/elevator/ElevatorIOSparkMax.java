@@ -34,7 +34,7 @@ public class ElevatorIOSparkMax implements ElevatorIO {
   //   private final SparkMaxConfig followerconfig = new SparkMaxConfig();
 
   private static final LoggedTunableNumber kP =
-      new LoggedTunableNumber("ElevatorTuning/Gains/kP", 1);
+      new LoggedTunableNumber("ElevatorTuning/Gains/kP", 3);
   //   private static final LoggedTunableNumber kI = new
   // LoggedTunableNumber("ElevatorTuning/Gains/kI", 0);
   private static final LoggedTunableNumber kD =
@@ -53,12 +53,12 @@ public class ElevatorIOSparkMax implements ElevatorIO {
       new LoggedTunableNumber(
           "ElevatorTuning/maxVelocity",
           // Units.rotationsPerMinuteToRadiansPerSecond((5600.0)) * (GEAR_RATIO) * .1
-          6000);
+          11000 / 2);
   private static final LoggedTunableNumber maxAcceleration =
       new LoggedTunableNumber(
           "ElevatorTuning/maxAcceleration",
           // Units.rotationsPerMinuteToRadiansPerSecond((5600.0)) * (GEAR_RATIO) * .1
-          4000);
+          11000);
 
   private final RelativeEncoder leader_encoder = leader.getEncoder();
   //   private final RelativeEncoder follower_encoder = follower.getEncoder();
@@ -116,7 +116,7 @@ public class ElevatorIOSparkMax implements ElevatorIO {
     // leaderConfig.signals.absoluteEncoderVelocityPeriodMs(20);
     // followerconfig.signals.absoluteEncoderVelocityPeriodMs(20);
 
-    leaderConfig.smartCurrentLimit(80, 65);
+    leaderConfig.smartCurrentLimit(80, 60);
     // leaderConfig.smartCurrentLimit(70);
     // followerconfig.smartCurrentLimit(80, 60);
 
@@ -173,12 +173,13 @@ public class ElevatorIOSparkMax implements ElevatorIO {
         kA);
 
     // profile.reset(profile.getSetpoint().position, profile.getSetpoint().velocity);
-
+    updateConstraints();
     // leader.setVoltage(pid.calculate(getHeight(), desiredPositionRads));
-    leader.setVoltage(
-        profile.calculate(getHeight(), profile.getSetpoint().position) + .7
-        // + ff.calculate(profile.getSetpoint().velocity)
-        );
+    // leader.setVoltage(
+    //     profile.calculate(getHeight(), profile.getSetpoint().position)
+    //         + ff.calculate(profile.getSetpoint().velocity));
+
+    leader.setVoltage(12);
 
     Logger.recordOutput("Elevator/MaxVel", profile.getConstraints().maxVelocity);
     Logger.recordOutput("Elevator/MaxAccel", profile.getConstraints().maxAcceleration);
@@ -253,6 +254,15 @@ public class ElevatorIOSparkMax implements ElevatorIO {
 
   }
 
+  public void updateConstraints() {
+    if (desiredPositionRads > getHeight()) {
+      profile.setConstraints(
+          new TrapezoidProfile.Constraints(maxVelocity.get(), maxAcceleration.get()));
+    } else if (desiredPositionRads < getHeight()) {
+      profile.setConstraints(
+          new TrapezoidProfile.Constraints(maxVelocity.get() * .5, maxAcceleration.get() * .5));
+    }
+  }
   // @Override
   // public void configurePID(double kP, double kI, double kD) {
   //   pid.setP(kP);

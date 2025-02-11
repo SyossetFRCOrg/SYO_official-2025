@@ -285,7 +285,8 @@ public class Drive extends SubsystemBase {
         setpointGenerator.generateSetpoint(
             TunerConstants.moduleLimitsFree, currentSetpoint, discreteSpeeds, 0.02);
     SwerveDriveKinematics.desaturateWheelSpeeds(
-        currentSetpoint.moduleStates(), TunerConstants.moduleLimitsFree.maxDriveVelocity());
+        currentSetpoint.moduleStates(),
+        RobotState.getInstance().getModuleLimits().maxDriveVelocity());
 
     // Log unoptimized setpoints and setpoint speeds
     Logger.recordOutput("SwerveStates/Setpoints", currentSetpoint.moduleStates());
@@ -301,7 +302,7 @@ public class Drive extends SubsystemBase {
     // Log optimized setpoints (runSetpoint mutates each state)
     Logger.recordOutput("SwerveStates/SetpointsOptimized", currentSetpoint.moduleStates());
 
-    previousChassisSpeeds = discreteSpeeds;
+    previousChassisSpeeds = currentSetpoint.chassisSpeeds();
   }
 
   /** Runs the drive in a straight line with the specified drive output. */

@@ -4,6 +4,7 @@ import edu.wpi.first.math.*;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.*;
 import frc.robot.generated.TunerConstants;
+import frc.robot.util.AllianceFlipUtil;
 // import edu.wpi.first.math.kinematics.SwerveDriveWheelPositions;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.swerve.ModuleLimits;
@@ -30,6 +31,8 @@ public class RobotState {
     return instance;
   }
 
+  
+  @AutoLogOutput @Getter @Setter private boolean aboveL1 = false;
   @AutoLogOutput @Getter @Setter private int elevatorPosition = 0;
 
   @Getter @Setter private boolean wristCanMove = false;
@@ -123,12 +126,14 @@ public class RobotState {
     int index2 = -1;
     for (int i = 0; i < reefscoringPositions.length; i++) {
       for (int j = 0; j < reefscoringPositions[i].length; j++) {
-        if (pose.getTranslation().getDistance(reefscoringPositions[i][j].getTranslation())
+        if (pose.getTranslation()
+                .getDistance(AllianceFlipUtil.apply(reefscoringPositions[i][j].getTranslation()))
             < mindistance) {
           index1 = i;
           index2 = j;
           mindistance =
-              pose.getTranslation().getDistance(reefscoringPositions[i][j].getTranslation());
+              pose.getTranslation()
+                  .getDistance(AllianceFlipUtil.apply(reefscoringPositions[i][j].getTranslation()));
         }
       }
     }
@@ -137,7 +142,7 @@ public class RobotState {
       index2 = reefscoringPositions[index1].length - 1 - index2;
     }
 
-    return reefscoringPositions[index1][index2];
+    return AllianceFlipUtil.apply(reefscoringPositions[index1][index2]);
   }
 
   @AutoLogOutput(key = "NearestCoralStationPose")
@@ -145,14 +150,17 @@ public class RobotState {
     double mindistance = Double.POSITIVE_INFINITY;
     int index = -1;
     for (int i = 0; i < coralStationPositions.length; i++) {
-      if (pose.getTranslation().getDistance(coralStationPositions[i].getTranslation())
+      if (pose.getTranslation()
+              .getDistance(AllianceFlipUtil.apply(coralStationPositions[i].getTranslation()))
           < mindistance) {
         index = i;
-        mindistance = pose.getTranslation().getDistance(coralStationPositions[i].getTranslation());
+        mindistance =
+            pose.getTranslation()
+                .getDistance(AllianceFlipUtil.apply(coralStationPositions[i]).getTranslation());
       }
     }
 
-    return coralStationPositions[index];
+    return AllianceFlipUtil.apply(coralStationPositions[index]);
   }
 
   public ModuleLimits getModuleLimits() {
