@@ -32,6 +32,8 @@ public class RobotState {
 
   @AutoLogOutput @Getter @Setter private int elevatorPosition = 0;
 
+  @Getter @Setter private boolean wristCanMove = false;
+
   private Pose2d[] coralStationPositions = {
     new Pose2d(1.1344856023788452, 7.127560615539551, Rotation2d.fromRadians(2.219791626297564)),
     new Pose2d(1.0559332370758057, 0.9723778963088989, Rotation2d.fromRadians(-2.192456197984347)),
