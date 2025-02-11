@@ -18,7 +18,7 @@ public class Wrist extends SubsystemBase {
   private static final HashMap<SuperState, LoggedTunableNumber> initializePositions() {
     var map = new HashMap<SuperState, LoggedTunableNumber>();
     map.put(SuperState.STOW, new LoggedTunableNumber("Wrist/StowPosition", 0));
-    map.put(SuperState.INTAKE, new LoggedTunableNumber("Wrist/IntakePosition", -.65));
+    map.put(SuperState.INTAKE, new LoggedTunableNumber("Wrist/IntakePosition", -.8));
     map.put(SuperState.L1, new LoggedTunableNumber("Wrist/L1Position", -1.7));
     map.put(SuperState.L2, new LoggedTunableNumber("Wrist/L2Position", -1.7));
     map.put(SuperState.L3, new LoggedTunableNumber("Wrist/L3Position", -1.7));
@@ -58,6 +58,6 @@ public class Wrist extends SubsystemBase {
   public boolean atSetPoint(SuperState setpointState) {
 
     if (positions.containsKey(setpointState)) position = positions.get(setpointState).get();
-    return MathUtil.isNear(position, inputs.positionRad, 0.05 /*rad*/);
+    return MathUtil.isNear(position, inputs.positionRad, 0.105 /*rad*/);
   }
 }

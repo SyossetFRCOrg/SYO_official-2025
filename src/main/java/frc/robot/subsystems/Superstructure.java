@@ -9,7 +9,6 @@ import frc.robot.RobotContainer;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.wrist.Wrist;
-
 import java.util.function.BooleanSupplier;
 import lombok.Getter;
 import lombok.Setter;
@@ -140,18 +139,15 @@ public class Superstructure extends SubsystemBase {
   private void handleStopped() {
     drive.stop();
     elevator.stop();
-    
   }
 
   /** Transition check */
   private boolean ready(SuperState state) {
     return switch (state) {
         // also has to be at alignment goal to score
-      case L1, L2, L3, L4 -> elevator.atSetPoint(state)
-      && wrist.atSetPoint(state);
+      case L1, L2, L3, L4 -> elevator.atSetPoint(state) && wrist.atSetPoint(state);
         //  && container.getReefAlignController().atGoal();
-      case INTAKE -> elevator.atSetPoint(state)
-      && wrist.atSetPoint(state);
+      case INTAKE -> elevator.atSetPoint(state);
       case STOW, INTAKEPREPARE -> true;
       default -> false;
     };

@@ -23,15 +23,14 @@ public class Intake extends SubsystemBase {
   private static final HashMap<SuperState, LoggedTunableNumber> intakeSpeeds =
       initializePositions();
 
-      
   private static final HashMap<SuperState, LoggedTunableNumber> initializePositions() {
     var map = new HashMap<SuperState, LoggedTunableNumber>();
     map.put(SuperState.STOW, new LoggedTunableNumber("Intake/StowPosition", 0));
-    map.put(SuperState.INTAKE, new LoggedTunableNumber("Intake/IntakePosition", 3));
-    map.put(SuperState.L1, new LoggedTunableNumber("Intake/L1Position", -1.5));
-    map.put(SuperState.L2, new LoggedTunableNumber("Intake/L2Position", -9));
-    map.put(SuperState.L3, new LoggedTunableNumber("Intake/L3Position", -9));
-    map.put(SuperState.L4, new LoggedTunableNumber("Intake/L4Position", -9));
+    map.put(SuperState.INTAKE, new LoggedTunableNumber("Intake/IntakePosition", -3));
+    map.put(SuperState.L1, new LoggedTunableNumber("Intake/L1Position", 4));
+    map.put(SuperState.L2, new LoggedTunableNumber("Intake/L2Position", 4));
+    map.put(SuperState.L3, new LoggedTunableNumber("Intake/L3Position", 4));
+    map.put(SuperState.L4, new LoggedTunableNumber("Intake/L4Position", 4));
 
     map.put(SuperState.L1PREPARE, map.get(SuperState.STOW));
     map.put(SuperState.L2PREPARE, map.get(SuperState.STOW));

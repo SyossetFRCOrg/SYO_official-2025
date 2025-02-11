@@ -124,7 +124,7 @@ public class ReefAlignController {
 
   private void updateConstraints() {
 
-    maxLinearVelocity = RobotState.getInstance().getModuleLimits().maxDriveVelocity() * .8;
+    maxLinearVelocity = RobotState.getInstance().getModuleLimits().maxDriveVelocity() * 0.8;
 
     maxLinearAcceleration = RobotState.getInstance().getModuleLimits().maxDriveAcceleration() * 0.8;
 

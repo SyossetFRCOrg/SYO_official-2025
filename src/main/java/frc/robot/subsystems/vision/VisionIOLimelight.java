@@ -45,6 +45,7 @@ public class VisionIOLimelight implements VisionIO {
     // megatag2Subscriber =
     //     table.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(new double[] {});
     megatag2Subscriber = (LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name));
+    LimelightHelpers.setLEDMode_ForceOff(name);
   }
 
   @Override
