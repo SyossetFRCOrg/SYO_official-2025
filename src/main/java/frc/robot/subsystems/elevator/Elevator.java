@@ -99,8 +99,6 @@ public class Elevator extends SubsystemBase {
         RobotState.getInstance().setElevatorPosition(4);
         break;
     }
-
-    RobotState.getInstance().setAboveL1(getHeight() >= heights.get(SuperState.L1).get() - heightTolerance);
   }
 
   private void applyStates() {

@@ -31,8 +31,6 @@ public class RobotState {
     return instance;
   }
 
-  
-  @AutoLogOutput @Getter @Setter private boolean aboveL1 = false;
   @AutoLogOutput @Getter @Setter private int elevatorPosition = 0;
 
   @Getter @Setter private boolean wristCanMove = false;
