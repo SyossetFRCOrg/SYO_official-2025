@@ -33,7 +33,7 @@ public class WristIOSparkMax implements WristIO {
   //   private final SparkMax follower = new SparkMax(45, MotorType.kBrushless);
   //   private final SparkMaxConfig followerconfig = new SparkMaxConfig();
 
-  private static final LoggedTunableNumber kP = new LoggedTunableNumber("Wrist/Gains/kP", 5);
+  private static final LoggedTunableNumber kP = new LoggedTunableNumber("Wrist/Gains/kP", 6.5);
   //   private static final LoggedTunableNumber kI = new
   // LoggedTunableNumber("Wrist/Gains/kI", 0);
   private static final LoggedTunableNumber kD = new LoggedTunableNumber("Wrist/Gains/kD", 0.0);
@@ -219,7 +219,7 @@ public class WristIOSparkMax implements WristIO {
     }
   }
 
-  /** Resets the angle of the elevator to whatever we desire (rads) */
+  /** Resets the angle of the wrist to whatever we desire (rads) */
   @Override
   public void resetPosition(double posRads) {
     leader_encoder.setPosition(Units.radiansToRotations(posRads));

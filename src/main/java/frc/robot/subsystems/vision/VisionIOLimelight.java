@@ -82,7 +82,7 @@ public class VisionIOLimelight implements VisionIO {
     // for (int i = 11; i < rawSample.value.length; i += 7) {
     //   tagIds.add((int) rawSample.value[i]);
     // }
-    if (megatag1Subscriber.tagCount != 0) {
+    if (megatag1Subscriber != null && megatag1Subscriber.tagCount != 0) {
       poseObservations.add(
           new PoseObservation(
               // Timestamp, based on server timestamp of publish and latency
@@ -110,7 +110,7 @@ public class VisionIOLimelight implements VisionIO {
     // for (int i = 11; i < rawSample.value.length; i += 7) {
     //   tagIds.add((int) rawSample.value[i]);
     // }
-    if ((megatag2Subscriber.tagSpan != 0)) {
+    if (megatag2Subscriber != null && (megatag2Subscriber.tagCount != 0)) {
       poseObservations.add(
           new PoseObservation(
               // Timestamp, based on server timestamp of publish and latency

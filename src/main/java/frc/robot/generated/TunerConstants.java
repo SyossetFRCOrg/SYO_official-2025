@@ -30,8 +30,15 @@ public class TunerConstants {
                   * wheelRadius
                   * 2
                   * Math.PI
-                  / 4.0)
-          .maxLinearAcceleration(Units.feetToMeters(5))
+                  / 3.0)
+          .maxLinearAcceleration(
+              (5800.0 / 60.0)
+                  / ((50.0 / 14.0) * (16.0 / 28.0) * (45.0 / 15.0))
+                  * wheelRadius
+                  * 2
+                  * Math.PI
+                  / 3.0
+                  * 2.0)
           .maxAngularVelocity(Math.PI) // test out units - rad/s? was 12.0
           .maxAngularAcceleration(2 * Math.PI) // was 6.0
           .build();

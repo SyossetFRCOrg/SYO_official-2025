@@ -1,6 +1,7 @@
 package frc.robot.subsystems.elevator;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
 import frc.robot.subsystems.Superstructure;
@@ -14,7 +15,9 @@ public class Elevator extends SubsystemBase {
   private final ElevatorIO io;
   private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
-  private double heightTolerance = 3.0; // rad
+  private final Debouncer atSetpointDebouncer = new Debouncer(0.5);
+
+  private double heightTolerance = 1.5; // rad
 
   private static final HashMap<SuperState, LoggedTunableNumber> heights = initializeHeights();
 
@@ -22,11 +25,11 @@ public class Elevator extends SubsystemBase {
     var map = new HashMap<SuperState, LoggedTunableNumber>();
     // to be tuned
     map.put(SuperState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 0));
-    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 65));
+    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 66.5));
     map.put(SuperState.L1, new LoggedTunableNumber("Elevator/L1Position", 40));
-    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 50));
-    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 70));
-    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 165));
+    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 78));
+    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 115));
+    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 166));
 
     map.put(SuperState.L1PREPARE, map.get(SuperState.L1));
     map.put(SuperState.L2PREPARE, map.get(SuperState.L2));
@@ -73,7 +76,6 @@ public class Elevator extends SubsystemBase {
     // acceleration changes
     // depending on the superstate of the superstructure. can technically do this anywhere, but
     // makes most sense in elevator.
-
     switch (Superstructure.getCurrentState()) {
       case STOW:
         RobotState.getInstance().setElevatorPosition(0);
@@ -100,7 +102,8 @@ public class Elevator extends SubsystemBase {
         break;
     }
 
-    RobotState.getInstance().setAboveL1(getHeight() >= heights.get(SuperState.L1).get() - heightTolerance);
+    RobotState.getInstance()
+        .setAboveL1(getHeight() >= heights.get(SuperState.L1).get() - heightTolerance);
   }
 
   private void applyStates() {
@@ -108,16 +111,6 @@ public class Elevator extends SubsystemBase {
     if (heights.containsKey(state)) targetHeight = heights.get(state).get();
     io.movetoHeight(targetHeight);
   }
-
-  // /** Returns a command to run a quasistatic test in the specified direction. */
-  // public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-  //   return sysId.quasistatic(direction);
-  // }
-
-  // /** Returns a command to run a dynamic test in the specified direction. */
-  // public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-  //   return sysId.dynamic(direction);
-  // }
 
   /** Check if the height is close enough to desired state setpoint */
   public boolean atSetPoint() {
@@ -129,7 +122,7 @@ public class Elevator extends SubsystemBase {
   public boolean atSetPoint(SuperState state) {
     var height = targetHeight;
     if (heights.containsKey(state)) height = heights.get(state).get();
-    return MathUtil.isNear(height, getHeight(), heightTolerance);
+    return atSetpointDebouncer.calculate(MathUtil.isNear(height, getHeight(), heightTolerance));
   }
 
   /** Returns the current angle of the intake in radians. */
