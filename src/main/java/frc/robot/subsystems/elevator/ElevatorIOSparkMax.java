@@ -180,6 +180,7 @@ public class ElevatorIOSparkMax implements ElevatorIO {
             + ff.calculate(profile.getSetpoint().velocity));
 
     // leader.setVoltage(12);
+    // leader.setVoltage(12);
 
     Logger.recordOutput("Elevator/MaxVel", profile.getConstraints().maxVelocity);
     Logger.recordOutput("Elevator/MaxAccel", profile.getConstraints().maxAcceleration);

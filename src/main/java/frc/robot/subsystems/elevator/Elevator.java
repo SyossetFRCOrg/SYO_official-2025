@@ -109,6 +109,7 @@ public class Elevator extends SubsystemBase {
   private void applyStates() {
     var state = Superstructure.getCurrentState();
     if (heights.containsKey(state)) targetHeight = heights.get(state).get();
+    RobotState.getInstance().setWristCanMove(getHeight() > heights.get(SuperState.L1).get() - heightTolerance);
     io.movetoHeight(targetHeight);
   }
 

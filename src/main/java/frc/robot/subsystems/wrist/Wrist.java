@@ -61,7 +61,8 @@ public class Wrist extends SubsystemBase {
     }
 
     // for wrist, everything is in radians
-    wristIO.runPosition(position);
+    if (RobotState.getInstance().isWristCanMove()) wristIO.runPosition(position);
+    else wristIO.runPosition(positions.get(SuperState.STOW).get());
   }
 
   public void resetPosition(double posRads){

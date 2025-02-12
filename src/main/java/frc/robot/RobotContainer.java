@@ -235,7 +235,11 @@ public class RobotContainer {
         //             new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
 
         // auto align to nearest coral station
-        .onTrue(superstructure.setWantedSuperStateCommand(SuperState.INTAKE));
+        .onTrue(superstructure.setWantedSuperStateCommand(SuperState.INTAKE)
+        .until(intake.intaked())
+        .andThen(
+            new ParallelRaceGroup(
+                new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
     rightBumper.onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW));
     // .whileTrue(
     //     DriveCommands.joystickDriveCoralStation(
