@@ -78,11 +78,11 @@ public class Superstructure extends SubsystemBase {
             deepHang.ifPresent(hang -> {
                 controller.leftTrigger().and(controller.x())
                         .whileTrue(Commands.startEnd(() -> {
-                            hang.setVoltage(3.0);
+                            hang.setVoltage(2.0);
                         }, () -> hang.setVoltage(0.0)));
                 controller.leftTrigger().and(controller.y())
                         .whileTrue(Commands.startEnd(() -> {
-                            hang.setVoltage(-3.0);
+                            hang.setVoltage(-2.0);
                         }, () -> hang.setVoltage(0.0)));
             });
         } else {
