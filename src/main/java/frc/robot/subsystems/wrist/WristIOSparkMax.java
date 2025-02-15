@@ -25,7 +25,7 @@ import org.littletonrobotics.junction.Logger;
  * "CANSparkFlex".
  */
 public class WristIOSparkMax implements WristIO {
-  private static final double GEAR_RATIO = 15.0;
+  private static final double GEAR_RATIO = 45.0;
 
   private final SparkMax leader = new SparkMax(36, MotorType.kBrushless);
   private final SparkMaxConfig leaderConfig = new SparkMaxConfig();
@@ -33,7 +33,7 @@ public class WristIOSparkMax implements WristIO {
   //   private final SparkMax follower = new SparkMax(45, MotorType.kBrushless);
   //   private final SparkMaxConfig followerconfig = new SparkMaxConfig();
 
-  private static final LoggedTunableNumber kP = new LoggedTunableNumber("Wrist/Gains/kP", 6.5);
+  private static final LoggedTunableNumber kP = new LoggedTunableNumber("Wrist/Gains/kP", 6.0);
   //   private static final LoggedTunableNumber kI = new
   // LoggedTunableNumber("Wrist/Gains/kI", 0);
   private static final LoggedTunableNumber kD = new LoggedTunableNumber("Wrist/Gains/kD", 0.0);
@@ -47,12 +47,12 @@ public class WristIOSparkMax implements WristIO {
       new LoggedTunableNumber(
           "Wrist/maxVelocity",
           // Units.rotationsPerMinuteToRadiansPerSecond((5600.0)) * (GEAR_RATIO) * .1
-          200);
+          40);
   private static final LoggedTunableNumber maxAcceleration =
       new LoggedTunableNumber(
           "Wrist/maxAcceleration",
           // Units.rotationsPerMinuteToRadiansPerSecond((5600.0)) * (GEAR_RATIO) * .1
-          400);
+          20);
 
   private final RelativeEncoder leader_encoder = leader.getEncoder();
   //   private final RelativeEncoder follower_encoder = follower.getEncoder();
@@ -241,6 +241,19 @@ public class WristIOSparkMax implements WristIO {
     //   m_rotateAngleEntry.setString(rotate_encoder.getPosition() + " rad");
     //   m_rotateAngularSpeedEntry.setString(rotate_encoder.getVelocity() + " rad/s");
 
+  }
+
+  /**
+   * Do be tuned, we increase the PID gains when we are nearby to reduce the error tolerance, it
+   * tries harder to get closer
+   */
+  public void updateConstraints() {
+
+    if (Math.abs(getPosition() - profile.getSetpoint().position) > .15) {
+      profile.setPID(kP.get(), 0, kD.get());
+    } else if (Math.abs(getPosition() - profile.getSetpoint().position) <= .15) {
+      profile.setPID(kP.get() * 3, 0, kD.get() * 3);
+    }
   }
 
   // @Override

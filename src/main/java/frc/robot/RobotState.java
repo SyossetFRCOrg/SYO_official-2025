@@ -4,8 +4,6 @@ import edu.wpi.first.math.*;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.*;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.util.AllianceFlipUtil;
 // import edu.wpi.first.math.kinematics.SwerveDriveWheelPositions;
 import frc.robot.util.GeomUtil;
@@ -54,8 +52,8 @@ public class RobotState {
       new Pose2d(3.2235898971557617, 4.180093288421631, Rotation2d.fromDegrees(0))
     },
     {
-      new Pose2d(3.898, 5.341, Rotation2d.fromRadians(-1.040)),
-      new Pose2d(3.533, 5.181, Rotation2d.fromRadians(-0.957))
+      new Pose2d(3.48, 5.13, Rotation2d.fromDegrees(-60.3)),
+      new Pose2d(3.86, 5.175, Rotation2d.fromDegrees(-60.71))
     },
     {
       new Pose2d(4.970402717590332, 5.174771785736084, Rotation2d.fromRadians(-2.0988710476023327)),
@@ -67,30 +65,32 @@ public class RobotState {
     }
   };
 
+  private Pose2d[][] L4reefscoringPositions =
+      L2L3reefscoringPositions; // not finalized or tuned. pose2d of all the blue reef scoring
 
-  private Pose2d[][]
-      L4reefscoringPositions = // not finalized or tuned. pose2d of all the blue reef scoring
   // positions
 
-  //L4 requires aligning to a slightly different pose
-  { // use alliancefliputil to flip to get corresponding red scoring pose2ds
-    {
-      new Pose2d(3.2292869091033936, 3.8667519092559814, Rotation2d.fromDegrees(0)),
-      new Pose2d(3.2235898971557617, 4.180093288421631, Rotation2d.fromDegrees(0))
-    },
-    {
-      new Pose2d(3.898, 5.341, Rotation2d.fromRadians(-1.040)),
-      new Pose2d(3.533, 5.181, Rotation2d.fromRadians(-0.957))
-    },
-    {
-      new Pose2d(4.970402717590332, 5.174771785736084, Rotation2d.fromRadians(-2.0988710476023327)),
-      new Pose2d(5.264289855957031, 5.011500835418701, Rotation2d.fromRadians(-2.0988710476023327))
-    },
-    {
-      new Pose2d(6.02729606628418, 4.169149875640869, Rotation2d.fromDegrees(180)),
-      new Pose2d(6.039247989654541, 3.8404667377471924, Rotation2d.fromDegrees(180))
-    }
-  };
+  // L4 requires aligning to a slightly different pose
+  // { // use alliancefliputil to flip to get corresponding red scoring pose2ds
+  //   {
+  //     new Pose2d(3.2292869091033936, 3.8667519092559814, Rotation2d.fromDegrees(0)),
+  //     new Pose2d(3.2235898971557617, 4.180093288421631, Rotation2d.fromDegrees(0))
+  //   },
+  //   {
+  //     new Pose2d(3.898, 5.341, Rotation2d.fromRadians(-1.040)),
+  //     new Pose2d(3.533, 5.181, Rotation2d.fromRadians(-0.957))
+  //   },
+  //   {
+  //     new Pose2d(4.970402717590332, 5.174771785736084,
+  // Rotation2d.fromRadians(-2.0988710476023327)),
+  //     new Pose2d(5.264289855957031, 5.011500835418701,
+  // Rotation2d.fromRadians(-2.0988710476023327))
+  //   },
+  //   {
+  //     new Pose2d(6.02729606628418, 4.169149875640869, Rotation2d.fromDegrees(180)),
+  //     new Pose2d(6.039247989654541, 3.8404667377471924, Rotation2d.fromDegrees(180))
+  //   }
+  // };
 
   private RobotState() {}
 
@@ -132,12 +132,16 @@ public class RobotState {
     int index2 = -1;
     for (int i = 0; i < L2L3reefscoringPositions.length; i++) {
       for (int j = 0; j < L2L3reefscoringPositions[i].length; j++) {
-        if (pose.getTranslation().getDistance(L2L3reefscoringPositions[i][j].getTranslation())
+        if (pose.getTranslation()
+                .getDistance(
+                    AllianceFlipUtil.apply(L2L3reefscoringPositions[i][j].getTranslation()))
             < mindistance) {
           index1 = i;
           index2 = j;
           mindistance =
-              pose.getTranslation().getDistance(L2L3reefscoringPositions[i][j].getTranslation());
+              pose.getTranslation()
+                  .getDistance(
+                      AllianceFlipUtil.apply(L2L3reefscoringPositions[i][j].getTranslation()));
         }
       }
     }
@@ -150,10 +154,10 @@ public class RobotState {
     double mindistance = Double.POSITIVE_INFINITY;
     int index1 = -1;
     int index2 = -1;
-    if (Superstructure.getCurrentState() == SuperState.L2PREPARE
-    ||Superstructure.getCurrentState() == SuperState.L2
-    ||Superstructure.getCurrentState() == SuperState.L3PREPARE
-    ||Superstructure.getCurrentState() == SuperState.L3){
+    // if (Superstructure.getCurrentState() == SuperState.L2PREPARE
+    //     || Superstructure.getCurrentState() == SuperState.L2
+    //     || Superstructure.getCurrentState() == SuperState.L3PREPARE
+    //     || Superstructure.getCurrentState() == SuperState.L3) {
     for (int i = 0; i < L2L3reefscoringPositions.length; i++) {
       for (int j = 0; j < L2L3reefscoringPositions[i].length; j++) {
         if (pose.getTranslation()
@@ -172,38 +176,35 @@ public class RobotState {
 
     if (toggle.getAsBoolean()) {
       index2 = L2L3reefscoringPositions[index1].length - 1 - index2;
-    }   
-
-    return AllianceFlipUtil.apply(L2L3reefscoringPositions[index1][index2]);
-  }
-
-  else if (Superstructure.getCurrentState() == SuperState.L4PREPARE
-  ||Superstructure.getCurrentState() == SuperState.L4){
-
-    for (int i = 0; i < L4reefscoringPositions.length; i++) {
-      for (int j = 0; j < L4reefscoringPositions[i].length; j++) {
-        if (pose.getTranslation()
-                .getDistance(
-                    AllianceFlipUtil.apply(L4reefscoringPositions[i][j].getTranslation()))
-            < mindistance) {
-          index1 = i;
-          index2 = j;
-          mindistance =
-              pose.getTranslation()
-                  .getDistance(
-                      AllianceFlipUtil.apply(L4reefscoringPositions[i][j].getTranslation()));
-        }
-      }
     }
 
-    if (toggle.getAsBoolean()) {
-      index2 = L4reefscoringPositions[index1].length - 1 - index2;
-    }   
+    return AllianceFlipUtil.apply(L2L3reefscoringPositions[index1][index2]);
 
-    return AllianceFlipUtil.apply(L4reefscoringPositions[index1][index2]);
+    // } else if (Superstructure.getCurrentState() == SuperState.L4PREPARE
+    //     || Superstructure.getCurrentState() == SuperState.L4) {
 
-  }
-  return new Pose2d();
+    //   for (int i = 0; i < L4reefscoringPositions.length; i++) {
+    //     for (int j = 0; j < L4reefscoringPositions[i].length; j++) {
+    //       if (pose.getTranslation()
+    //               .getDistance(
+    //                   AllianceFlipUtil.apply(L4reefscoringPositions[i][j].getTranslation()))
+    //           < mindistance) {
+    //         index1 = i;
+    //         index2 = j;
+    //         mindistance =
+    //             pose.getTranslation()
+    //                 .getDistance(
+    //                     AllianceFlipUtil.apply(L4reefscoringPositions[i][j].getTranslation()));
+    //       }
+    //     }
+    //   }
+
+    //   if (toggle.getAsBoolean()) {
+    //     index2 = L4reefscoringPositions[index1].length - 1 - index2;
+    //   }
+
+    //   return AllianceFlipUtil.apply(L4reefscoringPositions[index1][index2]);
+    // }
   }
 
   @AutoLogOutput(key = "NearestCoralStationPose")
@@ -225,6 +226,7 @@ public class RobotState {
     return AllianceFlipUtil.apply(coralStationPositions[index]);
   }
 
+  @AutoLogOutput(key = "Swerve/ModuleLimits")
   public ModuleLimits getModuleLimits() {
     return switch (elevatorPosition) {
       case 0 -> TunerConstants.moduleLimitsFree;
@@ -237,7 +239,7 @@ public class RobotState {
 
       case 4 -> TunerConstants.moduleLimitsL4Elevator;
 
-      default -> TunerConstants.moduleLimitsL4Elevator;
+      default -> TunerConstants.moduleLimitsFree;
     };
   }
   // public PathPlannerPath getPathToNearestReef(Pose2d pose) {

@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
-import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.HashMap;
 import org.littletonrobotics.junction.Logger;
@@ -23,11 +22,15 @@ public class Wrist extends SubsystemBase {
   private static final HashMap<SuperState, LoggedTunableNumber> initializePositions() {
     var map = new HashMap<SuperState, LoggedTunableNumber>();
     map.put(SuperState.STOW, new LoggedTunableNumber("Wrist/StowPosition", 0));
-    map.put(SuperState.INTAKE, new LoggedTunableNumber("Wrist/IntakePosition", -.7));
-    map.put(SuperState.L1, new LoggedTunableNumber("Wrist/L1Position", -1.7));
-    map.put(SuperState.L2, new LoggedTunableNumber("Wrist/L2Position", -1.7));
-    map.put(SuperState.L3, new LoggedTunableNumber("Wrist/L3Position", -1.7));
-    map.put(SuperState.L4, new LoggedTunableNumber("Wrist/L4Position", -1.7));
+    map.put(SuperState.INTAKE, new LoggedTunableNumber("Wrist/IntakePosition", -.6));
+
+    map.put(SuperState.L2L3ALGAE, new LoggedTunableNumber("Wrist/L2L3AlgaePosition", -.6));
+    map.put(SuperState.L3L4ALGAE, map.get(SuperState.L2L3ALGAE));
+
+    map.put(SuperState.L1, new LoggedTunableNumber("Wrist/L1Position", -1));
+    map.put(SuperState.L2, new LoggedTunableNumber("Wrist/L2Position", -1.63));
+    map.put(SuperState.L3, new LoggedTunableNumber("Wrist/L3Position", -1.63));
+    map.put(SuperState.L4, new LoggedTunableNumber("Wrist/L4Position", -1.6));
 
     map.put(SuperState.L1PREPARE, map.get(SuperState.L1));
     map.put(SuperState.L2PREPARE, map.get(SuperState.L2));
@@ -65,14 +68,14 @@ public class Wrist extends SubsystemBase {
     else wristIO.runPosition(positions.get(SuperState.STOW).get());
   }
 
-  public void resetPosition(double posRads){
+  public void resetPosition(double posRads) {
     wristIO.resetPosition(posRads);
-    
   }
 
   public boolean atSetPoint(SuperState setpointState) {
 
     if (positions.containsKey(setpointState)) position = positions.get(setpointState).get();
-    return aimedDebounce.calculate(MathUtil.isNear(position, inputs.positionRad, 0.106 /*rad*/));
+    return aimedDebounce.calculate(
+        MathUtil.isNear(position, inputs.positionRad, 0.1 /*0.106 rad*/));
   }
 }

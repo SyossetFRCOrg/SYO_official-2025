@@ -40,15 +40,19 @@ public class AutoChooser extends SendableChooser<Auto> {
       List.of(
           new AutoProgram(Auto.IDLE, "IDLE", AutoFactory::createIdleCommand),
           new AutoProgram(
-              Auto.ONETOTHREETOC, "ONE TO THREE TO C", AutoFactory::createOneToThreeToC),
-          new AutoProgram(
-              Auto.THREETOONETOA, "THREE TO ONE TO A", AutoFactory::createThreeToOneToA),
-          new AutoProgram(Auto.MIDFIELDABC, "MIDFIELD A B C", AutoFactory::createMidfieldABC),
-          new AutoProgram(Auto.MIDFIELDACB, "MIDFIELD A C B", AutoFactory::createMidfieldACB),
-          new AutoProgram(Auto.MIDFIELDBAC, "MIDFIELD B A C", AutoFactory::createMidfieldBAC),
-          new AutoProgram(Auto.MIDFIELDBCA, "MIDFIELD B C A", AutoFactory::createMidfieldBCA),
-          new AutoProgram(Auto.MIDFIELDED, "MIDFIELD E D", AutoFactory::createMidfieldED),
-          new AutoProgram(Auto.MIDFIELDDE, "MIDFIELD D E", AutoFactory::createMidfieldDE));
+              Auto.LEFTSTARTALLKL, "LEFT START ALL KL", AutoFactory::createLeftStartAllKL),
+          new AutoProgram(Auto.LEFTSTARTALLLK, "LEFT START ALL LK", AutoFactory::createLeftStartAllLK)
+          
+          // ,
+          // new AutoProgram(
+          //     Auto.THREETOONETOA, "THREE TO ONE TO A", AutoFactory::createThreeToOneToA),
+          // new AutoProgram(Auto.MIDFIELDABC, "MIDFIELD A B C", AutoFactory::createMidfieldABC),
+          // new AutoProgram(Auto.MIDFIELDACB, "MIDFIELD A C B", AutoFactory::createMidfieldACB),
+          // new AutoProgram(Auto.MIDFIELDBAC, "MIDFIELD B A C", AutoFactory::createMidfieldBAC),
+          // new AutoProgram(Auto.MIDFIELDBCA, "MIDFIELD B C A", AutoFactory::createMidfieldBCA),
+          // new AutoProgram(Auto.MIDFIELDED, "MIDFIELD E D", AutoFactory::createMidfieldED),
+          // new AutoProgram(Auto.MIDFIELDDE, "MIDFIELD D E", AutoFactory::createMidfieldDE)
+          );
 
   /**
    * Create a new <code>AutoChooser</code>
@@ -61,7 +65,10 @@ public class AutoChooser extends SendableChooser<Auto> {
       final RobotContainer robotContainer, final Drive drive, final Superstructure superstructure) {
     var autoFactories =
         Stream.of(DriverStation.Alliance.values())
-            .map(alliance -> Map.entry(alliance, new AutoFactory(alliance, robotContainer, drive)))
+            .map(
+                alliance ->
+                    Map.entry(
+                        alliance, new AutoFactory(alliance, robotContainer, drive, superstructure)))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     var programs =
         AUTO_PROGRAMS.stream()

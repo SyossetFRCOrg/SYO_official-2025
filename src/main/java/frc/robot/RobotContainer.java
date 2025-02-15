@@ -235,17 +235,13 @@ public class RobotContainer {
         //             new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
 
         // auto align to nearest coral station
-        .onTrue(superstructure.setWantedSuperStateCommand(SuperState.INTAKE)
-        .until(intake.intaked())
-        .andThen(
-            new ParallelRaceGroup(
-                new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
-    rightBumper.onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW));
-    // .whileTrue(
-    //     DriveCommands.joystickDriveCoralStation(
-    //         drive,
-    //         () -> -controller.getLeftY(),
-    //         () -> -controller.getLeftX()));
+        .onTrue(superstructure.setWantedSuperStateCommand(SuperState.INTAKE));
+
+    rightBumper
+        .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW))
+        .whileTrue(
+            DriveCommands.joystickDriveCoralStation(
+                drive, () -> -controller.getLeftY(), () -> -controller.getLeftX()));
 
     // controller.x().whileTrue(DriveCommands.lineUpToNearestReef(() -> drive.getPose()));
 
@@ -280,18 +276,21 @@ public class RobotContainer {
 
     Trigger a = new Trigger(() -> controller.getAButton());
 
-    a.onTrue(superstructure.setWantedSuperStateCommand(SuperState.L2)
-    .andThen(
-            new InstantCommand(
-                    () -> {
-                      reefAlignController =
-                          new ReefAlignController(
-                              drive,
-                              () ->
-                                  RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
-                                      < 1.0,
-                              () -> false);
-                    })))
+    a.onTrue(
+            superstructure
+                .setWantedSuperStateCommand(SuperState.L2)
+                .andThen(
+                    new InstantCommand(
+                        () -> {
+                          reefAlignController =
+                              new ReefAlignController(
+                                  drive,
+                                  () ->
+                                      RobotState.getInstance()
+                                              .getDistanceToNearestReef(drive.getPose())
+                                          < 1.0,
+                                  () -> false);
+                        })))
         .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW))
         .onFalse(
             DriveCommands.joystickDrive(
@@ -300,13 +299,12 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 () -> -controller.getRightX()))
         .whileTrue(
-                
-                    new InstantCommand(
-                            () -> {
-                              drive.runVelocity(reefAlignController.update().get());
-                            },
-                            drive)
-                        .repeatedly()
+            new InstantCommand(
+                    () -> {
+                      drive.runVelocity(reefAlignController.update().get());
+                    },
+                    drive)
+                .repeatedly()
                 .until(() -> reefAlignController.atGoal())
                 .andThen(
                     new ParallelRaceGroup(
@@ -314,9 +312,52 @@ public class RobotContainer {
 
     Trigger x = new Trigger(() -> controller.getXButton());
 
-    x.onTrue(superstructure.setWantedSuperStateCommand(SuperState.L3)
-    .andThen(
+    x.onTrue(
+            superstructure
+                .setWantedSuperStateCommand(SuperState.L3)
+                .andThen(
+                    new InstantCommand(
+                        () -> {
+                          reefAlignController =
+                              new ReefAlignController(
+                                  drive,
+                                  () ->
+                                      RobotState.getInstance()
+                                              .getDistanceToNearestReef(drive.getPose())
+                                          < 1.0,
+                                  () -> false);
+                        })))
+        .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW))
+        .onFalse(
+            DriveCommands.joystickDrive(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () -> -controller.getRightX()))
+        .whileTrue(
             new InstantCommand(
+                    () -> {
+                      drive.runVelocity(reefAlignController.update().get());
+                    },
+                    drive)
+                .repeatedly()
+                .until(() -> reefAlignController.atGoal())
+                .andThen(
+                    new ParallelRaceGroup(
+                        new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
+
+    Trigger y = new Trigger(() -> controller.getYButton());
+
+    y.onTrue(superstructure.setWantedSuperStateCommand(SuperState.L4))
+        .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW))
+        .onFalse(
+            DriveCommands.joystickDrive(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () -> -controller.getRightX()))
+        .whileTrue(
+            (new InstantCommand(
                     () -> {
                       reefAlignController =
                           new ReefAlignController(
@@ -325,74 +366,31 @@ public class RobotContainer {
                                   RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
                                       < 1.0,
                               () -> false);
-                    })))
-        .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW)
-        )
-        .onFalse(
-            DriveCommands.joystickDrive(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> -controller.getRightX()))
-        .whileTrue(
-                
+                    }))
+                .andThen(
                     new InstantCommand(
                             () -> {
                               drive.runVelocity(reefAlignController.update().get());
                             },
                             drive)
                         .repeatedly()
-                .until(() -> reefAlignController.atGoal())
-                .andThen(
-                    new ParallelRaceGroup(
-                        new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
-
-
-    Trigger y = new Trigger(() -> controller.getYButton());
-
-    y.onTrue(
-        superstructure.setWantedSuperStateCommand(SuperState.L4)
-        .andThen(
-                new InstantCommand(
-                        () -> {
-                            reefAlignController =
-                                new ReefAlignController(
-                                    drive,
-                                    () ->
-                                        RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
-                                            < 1.0,
-                                    () -> false);
-                        })))
-        .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW)
-        )
-        .onFalse(
-            DriveCommands.joystickDrive(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> -controller.getRightX()))
-        .whileTrue(
-                
-                    new InstantCommand(
-                            () -> {
-                              drive.runVelocity(reefAlignController.update().get());
-                            },
-                            drive)
-                        .repeatedly()
-                .until(() -> reefAlignController.atGoal())
-                .andThen(
-                    new ParallelRaceGroup(
-                        new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
+                        .until(() -> reefAlignController.atGoal())
+                        .andThen(
+                            new ParallelRaceGroup(
+                                new ControllerRumbleCommand(controller, () -> true),
+                                new WaitCommand(.4)))));
 
     Trigger povRight = new Trigger(() -> controller.getPOV() == 90);
 
-    //reseting wrist and elevator encoder to their "zero" positions
-    //must physically properly be "zeroed" for this to have desired effect
-    povRight.onTrue(new InstantCommand(() -> 
-    {
-        wrist.resetPosition(0);
-        elevator.setHeight(0);
-    }));
+    // reseting wrist and elevator encoder to their "zero" positions
+    // must physically properly be "zeroed" for this to have desired effect
+    povRight.onTrue(
+        new InstantCommand(
+                () -> {
+                  elevator.setHeight(0);
+                  wrist.resetPosition(0);
+                })
+            .ignoringDisable(true));
 
     Trigger leftBumper = new Trigger(() -> controller.getLeftBumperButton());
     leftBumper.onTrue(
@@ -420,6 +418,18 @@ public class RobotContainer {
                                 : Rotation2d.fromDegrees(180))),
                 drive)
             .ignoringDisable(true));
+
+    Trigger rightTrigger = new Trigger(() -> controller.getRightTriggerAxis() > .5);
+
+    rightTrigger
+        .onTrue(superstructure.setWantedSuperStateCommand(SuperState.L3L4ALGAE))
+        .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW));
+
+    Trigger leftTrigger = new Trigger(() -> controller.getLeftTriggerAxis() > .5);
+
+    leftTrigger
+        .onTrue(superstructure.setWantedSuperStateCommand(SuperState.L2L3ALGAE))
+        .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW));
   }
 
   //   /**
@@ -433,5 +443,13 @@ public class RobotContainer {
 
   public ReefAlignController getReefAlignController() {
     return reefAlignController;
+  }
+
+  public Drive getDrive() {
+    return drive;
+  }
+
+  public Superstructure getSuperstructure() {
+    return superstructure;
   }
 }

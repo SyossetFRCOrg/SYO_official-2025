@@ -16,6 +16,8 @@ public interface WristIO {
 
   public default void runPosition(double position) {}
 
+  public default void runVolts(double volts) {}
+
   public default void stop() {}
 
   public default void periodic() {}

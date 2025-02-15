@@ -25,11 +25,14 @@ public class Elevator extends SubsystemBase {
     var map = new HashMap<SuperState, LoggedTunableNumber>();
     // to be tuned
     map.put(SuperState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 0));
-    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 66.5));
+    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 65));
     map.put(SuperState.L1, new LoggedTunableNumber("Elevator/L1Position", 40));
-    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 78));
-    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 115));
-    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 166));
+    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 82));
+    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 116));
+    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 165.2));
+
+    map.put(SuperState.L2L3ALGAE, new LoggedTunableNumber("Elevator/AlgaeL2L3", 60));
+    map.put(SuperState.L3L4ALGAE, new LoggedTunableNumber("Elevator/AlgaeL3L4", 85));
 
     map.put(SuperState.L1PREPARE, map.get(SuperState.L1));
     map.put(SuperState.L2PREPARE, map.get(SuperState.L2));
@@ -76,30 +79,17 @@ public class Elevator extends SubsystemBase {
     // acceleration changes
     // depending on the superstate of the superstructure. can technically do this anywhere, but
     // makes most sense in elevator.
-    switch (Superstructure.getCurrentState()) {
-      case STOW:
-        RobotState.getInstance().setElevatorPosition(0);
-        break;
 
-      case L1PREPARE, L1:
-        RobotState.getInstance().setElevatorPosition(1);
-
-      case L2PREPARE, L2, INTAKE, INTAKEPREPARE:
-        RobotState.getInstance().setElevatorPosition(2);
-        break;
-
-      case L3PREPARE, L3:
-        RobotState.getInstance().setElevatorPosition(3);
-        break;
-
-      case L4PREPARE, L4:
-        RobotState.getInstance().setElevatorPosition(4);
-        break;
-
-      case STOPPED:
-      default:
-        RobotState.getInstance().setElevatorPosition(4);
-        break;
+    if (getHeight() < heights.get(SuperState.L1).get() - heightTolerance) {
+      RobotState.getInstance().setElevatorPosition(0);
+    } else if (getHeight() >= heights.get(SuperState.L1).get() - heightTolerance) {
+      RobotState.getInstance().setElevatorPosition(1);
+    } else if (getHeight() >= heights.get(SuperState.L2).get() - heightTolerance) {
+      RobotState.getInstance().setElevatorPosition(2);
+    } else if (getHeight() >= heights.get(SuperState.L3).get() - heightTolerance) {
+      RobotState.getInstance().setElevatorPosition(3);
+    } else if (getHeight() >= heights.get(SuperState.L4).get() - heightTolerance) {
+      RobotState.getInstance().setElevatorPosition(4);
     }
 
     RobotState.getInstance()
@@ -109,7 +99,8 @@ public class Elevator extends SubsystemBase {
   private void applyStates() {
     var state = Superstructure.getCurrentState();
     if (heights.containsKey(state)) targetHeight = heights.get(state).get();
-    RobotState.getInstance().setWristCanMove(getHeight() > heights.get(SuperState.L1).get() - heightTolerance);
+    RobotState.getInstance()
+        .setWristCanMove(getHeight() > heights.get(SuperState.L1).get() - heightTolerance);
     io.movetoHeight(targetHeight);
   }
 

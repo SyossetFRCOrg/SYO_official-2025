@@ -9,6 +9,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.RobotState;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.LoggedTunableNumber;
@@ -29,29 +31,30 @@ public class ReefAlignController {
       new LoggedTunableNumber("AutoAlign/drivekI", 10);
 
   private static final LoggedTunableNumber thetakP =
-      new LoggedTunableNumber("AutoAlign/thetakP", 2.5);
+      new LoggedTunableNumber("AutoAlign/thetakP", 4);
   private static final LoggedTunableNumber thetakD =
       new LoggedTunableNumber("AutoAlign/thetakD", 0.5);
   private static final LoggedTunableNumber linearTolerance =
-      new LoggedTunableNumber("AutoAlign/controllerLinearTolerance", 0.008);
+      new LoggedTunableNumber(
+          "AutoAlign/controllerLinearTolerance",
+          Superstructure.getDesiredState() == SuperState.L4 ? 0.008 : 0.01);
   private static final LoggedTunableNumber thetaTolerance =
-      new LoggedTunableNumber("AutoAlign/controllerThetaTolerance", Units.degreesToRadians(3));
+      new LoggedTunableNumber("AutoAlign/controllerThetaTolerance", Units.degreesToRadians(2));
   private static final LoggedTunableNumber toleranceTime =
       new LoggedTunableNumber("AutoAlign/controllerToleranceSecs", 0.1);
   private static final LoggedTunableNumber maxLinearVelocity =
       new LoggedTunableNumber(
-          "AutoAlign/maxLinearVelocity", TunerConstants.driveConfig.maxLinearVelocity() * .5);
+          "AutoAlign/maxLinearVelocity", TunerConstants.driveConfig.maxLinearVelocity());
   private static final LoggedTunableNumber maxLinearAcceleration =
       new LoggedTunableNumber(
-          "AutoAlign/maxLinearAcceleration",
-          TunerConstants.driveConfig.maxLinearAcceleration() * 0.8);
+          "AutoAlign/maxLinearAcceleration", TunerConstants.driveConfig.maxLinearAcceleration());
   private static final LoggedTunableNumber maxAngularVelocity =
       new LoggedTunableNumber(
-          "AutoAlign/maxAngularVelocity", TunerConstants.driveConfig.maxAngularVelocity() * 0.6);
+          "AutoAlign/maxAngularVelocity", TunerConstants.driveConfig.maxAngularVelocity());
   private static final LoggedTunableNumber maxAngularAcceleration =
       new LoggedTunableNumber(
           "AutoAlign/maxAngularAcceleration",
-          TunerConstants.driveConfig.maxAngularAcceleration() * 0.6);
+          TunerConstants.driveConfig.maxAngularAcceleration() * 1);
   //   private static final LoggedTunableNumber slowLinearVelocity =
   //       new LoggedTunableNumber("AutoAlign/slowLinearVelocity",
   //       TunerConstants.driveConfig.maxLinearVelocity() * .4);
@@ -118,7 +121,7 @@ public class ReefAlignController {
 
     if (drive.getPose().getTranslation().getDistance(desiredPose.getTranslation()) < .1) {
 
-      linearController.setI(linearkI.get() * 15);
+      linearController.setI(linearkI.get() * 10);
     }
     if (drive.getPose().getTranslation().getDistance(desiredPose.getTranslation()) > .1) {
 
@@ -134,8 +137,8 @@ public class ReefAlignController {
       //           slowAngularVelocity.get(), slowAngularAcceleration.get()));
       //   linearController.setPID(linearkP.get() * 2.2, linearkI.get(), linearkD.get() * 2.1);
 
-      linearController.setP(linearkP.get() * 2.2); //to be tuned
-      
+      linearController.setP(linearkP.get() * 2.2); // to be tuned
+
       linearController.setD(linearkD.get() * 2.1);
       //   linearController.setIZone(0.2);
 
@@ -283,7 +286,6 @@ public class ReefAlignController {
   }
 }
 
-
 // package frc.robot.commands;
 
 // import edu.wpi.first.math.MathUtil;
@@ -412,7 +414,8 @@ public class ReefAlignController {
 
 //     maxLinearVelocity = RobotState.getInstance().getModuleLimits().maxDriveVelocity() * .8;
 
-//     maxLinearAcceleration = RobotState.getInstance().getModuleLimits().maxDriveAcceleration() * 0.8;
+//     maxLinearAcceleration = RobotState.getInstance().getModuleLimits().maxDriveAcceleration() *
+// 0.8;
 
 //     if (drive.getPose().getTranslation().getDistance(desiredPose.getTranslation()) < .1) {
 
@@ -427,7 +430,8 @@ public class ReefAlignController {
 //       linearController.setConstraints(
 //           new TrapezoidProfile.Constraints(maxLinearVelocity, maxLinearAcceleration));
 //       thetaController.setConstraints(
-//           new TrapezoidProfile.Constraints(maxAngularVelocity.get(), maxAngularAcceleration.get()));
+//           new TrapezoidProfile.Constraints(maxAngularVelocity.get(),
+// maxAngularAcceleration.get()));
 //       linearController.setP(linearkP.get() * 2.2);
 //       linearController.setD(linearkD.get() * 2.1);
 //       //   linearController.setIZone(0.2);
@@ -436,7 +440,8 @@ public class ReefAlignController {
 //       linearController.setConstraints(
 //           new TrapezoidProfile.Constraints(maxLinearVelocity, maxLinearAcceleration));
 //       thetaController.setConstraints(
-//           new TrapezoidProfile.Constraints(maxAngularVelocity.get(), maxAngularAcceleration.get()));
+//           new TrapezoidProfile.Constraints(maxAngularVelocity.get(),
+// maxAngularAcceleration.get()));
 //       linearController.setPID(linearkP.get(), linearkI.get(), linearkD.get());
 //       linearController.setIZone(0.2);
 //     }
@@ -450,9 +455,11 @@ public class ReefAlignController {
 //     // Rotation2d robotToGoalAngle =
 //     //     goalPose.getTranslation().minus(currentPose.getTranslation()).getAngle();
 
-//     // The following few lines of code are to reset the controller based on the current position and
+//     // The following few lines of code are to reset the controller based on the current position
+// and
 //     // the current velocity.
-//     // The vector stuff is to find the magnitude of the velocity going towards the setpoint already
+//     // The vector stuff is to find the magnitude of the velocity going towards the setpoint
+// already
 //     // where negative direction is towards the setpoint. (negated in the reset line at the end)
 
 //     double linearVelocity = new Translation2d(fieldVelocity.dx, fieldVelocity.dy).getNorm();
@@ -472,7 +479,8 @@ public class ReefAlignController {
 //     linearController.reset(
 //         currentPose.getTranslation().getDistance(goalPose.getTranslation()),
 //         linearVelocity
-//             * /* negated because positive is away from the setpoint, negative is towards the setpoint*/ -poseToDesiredPoseCosAngle);
+//             * /* negated because positive is away from the setpoint, negative is towards the
+// setpoint*/ -poseToDesiredPoseCosAngle);
 
 //     thetaController.reset(currentPose.getRotation().getRadians());
 //     lastSetpointTranslation = currentPose.getTranslation();
@@ -512,7 +520,8 @@ public class ReefAlignController {
 //     Pose2d targetPose = desiredPose;
 
 //     // Calculate drive speed
-//     double currentDistance = currentPose.getTranslation().getDistance(targetPose.getTranslation());
+//     double currentDistance =
+// currentPose.getTranslation().getDistance(targetPose.getTranslation());
 //     double ffScaler = // 1.0;
 //         MathUtil.clamp(
 //             (currentDistance - ffMinRadius.get()) / (ffMaxRadius.get() - ffMinRadius.get()),
@@ -558,7 +567,8 @@ public class ReefAlignController {
 
 //     Logger.recordOutput("AutoAlign/VelocitySetpoint", driveVelocityScalar);
 //     Logger.recordOutput(
-//         "AutoAlign/'calculate'velocitySetPoint", linearController.calculate(currentDistance, 0.0));
+//         "AutoAlign/'calculate'velocitySetPoint", linearController.calculate(currentDistance,
+// 0.0));
 
 //     Logger.recordOutput("AutoAlign/ThetaMeasured", currentPose.getRotation().getRadians());
 //     Logger.recordOutput("AutoAlign/ThetaSetpoint", thetaController.getSetpoint().position);

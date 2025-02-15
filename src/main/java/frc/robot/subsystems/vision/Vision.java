@@ -115,7 +115,7 @@ public class Vision extends SubsystemBase {
                 || (observation.pose().getX() == 0.0 && observation.pose().getY() == 0.0)
                 || velocity.getNorm() > 2.5
                 || Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond)
-                    > (2 * Math.PI) // reject if omega too high
+                    > (Math.PI) // reject if omega too high
                 || (observation.type() == PoseObservationType.MEGATAG_1
                     && observation.averageTagDistance() < .75);
 
@@ -195,6 +195,10 @@ public class Vision extends SubsystemBase {
         }
 
         // same for rotational corrections.
+        // However, also increase linear StdDev because the way MT1 works, if it returns a rotation
+        // that is very off, it takes the translation with it as well. This should already be
+        // compensated for
+        // in the translational adjustments, but this is for more safety
         if (observation
                 .pose()
                 .toPose2d()
@@ -203,6 +207,7 @@ public class Vision extends SubsystemBase {
                 .getDegrees()
             > 10) {
           thetastdDevFactor *= 5;
+          linearstdDevFactor *= 5;
         }
         if (observation
                 .pose()
@@ -212,6 +217,7 @@ public class Vision extends SubsystemBase {
                 .getDegrees()
             > 15) {
           thetastdDevFactor *= 5;
+          linearstdDevFactor *= 5;
         }
         if (observation
                 .pose()
@@ -221,6 +227,7 @@ public class Vision extends SubsystemBase {
                 .getDegrees()
             > 20) {
           thetastdDevFactor *= 5;
+          linearstdDevFactor *= 5;
         }
         if (observation
                 .pose()
@@ -230,6 +237,7 @@ public class Vision extends SubsystemBase {
                 .getDegrees()
             > 25) {
           thetastdDevFactor *= 5;
+          linearstdDevFactor *= 5;
         }
         if (observation
                 .pose()
@@ -239,6 +247,7 @@ public class Vision extends SubsystemBase {
                 .getDegrees()
             > 30) {
           thetastdDevFactor *= 5;
+          linearstdDevFactor *= 5;
         }
 
         double linearStdDev = linearStdDevBaseline * linearstdDevFactor;

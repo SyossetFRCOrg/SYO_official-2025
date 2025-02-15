@@ -17,7 +17,7 @@ public class ControllerRumbleCommand extends Command {
   @Override
   public void execute() {
     if (condition.getAsBoolean()) {
-      controller.setRumble(GenericHID.RumbleType.kBothRumble, 0.4);
+      controller.setRumble(GenericHID.RumbleType.kBothRumble, 1);
     }
   }
 

@@ -45,11 +45,13 @@ public class Superstructure extends SubsystemBase {
     L4PREPARE,
     STOPPED,
     STOW,
+    L2L3ALGAE,
+    L3L4ALGAE
   }
 
   private static @Getter @Setter SuperState desiredState = SuperState.STOW;
-  private static @Getter @Setter SuperState currentState = SuperState.STOPPED;
-  private static SuperState previousState = SuperState.STOPPED;
+  private static @Getter @Setter SuperState currentState = SuperState.STOW;
+  private static SuperState previousState = SuperState.STOW;
 
   // RobotState.AimingParameters aimingParameters =
   //         new RobotState.AimingParameters(new Rotation2d(), new Rotation2d(), new
@@ -149,12 +151,10 @@ public class Superstructure extends SubsystemBase {
           elevator.atSetPoint(state)
               && wrist.atSetPoint(state)
               && container.getReefAlignController().atGoal();
-        //L1 is prospectively manual driving alignment
-      case L1 ->
-          elevator.atSetPoint(state)
-          && wrist.atSetPoint(state);
+        // L1 is prospectively manual driving alignment
+      case L1 -> elevator.atSetPoint(state) && wrist.atSetPoint(state);
       case INTAKE -> elevator.atSetPoint(state);
-      case STOW, INTAKEPREPARE -> true;
+      case STOW, INTAKEPREPARE, L2L3ALGAE, L3L4ALGAE -> true;
       default -> false;
     };
   }
@@ -163,10 +163,15 @@ public class Superstructure extends SubsystemBase {
     return () -> Superstructure.currentState == currentState;
   }
 
+  /** State pushers */
+  public void setWantedSuperState(SuperState desiredState) {
+    Superstructure.desiredState = desiredState;
+  }
+
   public Command setWantedSuperStateCommand(SuperState desiredState) {
     return new InstantCommand(
         () -> {
-          Superstructure.desiredState = desiredState;
+          setWantedSuperState(desiredState);
         });
   }
 }

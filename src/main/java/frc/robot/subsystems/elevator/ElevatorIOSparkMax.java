@@ -53,12 +53,12 @@ public class ElevatorIOSparkMax implements ElevatorIO {
       new LoggedTunableNumber(
           "ElevatorTuning/maxVelocity",
           // Units.rotationsPerMinuteToRadiansPerSecond((5600.0)) * (GEAR_RATIO) * .1
-          11000.0 / 4.0);
+          11000.0 / 3.0);
   private static final LoggedTunableNumber maxAcceleration =
       new LoggedTunableNumber(
           "ElevatorTuning/maxAcceleration",
           // Units.rotationsPerMinuteToRadiansPerSecond((5600.0)) * (GEAR_RATIO) * .1
-          11000.0 / 2.0);
+          11000.0 / 6.0);
 
   private final RelativeEncoder leader_encoder = leader.getEncoder();
   //   private final RelativeEncoder follower_encoder = follower.getEncoder();

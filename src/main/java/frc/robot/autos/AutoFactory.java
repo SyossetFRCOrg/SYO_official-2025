@@ -1,6 +1,7 @@
 package frc.robot.autos;
 
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
+import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -11,6 +12,10 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.RobotContainer;
+import frc.robot.RobotState;
+import frc.robot.commands.ReefAlignController;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.subsystems.drive.Drive;
 
 /** A factory for creating autonomous programs for a given {@link Auto} */
@@ -22,8 +27,10 @@ class AutoFactory {
 
   private final RobotContainer robotContainer;
   private final Drive drive;
-  // private final Superstructure superstructure;
+  private final Superstructure superstructure;
   private boolean trajectoriesLoaded = false;
+
+  private ReefAlignController reefAlignController;
 
   /**
    * Create a new <code>AutoFactory</code>.
@@ -33,11 +40,13 @@ class AutoFactory {
   AutoFactory(
       final DriverStation.Alliance alliance,
       final RobotContainer robotContainer,
-      final Drive drive /*, final Superstructure superstructure*/) {
+      final Drive drive,
+      final Superstructure superstructure) {
     this.alliance = alliance;
     this.robotContainer = robotContainer;
     this.drive = drive;
-    // this.superstructure = superstructure;
+    this.superstructure = superstructure;
+    reefAlignController = new ReefAlignController(drive, () -> false, () -> false);
   }
 
   /* Autonomous program factories
@@ -54,217 +63,143 @@ class AutoFactory {
     return Commands.none();
   }
 
-  Command createOneToThreeToC() {
-    PathPlannerPath firstSegment = loadSegment(Location.START, Location.ONE);
-    // PathPlannerPath pathtry = PathPlannerPath.fromPathFile("New Path");
+  Command createLeftStartAllKL() {
+    PathPlannerPath firstSegment = loadSegment(Location.LSTART, Location.PREK);
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
     c.addCommands(resetPose(firstSegment));
-    // c.addCommands(subwooferShootInPlace());
-    // c.addCommands(followWhileIntaking(firstSegment));
-    // c.addCommands(limelightShootInPlace(2));
-    // c.addCommands(followWhileIntaking(Location.ONE, Location.TWO));
-    // c.addCommands(limelightShootInPlace(2));
-    // c.addCommands(followWhileIntaking(Location.TWO, Location.THREE));
-    // c.addCommands(limelightShootInPlace(2));
-    // c.addCommands(followWhileIntaking(Location.THREE, Location.C));
-    // c.addCommands(followThenShoot(Location.C, Location.SHOOT, 2));
+    c.addCommands(follow(Location.LSTART, Location.PREK));
+    c.addCommands(AutoAlignL4Score());
+
+    c.addCommands(IntakeFollow(Location.K, Location.LEFTCORALSTATION));
+    c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREL));
+    c.addCommands(AutoAlignL4Score());
+
+    c.addCommands(IntakeFollow(Location.L, Location.LEFTCORALSTATION));
+    c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREK));
+    c.addCommands(AutoAlignL3Score());
+
+    c.addCommands(IntakeFollow(Location.K, Location.LEFTCORALSTATION));
+    c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREL));
+    c.addCommands(AutoAlignL3Score());
+
+    c.addCommands(IntakeFollow(Location.L, Location.LEFTCORALSTATION));
+    c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREK));
+    c.addCommands(AutoAlignL2Score());
+
+    c.addCommands(IntakeFollow(Location.K, Location.LEFTCORALSTATION));
+    c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREL));
+    c.addCommands(AutoAlignL2Score());
     return c;
   }
 
-  Command createThreeToOneToA() {
-    PathPlannerPath firstSegment = loadSegment(Location.START, Location.THREE);
 
-    preloadTrajectoryClass(firstSegment);
-
-    SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
-    // c.addCommands(subwooferShootInPlace());
-    // c.addCommands(followWhileIntaking(firstSegment));
-    // c.addCommands(limelightShootInPlace(2));
-    // c.addCommands(followWhileIntaking(Location.THREE, Location.TWO));
-    // c.addCommands(limelightShootInPlace(2));
-    // c.addCommands(followWhileIntaking(Location.TWO, Location.ONE));
-    // c.addCommands(limelightShootInPlace(2));
-    // c.addCommands(followWhileIntaking(Location.ONE, Location.A));
-    // c.addCommands(followThenShoot(Location.A, Location.SHOOT, 2));
-    return c;
-  }
-
-  Command createMidfieldABC() {
-    PathPlannerPath firstSegment = loadSegment(Location.START, Location.A);
-    preloadTrajectoryClass(firstSegment);
-
-    SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
-    // c.addCommands(subwooferShootInPlace());
-    // c.addCommands(followWhileIntaking(firstSegment));
-    // c.addCommands(followThenShoot(Location.A, Location.SHOOT, 2));
-    // c.addCommands(followWhileIntaking(Location.SHOOT, Location.B));
-    // c.addCommands(followThenShoot(Location.B, Location.SHOOT, 2));
-    // c.addCommands(followWhileIntaking(Location.SHOOT, Location.C));
-    // c.addCommands(followThenShoot(Location.C, Location.SHOOT, 2));
-
-    return c;
-  }
-
-  Command createMidfieldACB() {
-    PathPlannerPath firstSegment = loadSegment(Location.START, Location.A);
-    preloadTrajectoryClass(firstSegment);
-
-    SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
-    // c.addCommands(subwooferShootInPlace());
-    // c.addCommands(followWhileIntaking(firstSegment));
-    // c.addCommands(followThenShoot(Location.A, Location.SHOOT, 2));
-    // c.addCommands(followWhileIntaking(Location.SHOOT, Location.C));
-    // c.addCommands(followThenShoot(Location.C, Location.SHOOT, 2));
-    // c.addCommands(followWhileIntaking(Location.SHOOT, Location.B));
-    // c.addCommands(followThenShoot(Location.B, Location.SHOOT, 2));
-
-    return c;
-  }
-
-  Command createMidfieldBAC() {
-    PathPlannerPath firstSegment = loadSegment(Location.START, Location.B);
+  Command createLeftStartAllLK() {
+    PathPlannerPath firstSegment = loadSegment(Location.LSTART, Location.PREL);
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
     c.addCommands(resetPose(firstSegment));
-    // c.addCommands(subwooferShootInPlace());
-    // c.addCommands(followWhileIntaking(firstSegment));
-    // c.addCommands(followThenShoot(Location.B, Location.SHOOT, 2));
-    // c.addCommands(followWhileIntaking(Location.SHOOT, Location.A));
-    // c.addCommands(followThenShoot(Location.A, Location.SHOOT, 2));
-    // c.addCommands(followWhileIntaking(Location.SHOOT, Location.C));
-    // c.addCommands(followThenShoot(Location.C, Location.SHOOT, 2));
 
+
+    c.addCommands(follow(Location.LSTART, Location.PREL));
+    c.addCommands(AutoAlignL4Score());
+
+    c.addCommands(IntakeFollow(Location.L, Location.LEFTCORALSTATION));
+    c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREK));
+    c.addCommands(AutoAlignL4Score());
+
+    c.addCommands(IntakeFollow(Location.K, Location.LEFTCORALSTATION));
+    c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREL));
+    c.addCommands(AutoAlignL3Score());
+
+    c.addCommands(IntakeFollow(Location.L, Location.LEFTCORALSTATION));
+    c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREK));
+    c.addCommands(AutoAlignL3Score());
+
+    c.addCommands(IntakeFollow(Location.K, Location.LEFTCORALSTATION));
+    c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREL));
+    c.addCommands(AutoAlignL2Score());
+
+    c.addCommands(IntakeFollow(Location.L, Location.LEFTCORALSTATION));
+    c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREK));
+    c.addCommands(AutoAlignL2Score());
     return c;
   }
 
-  Command createMidfieldBCA() {
-    PathPlannerPath firstSegment = loadSegment(Location.START, Location.B);
-
-    preloadTrajectoryClass(firstSegment);
-    SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
-    // c.addCommands(subwooferShootInPlace());
-    // c.addCommands(followWhileIntaking(firstSegment));
-    // c.addCommands(followThenShoot(Location.B, Location.SHOOT, 2));
-    // c.addCommands(followWhileIntaking(Location.SHOOT, Location.C));
-    // c.addCommands(followThenShoot(Location.C, Location.SHOOT, 2));
-    // c.addCommands(followWhileIntaking(Location.SHOOT, Location.A));
-    // c.addCommands(followThenShoot(Location.A, Location.SHOOT, 2));
-
-    return c;
+  private Command AutoAlignL4Score() {
+    return superstructure
+        .setWantedSuperStateCommand(SuperState.L4)
+        .andThen(
+            new InstantCommand(
+                () -> {
+                  reefAlignController =
+                      new ReefAlignController(
+                          drive,
+                          () ->
+                              RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
+                                  < 1.0,
+                          () -> false);
+                }))
+        .andThen(
+            new InstantCommand(
+                    () -> {
+                      drive.runVelocity(reefAlignController.update().get());
+                    },
+                    drive)
+                .repeatedly()
+                .until(() -> reefAlignController.atGoal() && Superstructure.getCurrentState() == SuperState.L4))
+                ;
   }
 
-  Command createMidfieldED() {
-    PathPlannerPath firstSegment = loadSegment(Location.START, Location.E);
-
-    preloadTrajectoryClass(firstSegment);
-    SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
-    // c.addCommands(subwooferShootInPlace());
-    // c.addCommands(followWhileIntaking(firstSegment));
-    // c.addCommands(followThenShoot(Location.E, Location.SHOOT, 2));
-    // c.addCommands(followWhileIntaking(Location.SHOOT, Location.D));
-    // c.addCommands(followThenShoot(Location.D, Location.SHOOT, 2));
-
-    return c;
+  private Command AutoAlignL3Score() {
+    return superstructure
+        .setWantedSuperStateCommand(SuperState.L3)
+        .andThen(
+            new InstantCommand(
+                () -> {
+                  reefAlignController =
+                      new ReefAlignController(
+                          drive,
+                          () ->
+                              RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
+                                  < 1.0,
+                          () -> false);
+                }))
+        .andThen(
+            new InstantCommand(
+                    () -> {
+                      drive.runVelocity(reefAlignController.update().get());
+                    },
+                    drive)
+                .repeatedly()
+                .until(() -> reefAlignController.atGoal() && Superstructure.getCurrentState() == SuperState.L3));
   }
 
-  Command createMidfieldDE() {
-    PathPlannerPath firstSegment = loadSegment(Location.START, Location.D);
-
-    preloadTrajectoryClass(firstSegment);
-    SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
-    // c.addCommands(followWhileIntaking(firstSegment));
-    // c.addCommands(followThenShoot(Location.D, Location.SHOOT, 2));
-
-    // c.addCommands(followWhileIntaking(Location.SHOOT, Location.E));
-    // c.addCommands(followThenShoot(Location.E, Location.SHOOT, 2));
-
-    return c;
+  private Command AutoAlignL2Score() {
+    return superstructure
+        .setWantedSuperStateCommand(SuperState.L2)
+        .andThen(
+            new InstantCommand(
+                () -> {
+                  reefAlignController =
+                      new ReefAlignController(
+                          drive,
+                          () ->
+                              RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
+                                  < 1.0,
+                          () -> false);
+                }))
+        .andThen(
+            new InstantCommand(
+                    () -> {
+                      drive.runVelocity(reefAlignController.update().get());
+                    },
+                    drive)
+                .repeatedly()
+                .until(() -> reefAlignController.atGoal() && Superstructure.getCurrentState() == SuperState.L2));
   }
-
-  // private Command limelightShootInPlace(double sec){
-  //     return deadline(new WaitCommand(sec),
-  // superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.LIMELIGHT_SHOT).alongWith(drive.setRotationLock()))
-
-  //             .andThen(drive.disableRotationLock()
-  //
-  // .andThen(superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.REGULAR_STATE)));
-  // }
-
-  // private Command limelightShootInPlace(){
-  //     return
-  // superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.LIMELIGHT_SHOT).alongWith(drive.setRotationLock())
-  //             .andThen(new WaitUntilCommand((() -> superstructure.flywheel.hasNoteShot()))
-  //             .andThen(drive.disableRotationLock())
-  //
-  // .andThen(superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.REGULAR_STATE)));
-  // }
-
-  // private Command subwooferShootInPlace(){
-  //         return
-  // superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.SUBWOOFER_SHOT)
-  //             .andThen(new WaitCommand(1.5))
-  //             .andThen(Commands.deadline(waitSeconds(.15),
-  // superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.REGULAR_STATE).repeatedly())
-  //             .andThen(drive.disableRotationLock()));
-
-  // }
-
-  // private Command followThenShoot(PathPlannerPath path) {
-  //     return follow(path)
-  //             .alongWith(
-  //
-  // superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.LIMELIGHT_SHOT).alongWith(drive.setRotationLock()))
-  //             .andThen(new WaitUntilCommand((() -> superstructure.flywheel.hasNoteShot()))
-  //             .andThen(drive.disableRotationLock())
-  //
-  // .andThen(superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.REGULAR_STATE)));
-  // }
-
-  // private Command followThenShoot(Location start, Location end) {
-  //     return follow(start, end)
-  //             .alongWith(
-  //
-  // superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.LIMELIGHT_SHOT).alongWith(drive.setRotationLock()))
-  //             .andThen(new WaitUntilCommand((() -> superstructure.flywheel.hasNoteShot()))
-  //             .andThen(drive.disableRotationLock())
-  //
-  // .andThen(superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.REGULAR_STATE)));
-  // }
-
-  // private Command followThenShoot(Location start, Location end, double sec) {
-  //     return follow(start, end)
-  //             .andThen(
-  //
-  // superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.LIMELIGHT_SHOT).alongWith(drive.setRotationLock()))
-  //             .andThen(new WaitCommand(sec))
-  //             .andThen(drive.disableRotationLock())
-  //
-  // .andThen(superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.REGULAR_STATE));
-  // }
-
-  // // Intake piece
-  // private Command followWhileIntaking(Location start, Location end) {
-  //     return deadline(follow(start, end),
-  // superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.INTAKE_DOWN).repeatedly())
-  //
-  // .andThen(superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.REGULAR_STATE));
-  // }
-  // Intake piece
-  // private Command followWhileIntaking(PathPlannerPath path) {
-  //     return deadline(follow(path),
-  // superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.INTAKE_DOWN).repeatedly())
-
-  // .andThen(superstructure.setWantedSuperStateCommand(Superstructure.WantedSuperState.REGULAR_STATE));
-  // }
 
   // Auto init helpers
   private Command resetPose(final PathPlannerPath segment) {
@@ -293,6 +228,19 @@ class AutoFactory {
         });
   }
 
+  private Command StowFollow(final Location start, final Location end) {
+    return superstructure
+        .setWantedSuperStateCommand(SuperState.STOW)
+        .alongWith(follow(loadSegment(start, end)));
+  }
+
+  private Command IntakeFollow(final Location start, final Location end) {
+    return (superstructure
+            .setWantedSuperStateCommand(SuperState.INTAKE)
+            .alongWith(follow(loadSegment(start, end))))
+        .andThen(waitSeconds(1)); // time for HP to throw in the coral
+  }
+
   // Path following
   private Command follow(final Location start, final Location end) {
     return follow(loadSegment(start, end));
@@ -305,8 +253,7 @@ class AutoFactory {
 
   private void preloadTrajectoryClass(PathPlannerPath firstSegment) {
     // This is done because Java loads classes lazily. Calling this here loads the trajectory class
-    // which
-    // is used to follow paths and saves user code ms loop time at the start of auto.
+    // which is used to follow paths and saves user code ms loop time at the start of auto.
     if (!trajectoriesLoaded) {
       trajectoriesLoaded = true;
       var trajectory =
@@ -317,11 +264,11 @@ class AutoFactory {
 
   // Load paths
   private PathPlannerPath loadSegment(final Location start, final Location end) {
-    var name = "%STO%S".formatted(start, end);
+    var name = "%S_TO_%S".formatted(start, end);
     PathPlannerPath path;
 
     try {
-      path = PathPlannerPath.fromChoreoTrajectory("%S%S".formatted(alliance, name));
+      path = PathPlannerPath.fromChoreoTrajectory("%S%S".formatted("BLUE", name));
     } catch (Exception e) {
       e.printStackTrace();
       path = null;
