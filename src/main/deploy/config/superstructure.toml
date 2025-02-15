@@ -2,17 +2,17 @@
 id = "drivetrain"
 name = "Drivetrain"
 config = "swerve.toml"
-enabled = true
+enabled = false
 
 [[subsystems]]
 id = "elevator_structure"
 name = "Elevator Structure"
-enabled = true
+enabled = false
 
 [[subsystems]]
 id = "algae_intake"
 name = "Algae Intake"
-enabled = true
+enabled = false
 
 [[subsystems]]
 id = "deep_hang"
