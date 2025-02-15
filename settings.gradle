@@ -29,6 +29,14 @@ pluginManagement {
 Properties props = System.getProperties();
 props.setProperty("org.gradle.internal.native.headers.unresolved.dependencies.ignore", "true");
 
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+
 rootProject.name = 'syofrc'
 include(':syolib')
 project(':syolib').projectDir = file('syolib')
