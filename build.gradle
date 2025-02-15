@@ -1,12 +1,23 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2025.1.1"
+    id "edu.wpi.first.GradleRIO" version "2025.2.1"
     id "war"
+    id 'idea'
+    id 'maven-publish'
 }
-
+group = 'org.syossetrobotics'
+version = '1.0.0'
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+    withJavadocJar()
+    withSourcesJar()
+}
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
 }
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
@@ -60,7 +71,7 @@ repositories {
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
 dependencies {
-    implementation project("syolib")
+    implementation project(":syolib")
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
 
     providedCompile 'jakarta.platform:jakarta.jakartaee-web-api:9.0.0'
@@ -68,7 +79,6 @@ dependencies {
     annotationProcessor wpi.java.deps.wpilibAnnotations()
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
-
     roborioDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.roborio)
     roborioDebug wpi.java.vendor.jniDebug(wpi.platforms.roborio)
 
@@ -88,6 +98,18 @@ dependencies {
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 
+}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url = uri("${rootProject.projectDir}/repo")
+        }
+    }
 }
 
 test {
@@ -117,4 +139,14 @@ wpi.java.configureTestTasks(test)
 // Configure string concat to always inline compile
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
+}
+//tasks.named("build").configure {
+//    finalizedBy("publish")
+//}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
 }
