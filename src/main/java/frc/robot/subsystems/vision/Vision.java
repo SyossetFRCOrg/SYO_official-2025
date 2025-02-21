@@ -13,6 +13,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.LinkedList;
@@ -100,6 +101,7 @@ public class Vision extends SubsystemBase {
             new Translation2d(
                 drive.getChassisSpeeds().vxMetersPerSecond,
                 drive.getChassisSpeeds().vyMetersPerSecond);
+
         boolean rejectPose =
             observation.tagCount() == 0 // Must have at least one tag
                 || (observation.tagCount() == 1
@@ -115,9 +117,9 @@ public class Vision extends SubsystemBase {
                 || (observation.pose().getX() == 0.0 && observation.pose().getY() == 0.0)
                 || velocity.getNorm() > 2.5
                 || Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond)
-                    > (Math.PI) // reject if omega too high
+                    > (Math.PI * 3.0 / 4.0) // reject if omega too high
                 || (observation.type() == PoseObservationType.MEGATAG_1
-                    && observation.averageTagDistance() < .75);
+                    && observation.averageTagDistance() < .5);
 
         // Add pose to log
         robotPoses.add(observation.pose());
@@ -259,7 +261,6 @@ public class Vision extends SubsystemBase {
         // except for angular stddev because it just uses the gyro's angle anyway, so stddev is
         // infinite
 
-        // it doesn't work. it also does this for MT1
         if (observation.type() == PoseObservationType.MEGATAG_2) {
           linearStdDev *= linearStdDevMegatag2Factor;
           angularStdDev *= angularStdDevMegatag2Factor;
@@ -282,11 +283,13 @@ public class Vision extends SubsystemBase {
               new double[] {linearStdDev, angularStdDev});
         }
 
-        // Send vision observation
+        // Send vision observation only if vision is enabled
+        if (RobotState.getInstance().isAddingVision()){
         consumer.accept(
             observation.pose().toPose2d(),
             observation.timestamp(),
             VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+        }
       }
 
       // Log camera datadata

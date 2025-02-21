@@ -24,17 +24,23 @@ import org.littletonrobotics.junction.AutoLogOutput;
 @ExtensionMethod({GeomUtil.class})
 public class RobotState {
 
-  private static RobotState instance;
+  private static RobotState instance = new RobotState();
+
+  private RobotState() {}
 
   public static RobotState getInstance() {
-    if (instance == null) instance = new RobotState();
     return instance;
   }
 
-  @AutoLogOutput @Getter @Setter private boolean aboveL1 = false;
-  @AutoLogOutput @Getter @Setter private int elevatorPosition = 0;
+  @AutoLogOutput @Getter @Setter private volatile boolean aboveL1 = false;
+  @AutoLogOutput @Getter @Setter private volatile int elevatorPosition = 0;
 
-  @Getter @Setter private boolean wristCanMove = false;
+  @AutoLogOutput @Getter @Setter private volatile boolean addingVision = true;
+  @AutoLogOutput @Getter @Setter private volatile boolean wristCanMove = false;
+
+  @AutoLogOutput @Getter @Setter private volatile boolean autoAligning = true;
+
+
 
   private Pose2d[] coralStationPositions = {
     new Pose2d(1.1344856023788452, 7.127560615539551, Rotation2d.fromRadians(2.219791626297564)),
@@ -52,8 +58,8 @@ public class RobotState {
       new Pose2d(3.2235898971557617, 4.180093288421631, Rotation2d.fromDegrees(0))
     },
     {
-      new Pose2d(3.48, 5.13, Rotation2d.fromDegrees(-60.3)),
-      new Pose2d(3.86, 5.175, Rotation2d.fromDegrees(-60.71))
+      new Pose2d(3.58, 5.16, Rotation2d.fromDegrees(-60)),
+      new Pose2d(3.85, 5.36, Rotation2d.fromDegrees(-60))
     },
     {
       new Pose2d(4.970402717590332, 5.174771785736084, Rotation2d.fromRadians(-2.0988710476023327)),
@@ -92,8 +98,6 @@ public class RobotState {
   //   }
   // };
 
-  private RobotState() {}
-
   public double getDistanceToNearestReef(Pose2d pose) {
     double mindistance = Double.POSITIVE_INFINITY;
     int index = -1;
@@ -109,6 +113,16 @@ public class RobotState {
     }
 
     return mindistance;
+
+    // Use voronoi diagram strategy:  find region for each side of the reef
+    // Since the reef is a hexagon, we can split it across each diagonal to find the region
+    // Lines are y=y0, y-y1=sqrt(3)*(x-x1) and y-y1=-sqrt(3)*(x-x2)
+    // with y0 being the y of the middle of the reef, (x1,y1) being the bottom left corner
+    // and (x2,y1) being the bottom right corner
+
+    // double roboX = pose.getTranslation().getX(),
+    //         roboY = pose.getTranslation().getY();
+
   }
 
   public double getDistanceToNearestCoralStation(Pose2d pose) {

@@ -1,7 +1,5 @@
 package frc.robot.subsystems.intake;
 
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Superstructure;
@@ -30,7 +28,6 @@ public class Intake extends SubsystemBase {
 
   private final Timer debounceTimer = new Timer();
   private final double toleranceTime = 0.1;
-
 
   private static final HashMap<SuperState, LoggedTunableNumber> initializeSpeeds() {
     var map = new HashMap<SuperState, LoggedTunableNumber>();
@@ -81,10 +78,9 @@ public class Intake extends SubsystemBase {
       intakeSpeed = intakeSpeeds.get(Superstructure.getCurrentState()).get();
     }
 
-
     intakeIO.setVelocity(intakeSpeed);
 
-    if (inputs.currentAmps < 1.5){
+    if (inputs.currentAmps < 1.5) {
       debounceTimer.reset();
     }
     // intakeSpeed * 6

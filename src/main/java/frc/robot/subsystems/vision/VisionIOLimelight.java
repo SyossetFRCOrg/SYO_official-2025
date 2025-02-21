@@ -60,7 +60,7 @@ public class VisionIOLimelight implements VisionIO {
     //     table.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(new double[] {});
     megatag2Subscriber = (LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name));
     // Update connection status based on whether an update has been seen in the last 250ms
-    inputs.connected = ((RobotController.getFPGATime() - latencySubscriber) / 1000) < 250;
+    inputs.connected = ((RobotController.getFPGATime() / 1000.0 - latencySubscriber)) < 250;
 
     // Update target observation
     inputs.latestTargetObservation =
@@ -90,6 +90,7 @@ public class VisionIOLimelight implements VisionIO {
 
               // 3D pose estimate
               new Pose3d(megatag1Subscriber.pose),
+              
               megatag1Subscriber.rawFiducials[0].ambiguity,
 
               // Tag count

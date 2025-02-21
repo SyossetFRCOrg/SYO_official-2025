@@ -47,12 +47,12 @@ public class WristIOSparkMax implements WristIO {
       new LoggedTunableNumber(
           "Wrist/maxVelocity",
           // Units.rotationsPerMinuteToRadiansPerSecond((5600.0)) * (GEAR_RATIO) * .1
-          40);
+          150);
   private static final LoggedTunableNumber maxAcceleration =
       new LoggedTunableNumber(
           "Wrist/maxAcceleration",
           // Units.rotationsPerMinuteToRadiansPerSecond((5600.0)) * (GEAR_RATIO) * .1
-          20);
+          150);
 
   private final RelativeEncoder leader_encoder = leader.getEncoder();
   //   private final RelativeEncoder follower_encoder = follower.getEncoder();

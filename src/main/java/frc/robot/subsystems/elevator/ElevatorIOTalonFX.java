@@ -5,6 +5,7 @@ import static frc.robot.util.PhoenixUtil.*;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -19,6 +20,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import frc.robot.util.LoggedTunableNumber;
 
 /**
@@ -28,11 +30,12 @@ import frc.robot.util.LoggedTunableNumber;
 public class ElevatorIOTalonFX implements ElevatorIO {
 
   private static final double GEAR_RATIO = 5.0 / 1.0;
-  public static final double maxIntakeRate = 5600.0 * GEAR_RATIO; // rpm
+  // public static final double maxspeed = 5600.0 / GEAR_RATIO; // rpm
 
   final MotionMagicVoltage elevatorRequest = new MotionMagicVoltage(0);
 
   private final TalonFX talon;
+  private final TalonFX followertalon;
   private static TalonFXConfiguration talonConfig = new TalonFXConfiguration();
 
   private static final LoggedTunableNumber kP = new LoggedTunableNumber("Arm/Gains/kP", 0);
@@ -41,7 +44,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private static final LoggedTunableNumber kS = new LoggedTunableNumber("Arm/Gains/kS", 0);
   // kV is Voltage given per unit of velocity, in this case volts / rad / s
   private static final LoggedTunableNumber kV =
-      new LoggedTunableNumber("Arm/Gains/kV", 12.0 / 5600.0 * GEAR_RATIO);
+      new LoggedTunableNumber("Arm/Gains/kV", 12.0 / 5600.0 / GEAR_RATIO);
   // kA is Voltage given per unit of acceleration, volts / rad / s^2
   private static final LoggedTunableNumber kA = new LoggedTunableNumber("Arm/Gains/kA", 0);
   // kG is a constant voltage needed to keep the elevator at that height, the Voltage needed to
@@ -76,6 +79,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   public ElevatorIOTalonFX() {
     talon = new TalonFX(16, "rio");
+    followertalon = new TalonFX(17, "rio");
 
     talonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     talonConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
@@ -98,6 +102,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     talonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     talonConfig.CurrentLimits.SupplyCurrentLimit = 60;
     talonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+    tryUntilOk(5, () -> followertalon.getConfigurator().apply(talonConfig, 0.25));
 
     talonConfig.MotorOutput.Inverted =
         false // fix this, test this.  Positive should be upward
@@ -187,9 +193,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     talon.setPosition(Units.radiansToRotations(positionRads));
   }
 
+  
   /** Run elevator to position - Motion Magic */
   public void movetoHeight(double posRads) {
     talon.setControl(elevatorRequest.withPosition(Units.radiansToRotations(posRads)));
+    followertalon.setControl(new Follower(talon.getDeviceID(),true));
+    
   }
 
   //   /** Displays the periodically updated intake rate on the Shuffleboard */

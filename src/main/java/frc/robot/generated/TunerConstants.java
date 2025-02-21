@@ -20,7 +20,8 @@ import lombok.Builder;
 // https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/tuner-swerve/index.html
 public class TunerConstants {
 
-  public static final double wheelRadius = Units.inchesToMeters(1.906 /*Wheel radius */);
+    //how to figure out how to tune this properly
+  public static final double wheelRadius = Units.inchesToMeters(1.982 /*Wheel radius */);
 
   public static final DriveConfig driveConfig =
       DriveConfig.builder()
@@ -39,8 +40,8 @@ public class TunerConstants {
                   * Math.PI
                   / 1.8
                   * 2.0)
-          .maxAngularVelocity(Math.PI) // test out units - rad/s? was 12.0
-          .maxAngularAcceleration(2 * Math.PI) // was 6.0
+          .maxAngularVelocity(4 * Math.PI) // test out units - rad/s? was 12.0
+          .maxAngularAcceleration(3 * Math.PI) // was 6.0
           .build();
 
   // Theoretical free speed (m/s) at 12 V applied output;
@@ -111,7 +112,7 @@ public class TunerConstants {
 
   // The stator current at which the wheels start to slip;
   // This needs to be tuned to your individual robot
-  private static final Current kSlipCurrent = Amps.of(60.0);
+  private static final Current kSlipCurrent = Amps.of(75.0);
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -198,8 +199,8 @@ public class TunerConstants {
   private static final boolean kFrontLeftSteerMotorInverted = true;
   private static final boolean kFrontLeftEncoderInverted = false;
 
-  private static final Distance kFrontLeftXPos = Inches.of(14);
-  private static final Distance kFrontLeftYPos = Inches.of(14);
+  private static final Distance kFrontLeftXPos = Inches.of(12.25);
+  private static final Distance kFrontLeftYPos = Inches.of(12.25);
 
   // Front Right
   private static final int kFrontRightDriveMotorId = 4;
@@ -209,8 +210,8 @@ public class TunerConstants {
   private static final boolean kFrontRightSteerMotorInverted = true;
   private static final boolean kFrontRightEncoderInverted = false;
 
-  private static final Distance kFrontRightXPos = Inches.of(14);
-  private static final Distance kFrontRightYPos = Inches.of(-14);
+  private static final Distance kFrontRightXPos = Inches.of(12.25);
+  private static final Distance kFrontRightYPos = Inches.of(-12.25);
 
   // Back Left
   private static final int kBackLeftDriveMotorId = 7;
@@ -220,8 +221,8 @@ public class TunerConstants {
   private static final boolean kBackLeftSteerMotorInverted = true;
   private static final boolean kBackLeftEncoderInverted = false;
 
-  private static final Distance kBackLeftXPos = Inches.of(-14);
-  private static final Distance kBackLeftYPos = Inches.of(14);
+  private static final Distance kBackLeftXPos = Inches.of(-12.25);
+  private static final Distance kBackLeftYPos = Inches.of(12.25);
 
   // Back Right
   private static final int kBackRightDriveMotorId = 10;
@@ -231,8 +232,8 @@ public class TunerConstants {
   private static final boolean kBackRightSteerMotorInverted = true;
   private static final boolean kBackRightEncoderInverted = false;
 
-  private static final Distance kBackRightXPos = Inches.of(-14);
-  private static final Distance kBackRightYPos = Inches.of(-14);
+  private static final Distance kBackRightXPos = Inches.of(-12.25);
+  private static final Distance kBackRightYPos = Inches.of(-12.25);
 
   public static final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
@@ -320,8 +321,19 @@ public class TunerConstants {
 
   public static final ModuleLimits moduleLimitsL4Elevator =
       new ModuleLimits(
-          driveConfig.maxLinearVelocity() * .42,
-          driveConfig.maxLinearAcceleration() * .42,
+        (5800.0 / 60.0)
+        / ((50.0 / 14.0) * (16.0 / 28.0) * (45.0 / 15.0))
+        * wheelRadius
+        * 2
+        * Math.PI
+        / 2.0 * .42,
+
+        (5800.0 / 60.0)
+        / ((50.0 / 14.0) * (16.0 / 28.0) * (45.0 / 15.0))
+        * wheelRadius
+        * 2
+        * Math.PI
+        *.42,
           Units.degreesToRadians(1080.0));
 
   /**

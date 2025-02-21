@@ -251,30 +251,30 @@ public class RobotContainer {
 
     b.onTrue(superstructure.setWantedSuperStateCommand(SuperState.L1))
         .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW));
-    // .whileTrue(
-    //     new InstantCommand(
-    //             () -> {
-    //               reefAlignController =
-    //                   new ReefAlignController(
-    //                       drive,
-    //                       () ->
-    //                           RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
-    //                               < 1.0,
-    //                       () -> false);
-    //             })
-    //         .andThen(
-    //             new InstantCommand(
-    //                     () -> {
-    //                       drive.runVelocity(reefAlignController.update().get());
-    //                     },
-    //                     drive)
-    //                 .repeatedly())
-    //         .until(() -> reefAlignController.atGoal())
-    //         .andThen(
-    //             new ParallelRaceGroup(
-    //                 new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
+        // .whileTrue(
+        //     new InstantCommand(
+        //             () -> {
+        //               reefAlignController =
+        //                   new ReefAlignController(
+        //                       drive,
+        //                       () ->
+        //                           RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
+        //                               < 1.0,
+        //                       () -> false);
+        //             })
+        //         .andThen(
+        //             new InstantCommand(
+        //                     () -> {
+        //                       drive.runVelocity(reefAlignController.update().get());
+        //                     },
+        //                     drive)
+        //                 .repeatedly())
+        //         .until(() -> reefAlignController.atGoal())
+        //         .andThen(
+        //             new ParallelRaceGroup(
+        //                 new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
 
-    Trigger a = new Trigger(() -> controller.getAButton());
+    Trigger a = new Trigger(() -> (controller.getAButton() && RobotState.getInstance().isAutoAligning()));
 
     a.onTrue(
             superstructure
@@ -310,7 +310,7 @@ public class RobotContainer {
                     new ParallelRaceGroup(
                         new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
 
-    Trigger x = new Trigger(() -> controller.getXButton());
+    Trigger x = new Trigger(() -> (controller.getXButton() && RobotState.getInstance().isAutoAligning()));
 
     x.onTrue(
             superstructure
@@ -346,7 +346,7 @@ public class RobotContainer {
                     new ParallelRaceGroup(
                         new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
 
-    Trigger y = new Trigger(() -> controller.getYButton());
+    Trigger y = new Trigger(() -> (controller.getYButton() && RobotState.getInstance().isAutoAligning()));
 
     y.onTrue(superstructure.setWantedSuperStateCommand(SuperState.L4))
         .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW))
@@ -380,6 +380,9 @@ public class RobotContainer {
                                 new ControllerRumbleCommand(controller, () -> true),
                                 new WaitCommand(.4)))));
 
+    Trigger povLeft = new Trigger(() -> controller.getPOV() == 270);
+    povLeft.whileTrue(DriveCommands.wheelRadiusCharacterization(drive));
+
     Trigger povRight = new Trigger(() -> controller.getPOV() == 90);
 
     // reseting wrist and elevator encoder to their "zero" positions
@@ -392,6 +395,9 @@ public class RobotContainer {
                 })
             .ignoringDisable(true));
 
+
+    // switch the stick of the reef (on the same face) that is being aligned to.
+    // for an easy toggle that can be done while aligning (not letting go of alignment button) repeatedly, safely.
     Trigger leftBumper = new Trigger(() -> controller.getLeftBumperButton());
     leftBumper.onTrue(
         new InstantCommand(
@@ -404,15 +410,15 @@ public class RobotContainer {
                                 < 1.0,
                         () -> true)));
 
-    // Reset gyro to 0° when B button is pressed
+    // Reset gyro to 0° when the menu looking button is pressed
     Trigger resetPoseTrigger = new Trigger(() -> controller.getRawButton(8));
     resetPoseTrigger.onTrue(
         Commands.runOnce(
                 () ->
                     drive.setPose(
                         new Pose2d(
-                            0,
-                            0,
+                            drive.getPose().getX(),
+                            drive.getPose().getY(),
                             DriverStation.getAlliance().get() == Alliance.Blue
                                 ? Rotation2d.fromRadians(0)
                                 : Rotation2d.fromDegrees(180))),

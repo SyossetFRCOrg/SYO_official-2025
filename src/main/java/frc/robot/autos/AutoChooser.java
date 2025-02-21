@@ -41,8 +41,9 @@ public class AutoChooser extends SendableChooser<Auto> {
           new AutoProgram(Auto.IDLE, "IDLE", AutoFactory::createIdleCommand),
           new AutoProgram(
               Auto.LEFTSTARTALLKL, "LEFT START ALL KL", AutoFactory::createLeftStartAllKL),
-          new AutoProgram(Auto.LEFTSTARTALLLK, "LEFT START ALL LK", AutoFactory::createLeftStartAllLK)
-          
+          new AutoProgram(
+              Auto.LEFTSTARTALLLK, "LEFT START ALL LK", AutoFactory::createLeftStartAllLK)
+
           // ,
           // new AutoProgram(
           //     Auto.THREETOONETOA, "THREE TO ONE TO A", AutoFactory::createThreeToOneToA),

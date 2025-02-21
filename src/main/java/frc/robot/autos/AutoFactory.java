@@ -73,27 +73,36 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score());
 
     c.addCommands(IntakeFollow(Location.K, Location.LEFTCORALSTATION));
+    // c.addCommands(waitSeconds(1));
+
     c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREL));
     c.addCommands(AutoAlignL4Score());
 
     c.addCommands(IntakeFollow(Location.L, Location.LEFTCORALSTATION));
+    // c.addCommands(waitSeconds(1));
+
     c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREK));
     c.addCommands(AutoAlignL3Score());
 
     c.addCommands(IntakeFollow(Location.K, Location.LEFTCORALSTATION));
+    // c.addCommands(waitSeconds(1));
+
     c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREL));
     c.addCommands(AutoAlignL3Score());
 
     c.addCommands(IntakeFollow(Location.L, Location.LEFTCORALSTATION));
+    c.addCommands(waitSeconds(1));
+
     c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREK));
     c.addCommands(AutoAlignL2Score());
 
     c.addCommands(IntakeFollow(Location.K, Location.LEFTCORALSTATION));
+    c.addCommands(waitSeconds(1));
+
     c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREL));
     c.addCommands(AutoAlignL2Score());
     return c;
   }
-
 
   Command createLeftStartAllLK() {
     PathPlannerPath firstSegment = loadSegment(Location.LSTART, Location.PREL);
@@ -102,27 +111,36 @@ class AutoFactory {
     SequentialCommandGroup c = new SequentialCommandGroup();
     c.addCommands(resetPose(firstSegment));
 
-
     c.addCommands(follow(Location.LSTART, Location.PREL));
     c.addCommands(AutoAlignL4Score());
 
     c.addCommands(IntakeFollow(Location.L, Location.LEFTCORALSTATION));
+    c.addCommands(waitSeconds(1));
+
     c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREK));
     c.addCommands(AutoAlignL4Score());
 
     c.addCommands(IntakeFollow(Location.K, Location.LEFTCORALSTATION));
+    c.addCommands(waitSeconds(1));
+
     c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREL));
     c.addCommands(AutoAlignL3Score());
 
     c.addCommands(IntakeFollow(Location.L, Location.LEFTCORALSTATION));
+    c.addCommands(waitSeconds(1));
+
     c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREK));
     c.addCommands(AutoAlignL3Score());
 
     c.addCommands(IntakeFollow(Location.K, Location.LEFTCORALSTATION));
+    c.addCommands(waitSeconds(1));
+
     c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREL));
     c.addCommands(AutoAlignL2Score());
 
     c.addCommands(IntakeFollow(Location.L, Location.LEFTCORALSTATION));
+    c.addCommands(waitSeconds(1));
+
     c.addCommands(StowFollow(Location.LEFTCORALSTATION, Location.PREK));
     c.addCommands(AutoAlignL2Score());
     return c;
@@ -149,8 +167,11 @@ class AutoFactory {
                     },
                     drive)
                 .repeatedly()
-                .until(() -> reefAlignController.atGoal() && Superstructure.getCurrentState() == SuperState.L4))
-                ;
+                .until(
+                    () ->
+                        reefAlignController.atGoal()
+                            && Superstructure.getCurrentState() == SuperState.L4))
+        .andThen(waitSeconds(1));
   }
 
   private Command AutoAlignL3Score() {
@@ -174,7 +195,11 @@ class AutoFactory {
                     },
                     drive)
                 .repeatedly()
-                .until(() -> reefAlignController.atGoal() && Superstructure.getCurrentState() == SuperState.L3));
+                .until(
+                    () ->
+                        reefAlignController.atGoal()
+                            && Superstructure.getCurrentState() == SuperState.L3))
+        .andThen(waitSeconds(1));
   }
 
   private Command AutoAlignL2Score() {
@@ -198,7 +223,11 @@ class AutoFactory {
                     },
                     drive)
                 .repeatedly()
-                .until(() -> reefAlignController.atGoal() && Superstructure.getCurrentState() == SuperState.L2));
+                .until(
+                    () ->
+                        reefAlignController.atGoal()
+                            && Superstructure.getCurrentState() == SuperState.L2))
+        .andThen(waitSeconds(1));
   }
 
   // Auto init helpers
@@ -236,9 +265,9 @@ class AutoFactory {
 
   private Command IntakeFollow(final Location start, final Location end) {
     return (superstructure
-            .setWantedSuperStateCommand(SuperState.INTAKE)
-            .alongWith(follow(loadSegment(start, end))))
-        .andThen(waitSeconds(1)); // time for HP to throw in the coral
+        .setWantedSuperStateCommand(SuperState.INTAKE)
+        .alongWith(follow(loadSegment(start, end))));
+    // time for HP to throw in the coral
   }
 
   // Path following
