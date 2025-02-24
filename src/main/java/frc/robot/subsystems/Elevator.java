@@ -48,7 +48,7 @@ public class Elevator extends SubsystemBase {
         config.maxAcceleration = 64.0;
         config.maxJerk = 256.0;
 
-        config.feedForward = new ElevatorFeedForward(0.0, 0.125, 0.0, 0.78);
+        config.feedForward = new ElevatorFeedForward(0.0, 0.125, 0.0, 0.4);
         
         config.debounceTime = 0.2;
         config.tolerance = 0.2;

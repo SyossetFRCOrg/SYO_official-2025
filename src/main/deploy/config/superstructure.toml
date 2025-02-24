@@ -12,4 +12,4 @@ enabled = true
 [[subsystems]]
 id = "algae_intake"
 name = "Algae Intake"
-enabled = false
+enabled = true
