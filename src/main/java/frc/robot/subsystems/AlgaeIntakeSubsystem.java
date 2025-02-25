@@ -46,6 +46,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
      * @param voltage the voltage to set the motor to
      */
     public void setRollerVoltage(double voltage) {
+        System.out.println(algaeIntakeRollerMotor.getAppliedOutput());
         algaeIntakeRollerMotor.setVoltage(MathUtil.clamp(voltage, -4.0, 4.0));
     }
 
@@ -56,7 +57,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
      * 
      */
     public boolean beamBroken() {
-        //TODO: learn beam breaker code and implement it
+        // TODO: learn beam breaker code and implement it
         // Query some boolean state, such as a digital sensor.
         return false;
     }
