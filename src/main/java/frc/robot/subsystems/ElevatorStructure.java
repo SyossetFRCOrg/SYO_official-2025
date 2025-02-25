@@ -189,14 +189,14 @@ public class ElevatorStructure extends SubsystemBase {
         return Commands.sequence(
             getPositionCommand(-Math.PI/2, 0.0),
             Commands.waitSeconds(0.2),
-            getPositionCommand(0.0, 5.0),
+            getPositionCommand(0.0, 8.0),
             coralArm.getSetKg(0.74)
         ).finallyDo(() -> state = HOLD);
     }
 
     private final Command prepareL1() { return Commands.none().finallyDo(() -> state = L1_READY); }
     private final Command prepareL2() { return getPositionCommand(1.3, -3.5).finallyDo(() -> state = L2_READY); }
-    private final Command prepareL3() { return getPositionCommand(1.3, 11.5).finallyDo(() -> state = L3_READY); }
+    private final Command prepareL3() { return getPositionCommand(1.3, 56.34).finallyDo(() -> state = L3_READY); }
     private final Command prepareL4() { return getPositionCommand(1.5, 23.0).finallyDo(() -> state = L4_READY); }
     
     private final Command scoreL1() { return Commands.none().andThen(setNeutralCommand()); }
