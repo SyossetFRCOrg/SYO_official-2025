@@ -102,4 +102,8 @@ public final class Constants {
         public static final double kGravityFF = 0.0; // TODO
 
     }
+
+    public static final class LEDsConstants {
+        public static final int LED_CONTROLLER_ID = 5;
+    }
 }

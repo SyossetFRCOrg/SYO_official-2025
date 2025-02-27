@@ -19,6 +19,7 @@ public class Superstructure extends SubsystemBase {
     private final Optional<Drivetrain> drivetrain;
     private final Optional<AlgaeIntakeSubsystem> algaeIntake;
     private final Optional<ElevatorStructure> elevatorStructure;
+    private final Optional<LEDs> leds;
 
     public Superstructure() {
         var deployDir = Filesystem.getDeployDirectory();
@@ -59,6 +60,16 @@ public class Superstructure extends SubsystemBase {
             elevatorStructure.ifPresent(structure -> structure.debugControls(controller));
         } else {
             elevatorStructure = Optional.empty();
+        }
+
+        if (subsystems.get("leds").getBoolean("enabled")) {
+            leds = Optional.of(new LEDs());
+            leds.ifPresent(struc -> {
+                struc.setDefaultCommand(Commands.run(() -> struc.offLED(), struc));
+                controller.povUp().whileTrue(Commands.run(() -> struc.testLED(), struc));
+            });
+        } else {
+            leds = Optional.empty();
         }
     }
 }
