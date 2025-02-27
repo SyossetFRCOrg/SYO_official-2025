@@ -38,7 +38,7 @@ public class ElevatorStructure extends SubsystemBase {
     }
     
     public ElevatorStructure() {
-        state = NEUTRAL;
+        state = HOLD;
         SmartDashboard.putData("Elevator Structure", this);
         // coralArm.getResetPosition();
         // elevator.getResetPosition();
@@ -47,10 +47,10 @@ public class ElevatorStructure extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.addStringProperty("State", () -> state.toString(), null);
-        builder.addDoubleProperty("L2 Prepare Height", () -> elevatorPreparePositionL2, (value) -> elevatorPreparePositionL2 = value);
+        // builder.addDoubleProperty("L2 Prepare Height", () -> elevatorPreparePositionL2, (value) -> elevatorPreparePositionL2 = value);
         builder.addDoubleProperty("L3 Prepare Height", () -> elevatorPreparePositionL3, (value) -> elevatorPreparePositionL3 = value);
-        builder.addDoubleProperty("L4 Prepare Height", () -> elevatorPreparePositionL4, (value) -> elevatorPreparePositionL4 = value);
-        builder.addDoubleProperty("Elevator Intake Height", () -> elevatorIntakeLiftPosition, (value) -> elevatorIntakeLiftPosition = value);
+        // builder.addDoubleProperty("L4 Prepare Height", () -> elevatorPreparePositionL4, (value) -> elevatorPreparePositionL4 = value);
+        // builder.addDoubleProperty("Elevator Intake Height", () -> elevatorIntakeLiftPosition, (value) -> elevatorIntakeLiftPosition = value);
         // builder.addDoubleProperty("Hold kG", () -> coralArmKgHold, (value) -> coralArmKgHold = value);
         // builder.addDoubleProperty("Intkae kG", () -> coralArmKgIntake, (value) -> coralArmKgIntake = value);
         // builder.addDoubleProperty("Neutral kG", () -> coralArmKgNeutral, (value) -> coralArmKgNeutral = value);
