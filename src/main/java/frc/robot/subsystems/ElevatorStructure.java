@@ -12,6 +12,14 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 public class ElevatorStructure extends SubsystemBase {
     private final Elevator elevator = new Elevator();
     private final CoralArm coralArm = new CoralArm();
+    private double elevatorPreparePositionL2 = -3.5;
+    private double elevatorPreparePositionL3 = 56.34;
+    private double elevatorPreparePositionL4 = 23.0;
+    private double elevatorIntakeLiftPosition = 10.0;
+    private double coralArmKgIntake = 0.74;
+    private double coralArmKgHold = 0.8;
+    private double coralArmKgNeutral = 0.35;
+
 
     private State<Event> state;
 
@@ -32,11 +40,20 @@ public class ElevatorStructure extends SubsystemBase {
     public ElevatorStructure() {
         state = NEUTRAL;
         SmartDashboard.putData("Elevator Structure", this);
+        // coralArm.getResetPosition();
+        // elevator.getResetPosition();
     }
 
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.addStringProperty("State", () -> state.toString(), null);
+        builder.addDoubleProperty("L2 Prepare Height", () -> elevatorPreparePositionL2, (value) -> elevatorPreparePositionL2 = value);
+        builder.addDoubleProperty("L3 Prepare Height", () -> elevatorPreparePositionL3, (value) -> elevatorPreparePositionL3 = value);
+        builder.addDoubleProperty("L4 Prepare Height", () -> elevatorPreparePositionL4, (value) -> elevatorPreparePositionL4 = value);
+        builder.addDoubleProperty("Elevator Intake Height", () -> elevatorIntakeLiftPosition, (value) -> elevatorIntakeLiftPosition = value);
+        // builder.addDoubleProperty("Hold kG", () -> coralArmKgHold, (value) -> coralArmKgHold = value);
+        // builder.addDoubleProperty("Intkae kG", () -> coralArmKgIntake, (value) -> coralArmKgIntake = value);
+        // builder.addDoubleProperty("Neutral kG", () -> coralArmKgNeutral, (value) -> coralArmKgNeutral = value);
     }
 
     // These should not be enabled with the drivetrain enabled simultaneously !
@@ -68,11 +85,11 @@ public class ElevatorStructure extends SubsystemBase {
     }
 
     public Command setHoldCommand() {
-        return coralArm.getSetKg(0.68).finallyDo(() -> state = HOLD);
+        return coralArm.getSetKg(coralArmKgHold).finallyDo(() -> state = HOLD);
     }
 
     public Command setNeutralCommand() {
-        return coralArm.getSetKg(0.35).finallyDo(() -> state = NEUTRAL);
+        return coralArm.getSetKg(coralArmKgNeutral).finallyDo(() -> state = NEUTRAL);
     }
     
     private final State<Event> NEUTRAL = new State<>() {
@@ -189,15 +206,15 @@ public class ElevatorStructure extends SubsystemBase {
         return Commands.sequence(
             getPositionCommand(-Math.PI/2, 0.0),
             Commands.waitSeconds(0.2),
-            getPositionCommand(0.0, 8.0),
-            coralArm.getSetKg(0.74)
+            coralArm.getPositionCommand(-Math.PI/2 + Math.PI/6),
+            getPositionCommand(0.0, elevatorIntakeLiftPosition),
+            coralArm.getSetKg(coralArmKgIntake)
         ).finallyDo(() -> state = HOLD);
     }
-
     private final Command prepareL1() { return Commands.none().finallyDo(() -> state = L1_READY); }
-    private final Command prepareL2() { return getPositionCommand(1.3, -3.5).finallyDo(() -> state = L2_READY); }
-    private final Command prepareL3() { return getPositionCommand(1.3, 56.34).finallyDo(() -> state = L3_READY); }
-    private final Command prepareL4() { return getPositionCommand(1.5, 23.0).finallyDo(() -> state = L4_READY); }
+    private final Command prepareL2() { return getPositionCommand(1.3, elevatorPreparePositionL2).finallyDo(() -> state = L2_READY); }
+    private final Command prepareL3() { return getPositionCommand(1.3, elevatorPreparePositionL3).finallyDo(() -> state = L3_READY); }
+    private final Command prepareL4() { return getPositionCommand(1.5, elevatorPreparePositionL4).finallyDo(() -> state = L4_READY); }
     
     private final Command scoreL1() { return Commands.none().andThen(setNeutralCommand()); }
     private final Command scoreL2() { return getPositionCommand(-1.0, -0.1).andThen(setNeutralCommand()); }

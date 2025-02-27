@@ -87,6 +87,11 @@ public class CoralArm extends SubsystemBase {
         return Commands.runOnce(() -> feedForward.kG = kG);
     }
 
+    public Command getResetPosition()
+    {
+        return Commands.runOnce(() -> motor.resetPosition(-Math.PI/2));
+    }
+
     public void debugControls(CommandXboxController controller) {
         var ctrlMode = controller.rightTrigger().and(controller.leftTrigger().negate());
         ctrlMode.and(controller.a().or(controller.b()))
