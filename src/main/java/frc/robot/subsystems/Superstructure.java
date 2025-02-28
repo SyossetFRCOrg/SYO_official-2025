@@ -7,11 +7,15 @@ import java.util.stream.Collectors;
 
 import com.moandjiezana.toml.Toml;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.drive.swerve.Drivetrain;
+import frc.robot.subsystems.drive.swerve.ModuleIOSpark.Config.Drive;
 
 public class Superstructure extends SubsystemBase {
     private final CommandXboxController controller;
@@ -33,15 +37,21 @@ public class Superstructure extends SubsystemBase {
             drivetrain = Optional.of(new Drivetrain());
             // drivetrain = Optional.of(new Drivetrain(new Toml().read(new File(configDir, "swerve.toml"))));
             drivetrain.ifPresent(drive -> {
-                drive.setDefaultCommand(drive.new DefaultDrive(
-                    () -> 0.3 * controller.getLeftY(),
-                    () -> 0.3 * controller.getLeftX(),
-                    () -> 0.1 * controller.getRightX()
+                drive.setDefaultCommand(drive.joystickDrive(
+                    drive,
+                    () ->  0.5 * controller.getLeftY(),
+                    () ->  0.5 * controller.getLeftX(),
+                    () ->  0.4 * controller.getRightX()
                 ));
             });
+
+            controller.button(8).onTrue(drivetrain.get().setRotation(
+                    DriverStation.getAlliance().get() == Alliance.Red ? (180) : (0)
+            ));
         } else {
             drivetrain = Optional.empty();
         }
+
 
         if (subsystems.get("algae_intake").getBoolean("enabled")) {
             algaeIntake = Optional.of(new AlgaeIntakeSubsystem());

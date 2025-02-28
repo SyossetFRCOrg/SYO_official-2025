@@ -1,18 +1,32 @@
 package frc.robot.subsystems.drive.swerve;
 
 import java.util.Arrays;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.Pigeon2Configuration;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.moandjiezana.toml.Toml;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
@@ -20,7 +34,24 @@ public class Drivetrain extends SubsystemBase {
     private final SwerveDriveKinematics kinematics;
     private final int numModules;
 
+    private final Pigeon2 pigeon =
+      new Pigeon2(
+          21,
+          "rio");
+    private StatusSignal<Angle> yaw = pigeon.getYaw();
+
+    private ChassisSpeeds previousChassisSpeeds = new ChassisSpeeds();
+
+
     public Drivetrain() {
+
+        pigeon.getConfigurator().apply(new Pigeon2Configuration());
+        pigeon.getConfigurator().setYaw(0.0);
+        yaw.setUpdateFrequency(50);
+        pigeon.optimizeBusUtilization();
+            
+
+          
         numModules = 4;
 
         ModuleIOSpark.Config baseSparkConfig = new ModuleIOSpark.Config();
@@ -114,12 +145,59 @@ public class Drivetrain extends SubsystemBase {
         kinematics = new SwerveDriveKinematics(Arrays.stream(modules).map(module -> module.getPos()).toArray(Translation2d[]::new));
     }
 
+    public Command setRotation (double degrees){
+        return new InstantCommand(() -> pigeon.getConfigurator().setYaw(degrees));
+    }
+
     public void setSpeeds(ChassisSpeeds speeds) {
-        var states = kinematics.toSwerveModuleStates(speeds);
+
+        
+    // the following serves as global translational acceleration limiting
+
+    Translation2d prevSpeedsTranslation = GeomUtil.toTranslation2d(previousChassisSpeeds);
+    // GeomUtil.toTranslation2d(getChassisSpeeds());
+
+    Translation2d desiredSpeedsTranslation = GeomUtil.toTranslation2d(speeds);
+
+    Translation2d TranslationDelta = desiredSpeedsTranslation.minus(prevSpeedsTranslation);
+
+    double maxTranslationDeltaPerLoopRatio =
+        TranslationDelta
+                .getNorm() /*magnitude of difference of current and desired velocity vectors*/
+            / ((.05) //max acceleration in m/s^2
+             * .02);
+
+    if (maxTranslationDeltaPerLoopRatio > 1) {
+      // have to make it so that it approaches prevSpeedsTranslation in a
+      // 1/maxTranslationDeltaPerSecRatio ratio,
+      // meant to reduce the delta so that we do not hit the tipping point.
+      TranslationDelta =
+          TranslationDelta.div(
+              Math.sqrt(maxTranslationDeltaPerLoopRatio)); // it works, do the math yourself.
+    }
+
+    desiredSpeedsTranslation = prevSpeedsTranslation.plus(TranslationDelta);
+    speeds.vxMetersPerSecond = desiredSpeedsTranslation.getX();
+    speeds.vyMetersPerSecond = desiredSpeedsTranslation.getY();
+
+    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+
+    var states = kinematics.toSwerveModuleStates(discreteSpeeds);
+
+    SwerveDriveKinematics.desaturateWheelSpeeds(
+        states,
+        3.5 //maximum velocity in m/s
+        );
+
 
         for (int i = 0; i < numModules; i++) {
             modules[i].setState(states[i]);
         }
+        previousChassisSpeeds = discreteSpeeds;
+    }
+
+    public Rotation2d getRotation(){
+        return Rotation2d.fromDegrees(yaw.getValueAsDouble());
     }
 
     @Override
@@ -127,23 +205,63 @@ public class Drivetrain extends SubsystemBase {
         for (int i = 0; i < numModules; i++) {
             SmartDashboard.putNumber(String.valueOf(i), modules[i].getAngle().getRadians());
         }
+        yaw = pigeon.getYaw();
     }
 
-    public class DefaultDrive extends Command {
-        private final Supplier<Double> xSupplier;
-        private final Supplier<Double> ySupplier;
-        private final Supplier<Double> omegaSupplier;
+    private static Translation2d getLinearVelocityFromJoysticks(double x, double y) {
+        // Apply deadband
+        double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), 0.05);
+        Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
+    
+        // Square magnitude for more precise control
+        linearMagnitude = linearMagnitude * linearMagnitude;
+    
+        // Return new linear velocity
+        return new Pose2d(new Translation2d(), linearDirection)
+            .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
+            .getTranslation();
+      }
+    
+      /**
+       * Field relative drive command using two joysticks (controlling linear and angular velocities).
+       */
+      public Command joystickDrive(
+          Drivetrain drive,
+          DoubleSupplier xSupplier,
+          DoubleSupplier ySupplier,
+          DoubleSupplier omegaSupplier) {
+        return Commands.run(
+            () -> {
+              // Get linear velocity
+              Translation2d linearVelocity =
+                  getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+    
+              // Apply rotation deadband
+              double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), 0.05);
+    
+              // Square rotation value for more precise control
+              omega = Math.copySign(omega * omega, omega);
+    
+              // Convert to field relative speeds & send command
+              ChassisSpeeds speeds =
+                  new ChassisSpeeds(
+                      linearVelocity.getX()
+                          * (5600.0 / 60.0) / ((50.0 / 14.0) * (19.0 / 25.0) * (45.0 / 15.0)) * 2 * Math.PI * Units.inchesToMeters(1.7),
+                      linearVelocity.getY()
+                          * (5600.0 / 60.0) / ((50.0 / 14.0) * (19.0 / 25.0) * (45.0 / 15.0)) * 2 * Math.PI * Units.inchesToMeters(1.7),
+                      omega * (5600.0 / 60.0) / ((50.0 / 14.0) * (19.0 / 25.0) * (45.0 / 15.0)) * Units.inchesToMeters(1.7) / Units.inchesToMeters(Math.sqrt(1800)));
+              boolean isFlipped =
+                  DriverStation.getAlliance().isPresent()
+                      && DriverStation.getAlliance().get() == Alliance.Red;
+              drive.setSpeeds(
+                  ChassisSpeeds.fromFieldRelativeSpeeds(
+                      speeds,
+                      isFlipped
+                          ? drive.getRotation().plus(new Rotation2d(Math.PI))
+                          : drive.getRotation()));
+            },
+            drive);
+      }
 
-        public DefaultDrive(Supplier<Double> xSupplier, Supplier<Double> ySupplier, Supplier<Double> omegaSupplier) {
-            this.xSupplier = xSupplier;
-            this.ySupplier = ySupplier;
-            this.omegaSupplier = omegaSupplier;
-            addRequirements(Drivetrain.this);
-        }
 
-        @Override
-        public void execute() {
-            setSpeeds(new ChassisSpeeds(xSupplier.get(), ySupplier.get(), omegaSupplier.get()));
-        }
-    }
 }
