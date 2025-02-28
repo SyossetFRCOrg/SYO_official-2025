@@ -212,9 +212,9 @@ public class ElevatorStructure extends SubsystemBase {
         ).finallyDo(() -> state = HOLD);
     }
     private final Command prepareL1() { return Commands.none().finallyDo(() -> state = L1_READY); }
-    private final Command prepareL2() { return getPositionCommand(1.3, elevatorPreparePositionL2).finallyDo(() -> state = L2_READY); }
-    private final Command prepareL3() { return getPositionCommand(1.3, elevatorPreparePositionL3).finallyDo(() -> state = L3_READY); }
-    private final Command prepareL4() { return getPositionCommand(1.5, elevatorPreparePositionL4).finallyDo(() -> state = L4_READY); }
+    private final Command prepareL2() { return getPositionCommand(1.3, elevatorPreparePositionL2).andThen(setHoldCommand()).finallyDo(() -> state = L2_READY); }
+    private final Command prepareL3() { return getPositionCommand(1.3, elevatorPreparePositionL3).andThen(setHoldCommand()).finallyDo(() -> state = L3_READY); }
+    private final Command prepareL4() { return getPositionCommand(1.5, elevatorPreparePositionL4).andThen(setHoldCommand()).finallyDo(() -> state = L4_READY); }
     
     private final Command scoreL1() { return Commands.none().andThen(setNeutralCommand()); }
     private final Command scoreL2() { return getPositionCommand(-1.0, -0.1).andThen(setNeutralCommand()); }
