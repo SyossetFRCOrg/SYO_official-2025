@@ -68,6 +68,7 @@ public class MotorIOSpark implements MotorIO, Sendable {
     private final Debouncer debouncer;
     
     public MotorIOSpark(Config config) {
+        System.out.println(config.canid);
         spark = new SparkMax(config.canid, config.motorType);
         encoder = spark.getEncoder();
         // controller = spark.getClosedLoopController();

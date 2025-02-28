@@ -7,13 +7,10 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.ElevatorStructure;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.drive.swerve.Drivetrain;
 
 /**
  * The methods in this class are called automatically corresponding to each
@@ -34,6 +31,7 @@ public class Robot extends TimedRobot {
      */
     public Robot() {
         superstructure = new Superstructure();
+
         if (Robot.isSimulation()) {
             DriverStation.silenceJoystickConnectionWarning(true);
         }
@@ -71,16 +69,14 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
-        Drivetrain driveTrain = new Drivetrain();
-        ElevatorStructure elevatorStructure = new ElevatorStructure();
         autonomousCommand = new SequentialCommandGroup(
-                (driveTrain.new DefaultDrive(
-                        () -> 1.0,
-                        () -> 0.3 * 0.0,
-                        () -> 0.1 * 0.0).alongWith(elevatorStructure.getL3PrepareCommand()))
-                        .withDeadline(new WaitCommand(4)),
-                elevatorStructure.getL3ScoreCommand()
-            );
+            superstructure.getDrivetrain().new DefaultDrive(
+                () -> -0.5,
+                () -> 0.0,
+                () -> 0.0
+            ).alongWith(superstructure.getElevatorStructure().getL3PrepareCommand()).withDeadline(new WaitCommand(4)),
+            superstructure.getElevatorStructure().getL3ScoreCommand()
+        );
     }
 
     @Override
