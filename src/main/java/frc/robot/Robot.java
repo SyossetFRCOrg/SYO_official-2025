@@ -7,7 +7,13 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.ElevatorStructure;
 import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.drive.swerve.Drivetrain;
 
 /**
  * The methods in this class are called automatically corresponding to each
@@ -18,6 +24,7 @@ import frc.robot.subsystems.Superstructure;
  */
 public class Robot extends TimedRobot {
     @SuppressWarnings("unused")
+    private Command autonomousCommand;
     private final Superstructure superstructure;
 
     /**
@@ -60,5 +67,26 @@ public class Robot extends TimedRobot {
     @Override
     public void testPeriodic() {
 
+    }
+
+    @Override
+    public void robotInit() {
+        Drivetrain driveTrain = new Drivetrain();
+        ElevatorStructure elevatorStructure = new ElevatorStructure();
+        autonomousCommand = new SequentialCommandGroup(
+                (driveTrain.new DefaultDrive(
+                        () -> 1.0,
+                        () -> 0.3 * 0.0,
+                        () -> 0.1 * 0.0).alongWith(elevatorStructure.getL3PrepareCommand()))
+                        .withDeadline(new WaitCommand(4)),
+                elevatorStructure.getL3ScoreCommand()
+            );
+    }
+
+    @Override
+    public void autonomousInit() {
+        if (autonomousCommand != null) {
+            autonomousCommand.schedule();
+        }
     }
 }
