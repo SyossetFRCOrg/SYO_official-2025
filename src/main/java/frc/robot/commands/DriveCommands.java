@@ -1,10 +1,5 @@
 package frc.robot.commands;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.GoalEndState;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.Waypoint;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -34,7 +29,8 @@ public class DriveCommands {
   private static final double DEADBAND = 0.1;
   private static final double ANGLE_KP = 4.0;
   private static final double ANGLE_KD = 0.4;
-  private static final double ANGLE_MAX_VELOCITY = TunerConstants.driveConfig.maxAngularVelocity() * 2;
+  private static final double ANGLE_MAX_VELOCITY =
+      TunerConstants.driveConfig.maxAngularVelocity() * 2;
   private static final double ANGLE_MAX_ACCELERATION =
       TunerConstants.driveConfig.maxAngularAcceleration() * 2;
   private static final double FF_START_DELAY = 2.0; // Secs
@@ -48,10 +44,14 @@ public class DriveCommands {
   // { // use alliancefliputil to flip to get corresponding red scoring pose2ds
   //   new Pose2d(3.2292869091033936, 3.8667519092559814, Rotation2d.fromDegrees(0)),
   //   new Pose2d(3.2235898971557617, 4.180093288421631, Rotation2d.fromDegrees(0)),
-  //   new Pose2d(3.707775115966797, 5.033270359039307, Rotation2d.fromRadians(-1.0466175637493382)),
-  //   new Pose2d(3.985335350036621, 5.185656547546387, Rotation2d.fromRadians(-1.0466175637493382)),
-  //   new Pose2d(4.970402717590332, 5.174771785736084, Rotation2d.fromRadians(-2.0988710476023327)),
-  //   new Pose2d(5.264289855957031, 5.011500835418701, Rotation2d.fromRadians(-2.0988710476023327)),
+  //   new Pose2d(3.707775115966797, 5.033270359039307,
+  // Rotation2d.fromRadians(-1.0466175637493382)),
+  //   new Pose2d(3.985335350036621, 5.185656547546387,
+  // Rotation2d.fromRadians(-1.0466175637493382)),
+  //   new Pose2d(4.970402717590332, 5.174771785736084,
+  // Rotation2d.fromRadians(-2.0988710476023327)),
+  //   new Pose2d(5.264289855957031, 5.011500835418701,
+  // Rotation2d.fromRadians(-2.0988710476023327)),
   //   new Pose2d(5.726890563964844, 4.184262275695801, Rotation2d.fromDegrees(180)),
   //   new Pose2d(5.732332706451416, 3.868605375289917, Rotation2d.fromDegrees(180)),
   // };
@@ -122,9 +122,7 @@ public class DriveCommands {
    * @return
    */
   public static Command joystickDriveCoralStation(
-      Drive drive,
-      DoubleSupplier xSupplier,
-      DoubleSupplier ySupplier) {
+      Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
 
     // // Logger.recordOutput("Odometry/botPoseY>4", 4.0 > drive.getPose().getY());
     // if (4.0 > yCoordinateSupplier.getAsDouble()) //doesn't work right now
@@ -199,9 +197,9 @@ public class DriveCommands {
                   ChassisSpeeds.fromFieldRelativeSpeeds(
                       speeds,
                       // isFlipped
-                          // ? drive.getRotation().plus(new Rotation2d(Math.PI))
-                          // : 
-                          drive.getRotation()));
+                      // ? drive.getRotation().plus(new Rotation2d(Math.PI))
+                      // :
+                      drive.getRotation()));
             },
             drive)
 
@@ -216,7 +214,8 @@ public class DriveCommands {
   //     if (pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation())
   //         < mindistance) {
   //       index = i;
-  //       mindistance = pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation());
+  //       mindistance =
+  // pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation());
   //     }
   //   }
 
@@ -230,7 +229,8 @@ public class DriveCommands {
   //     if (pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation())
   //         < mindistance) {
   //       index = i;
-  //       mindistance = pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation());
+  //       mindistance =
+  // pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation());
   //     }
   //   }
 
@@ -245,7 +245,8 @@ public class DriveCommands {
   //     if (pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation())
   //         < mindistance) {
   //       index = i;
-  //       mindistance = pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation());
+  //       mindistance =
+  // pose.getTranslation().getDistance(reefscoringPositions[i].getTranslation());
   //     }
   //   }
 
@@ -283,7 +284,8 @@ public class DriveCommands {
   //           TunerConstants.moduleLimitsFree.maxSteeringVelocity() * .8,
   //           TunerConstants.moduleLimitsFree.maxSteeringVelocity()
   //               * 1.5); // The constraints for this path.
-  //   // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also use
+  //   // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also
+  // use
   //   // unlimited constraints, only limited by motor torque and nominal battery voltage
 
   //   // Create the path using the waypoints created above
@@ -291,7 +293,8 @@ public class DriveCommands {
   //       new PathPlannerPath(
   //           waypoints,
   //           constraints,
-  //           null, // The ideal starting state, this is only relevant for pre-planned paths, so can
+  //           null, // The ideal starting state, this is only relevant for pre-planned paths, so
+  // can
   //           // be null for on-the-fly paths.
   //           new GoalEndState(
   //               0.0,
@@ -308,7 +311,8 @@ public class DriveCommands {
   // }
 
   // public static Command lineUpToNearestReef(Supplier<Pose2d> pose) {
-  //   // have to seperate making the path and running it because making the path is not a "runnable"
+  //   // have to seperate making the path and running it because making the path is not a
+  // "runnable"
   //   return (AutoBuilder.followPath(getPathToNearestReef(pose.get())));
   // }
 

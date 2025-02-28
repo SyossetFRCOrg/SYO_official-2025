@@ -40,8 +40,6 @@ public class RobotState {
 
   @AutoLogOutput @Getter @Setter private volatile boolean autoAligning = true;
 
-
-
   private Pose2d[] coralStationPositions = {
     new Pose2d(1.1344856023788452, 7.127560615539551, Rotation2d.fromRadians(2.219791626297564)),
     new Pose2d(1.0559332370758057, 0.9723778963088989, Rotation2d.fromRadians(-2.192456197984347)),
@@ -144,6 +142,10 @@ public class RobotState {
     double mindistance = Double.POSITIVE_INFINITY;
     int index1 = -1;
     int index2 = -1;
+    // if (Superstructure.getCurrentState() == SuperState.L2PREPARE
+    //     || Superstructure.getCurrentState() == SuperState.L2
+    //     || Superstructure.getCurrentState() == SuperState.L3PREPARE
+    //     || Superstructure.getCurrentState() == SuperState.L3) {
     for (int i = 0; i < L2L3reefscoringPositions.length; i++) {
       for (int j = 0; j < L2L3reefscoringPositions[i].length; j++) {
         if (pose.getTranslation()
@@ -160,7 +162,7 @@ public class RobotState {
       }
     }
 
-    return L2L3reefscoringPositions[index1][index2];
+    return AllianceFlipUtil.apply(L2L3reefscoringPositions[index1][index2]);
   }
 
   @AutoLogOutput(key = "NearestReefPose")

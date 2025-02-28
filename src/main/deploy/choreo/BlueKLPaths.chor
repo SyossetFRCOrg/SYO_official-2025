@@ -4,27 +4,140 @@
  "type":"Swerve",
  "variables":{
   "expressions":{},
-  "poses":{}
+  "poses":{
+   "LEFTFORWARDCORALSTATION":{
+    "x":{
+     "exp":"1.6146800518035889 m",
+     "val":1.6146800518035889
+    },
+    "y":{
+     "exp":"7.366710186004639 m",
+     "val":7.366710186004639
+    },
+    "heading":{
+     "exp":"2.2162658510874333 rad",
+     "val":2.2162658510874333
+    }
+   },
+   "MIDLEFTSTART":{
+    "x":{
+     "exp":"7.4287428855896 m",
+     "val":7.4287428855896
+    },
+    "y":{
+     "exp":"4.715264320373535 m",
+     "val":4.715264320373535
+    },
+    "heading":{
+     "exp":"180 deg",
+     "val":3.141592653589793
+    }
+   },
+   "MIDRIGHTSTART":{
+    "x":{
+     "exp":"MIDLEFTSTART.x",
+     "val":7.4287428855896
+    },
+    "y":{
+     "exp":"317 inches - MIDLEFTSTART.y",
+     "val":3.336535679626465
+    },
+    "heading":{
+     "exp":"-MIDLEFTSTART.heading",
+     "val":-3.141592653589793
+    }
+   },
+   "FARRIGHTSTART":{
+    "x":{
+     "exp":"FARLEFTSTART.x",
+     "val":7.12465763092041
+    },
+    "y":{
+     "exp":"317 inches - FARLEFTSTART.y",
+     "val":2.133432137298584
+    },
+    "heading":{
+     "exp":"-FARLEFTSTART.heading",
+     "val":2.3561937052685336
+    }
+   },
+   "RIGHTBACKCORALSTATION":{
+    "x":{
+     "exp":"LEFTBACKCORALSTATION.x",
+     "val":0.7555842995643616
+    },
+    "y":{
+     "exp":"317 inches - LEFTBACKCORALSTATION.y",
+     "val":1.2799384468078614
+    },
+    "heading":{
+     "exp":"-LEFTBACKCORALSTATION.heading",
+     "val":-2.22
+    }
+   },
+   "FARLEFTSTART":{
+    "x":{
+     "exp":"7.12465763092041 m",
+     "val":7.12465763092041
+    },
+    "y":{
+     "exp":"5.918367862701416 m",
+     "val":5.918367862701416
+    },
+    "heading":{
+     "exp":"-2.3561937052685336 rad",
+     "val":-2.3561937052685336
+    }
+   },
+   "RIGHTFORWARDCORALSTATION":{
+    "x":{
+     "exp":"LEFTFORWARDCORALSTATION.x",
+     "val":1.6146800518035889
+    },
+    "y":{
+     "exp":"317 inches - LEFTFORWARDCORALSTATION.y",
+     "val":0.6850898139953614
+    },
+    "heading":{
+     "exp":"-LEFTFORWARDCORALSTATION.heading",
+     "val":-2.2162658510874333
+    }
+   },
+   "LEFTBACKCORALSTATION":{
+    "x":{
+     "exp":"0.7555842995643616 m",
+     "val":0.7555842995643616
+    },
+    "y":{
+     "exp":"6.771861553192139 m",
+     "val":6.771861553192139
+    },
+    "heading":{
+     "exp":"2.22 rad",
+     "val":2.22
+    }
+   }
+  }
  },
  "config":{
   "frontLeft":{
    "x":{
-    "exp":"14 in",
-    "val":0.35559999999999997
+    "exp":"12.5 in",
+    "val":0.3175
    },
    "y":{
-    "exp":"14 in",
-    "val":0.35559999999999997
+    "exp":"12.5 in",
+    "val":0.3175
    }
   },
   "backLeft":{
    "x":{
-    "exp":"-14 in",
-    "val":-0.35559999999999997
+    "exp":"-12.5 in",
+    "val":-0.3175
    },
    "y":{
-    "exp":"14 in",
-    "val":0.35559999999999997
+    "exp":"12.5 in",
+    "val":0.3175
    }
   },
   "mass":{
@@ -32,28 +145,28 @@
    "val":52.16312255
   },
   "inertia":{
-   "exp":"8 kg m ^ 2",
-   "val":8.0
+   "exp":"13 kg m ^ 2",
+   "val":13.0
   },
   "gearing":{
-   "exp":"6.12244897959",
-   "val":6.12244897959
+   "exp":"6.12244897959 * 14 / 13",
+   "val":6.593406593404615
   },
   "radius":{
-   "exp":"1.982 in",
-   "val":0.0503428
+   "exp":"1.682 in",
+   "val":0.0427228
   },
   "vmax":{
-   "exp":"2600 RPM",
-   "val":272.2713633111154
+   "exp":"3500 RPM",
+   "val":366.5191429188092
   },
   "tmax":{
-   "exp":"0.3 N * m",
-   "val":0.3
+   "exp":"0.5 N * m",
+   "val":0.5
   },
   "cof":{
-   "exp":"1",
-   "val":1.0
+   "exp":"1.1",
+   "val":1.1
   },
   "bumper":{
    "front":{

@@ -115,11 +115,11 @@ public class Vision extends SubsystemBase {
                 || observation.pose().getY() < 0.0
                 || observation.pose().getY() > aprilTagLayout.getFieldWidth()
                 || (observation.pose().getX() == 0.0 && observation.pose().getY() == 0.0)
-                || velocity.getNorm() > 2.5
+                || velocity.getNorm() > 3.0 // reject if velocity is too high
                 || Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond)
                     > (Math.PI * 3.0 / 4.0) // reject if omega too high
                 || (observation.type() == PoseObservationType.MEGATAG_1
-                    && observation.averageTagDistance() < .5);
+                    && observation.averageTagDistance() < .5); //instability for MT1 when too near
 
         // Add pose to log
         robotPoses.add(observation.pose());
@@ -150,7 +150,7 @@ public class Vision extends SubsystemBase {
         double thetastdDevFactor =
             Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
 
-        // The farther we are from the pose right now, the less we trust it.
+        // The farther the current estimate is from the pose right now, the less we trust it.
         // It should still allow for correction when we are very off because of the multiple poses
         // coming in continuously.
         // This is meant to allow for that extreme correction while making occasional nonsense
@@ -229,7 +229,7 @@ public class Vision extends SubsystemBase {
                 .getDegrees()
             > 20) {
           thetastdDevFactor *= 5;
-          linearstdDevFactor *= 5;
+          // linearstdDevFactor *= 5;
         }
         if (observation
                 .pose()
@@ -284,11 +284,11 @@ public class Vision extends SubsystemBase {
         }
 
         // Send vision observation only if vision is enabled
-        if (RobotState.getInstance().isAddingVision()){
-        consumer.accept(
-            observation.pose().toPose2d(),
-            observation.timestamp(),
-            VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+        if (RobotState.getInstance().isAddingVision()) {
+          consumer.accept(
+              observation.pose().toPose2d(),
+              observation.timestamp(),
+              VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
         }
       }
 

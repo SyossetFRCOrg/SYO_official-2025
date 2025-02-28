@@ -42,12 +42,13 @@ public class ReefAlignController {
       new LoggedTunableNumber("AutoAlign/controllerThetaTolerance", Units.degreesToRadians(2));
   private static final LoggedTunableNumber toleranceTime =
       new LoggedTunableNumber("AutoAlign/controllerToleranceSecs", 0.1);
-//   private static final LoggedTunableNumber maxLinearVelocity =
-//       new LoggedTunableNumber(
-//           "AutoAlign/maxLinearVelocity", TunerConstants.driveConfig.maxLinearVelocity());
-//   private static final LoggedTunableNumber maxLinearAcceleration =
-//       new LoggedTunableNumber(
-//           "AutoAlign/maxLinearAcceleration", TunerConstants.driveConfig.maxLinearAcceleration());
+  //   private static final LoggedTunableNumber maxLinearVelocity =
+  //       new LoggedTunableNumber(
+  //           "AutoAlign/maxLinearVelocity", TunerConstants.driveConfig.maxLinearVelocity());
+  //   private static final LoggedTunableNumber maxLinearAcceleration =
+  //       new LoggedTunableNumber(
+  //           "AutoAlign/maxLinearAcceleration",
+  // TunerConstants.driveConfig.maxLinearAcceleration());
   private static final LoggedTunableNumber maxAngularVelocity =
       new LoggedTunableNumber(
           "AutoAlign/maxAngularVelocity", TunerConstants.driveConfig.maxAngularVelocity());
@@ -144,7 +145,9 @@ public class ReefAlignController {
 
     } else {
       linearController.setConstraints(
-          new TrapezoidProfile.Constraints(RobotState.getInstance().getModuleLimits().maxDriveVelocity(), RobotState.getInstance().getModuleLimits().maxDriveAcceleration()));
+          new TrapezoidProfile.Constraints(
+              RobotState.getInstance().getModuleLimits().maxDriveVelocity(),
+              RobotState.getInstance().getModuleLimits().maxDriveAcceleration()));
       thetaController.setConstraints(
           new TrapezoidProfile.Constraints(maxAngularVelocity.get(), maxAngularAcceleration.get()));
       linearController.setPID(linearkP.get(), linearkI.get(), linearkD.get());
@@ -156,34 +159,34 @@ public class ReefAlignController {
     // Reset measurements and velocities
     Pose2d currentPose = drive.getPose();
     Pose2d goalPose = desiredPose;
-    ChassisSpeeds fieldVelocity = (ChassisSpeeds.fromRobotRelativeSpeeds((drive.getChassisSpeeds()), drive.getRotation()));
+    ChassisSpeeds fieldVelocity =
+        (ChassisSpeeds.fromRobotRelativeSpeeds((drive.getChassisSpeeds()), drive.getRotation()));
     Translation2d linearFieldVelocity =
         new Translation2d(fieldVelocity.vxMetersPerSecond, fieldVelocity.vyMetersPerSecond);
 
-
     // Rotation2d robotToGoalAngle =
     //     goalPose.getTranslation().minus(currentPose.getTranslation()).getAngle();
-    // double linearVelocity = new Translation2d(fieldVelocity.vxMetersPerSecond, fieldVelocity.vyMetersPerSecond).getNorm();
+    double linearVelocity =
+        new Translation2d(fieldVelocity.vxMetersPerSecond, fieldVelocity.vyMetersPerSecond)
+            .getNorm();
     // This one works
-    // linearController.reset(
-    //     currentPose.getTranslation().getDistance(goalPose.getTranslation()), linearVelocity);
-
-
-    //Mechanical Advantage's 2025 approach for their auto align. It may work?
     linearController.reset(
-        currentPose.getTranslation().getDistance(goalPose.getTranslation()),
-        Math.min(
-            0.0,
-            -linearFieldVelocity
-                .rotateBy(
-                    goalPose
-                        .getTranslation()
-                        .minus(currentPose.getTranslation())
-                        .getAngle()
-                        .unaryMinus())
-                .getX()));
+        currentPose.getTranslation().getDistance(goalPose.getTranslation()), linearVelocity);
 
-        
+    // Mechanical Advantage's 2025 approach for their auto align. It may work?
+    // linearController.reset(
+    //     currentPose.getTranslation().getDistance(goalPose.getTranslation()),
+    //     Math.min(
+    //         0.0,
+    //         -linearFieldVelocity
+    //             .rotateBy(
+    //                 goalPose
+    //                     .getTranslation()
+    //                     .minus(currentPose.getTranslation())
+    //                     .getAngle()
+    //                     .unaryMinus())
+    //             .getX()));
+
     thetaController.reset(currentPose.getRotation().getRadians());
     lastSetpointTranslation = currentPose.getTranslation();
   }

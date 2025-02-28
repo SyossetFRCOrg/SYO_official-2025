@@ -90,7 +90,6 @@ public class VisionIOLimelight implements VisionIO {
 
               // 3D pose estimate
               new Pose3d(megatag1Subscriber.pose),
-              
               megatag1Subscriber.rawFiducials[0].ambiguity,
 
               // Tag count

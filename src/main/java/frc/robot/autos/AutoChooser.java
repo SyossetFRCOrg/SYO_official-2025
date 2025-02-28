@@ -1,190 +1,197 @@
-package frc.robot.autos;
+// package frc.robot.autos;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.NetworkTableValue;
-import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.RobotContainer;
-import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.drive.Drive;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+// import edu.wpi.first.networktables.NetworkTableInstance;
+// import edu.wpi.first.networktables.NetworkTableValue;
+// import edu.wpi.first.util.sendable.SendableBuilder;
+// import edu.wpi.first.wpilibj.DriverStation;
+// import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+// import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+// import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
-/**
- * A {@link edu.wpi.first.wpilibj.smartdashboard.SendableChooser} for selecting an autonomous
- * program. <br>
- * <br>
- *
- * <p>How to add a new autonomous program.
- *
- * <ol>
- *   <li>Add a new value to {@link Auto}<br>
- *       The name of the value should use screaming snake case
- *   <li>Add a new method in {@link AutoFactory} that returns a {@link
- *       edu.wpi.first.wpilibj2.command.Command}.
- *   <li>Add a new {@link AutoProgram} to {@link AutoChooser#AUTO_PROGRAMS}.
- *   <li>Implement the autonomous program factory method.
- *   <li>Test, test, and test some more.
- * </ol>
- */
-public class AutoChooser extends SendableChooser<Auto> {
-  private static final List<AutoProgram> AUTO_PROGRAMS =
-      List.of(
-          new AutoProgram(Auto.IDLE, "IDLE", AutoFactory::createIdleCommand),
-          new AutoProgram(
-              Auto.LEFTSTARTALLKL, "LEFT START ALL KL", AutoFactory::createLeftStartAllKL),
-          new AutoProgram(
-              Auto.LEFTSTARTALLLK, "LEFT START ALL LK", AutoFactory::createLeftStartAllLK)
+// import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
-          // ,
-          // new AutoProgram(
-          //     Auto.THREETOONETOA, "THREE TO ONE TO A", AutoFactory::createThreeToOneToA),
-          // new AutoProgram(Auto.MIDFIELDABC, "MIDFIELD A B C", AutoFactory::createMidfieldABC),
-          // new AutoProgram(Auto.MIDFIELDACB, "MIDFIELD A C B", AutoFactory::createMidfieldACB),
-          // new AutoProgram(Auto.MIDFIELDBAC, "MIDFIELD B A C", AutoFactory::createMidfieldBAC),
-          // new AutoProgram(Auto.MIDFIELDBCA, "MIDFIELD B C A", AutoFactory::createMidfieldBCA),
-          // new AutoProgram(Auto.MIDFIELDED, "MIDFIELD E D", AutoFactory::createMidfieldED),
-          // new AutoProgram(Auto.MIDFIELDDE, "MIDFIELD D E", AutoFactory::createMidfieldDE)
-          );
 
-  /**
-   * Create a new <code>AutoChooser</code>
-   *
-   * @param robotContainer A {@link RobotContainer}
-   * @return A new <code>AutoChooser</code> populated with the programs defined in the private field
-   *     {@link AutoChooser#AUTO_PROGRAMS}.
-   */
-  public static AutoChooser create(
-      final RobotContainer robotContainer, final Drive drive, final Superstructure superstructure) {
-    var autoFactories =
-        Stream.of(DriverStation.Alliance.values())
-            .map(
-                alliance ->
-                    Map.entry(
-                        alliance, new AutoFactory(alliance, robotContainer, drive, superstructure)))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    var programs =
-        AUTO_PROGRAMS.stream()
-            .map(program -> Map.entry(program.getAuto(), program))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+// import edu.wpi.first.wpilibj2.command.Command;
+// import frc.robot.RobotContainer;
+// import frc.robot.subsystems.drive.Drive;
+// import java.util.HashMap;
+// import java.util.List;
+// import java.util.Map;
+// import java.util.Optional;
+// import java.util.stream.Collectors;
+// import java.util.stream.Stream;
 
-    var autoChooser = new AutoChooser(programs, autoFactories);
+// /**
+//  * A {@link edu.wpi.first.wpilibj.smartdashboard.SendableChooser} for selecting an autonomous
+//  * program. <br>
+//  * <br>
+//  *
+//  * <p>How to add a new autonomous program.
+//  *
+//  * <ol>
+//  *   <li>Add a new value to {@link Auto}<br>
+//  *       The name of the value should use screaming snake case
+//  *   <li>Add a new method in {@link AutoFactory} that returns a {@link
+//  *       edu.wpi.first.wpilibj2.command.Command}.
+//  *   <li>Add a new {@link AutoProgram} to {@link AutoChooser#AUTO_PROGRAMS}.
+//  *   <li>Implement the autonomous program factory method.
+//  *   <li>Test, test, and test some more.
+//  * </ol>
+//  */
+// public class AutoChooser extends SendableChooser<Auto> {
+//   private static final List<AutoProgram> AUTO_PROGRAMS =
+//       List.of(
+//           new AutoProgram(Auto.IDLE, "IDLE", AutoFactory::createIdleCommand),
+//           new AutoProgram(
+//               Auto.LEFTSTARTALLKL, "LEFT START ALL KL", AutoFactory::createLeftStartAllKL),
+//           new AutoProgram(
+//               Auto.LEFTSTARTALLLK, "LEFT START ALL LK", AutoFactory::createLeftStartAllLK),
+//           new AutoProgram(Auto.LEFTSTARTIJKL, "LEFT START IJKL", AutoFactory::createLeftStartIJKL),
+//           new AutoProgram(Auto.LEFTSTARTJIKL, "LEFT START JIKL", AutoFactory::createLeftStartJIKL)
 
-    AUTO_PROGRAMS.forEach(
-        program -> {
-          if (program.getAuto() == Auto.IDLE) {
-            autoChooser.setDefaultOption(program.getLabel(), program.getAuto());
-          } else {
-            autoChooser.addOption(program.getLabel(), program.getAuto());
-          }
-        });
+//           // ,
+//           // new AutoProgram(
+//           //     Auto.THREETOONETOA, "THREE TO ONE TO A", AutoFactory::createThreeToOneToA),
+//           // new AutoProgram(Auto.MIDFIELDABC, "MIDFIELD A B C", AutoFactory::createMidfieldABC),
+//           // new AutoProgram(Auto.MIDFIELDACB, "MIDFIELD A C B", AutoFactory::createMidfieldACB),
+//           // new AutoProgram(Auto.MIDFIELDBAC, "MIDFIELD B A C", AutoFactory::createMidfieldBAC),
+//           // new AutoProgram(Auto.MIDFIELDBCA, "MIDFIELD B C A", AutoFactory::createMidfieldBCA),
+//           // new AutoProgram(Auto.MIDFIELDED, "MIDFIELD E D", AutoFactory::createMidfieldED),
+//           // new AutoProgram(Auto.MIDFIELDDE, "MIDFIELD D E", AutoFactory::createMidfieldDE)
+//           );
 
-    autoChooser.reset(null);
+//   /**
+//    * Create a new <code>AutoChooser</code>
+//    *
+//    * @param robotContainer A {@link RobotContainer}
+//    * @return A new <code>AutoChooser</code> populated with the programs defined in the private field
+//    *     {@link AutoChooser#AUTO_PROGRAMS}.
+//    */
+//   public static AutoChooser create(
+//       final RobotContainer robotContainer,
+//       final Drive drive /*, final Superstructure superstructure*/) {
+//     var autoFactories =
+//         Stream.of(DriverStation.Alliance.values())
+//             .map(
+//                 alliance ->
+//                     Map.entry(
+//                         alliance,
+//                         new AutoFactory(alliance, robotContainer, drive /*, superstructure*/)))
+//             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+//     var programs =
+//         AUTO_PROGRAMS.stream()
+//             .map(program -> Map.entry(program.getAuto(), program))
+//             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-    Shuffleboard.getTab("Match")
-        .addString("Selected Auto", () -> autoChooser.getSelected().name())
-        .withPosition(12, 3)
-        .withSize(6, 2)
-        .withWidget(BuiltInWidgets.kTextView);
+//     var autoChooser = new AutoChooser(programs, autoFactories);
 
-    return autoChooser;
-  }
+//     AUTO_PROGRAMS.forEach(
+//         program -> {
+//           if (program.getAuto() == Auto.IDLE) {
+//             autoChooser.setDefaultOption(program.getLabel(), program.getAuto());
+//           } else {
+//             autoChooser.addOption(program.getLabel(), program.getAuto());
+//           }
+//         });
 
-  /**
-   * Update the <code>AutoChooser</code><br>
-   * <br>
-   *
-   * <p>The commands for the selected autonomous program are loaded and cached (if not already
-   * present) and the selected program is sent to the {@link
-   * edu.wpi.first.wpilibj.shuffleboard.Shuffleboard} under the key <code>Auto/Selected</code>.
-   */
-  public void update() {
-    var selected = getSelected();
+//     autoChooser.reset(null);
 
-    Stream.of(DriverStation.Alliance.values())
-        .forEach(
-            alliance -> {
-              commandCache
-                  .get(alliance)
-                  .computeIfAbsent(selected, auto -> loadCommand(alliance, auto));
-            });
-  }
+//     Shuffleboard.getTab("Match")
+//         .addString("Selected Auto", () -> autoChooser.getSelected().name())
+//         .withPosition(12, 3)
+//         .withSize(6, 2)
+//         .withWidget(BuiltInWidgets.kTextView);
 
-  /**
-   * Reset the caches behind this <code>AutoChooser</code>
-   *
-   * @param key Optional {@link edu.wpi.first.networktables.NetworkTable} key. If provided the
-   *     selected value of the entry at this location will also be reset.
-   */
-  public void reset(final String key) {
-    Stream.of(DriverStation.Alliance.values())
-        .forEach(alliance -> commandCache.get(alliance).clear());
+//     return autoChooser;
+//   }
 
-    if (key != null) {
-      var table = NetworkTableInstance.getDefault().getTable(key);
-      table.putValue("selected", NetworkTableValue.makeString("%s".formatted(Auto.IDLE)));
-    }
-  }
+//   /**
+//    * Update the <code>AutoChooser</code><br>
+//    * <br>
+//    *
+//    * <p>The commands for the selected autonomous program are loaded and cached (if not already
+//    * present) and the selected program is sent to the {@link
+//    * edu.wpi.first.wpilibj.shuffleboard.Shuffleboard} under the key <code>Auto/Selected</code>.
+//    */
+//   public void update() {
+//     var selected = getSelected();
 
-  /**
-   * Get the {@link Command} for the selected autonomous program, if available.
-   *
-   * @return The {@link Command} for the selected autonomous program as an {@link Optional} if
-   *     available, otherwise {@link Optional#empty}.
-   */
-  public Optional<Command> getSelectedCommand() {
-    var selected = getSelected();
+//     Stream.of(DriverStation.Alliance.values())
+//         .forEach(
+//             alliance -> {
+//               commandCache
+//                   .get(alliance)
+//                   .computeIfAbsent(selected, auto -> loadCommand(alliance, auto));
+//             });
+//   }
 
-    return DriverStation.getAlliance()
-        .map(
-            alliance -> {
-              System.out.printf("Running program %s/%s\n", alliance, selected);
+//   /**
+//    * Reset the caches behind this <code>AutoChooser</code>
+//    *
+//    * @param key Optional {@link edu.wpi.first.networktables.NetworkTable} key. If provided the
+//    *     selected value of the entry at this location will also be reset.
+//    */
+//   public void reset(final String key) {
+//     Stream.of(DriverStation.Alliance.values())
+//         .forEach(alliance -> commandCache.get(alliance).clear());
 
-              return commandCache.get(alliance).get(selected);
-            });
-  }
+//     if (key != null) {
+//       var table = NetworkTableInstance.getDefault().getTable(key);
+//       table.putValue("selected", NetworkTableValue.makeString("%s".formatted(Auto.IDLE)));
+//     }
+//   }
 
-  public AutoProgram getProgram() {
-    return programs.get(getSelected());
-  }
+//   /**
+//    * Get the {@link Command} for the selected autonomous program, if available.
+//    *
+//    * @return The {@link Command} for the selected autonomous program as an {@link Optional} if
+//    *     available, otherwise {@link Optional#empty}.
+//    */
+//   public Optional<Command> getSelectedCommand() {
+//     var selected = getSelected();
 
-  @Override
-  public void initSendable(SendableBuilder builder) {
-    super.initSendable(builder);
+//     return DriverStation.getAlliance()
+//         .map(
+//             alliance -> {
+//               System.out.printf("Running program %s/%s\n", alliance, selected);
 
-    builder.publishConstString("selected", "%s".formatted(Auto.IDLE));
-  }
+//               return commandCache.get(alliance).get(selected);
+//             });
+//   }
 
-  private Command loadCommand(final DriverStation.Alliance alliance, final Auto auto) {
-    var program = programs.get(auto);
+//   public AutoProgram getProgram() {
+//     return programs.get(getSelected());
+//   }
 
-    System.out.printf("Loading command %s/%s\n", alliance, auto);
+//   @Override
+//   public void initSendable(SendableBuilder builder) {
+//     super.initSendable(builder);
 
-    return program.getCommand(autoFactories.get(alliance));
-  }
+//     builder.publishConstString("selected", "%s".formatted(Auto.IDLE));
+//   }
 
-  private final Map<Auto, AutoProgram> programs;
+//   private Command loadCommand(final DriverStation.Alliance alliance, final Auto auto) {
+//     var program = programs.get(auto);
 
-  private final Map<DriverStation.Alliance, Map<Auto, Command>> commandCache;
+//     System.out.printf("Loading command %s/%s\n", alliance, auto);
 
-  private final Map<DriverStation.Alliance, AutoFactory> autoFactories;
+//     return program.getCommand(autoFactories.get(alliance));
+//   }
 
-  private AutoChooser(
-      final Map<Auto, AutoProgram> programs,
-      final Map<DriverStation.Alliance, AutoFactory> autoFactories) {
-    this.programs = programs;
-    this.autoFactories = autoFactories;
-    commandCache =
-        Stream.of(DriverStation.Alliance.values())
-            .map(alliance -> Map.entry(alliance, new HashMap<Auto, Command>()))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-  }
-}
+//   private final Map<Auto, AutoProgram> programs;
+
+//   private final Map<DriverStation.Alliance, Map<Auto, Command>> commandCache;
+
+//   private final Map<DriverStation.Alliance, AutoFactory> autoFactories;
+
+//   private AutoChooser(
+//       final Map<Auto, AutoProgram> programs,
+//       final Map<DriverStation.Alliance, AutoFactory> autoFactories) {
+//     this.programs = programs;
+//     this.autoFactories = autoFactories;
+//     commandCache =
+//         Stream.of(DriverStation.Alliance.values())
+//             .map(alliance -> Map.entry(alliance, new HashMap<Auto, Command>()))
+//             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+//   }
+// }

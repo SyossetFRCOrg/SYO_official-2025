@@ -20,27 +20,25 @@ import lombok.Builder;
 // https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/tuner-swerve/index.html
 public class TunerConstants {
 
-    //how to figure out how to tune this properly
-  public static final double wheelRadius = Units.inchesToMeters(1.982 /*Wheel radius */);
+  // how to figure out how to tune this properly
+  public static final double wheelRadius = Units.inchesToMeters(1.682 /*Wheel radius */);
 
   public static final DriveConfig driveConfig =
       DriveConfig.builder()
           .maxLinearVelocity(
               (5800.0 / 60.0)
-                  / ((50.0 / 14.0) * (16.0 / 28.0) * (45.0 / 15.0))
+                  / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
                   * wheelRadius
                   * 2
-                  * Math.PI
-                  / 1.8)
+                  * Math.PI)
           .maxLinearAcceleration(
               (5800.0 / 60.0)
-                  / ((50.0 / 14.0) * (16.0 / 28.0) * (45.0 / 15.0))
+                  / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
                   * wheelRadius
                   * 2
                   * Math.PI
-                  / 1.8
-                  * 2.0)
-          .maxAngularVelocity(4 * Math.PI) // test out units - rad/s? was 12.0
+                  * 3.0)
+          .maxAngularVelocity(2 * Math.PI) // test out units - rad/s? was 12.0
           .maxAngularAcceleration(3 * Math.PI) // was 6.0
           .build();
 
@@ -49,7 +47,7 @@ public class TunerConstants {
   public static final LinearVelocity kSpeedAt12Volts =
       MetersPerSecond.of(
           (5800.0 / 60.0)
-              / ((50.0 / 14.0) * (16.0 / 28.0) * (45.0 / 15.0))
+              / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
               * wheelRadius
               * 2
               * Math.PI);
@@ -112,7 +110,7 @@ public class TunerConstants {
 
   // The stator current at which the wheels start to slip;
   // This needs to be tuned to your individual robot
-  private static final Current kSlipCurrent = Amps.of(75.0);
+  private static final Current kSlipCurrent = Amps.of(80.0);
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -136,15 +134,15 @@ public class TunerConstants {
 
   // CAN bus that the devices are located on;
   // All swerve devices must share the same CAN bus
-  public static final CANBus kCANBus = new CANBus("rio", "./logs/example.hoot");
+  public static final CANBus kCANBus = new CANBus("*", "./logs/example.hoot");
 
   // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
   // This may need to be tuned to your individual robot
   private static final double kCoupleRatio =
       3.8181818181818183; // ????  3.8181818181818183 was initially given
 
-  private static final double kDriveGearRatio = (50.0 / 14.0) * (16.0 / 28.0) * (45.0 / 15.0);
-  private static final double kSteerGearRatio = 150.0 / 7.0;
+  private static final double kDriveGearRatio = (50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0);
+  private static final double kSteerGearRatio = 150.0 / 7.0 * 14.0 / 13.0;
 
   private static final boolean kInvertLeftSide = false;
   private static final boolean kInvertRightSide = true;
@@ -309,31 +307,57 @@ public class TunerConstants {
 
   public static final ModuleLimits moduleLimitsL2Elevator =
       new ModuleLimits(
-          driveConfig.maxLinearVelocity() * .85,
-          driveConfig.maxLinearAcceleration() * .85,
+          (5800.0 / 60.0)
+              / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
+              * wheelRadius
+              * 2
+              * Math.PI
+              / 2.0
+              * .85,
+          (5800.0 / 60.0)
+              / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
+              * wheelRadius
+              * 2
+              * Math.PI
+              / 2.0
+              * 2
+              * .85,
           Units.degreesToRadians(1080.0));
 
   public static final ModuleLimits moduleLimitsL3Elevator =
       new ModuleLimits(
-          driveConfig.maxLinearVelocity() * .6,
-          driveConfig.maxLinearAcceleration() * .6,
+          (5800.0 / 60.0)
+              / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
+              * wheelRadius
+              * 2
+              * Math.PI
+              / 2.0
+              * .6,
+          (5800.0 / 60.0)
+              / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
+              * wheelRadius
+              * 2
+              * Math.PI
+              / 2.0
+              * 2
+              * .6,
           Units.degreesToRadians(1080.0));
 
   public static final ModuleLimits moduleLimitsL4Elevator =
       new ModuleLimits(
-        (5800.0 / 60.0)
-        / ((50.0 / 14.0) * (16.0 / 28.0) * (45.0 / 15.0))
-        * wheelRadius
-        * 2
-        * Math.PI
-        / 2.0 * .42,
-
-        (5800.0 / 60.0)
-        / ((50.0 / 14.0) * (16.0 / 28.0) * (45.0 / 15.0))
-        * wheelRadius
-        * 2
-        * Math.PI
-        *.42,
+          (5800.0 / 60.0)
+              / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
+              * wheelRadius
+              * 2
+              * Math.PI
+              / 2.0
+              * .5,
+          (5800.0 / 60.0)
+              / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
+              * wheelRadius
+              * 2
+              * Math.PI
+              * .5,
           Units.degreesToRadians(1080.0));
 
   /**

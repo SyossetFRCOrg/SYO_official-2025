@@ -2,6 +2,10 @@ package frc.robot;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
+import java.util.List;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -14,6 +18,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.AutoSelector.AutoQuestion;
+import frc.robot.AutoSelector.AutoQuestionResponse;
+import frc.robot.autos.AutoFactory;
 import frc.robot.commands.ControllerRumbleCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ReefAlignController;
@@ -43,14 +50,16 @@ public class RobotContainer {
   // Subsystems
   private final Vision vision;
   private final Drive drive;
-  private final Elevator elevator;
+    private final Elevator elevator;
 
-  private final Intake intake;
-  private final Wrist wrist;
-  private final Superstructure superstructure;
+    private final Intake intake;
+    private final Wrist wrist;
+    private final Superstructure superstructure;
 
   // Controller
   private final XboxController controller = new XboxController(0);
+
+  private final AutoSelector autoSelector = new AutoSelector("Auto");
 
   //   private ReefAlignController autoAlignController;
   private ReefAlignController reefAlignController;
@@ -60,16 +69,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // switch (Constants.currentMode) {
-    //   case REAL:
-    // drive =
-    //     new Drive(
-    //         new GyroIO() {},
-    //         new ModuleIO() {},
-    //         new ModuleIO() {},
-    //         new ModuleIO() {},
-    //         new ModuleIO() {});
-    // Real robot, instantiate hardware IO implementations
+    
     drive =
         new Drive(
             new GyroIOPigeon2(),
@@ -79,38 +79,9 @@ public class RobotContainer {
             new ModuleIOTalonFX(TunerConstants.BackRight));
 
     elevator = new Elevator(new ElevatorIOSparkMax());
-    // break;
-    // intake = new Intake(new IntakeIOSparkMax());
     wrist = new Wrist(new WristIOSparkMax());
     intake = new Intake(new IntakeIOTalonFX());
 
-    //   case SIM:
-    //     // Sim robot, instantiate physics sim IO implementations
-    //     drive =
-    //         new Drive(
-    //             new GyroIO() {},
-    //             new ModuleIOSim(TunerConstants.FrontLeft),
-    //             new ModuleIOSim(TunerConstants.FrontRight),
-    //             new ModuleIOSim(TunerConstants.BackLeft),
-    //             new ModuleIOSim(TunerConstants.BackRight));
-    //     break;
-
-    //   default:
-    //     // Replayed robot, disable IO implementations
-    //     drive =
-    //         new Drive(
-    //             new GyroIO() {},
-    //             new ModuleIO() {},
-    //             new ModuleIO() {},
-    //             new ModuleIO() {},
-    //             new ModuleIO() {});
-    //     elevator = new Elevator(new ElevatorIO() {});
-    //     // intake = new Intake(new IntakeIO() {});
-    //     break;
-    // }
-    // switch (Constants.currentMode) {
-    //   case REAL:
-    //     // Real robot, instantiate hardware IO implementations
     vision =
         new Vision(
             drive::addVisionMeasurement,
@@ -118,54 +89,126 @@ public class RobotContainer {
             new VisionIOLimelight(camera0Name, drive::getRotation),
             new VisionIOLimelight(camera1Name, drive::getRotation));
 
-    // vision =
-    //     new Vision(
-    //         demoDrive::addVisionMeasurement,
-    //         new VisionIOPhotonVision(camera0Name, robotToCamera0),
-    //         new VisionIOPhotonVision(camera1Name, robotToCamera1));
-    // break;
-
-    //   case SIM:
-    //     // Sim robot, instantiate physics sim IO implementations
-    //     vision =
-    //         new Vision(
-    //             drive::addVisionMeasurement,
-    //             new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, drive::getPose),
-    //             new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
-    //     break;
-
-    //   default:
-    //     // Replayed robot, disable IO implementations
-    //     // (Use same number of dummy implementations as the real robot)
-    //     vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
-    //     break;
-    // }
-
-    // Set up auto routines
-    // autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
-    // // Set up SysId routines
-    // autoChooser.addOption(
-    //     "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    // autoChooser.addOption(
-    //     "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    // autoChooser.addOption(
-    //     "Drive SysId (Quasistatic Forward)",
-    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // autoChooser.addOption(
-    //     "Drive SysId (Quasistatic Reverse)",
-    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // autoChooser.addOption(
-    //     "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // autoChooser.addOption(
-    //     "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
     reefAlignController = new ReefAlignController(drive, () -> false, () -> false);
 
     superstructure = new Superstructure(drive, elevator, wrist, this);
+
+    configureAutos();
+
     // Configure the button bindings
     configureButtonBindings();
   }
+
+  private void configureAutos() {
+    AutoFactory autoBuilder = new AutoFactory(drive, superstructure, autoSelector::getResponses);
+
+    // Add autos
+    autoSelector.addRoutine(
+        "4 Coral flexible",
+        List.of(
+            new AutoQuestion(
+                "Starting location?",
+                List.of(
+                    AutoQuestionResponse.FAR_LEFT,
+                    AutoQuestionResponse.MID_LEFT,
+                    AutoQuestionResponse.MID_RIGHT,
+                    AutoQuestionResponse.FAR_RIGHT)),
+            new AutoQuestion(
+                "First Scoring Location?",
+                List.of(AutoQuestionResponse.A, AutoQuestionResponse.B, AutoQuestionResponse.C, AutoQuestionResponse.D, AutoQuestionResponse.E, AutoQuestionResponse.F, AutoQuestionResponse.G, AutoQuestionResponse.H, AutoQuestionResponse.I, AutoQuestionResponse.J, AutoQuestionResponse.K, AutoQuestionResponse.L)),
+            new AutoQuestion(
+                "First Scoring Height?", List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3, AutoQuestionResponse.L4)),
+            new AutoQuestion(
+                "First Intaking Position?", List.of(AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION, AutoQuestionResponse.RIGHT_BACK_CORALSTATION, AutoQuestionResponse.LEFT_FORWARD_CORALSTATION, AutoQuestionResponse.LEFT_BACK_CORALSTATION)),
+            new AutoQuestion(
+                "Second Scoring Location?",
+                List.of(AutoQuestionResponse.A, AutoQuestionResponse.B, AutoQuestionResponse.C, AutoQuestionResponse.D, AutoQuestionResponse.E, AutoQuestionResponse.F, AutoQuestionResponse.G, AutoQuestionResponse.H, AutoQuestionResponse.I, AutoQuestionResponse.J, AutoQuestionResponse.K, AutoQuestionResponse.L)),
+            new AutoQuestion(
+                "Second Scoring Height?", List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3, AutoQuestionResponse.L4)),
+            new AutoQuestion(
+                "Second Intaking Position?", List.of(AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION, AutoQuestionResponse.RIGHT_BACK_CORALSTATION, AutoQuestionResponse.LEFT_FORWARD_CORALSTATION, AutoQuestionResponse.LEFT_BACK_CORALSTATION)),
+            new AutoQuestion(
+                "Third Scoring Location?",
+                List.of(AutoQuestionResponse.A, AutoQuestionResponse.B, AutoQuestionResponse.C, AutoQuestionResponse.D, AutoQuestionResponse.E, AutoQuestionResponse.F, AutoQuestionResponse.G, AutoQuestionResponse.H, AutoQuestionResponse.I, AutoQuestionResponse.J, AutoQuestionResponse.K, AutoQuestionResponse.L)),
+            new AutoQuestion(
+                "Third Scoring Height?", List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3, AutoQuestionResponse.L4)),
+            new AutoQuestion(
+                "Third Intaking Position?", List.of(AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION, AutoQuestionResponse.RIGHT_BACK_CORALSTATION, AutoQuestionResponse.LEFT_FORWARD_CORALSTATION, AutoQuestionResponse.LEFT_BACK_CORALSTATION)),
+            new AutoQuestion(
+                "Fourth Scoring Location?",
+                List.of(AutoQuestionResponse.A, AutoQuestionResponse.B, AutoQuestionResponse.C, AutoQuestionResponse.D, AutoQuestionResponse.E, AutoQuestionResponse.F, AutoQuestionResponse.G, AutoQuestionResponse.H, AutoQuestionResponse.I, AutoQuestionResponse.J, AutoQuestionResponse.K, AutoQuestionResponse.L)),
+            new AutoQuestion(
+                "Fourth Scoring Height?", List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3, AutoQuestionResponse.L4)),
+            new AutoQuestion(
+                "Fourth Intaking Position?", List.of(AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION, AutoQuestionResponse.RIGHT_BACK_CORALSTATION, AutoQuestionResponse.LEFT_FORWARD_CORALSTATION, AutoQuestionResponse.LEFT_BACK_CORALSTATION))),
+                        
+        autoBuilder.FourAuto());
+
+        autoSelector.addRoutine(
+            "4 Coral flexible",
+            List.of(
+                new AutoQuestion(
+                    "Starting location?",
+                    List.of(
+                        AutoQuestionResponse.FAR_LEFT,
+                        AutoQuestionResponse.MID_LEFT,
+                        AutoQuestionResponse.MID_RIGHT,
+                        AutoQuestionResponse.FAR_RIGHT)),
+                new AutoQuestion(
+                    "First Scoring Location?",
+                    List.of(AutoQuestionResponse.A, AutoQuestionResponse.B, AutoQuestionResponse.C, AutoQuestionResponse.D, AutoQuestionResponse.E, AutoQuestionResponse.F, AutoQuestionResponse.G, AutoQuestionResponse.H, AutoQuestionResponse.I, AutoQuestionResponse.J, AutoQuestionResponse.K, AutoQuestionResponse.L)),
+                new AutoQuestion(
+                    "First Scoring Height?", List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3, AutoQuestionResponse.L4)),
+                new AutoQuestion(
+                    "First Intaking Position?", List.of(AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION, AutoQuestionResponse.RIGHT_BACK_CORALSTATION, AutoQuestionResponse.LEFT_FORWARD_CORALSTATION, AutoQuestionResponse.LEFT_BACK_CORALSTATION)),
+                new AutoQuestion(
+                    "Second Scoring Location?",
+                    List.of(AutoQuestionResponse.A, AutoQuestionResponse.B, AutoQuestionResponse.C, AutoQuestionResponse.D, AutoQuestionResponse.E, AutoQuestionResponse.F, AutoQuestionResponse.G, AutoQuestionResponse.H, AutoQuestionResponse.I, AutoQuestionResponse.J, AutoQuestionResponse.K, AutoQuestionResponse.L)),
+                new AutoQuestion(
+                    "Second Scoring Height?", List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3, AutoQuestionResponse.L4)),
+                new AutoQuestion(
+                    "Second Intaking Position?", List.of(AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION, AutoQuestionResponse.RIGHT_BACK_CORALSTATION, AutoQuestionResponse.LEFT_FORWARD_CORALSTATION, AutoQuestionResponse.LEFT_BACK_CORALSTATION)),
+                new AutoQuestion(
+                    "Third Scoring Location?",
+                    List.of(AutoQuestionResponse.A, AutoQuestionResponse.B, AutoQuestionResponse.C, AutoQuestionResponse.D, AutoQuestionResponse.E, AutoQuestionResponse.F, AutoQuestionResponse.G, AutoQuestionResponse.H, AutoQuestionResponse.I, AutoQuestionResponse.J, AutoQuestionResponse.K, AutoQuestionResponse.L)),
+                new AutoQuestion(
+                    "Third Scoring Height?", List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3, AutoQuestionResponse.L4)),
+                new AutoQuestion(
+                    "Third Intaking Position?", List.of(AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION, AutoQuestionResponse.RIGHT_BACK_CORALSTATION, AutoQuestionResponse.LEFT_FORWARD_CORALSTATION, AutoQuestionResponse.LEFT_BACK_CORALSTATION))
+            ),        
+            autoBuilder.ThreeAuto());
+
+            autoSelector.addRoutine(
+            "4 Coral flexible",
+            List.of(
+                new AutoQuestion(
+                    "Starting location?",
+                    List.of(
+                        AutoQuestionResponse.FAR_LEFT,
+                        AutoQuestionResponse.MID_LEFT,
+                        AutoQuestionResponse.MID_RIGHT,
+                        AutoQuestionResponse.FAR_RIGHT)),
+                new AutoQuestion(
+                    "First Scoring Location?",
+                    List.of(AutoQuestionResponse.A, AutoQuestionResponse.B, AutoQuestionResponse.C, AutoQuestionResponse.D, AutoQuestionResponse.E, AutoQuestionResponse.F, AutoQuestionResponse.G, AutoQuestionResponse.H, AutoQuestionResponse.I, AutoQuestionResponse.J, AutoQuestionResponse.K, AutoQuestionResponse.L)),
+                new AutoQuestion(
+                    "First Scoring Height?", List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3, AutoQuestionResponse.L4)),
+                new AutoQuestion(
+                    "First Intaking Position?", List.of(AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION, AutoQuestionResponse.RIGHT_BACK_CORALSTATION, AutoQuestionResponse.LEFT_FORWARD_CORALSTATION, AutoQuestionResponse.LEFT_BACK_CORALSTATION)),
+                new AutoQuestion(
+                    "Second Scoring Location?",
+                    List.of(AutoQuestionResponse.A, AutoQuestionResponse.B, AutoQuestionResponse.C, AutoQuestionResponse.D, AutoQuestionResponse.E, AutoQuestionResponse.F, AutoQuestionResponse.G, AutoQuestionResponse.H, AutoQuestionResponse.I, AutoQuestionResponse.J, AutoQuestionResponse.K, AutoQuestionResponse.L)),
+                new AutoQuestion(
+                    "Second Scoring Height?", List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3, AutoQuestionResponse.L4)),
+                new AutoQuestion(
+                    "Second Intaking Position?", List.of(AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION, AutoQuestionResponse.RIGHT_BACK_CORALSTATION, AutoQuestionResponse.LEFT_FORWARD_CORALSTATION, AutoQuestionResponse.LEFT_BACK_CORALSTATION))
+                
+            ),        
+            autoBuilder.TwoAuto());
+        
+  }
+
+
 
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
@@ -191,57 +234,57 @@ public class RobotContainer {
     // also go towards it, still allowing for driver translation
 
     Trigger rightBumper = new Trigger(() -> controller.getRawButton(6));
+    // rightBumper.onTrue(superstructure.setWantedSuperStateCommand(SuperState.INTAKE));
+
+    // .whileTrue(
+    // new InstantCommand(
+    //         () -> {
+    //           final double maxVelocity = 1.0;
+    //           CoralStationAlignFeedForward.value =
+    //               DriveCommands.getLinearVelocityFromJoysticks(
+    //                       -controller.getLeftX(), -controller.getLeftY())
+    //                   .times(maxVelocity)
+    //                   .rotateBy(
+    //                       DriverStation.getAlliance().get() == Alliance.Blue
+    //                           ? new Rotation2d(Math.PI)
+    //                           : new Rotation2d());
+
+    //           coralStationAlignController =
+    //               new CoralStationAlignController(
+    //                   drive,
+    //                   () -> CoralStationAlignFeedForward.value,
+    //                   () ->
+    //                       RobotState.getInstance()
+    //                               .getDistanceToNearestCoralStation(drive.getPose())
+    //                           < 1.0);
+    //         })
+    //     .andThen(
+    //         new InstantCommand(
+    //                 () -> {
+    //                   final double maxVelocity = 1.0;
+    //                   CoralStationAlignFeedForward.value =
+    //                       DriveCommands.getLinearVelocityFromJoysticks(
+    //                               -controller.getLeftY() * 0.5, -controller.getLeftX() * .5)
+    //                           .times(maxVelocity)
+    //                           .rotateBy(
+    //                               DriverStation.getAlliance().get() == Alliance.Blue
+    //                                   ? new Rotation2d(Math.PI)
+    //                                   : new Rotation2d());
+    //                   drive.runVelocity(coralStationAlignController.update().get());
+    //                 },
+    //                 drive)
+    //             .repeatedly())
+    //     .andThen(
+    //         new ParallelRaceGroup(
+    //             new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
+
+    // auto align to nearest coral station
+
     rightBumper
-        // .whileTrue(
-        // new InstantCommand(
-        //         () -> {
-        //           final double maxVelocity = 1.0;
-        //           CoralStationAlignFeedForward.value =
-        //               DriveCommands.getLinearVelocityFromJoysticks(
-        //                       -controller.getLeftX(), -controller.getLeftY())
-        //                   .times(maxVelocity)
-        //                   .rotateBy(
-        //                       DriverStation.getAlliance().get() == Alliance.Blue
-        //                           ? new Rotation2d(Math.PI)
-        //                           : new Rotation2d());
-
-        //           coralStationAlignController =
-        //               new CoralStationAlignController(
-        //                   drive,
-        //                   () -> CoralStationAlignFeedForward.value,
-        //                   () ->
-        //                       RobotState.getInstance()
-        //                               .getDistanceToNearestCoralStation(drive.getPose())
-        //                           < 1.0);
-        //         })
-        //     .andThen(
-        //         new InstantCommand(
-        //                 () -> {
-        //                   final double maxVelocity = 1.0;
-        //                   CoralStationAlignFeedForward.value =
-        //                       DriveCommands.getLinearVelocityFromJoysticks(
-        //                               -controller.getLeftY() * 0.5, -controller.getLeftX() * .5)
-        //                           .times(maxVelocity)
-        //                           .rotateBy(
-        //                               DriverStation.getAlliance().get() == Alliance.Blue
-        //                                   ? new Rotation2d(Math.PI)
-        //                                   : new Rotation2d());
-        //                   drive.runVelocity(coralStationAlignController.update().get());
-        //                 },
-        //                 drive)
-        //             .repeatedly())
-        //     .andThen(
-        //         new ParallelRaceGroup(
-        //             new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
-
-        // auto align to nearest coral station
-        .onTrue(superstructure.setWantedSuperStateCommand(SuperState.INTAKE));
-
-    rightBumper
-        .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW))
+        // .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW))
         .whileTrue(
-            DriveCommands.joystickDriveCoralStation(
-                drive, () -> -controller.getLeftY(), () -> -controller.getLeftX()));
+        DriveCommands.joystickDriveCoralStation(
+            drive, () -> -controller.getLeftY(), () -> -controller.getLeftX()));
 
     // controller.x().whileTrue(DriveCommands.lineUpToNearestReef(() -> drive.getPose()));
 
@@ -249,49 +292,101 @@ public class RobotContainer {
 
     Trigger b = new Trigger(() -> controller.getBButton());
 
-    b.onTrue(superstructure.setWantedSuperStateCommand(SuperState.L1))
-        .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW));
-        // .whileTrue(
-        //     new InstantCommand(
-        //             () -> {
-        //               reefAlignController =
-        //                   new ReefAlignController(
-        //                       drive,
-        //                       () ->
-        //                           RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
-        //                               < 1.0,
-        //                       () -> false);
-        //             })
-        //         .andThen(
-        //             new InstantCommand(
+    b
+        // .onTrue(superstructure.setWantedSuperStateCommand(SuperState.L1))
+        //     .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW));
+        .whileTrue(
+        new InstantCommand(
+                () -> {
+                  reefAlignController =
+                      new ReefAlignController(
+                          drive,
+                          () ->
+                              RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
+                                  < 1.0,
+                          () -> false);
+                })
+            .andThen(
+                new InstantCommand(
+                        () -> {
+                          drive.runVelocity(reefAlignController.update().get());
+                        },
+                        drive)
+                    .repeatedly())
+            .until(() -> reefAlignController.atGoal())
+            .andThen(
+                new ParallelRaceGroup(
+                    new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
+
+    Trigger a =
+        new Trigger(() -> (controller.getAButton() && RobotState.getInstance().isAutoAligning()));
+
+    a
+        // .onTrue(
+        //         superstructure
+        //             .setWantedSuperStateCommand(SuperState.L2)
+        //             .andThen(
+        //                 new InstantCommand(
         //                     () -> {
-        //                       drive.runVelocity(reefAlignController.update().get());
-        //                     },
-        //                     drive)
-        //                 .repeatedly())
-        //         .until(() -> reefAlignController.atGoal())
-        //         .andThen(
-        //             new ParallelRaceGroup(
-        //                 new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
-
-    Trigger a = new Trigger(() -> (controller.getAButton() && RobotState.getInstance().isAutoAligning()));
-
-    a.onTrue(
-            superstructure
-                .setWantedSuperStateCommand(SuperState.L2)
-                .andThen(
-                    new InstantCommand(
+        //                       reefAlignController =
+        //                           new ReefAlignController(
+        //                               drive,
+        //                               () ->
+        //                                   RobotState.getInstance()
+        //                                           .getDistanceToNearestReef(drive.getPose())
+        //                                       < 1.0,
+        //                               () -> false);
+        //                     })))
+        // .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW))
+        // .onFalse(
+        //     DriveCommands.joystickDrive(
+        //         drive,
+        //         () -> -controller.getLeftY(),
+        //         () -> -controller.getLeftX(),
+        //         () -> -controller.getRightX()))
+        .whileTrue(
+        new InstantCommand(
+                () -> {
+                  reefAlignController =
+                      new ReefAlignController(
+                          drive,
+                          () ->
+                              RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
+                                  < 1.0,
+                          () -> false);
+                })
+            .andThen(
+                new InstantCommand(
                         () -> {
-                          reefAlignController =
-                              new ReefAlignController(
-                                  drive,
-                                  () ->
-                                      RobotState.getInstance()
-                                              .getDistanceToNearestReef(drive.getPose())
-                                          < 1.0,
-                                  () -> false);
-                        })))
-        .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW))
+                          drive.runVelocity(reefAlignController.update().get());
+                        },
+                        drive)
+                    .repeatedly())
+            .until(() -> reefAlignController.atGoal())
+            .andThen(
+                new ParallelRaceGroup(
+                    new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
+
+    Trigger x =
+        new Trigger(() -> (controller.getXButton() && RobotState.getInstance().isAutoAligning()));
+
+    x
+        // .onTrue(
+        //         superstructure
+        //             .setWantedSuperStateCommand(SuperState.L3)
+        //             .andThen(
+        //                 new InstantCommand(
+        //                     () -> {
+        //                       reefAlignController =
+        //                           new ReefAlignController(
+        //                               drive,
+        //                               () ->
+        //                                   RobotState.getInstance()
+        //                                           .getDistanceToNearestReef(drive.getPose())
+        //                                       < 1.0,
+        //                               () -> false);
+        //                     })))
+        // .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW))
         .onFalse(
             DriveCommands.joystickDrive(
                 drive,
@@ -300,64 +395,6 @@ public class RobotContainer {
                 () -> -controller.getRightX()))
         .whileTrue(
             new InstantCommand(
-                    () -> {
-                      drive.runVelocity(reefAlignController.update().get());
-                    },
-                    drive)
-                .repeatedly()
-                .until(() -> reefAlignController.atGoal())
-                .andThen(
-                    new ParallelRaceGroup(
-                        new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
-
-    Trigger x = new Trigger(() -> (controller.getXButton() && RobotState.getInstance().isAutoAligning()));
-
-    x.onTrue(
-            superstructure
-                .setWantedSuperStateCommand(SuperState.L3)
-                .andThen(
-                    new InstantCommand(
-                        () -> {
-                          reefAlignController =
-                              new ReefAlignController(
-                                  drive,
-                                  () ->
-                                      RobotState.getInstance()
-                                              .getDistanceToNearestReef(drive.getPose())
-                                          < 1.0,
-                                  () -> false);
-                        })))
-        .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW))
-        .onFalse(
-            DriveCommands.joystickDrive(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> -controller.getRightX()))
-        .whileTrue(
-            new InstantCommand(
-                    () -> {
-                      drive.runVelocity(reefAlignController.update().get());
-                    },
-                    drive)
-                .repeatedly()
-                .until(() -> reefAlignController.atGoal())
-                .andThen(
-                    new ParallelRaceGroup(
-                        new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
-
-    Trigger y = new Trigger(() -> (controller.getYButton() && RobotState.getInstance().isAutoAligning()));
-
-    y.onTrue(superstructure.setWantedSuperStateCommand(SuperState.L4))
-        .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW))
-        .onFalse(
-            DriveCommands.joystickDrive(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> -controller.getRightX()))
-        .whileTrue(
-            (new InstantCommand(
                     () -> {
                       reefAlignController =
                           new ReefAlignController(
@@ -366,38 +403,80 @@ public class RobotContainer {
                                   RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
                                       < 1.0,
                               () -> false);
-                    }))
+                    })
                 .andThen(
                     new InstantCommand(
                             () -> {
                               drive.runVelocity(reefAlignController.update().get());
                             },
                             drive)
-                        .repeatedly()
-                        .until(() -> reefAlignController.atGoal())
-                        .andThen(
-                            new ParallelRaceGroup(
-                                new ControllerRumbleCommand(controller, () -> true),
-                                new WaitCommand(.4)))));
+                        .repeatedly())
+                .until(() -> reefAlignController.atGoal())
+                .andThen(
+                    new ParallelRaceGroup(
+                        new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
+
+    Trigger y =
+        new Trigger(() -> (controller.getYButton() && RobotState.getInstance().isAutoAligning()));
+
+    y
+        // .onTrue(superstructure.setWantedSuperStateCommand(SuperState.L4))
+        //     .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW))
+        .onFalse(
+            DriveCommands.joystickDrive(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () -> -controller.getRightX()))
+        .whileTrue(
+            new InstantCommand(
+                    () -> {
+                      reefAlignController =
+                          new ReefAlignController(
+                              drive,
+                              () ->
+                                  RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
+                                      < 1.0,
+                              () -> false);
+                    })
+                .andThen(
+                    new InstantCommand(
+                            () -> {
+                              drive.runVelocity(reefAlignController.update().get());
+                            },
+                            drive)
+                        .repeatedly())
+                .until(() -> reefAlignController.atGoal())
+                .andThen(
+                    new ParallelRaceGroup(
+                        new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
 
     Trigger povLeft = new Trigger(() -> controller.getPOV() == 270);
     povLeft.whileTrue(DriveCommands.wheelRadiusCharacterization(drive));
+
+    Trigger povDown = new Trigger(() -> controller.getPOV() == 180);
+
+    povDown.onTrue(
+        new InstantCommand(
+            () ->
+                RobotState.getInstance()
+                    .setAddingVision(!RobotState.getInstance().isAddingVision())));
 
     Trigger povRight = new Trigger(() -> controller.getPOV() == 90);
 
     // reseting wrist and elevator encoder to their "zero" positions
     // must physically properly be "zeroed" for this to have desired effect
-    povRight.onTrue(
-        new InstantCommand(
-                () -> {
-                  elevator.setHeight(0);
-                  wrist.resetPosition(0);
-                })
-            .ignoringDisable(true));
-
+    // povRight.onTrue(
+    //     new InstantCommand(
+    //             () -> {
+    //               elevator.setHeight(0);
+    //               wrist.resetPosition(0);
+    //             })
+    //         .ignoringDisable(true));
 
     // switch the stick of the reef (on the same face) that is being aligned to.
-    // for an easy toggle that can be done while aligning (not letting go of alignment button) repeatedly, safely.
+    // for an easy toggle that can be done while aligning (not letting go of alignment button)
+    // repeatedly, safely.
     Trigger leftBumper = new Trigger(() -> controller.getLeftBumperButton());
     leftBumper.onTrue(
         new InstantCommand(
@@ -427,15 +506,15 @@ public class RobotContainer {
 
     Trigger rightTrigger = new Trigger(() -> controller.getRightTriggerAxis() > .5);
 
-    rightTrigger
-        .onTrue(superstructure.setWantedSuperStateCommand(SuperState.L3L4ALGAE))
-        .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW));
+    // rightTrigger
+    //     .onTrue(superstructure.setWantedSuperStateCommand(SuperState.L3L4ALGAE))
+    //     .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW));
 
     Trigger leftTrigger = new Trigger(() -> controller.getLeftTriggerAxis() > .5);
 
-    leftTrigger
-        .onTrue(superstructure.setWantedSuperStateCommand(SuperState.L2L3ALGAE))
-        .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW));
+    // leftTrigger
+    //     .onTrue(superstructure.setWantedSuperStateCommand(SuperState.L2L3ALGAE))
+    //     .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW));
   }
 
   //   /**
@@ -455,7 +534,7 @@ public class RobotContainer {
     return drive;
   }
 
-  public Superstructure getSuperstructure() {
-    return superstructure;
-  }
+  //   public Superstructure getSuperstructure() {
+  //     return superstructure;
+  //   }
 }

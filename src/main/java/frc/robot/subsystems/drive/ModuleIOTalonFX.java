@@ -87,7 +87,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     this.constants = constants;
     driveTalon = new TalonFX(constants.DriveMotorId, TunerConstants.DrivetrainConstants.CANBusName);
     turnTalon = new TalonFX(constants.SteerMotorId, TunerConstants.DrivetrainConstants.CANBusName);
-    cancoder = new CANcoder(constants.EncoderId, TunerConstants.DrivetrainConstants.CANBusName);
+    cancoder = new CANcoder(constants.EncoderId, "*");
 
     // Configure drive motor
     var driveConfig = constants.DriveMotorInitialConfigs;
@@ -185,7 +185,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     BaseStatusSignal.setUpdateFrequencyForAll(
         Drive.ODOMETRY_FREQUENCY, drivePosition, turnPosition);
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0,
+        250.0,
         driveVelocity,
         driveAppliedVolts,
         driveCurrent,

@@ -31,6 +31,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -42,6 +44,8 @@ import frc.robot.util.GeomUtil;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.swerve.SwerveSetpoint;
 import frc.robot.util.swerve.SwerveSetpointGenerator;
+import lombok.Getter;
+
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -53,12 +57,10 @@ public class Drive extends SubsystemBase {
 
   private ChassisSpeeds previousChassisSpeeds = new ChassisSpeeds();
 
-  // private double maxTranslationDeltaPerLoop = TunerConstants.driveConfig.maxLinearAcceleration()
-  // * 0.02;
 
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY =
-      new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
+      new CANBus("*").isNetworkFD() ? 250.0 : 100.0;
   public static final double DRIVE_BASE_RADIUS =
       Math.max(
           Math.max(
@@ -89,10 +91,10 @@ public class Drive extends SubsystemBase {
 
   private final SwerveSetpointGenerator setpointGenerator;
   // PathPlanner config constants
-  private static final double ROBOT_MASS_KG = 50;
+  private static final double ROBOT_MASS_KG = 60;
   private static final double ROBOT_MOI = 6.883;
   private static final double WHEEL_COF = 1.2;
-  private static final RobotConfig PP_CONFIG =
+  public static final RobotConfig PP_CONFIG =
       new RobotConfig(
           ROBOT_MASS_KG,
           ROBOT_MOI,
@@ -124,9 +126,13 @@ public class Drive extends SubsystemBase {
         new SwerveModulePosition()
       };
   private SwerveDrivePoseEstimator poseEstimator =
-      new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d(),
-       VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(3)),
-        VecBuilder.fill(0.9, 0.9, 0.9));
+      new SwerveDrivePoseEstimator(
+          kinematics,
+          rawGyroRotation,
+          lastModulePositions,
+          new Pose2d(),
+          VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(3)),
+          VecBuilder.fill(0.9, 0.9, 0.9));
 
   public Drive(
       GyroIO gyroIO,
@@ -160,10 +166,9 @@ public class Drive extends SubsystemBase {
         this::getChassisSpeeds,
         this::runVelocity,
         new PPHolonomicDriveController(
-            new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
+            new PIDConstants(3.0, 0.0, 0.0), new PIDConstants(3.0, 0.0, 0.0)),
         PP_CONFIG,
-        // () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
-        () -> false,
+        () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
         this);
     Pathfinding.setPathfinder(new LocalADStarAK());
     PathPlannerLogging.setLogActivePathCallback(
@@ -268,7 +273,7 @@ public class Drive extends SubsystemBase {
     double maxTranslationDeltaPerLoopRatio =
         TranslationDelta
                 .getNorm() /*magnitude of difference of current and desired velocity vectors*/
-            / (RobotState.getInstance().getModuleLimits().maxDriveAcceleration() * 0.02);
+            / (RobotState.getInstance().getModuleLimits().maxDriveAcceleration());
 
     if (maxTranslationDeltaPerLoopRatio > 1) {
       // have to make it so that it approaches prevSpeedsTranslation in a
@@ -379,7 +384,7 @@ public class Drive extends SubsystemBase {
     }
     return values;
   }
- 
+
   /** Returns the average velocity of the modules in rotations/sec (Phoenix native units). */
   public double getFFCharacterizationVelocity() {
     double output = 0.0;

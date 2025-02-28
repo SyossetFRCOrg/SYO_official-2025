@@ -15,9 +15,11 @@ public class Elevator extends SubsystemBase {
   private final ElevatorIO io;
   private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
-  private final Debouncer atSetpointDebouncer = new Debouncer(0.5);
+  private final Debouncer atSetpointDebouncer = new Debouncer(0.2);
 
-  private double heightTolerance = 1.5; // rad
+  private double heightTolerance = .5; // rad
+
+  
 
   private static final HashMap<SuperState, LoggedTunableNumber> heights = initializeHeights();
 

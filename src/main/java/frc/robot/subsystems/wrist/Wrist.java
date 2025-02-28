@@ -15,7 +15,7 @@ public class Wrist extends SubsystemBase {
 
   private final WristIOInputsAutoLogged inputs = new WristIOInputsAutoLogged();
 
-  private final Debouncer aimedDebounce = new Debouncer(0.5);
+  private final Debouncer aimedDebounce = new Debouncer(0.2);
 
   private static final HashMap<SuperState, LoggedTunableNumber> positions = initializePositions();
 
