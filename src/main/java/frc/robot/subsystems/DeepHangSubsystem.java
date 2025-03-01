@@ -11,12 +11,14 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.DeepHangConstants;
@@ -25,8 +27,9 @@ public class DeepHangSubsystem extends SubsystemBase {
   private final SparkMax deepHangMotor;
   private final RelativeEncoder deepHangEncoder;
   private final SparkMaxConfig deepHangMotorConfig;
+  private double deepHangVoltage;
 
-  //TODO 
+  // TODO
   public final SetPosition grab = new SetPosition(50);
 
   private final PIDController pidController;
@@ -50,9 +53,9 @@ public class DeepHangSubsystem extends SubsystemBase {
 
   }
 
-  @Override
-  public void periodic() {
-    SmartDashboard.putNumber("Deep Hang Position", deepHangEncoder.getPosition());
+  public void initSendable(SendableBuilder builder) {
+    builder.addDoubleProperty("Deep Hang Set Voltage", () -> deepHangVoltage, (value) -> deepHangVoltage = value);
+    builder.addDoubleProperty("Deep Hang Applied Voltage", () -> deepHangMotor.getAppliedOutput(), null);
   }
 
   public void setDeepHangVoltage(double voltage) {
@@ -63,17 +66,17 @@ public class DeepHangSubsystem extends SubsystemBase {
     return deepHangEncoder.getPosition();
   }
 
-  public void setVoltage(double voltage) {
-    deepHangMotor.set(voltage);
+  public Command getRunDeepHangMotorForwardCommand() {
+    return new InstantCommand(() -> setDeepHangVoltage(deepHangVoltage));
   }
 
-  public final Command runDeepHangMotorForward = Commands.startEnd(
-      () -> setDeepHangVoltage(DeepHangConstants.DEEP_HANG_VOLTAGE),
-      () -> setDeepHangVoltage(0.0));
+  public Command runDeepHangMotorBackwardCommand() {
+    return new InstantCommand(() -> setDeepHangVoltage(-deepHangVoltage));
+  }
 
-  public final Command runDeepHangMotorBackward = Commands.startEnd(
-      () -> setDeepHangVoltage(-DeepHangConstants.DEEP_HANG_VOLTAGE),
-      () -> setDeepHangVoltage(0.0));
+  public Command getStopDeepHangMotorCommand() {
+    return new InstantCommand(() -> setDeepHangVoltage(0));
+  }
 
   public class SetPosition extends Command {
     private double target;
@@ -87,11 +90,6 @@ public class DeepHangSubsystem extends SubsystemBase {
     public void initialize() {
       pidController.reset();
       pidController.setSetpoint(target);
-    }
-
-    @Override
-    public void execute() {
-      setVoltage(pidController.calculate(getPosition()));
     }
 
     @Override

@@ -76,14 +76,8 @@ public class Superstructure extends SubsystemBase {
         if (subsystems.get("deep_hang").getBoolean("enabled")) {
             deepHang = Optional.of(new DeepHangSubsystem());
             deepHang.ifPresent(hang -> {
-                controller.leftTrigger().and(controller.x())
-                        .whileTrue(Commands.startEnd(() -> {
-                            hang.setVoltage(2.0);
-                        }, () -> hang.setVoltage(0.0)));
-                controller.leftTrigger().and(controller.y())
-                        .whileTrue(Commands.startEnd(() -> {
-                            hang.setVoltage(-2.0);
-                        }, () -> hang.setVoltage(0.0)));
+                hang.setDefaultCommand(hang.getStopDeepHangMotorCommand());
+                controller.leftTrigger().whileTrue(Commands.runOnce(hang.getRunDeepHangMotorForwardCommand(), hang));
             });
         } else {
             deepHang = Optional.empty();
