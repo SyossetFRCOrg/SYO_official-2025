@@ -13,7 +13,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -46,8 +45,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
      * Sets the voltage of the Algae Intake Roller Motor
      * @param controllerInput value of the left stick y axis
      */
-    public void setRollerVoltage(double controllerInput) {
-        algaeIntakeRollerMotor.setVoltage(controllerInput > 0 ? -AlgaeIntakeConstants.ALGAE_INTAKE_SPEED : (controllerInput < 0 ? AlgaeIntakeConstants.ALGAE_INTAKE_SPEED : 0.0));
+    public void setRollerVoltage(double voltage) {
+        algaeIntakeRollerMotor.setVoltage(voltage);
     }
 
     /**
@@ -67,7 +66,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
      * the direction to intake the Algae
      */
     public Command getRunIntakeRollersCommand(double controls){
-        return new InstantCommand(() -> setRollerVoltage((controls < 0 ? -4.0 : (controls > 0 ? 4.0 : 0.0))));
+        return new InstantCommand(() -> setRollerVoltage((controls < 0 ? -AlgaeIntakeConstants.ALGAE_INTAKE_SPEED : (controls > 0 ? AlgaeIntakeConstants.ALGAE_INTAKE_SPEED : 1.0))));
     }
 
 

@@ -21,6 +21,7 @@ import edu.wpi.first.math.util.Units;
 public final class Constants {
     public static class OperatorConstants {
         public static final int kDriverControllerPort = 0;
+        public static final int kSubsystemControllerPort = 1;
     }
     //TODO Find real values and units for the values below
     public static final class AlgaeIntakeConstants {
@@ -30,7 +31,7 @@ public final class Constants {
         }
 
         public final static int ALGAE_INTAKE_ID = 18;
-        public final static double ALGAE_INTAKE_SPEED = 2.0;
+        public final static double ALGAE_INTAKE_SPEED = 1.0;
     }
     
     public static final class Elevator {

@@ -10,18 +10,20 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class ElevatorStructure extends SubsystemBase {
-    private final Elevator elevator = new Elevator();
-    private final CoralArm coralArm = new CoralArm();
-    private double elevatorPreparePositionL2 = -3.5;
-    private double elevatorPreparePositionL3 = 38.38;
+    private final Elevator elevator;
+    private final CoralArm coralArm;
+    private double elevatorPreparePositionL2 = 6.81;
+    private double elevatorPreparePositionL3 = 36.79;
     private double elevatorPreparePositionL4 = 23.0;
     private double elevatorIntakeLiftPosition = 10.0;
-    private double armPreparePositionL2 = 1.5;
-    private double armPreparePositionL3 = 1.5;
+    private double armPreparePositionL2 = 1;
+    private double armPreparePositionL3 = 1.3;
 
     private double coralArmKgIntake = 0.74;
-    private double coralArmKgHold = 3;
+    private double coralArmKgHold = 0.8;
     private double coralArmKgNeutral = 0.35;
+
+    private CommandXboxController subsystemController;
 
 
     private State<Event> state;
@@ -40,9 +42,12 @@ public class ElevatorStructure extends SubsystemBase {
         SCORE
     }
     
-    public ElevatorStructure() {
+    public ElevatorStructure(CommandXboxController subsystemController) {
         state = HOLD;
         SmartDashboard.putData("Elevator Structure", this);
+        this.subsystemController = subsystemController;
+        elevator = new Elevator(this.subsystemController);
+        coralArm = new CoralArm(this.subsystemController);
         // coralArm.getResetPosition();
         // elevator.getResetPosition();
     }
@@ -60,9 +65,9 @@ public class ElevatorStructure extends SubsystemBase {
     }
 
     // These should not be enabled with the drivetrain enabled simultaneously !
-    public void debugControls(CommandXboxController subsystemController) {
-        elevator.debugControls(subsystemController);
-        coralArm.debugControls(subsystemController);
+    public void debugControls() {
+        elevator.debugControls();
+        coralArm.debugControls();
 
         var ctrlMode = subsystemController.rightTrigger().negate().and(subsystemController.leftTrigger().negate());
 
@@ -102,7 +107,7 @@ public class ElevatorStructure extends SubsystemBase {
                 case INTAKE_PREPARE -> prepareIntake();
                 case INTAKE -> prepareIntake().andThen(intake());
                 case L1_PREPARE, L2_PREPARE, L3_PREPARE, L4_PREPARE, L1_SCORE, L2_SCORE, L3_SCORE, L4_SCORE
-                    -> runEvent(Event.INTAKE).andThen(HOLD.runEvent(event));
+                    -> (HOLD.runEvent(event));
                 case SCORE -> Commands.none();
                 default -> Commands.none();
             };

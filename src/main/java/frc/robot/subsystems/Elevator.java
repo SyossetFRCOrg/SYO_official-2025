@@ -22,9 +22,10 @@ public class Elevator extends SubsystemBase {
     private final MotorIO.Inputs inputs = new MotorIO.Inputs();
 
     private final MotorCommands commands;
+    private CommandXboxController subsystemController;
 
     /** Creates a new ElevatorSubsystem. */
-    public Elevator() {
+    public Elevator(CommandXboxController subsystemController) {
         MotorIOSpark.Config config = new MotorIOSpark.Config();
 
         config.canid = 16;
@@ -61,6 +62,8 @@ public class Elevator extends SubsystemBase {
 
         commands = new MotorCommands(this, motor);
         setDefaultCommand(commands.new Hover());
+
+        this.subsystemController = subsystemController;
     }
 
     @Override
@@ -69,6 +72,7 @@ public class Elevator extends SubsystemBase {
         builder.addDoubleProperty("Velocity", () -> inputs.velocityRadPerSec, null);
         builder.addDoubleProperty("Voltage", () -> inputs.appliedVolts, null);
         builder.addDoubleProperty("Current", () -> inputs.currentAmps, null);
+
     }
 
     @Override
@@ -76,9 +80,11 @@ public class Elevator extends SubsystemBase {
         motor.updateInputs(inputs);
     }
 
-    public void debugControls(CommandXboxController subsystemController) {
+    public void debugControls() {
         var ctrlMode = subsystemController.rightTrigger().negate().and(subsystemController.leftTrigger().negate());
         ctrlMode.and(subsystemController.povDown().or(subsystemController.povUp())).whileTrue(commands.new FreeMove(() -> (subsystemController.povUp().getAsBoolean() ? 16.0 : 0.0) - (subsystemController.povDown().getAsBoolean() ? 16.0 : 0.0)));
+        
+        ctrlMode = subsystemController.rightTrigger().and(subsystemController.leftTrigger().negate());
         ctrlMode.and(subsystemController.povLeft()).onTrue(commands.new ResetPosition());
     }
 

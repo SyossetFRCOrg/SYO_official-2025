@@ -24,8 +24,10 @@ public class CoralArm extends SubsystemBase {
     private final MotorCommands commands;
     private final ArmFeedForward feedForward;
 
+    private CommandXboxController subsystemController;
+
     /** Creates a new ArmSubsystem. */
-    public CoralArm() {
+    public CoralArm(CommandXboxController subsystemController) {
         MotorIOSpark.Config config = new MotorIOSpark.Config();
 
         config.canid = 19;
@@ -64,11 +66,14 @@ public class CoralArm extends SubsystemBase {
         
         commands = new MotorCommands(this, motor);
         setDefaultCommand(commands.new Hover());
+
+        this.subsystemController = subsystemController;
     }
 
     @Override
     public void periodic() {
         motor.updateInputs(inputs);
+
     }
 
     @Override
@@ -92,10 +97,13 @@ public class CoralArm extends SubsystemBase {
         return Commands.runOnce(() -> motor.resetPosition(-Math.PI/2));
     }
 
-    public void debugControls(CommandXboxController controller) {
-        var ctrlMode = controller.rightTrigger().negate().and(controller.leftTrigger().negate());
-        ctrlMode.whileTrue(commands.new FreeMove(() -> (controller.getRightY() > 0 ? -4.0 : (controller.getRightY() < 0 ? 4.0 : 0))));
-        ctrlMode.and(controller.povRight()).onTrue(commands.new ResetPosition(-Math.PI/2));
+    public void debugControls() {
+        var ctrlMode = subsystemController.rightTrigger().negate().and(subsystemController.leftTrigger().negate());
+        
+        ctrlMode.and(subsystemController.povLeft().or(subsystemController.povRight())).whileTrue(commands.new FreeMove(() -> (subsystemController.povRight().getAsBoolean() ? 4.0 : (subsystemController.povLeft().getAsBoolean() ? -4.0 : 0))));
+        
+        ctrlMode = subsystemController.rightTrigger().and(subsystemController.leftTrigger().negate());
+        ctrlMode.and(subsystemController.povRight()).onTrue(commands.new ResetPosition(-Math.PI/2));
     }
 
     public class ArmFeedForward implements FeedForward {
