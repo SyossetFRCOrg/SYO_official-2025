@@ -13,11 +13,14 @@ public class ElevatorStructure extends SubsystemBase {
     private final Elevator elevator = new Elevator();
     private final CoralArm coralArm = new CoralArm();
     private double elevatorPreparePositionL2 = -3.5;
-    private double elevatorPreparePositionL3 = 56.34;
+    private double elevatorPreparePositionL3 = 38.38;
     private double elevatorPreparePositionL4 = 23.0;
     private double elevatorIntakeLiftPosition = 10.0;
+    private double armPreparePositionL2 = 1.5;
+    private double armPreparePositionL3 = 1.5;
+
     private double coralArmKgIntake = 0.74;
-    private double coralArmKgHold = 0.8;
+    private double coralArmKgHold = 3;
     private double coralArmKgNeutral = 0.35;
 
 
@@ -57,23 +60,23 @@ public class ElevatorStructure extends SubsystemBase {
     }
 
     // These should not be enabled with the drivetrain enabled simultaneously !
-    public void debugControls(CommandXboxController controller) {
-        elevator.debugControls(controller);
-        coralArm.debugControls(controller);
+    public void debugControls(CommandXboxController subsystemController) {
+        elevator.debugControls(subsystemController);
+        coralArm.debugControls(subsystemController);
 
-        var ctrlMode = controller.rightTrigger().negate().and(controller.leftTrigger().negate());
+        var ctrlMode = subsystemController.rightTrigger().negate().and(subsystemController.leftTrigger().negate());
 
-        ctrlMode.and(controller.leftBumper()).onTrue(eventCommand(Event.SCORE));
-        ctrlMode.and(controller.rightBumper()).onTrue(eventCommand(Event.INTAKE));
-        ctrlMode.and(controller.a()).onTrue(eventCommand(Event.L1_PREPARE));
-        ctrlMode.and(controller.b()).onTrue(eventCommand(Event.L2_PREPARE));
-        ctrlMode.and(controller.x()).onTrue(eventCommand(Event.L3_PREPARE));
-        ctrlMode.and(controller.y()).onTrue(eventCommand(Event.L4_PREPARE));
+        ctrlMode.and(subsystemController.leftBumper()).onTrue(eventCommand(Event.SCORE));
+        // ctrlMode.and(controller.rightBumper()).onTrue(eventCommand(Event.INTAKE));
+        ctrlMode.and(subsystemController.a()).onTrue(eventCommand(Event.INTAKE));
+        ctrlMode.and(subsystemController.b()).onTrue(eventCommand(Event.L2_PREPARE));
+        ctrlMode.and(subsystemController.y()).onTrue(eventCommand(Event.L3_PREPARE));
+        // ctrlMode.and(controller.y()).onTrue(eventCommand(Event.L4_PREPARE));
 
-        ctrlMode = controller.rightTrigger().negate().and(controller.leftTrigger());
+        ctrlMode = subsystemController.rightTrigger().negate().and(subsystemController.leftTrigger());
 
-        ctrlMode.and(controller.a()).onTrue(setHoldCommand());
-        ctrlMode.and(controller.b()).onTrue(setNeutralCommand());
+        ctrlMode.and(subsystemController.a()).onTrue(setHoldCommand());
+        ctrlMode.and(subsystemController.b()).onTrue(setNeutralCommand());
     }
 
     public Command getPositionCommand(double armPos, double elevatorPos) {
@@ -84,7 +87,7 @@ public class ElevatorStructure extends SubsystemBase {
         return Commands.defer(() -> state.runEvent(event), Set.of(elevator, coralArm));
     }
 
-    public Command setHoldCommand() {
+    public Command  setHoldCommand() {
         return coralArm.getSetKg(coralArmKgHold).finallyDo(() -> state = HOLD);
     }
 
@@ -212,8 +215,8 @@ public class ElevatorStructure extends SubsystemBase {
         ).finallyDo(() -> state = HOLD);
     }
     private final Command prepareL1() { return Commands.none().finallyDo(() -> state = L1_READY); }
-    private final Command prepareL2() { return getPositionCommand(1.3, elevatorPreparePositionL2).andThen(setHoldCommand()).finallyDo(() -> state = L2_READY); }
-    private final Command prepareL3() { return getPositionCommand(1.3, elevatorPreparePositionL3).andThen(setHoldCommand()).finallyDo(() -> state = L3_READY); }
+    private final Command prepareL2() { return getPositionCommand(armPreparePositionL2, elevatorPreparePositionL2).andThen(setHoldCommand()).finallyDo(() -> state = L2_READY); }
+    private final Command prepareL3() { return getPositionCommand(armPreparePositionL3, elevatorPreparePositionL3).andThen(setHoldCommand()).finallyDo(() -> state = L3_READY); }
     private final Command prepareL4() { return getPositionCommand(1.5, elevatorPreparePositionL4).andThen(setHoldCommand()).finallyDo(() -> state = L4_READY); }
     
     private final Command scoreL1() { return Commands.none().andThen(setNeutralCommand()); }

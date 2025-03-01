@@ -7,18 +7,17 @@ import java.util.stream.Collectors;
 
 import com.moandjiezana.toml.Toml;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.drive.swerve.Drivetrain;
-import frc.robot.subsystems.drive.swerve.ModuleIOSpark.Config.Drive;
 
 public class Superstructure extends SubsystemBase {
-    private final CommandXboxController controller;
+    private final CommandXboxController driverController;
+    private final CommandXboxController subsystemController;
 
     private final Optional<Drivetrain> drivetrain;
     private final Optional<AlgaeIntakeSubsystem> algaeIntake;
@@ -31,7 +30,8 @@ public class Superstructure extends SubsystemBase {
         Toml config = new Toml().read(new File(configDir, "superstructure.toml"));
         Map<String, Toml> subsystems = config.getTables("subsystems").stream().collect(Collectors.toMap(toml -> toml.getString("id"), toml -> toml));
 
-        controller = new CommandXboxController(0);
+        driverController = new CommandXboxController(0);
+        subsystemController = new CommandXboxController(1);
 
         if (subsystems.get("drivetrain").getBoolean("enabled")) {
             drivetrain = Optional.of(new Drivetrain());
@@ -39,13 +39,13 @@ public class Superstructure extends SubsystemBase {
             drivetrain.ifPresent(drive -> {
                 drive.setDefaultCommand(drive.joystickDrive(
                     drive,
-                    () ->  0.5 * controller.getLeftY(),
-                    () ->  0.5 * controller.getLeftX(),
-                    () ->  0.4 * controller.getRightX()
+                    () ->  0.5 * driverController.getLeftY(),
+                    () ->  0.5 * driverController.getLeftX(),
+                    () ->  0.4 * driverController.getRightX()
                 ));
             });
 
-            controller.button(8).onTrue(drivetrain.get().setRotation(
+            driverController.button(8).onTrue(drivetrain.get().setRotation(
                     DriverStation.getAlliance().get() == Alliance.Red ? (180) : (0)
             ));
         } else {
@@ -56,9 +56,8 @@ public class Superstructure extends SubsystemBase {
         if (subsystems.get("algae_intake").getBoolean("enabled")) {
             algaeIntake = Optional.of(new AlgaeIntakeSubsystem());
             algaeIntake.ifPresent(intake -> {
-                intake.setDefaultCommand(Commands.run(() -> intake.setRollerVoltage(0.0), intake));
-                controller.povUp().whileTrue(Commands.run(() -> intake.setRollerVoltage(2.0), intake));
-                controller.povDown().whileTrue(Commands.run(() -> intake.setRollerVoltage(-2.0), intake));
+                intake.setDefaultCommand(Commands.run(() -> intake.setRollerVoltage(subsystemController.getLeftY()), intake));
+                
             });
         } else {
             algaeIntake = Optional.empty();
@@ -66,7 +65,7 @@ public class Superstructure extends SubsystemBase {
 
         if (subsystems.get("elevator_structure").getBoolean("enabled")) {
             elevatorStructure = Optional.of(new ElevatorStructure());
-            elevatorStructure.ifPresent(structure -> structure.debugControls(controller));
+            elevatorStructure.ifPresent(structure -> structure.debugControls(subsystemController));
         } else {
             elevatorStructure = Optional.empty();
         }

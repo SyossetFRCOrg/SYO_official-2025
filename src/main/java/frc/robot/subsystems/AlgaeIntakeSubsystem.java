@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -14,7 +15,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AlgaeIntakeConstants;
 
@@ -43,11 +44,10 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
 
     /**
      * Sets the voltage of the Algae Intake Roller Motor
-     * @param voltage the voltage to set the motor to
+     * @param controllerInput value of the left stick y axis
      */
-    public void setRollerVoltage(double voltage) {
-        System.out.println(algaeIntakeRollerMotor.getAppliedOutput());
-        algaeIntakeRollerMotor.setVoltage(MathUtil.clamp(voltage, -4.0, 4.0));
+    public void setRollerVoltage(double controllerInput) {
+        algaeIntakeRollerMotor.setVoltage(controllerInput > 0 ? -AlgaeIntakeConstants.ALGAE_INTAKE_SPEED : (controllerInput < 0 ? AlgaeIntakeConstants.ALGAE_INTAKE_SPEED : 0.0));
     }
 
     /**
@@ -66,19 +66,9 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
      * Command that runs the rollers in 
      * the direction to intake the Algae
      */
-    public final Command runIntakeRollersCommand = Commands.startEnd( 
-            () -> setRollerVoltage(AlgaeIntakeConstants.ALGAE_INTAKE_SPEED), 
-            () -> setRollerVoltage(0),
-            this
-    ).withName("intake.runIntakeRollers");
+    public Command getRunIntakeRollersCommand(double controls){
+        return new InstantCommand(() -> setRollerVoltage((controls < 0 ? -4.0 : (controls > 0 ? 4.0 : 0.0))));
+    }
 
-    /**
-     * Command that runs the rollers in 
-     * the direction to outtake the Algae
-     */
-    public final Command runOuttakeRollersCommand = Commands.startEnd( 
-            () -> setRollerVoltage(AlgaeIntakeConstants.ALGAE_OUTTAKE_SPEED), 
-            () -> setRollerVoltage(0),
-            this
-    ).withName("intake.runOuttakeRollers");
+
 }

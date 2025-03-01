@@ -76,11 +76,10 @@ public class Elevator extends SubsystemBase {
         motor.updateInputs(inputs);
     }
 
-    public void debugControls(CommandXboxController controller) {
-        var ctrlMode = controller.rightTrigger().and(controller.leftTrigger().negate());
-        ctrlMode.and(controller.x().or(controller.y()))
-            .whileTrue(commands.new FreeMove(() -> (controller.y().getAsBoolean() ? 16.0 : 0.0) - (controller.x().getAsBoolean() ? 16.0 : 0.0)));
-        ctrlMode.and(controller.povLeft()).onTrue(commands.new ResetPosition());
+    public void debugControls(CommandXboxController subsystemController) {
+        var ctrlMode = subsystemController.rightTrigger().negate().and(subsystemController.leftTrigger().negate());
+        ctrlMode.and(subsystemController.povDown().or(subsystemController.povUp())).whileTrue(commands.new FreeMove(() -> (subsystemController.povUp().getAsBoolean() ? 16.0 : 0.0) - (subsystemController.povDown().getAsBoolean() ? 16.0 : 0.0)));
+        ctrlMode.and(subsystemController.povLeft()).onTrue(commands.new ResetPosition());
     }
 
     public Command getPositionCommand(double position) {

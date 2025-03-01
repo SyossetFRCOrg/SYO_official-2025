@@ -30,8 +30,7 @@ public final class Constants {
         }
 
         public final static int ALGAE_INTAKE_ID = 18;
-        public final static double ALGAE_INTAKE_SPEED = 4.0;
-        public final static double ALGAE_OUTTAKE_SPEED = -4.0;
+        public final static double ALGAE_INTAKE_SPEED = 2.0;
     }
     
     public static final class Elevator {

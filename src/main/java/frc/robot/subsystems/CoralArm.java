@@ -93,9 +93,8 @@ public class CoralArm extends SubsystemBase {
     }
 
     public void debugControls(CommandXboxController controller) {
-        var ctrlMode = controller.rightTrigger().and(controller.leftTrigger().negate());
-        ctrlMode.and(controller.a().or(controller.b()))
-            .whileTrue(commands.new FreeMove(() -> (controller.b().getAsBoolean() ? 4.0 : 0.0) - (controller.a().getAsBoolean() ? 4.0 : 0.0)));
+        var ctrlMode = controller.rightTrigger().negate().and(controller.leftTrigger().negate());
+        ctrlMode.whileTrue(commands.new FreeMove(() -> (controller.getRightY() > 0 ? -4.0 : (controller.getRightY() < 0 ? 4.0 : 0))));
         ctrlMode.and(controller.povRight()).onTrue(commands.new ResetPosition(-Math.PI/2));
     }
 
