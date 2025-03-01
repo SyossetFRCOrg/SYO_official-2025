@@ -70,7 +70,7 @@ public class DeepHangSubsystem extends SubsystemBase {
     return new InstantCommand(() -> setDeepHangVoltage(deepHangVoltage));
   }
 
-  public Command runDeepHangMotorBackwardCommand() {
+  public Command getRunDeepHangMotorBackwardCommand() {
     return new InstantCommand(() -> setDeepHangVoltage(-deepHangVoltage));
   }
 
