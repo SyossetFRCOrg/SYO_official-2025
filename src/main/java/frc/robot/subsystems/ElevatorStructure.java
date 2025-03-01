@@ -228,4 +228,35 @@ public class ElevatorStructure extends SubsystemBase {
     private final Command scoreL2() { return getPositionCommand(-1.0, -0.1).andThen(setNeutralCommand()); }
     private final Command scoreL3() { return getPositionCommand(-1.0, 10.5).andThen(setNeutralCommand()); }
     private final Command scoreL4() { return getPositionCommand(-1.0, 2.0).andThen(setNeutralCommand()); }
+
+    public Command getL1PrepareCommand() {
+        return prepareL1();
+    }
+
+    public Command getL2PrepareCommand() {
+        return prepareL2();
+    }
+
+    public Command getL3PrepareCommand() {
+        return prepareL3();
+    }
+    public Command getL4PrepareCommand() {
+        return prepareL4();
+    }
+
+    public Command getL1ScoreCommand() {
+        return scoreL1();
+    }
+
+    public Command getL2ScoreCommand() {
+        return scoreL2();
+    }
+
+    public Command getL3ScoreCommand() {
+        return scoreL3();
+    }
+
+    public Command getL4ScoreCommand() {
+        return scoreL4();
+    }
 }
