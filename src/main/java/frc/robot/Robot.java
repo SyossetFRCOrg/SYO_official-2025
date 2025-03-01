@@ -7,6 +7,9 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Superstructure;
 
 /**
@@ -18,6 +21,7 @@ import frc.robot.subsystems.Superstructure;
  */
 public class Robot extends TimedRobot {
     @SuppressWarnings("unused")
+    private Command autonomousCommand;
     private final Superstructure superstructure;
 
     /**
@@ -27,6 +31,7 @@ public class Robot extends TimedRobot {
      */
     public Robot() {
         superstructure = new Superstructure();
+
         if (Robot.isSimulation()) {
             DriverStation.silenceJoystickConnectionWarning(true);
         }
@@ -60,5 +65,25 @@ public class Robot extends TimedRobot {
     @Override
     public void testPeriodic() {
 
+    }
+
+    @Override
+    public void robotInit() {
+        autonomousCommand = new SequentialCommandGroup(
+            superstructure.getDrivetrain().joystickDrive(
+                superstructure.getDrivetrain(),
+                () -> -0.5,
+                () -> 0.0,
+                () -> 0.0
+            ).alongWith(superstructure.getElevatorStructure().getL3PrepareCommand()).withDeadline(new WaitCommand(4)),
+            superstructure.getElevatorStructure().getL3ScoreCommand()
+        );
+    }
+
+    @Override
+    public void autonomousInit() {
+        if (autonomousCommand != null) {
+            autonomousCommand.schedule();
+        }
     }
 }
