@@ -23,6 +23,7 @@ public class Robot extends TimedRobot {
     @SuppressWarnings("unused")
     private Command autonomousCommand;
     private final Superstructure superstructure;
+    private final boolean runAutonomous = false;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -82,7 +83,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        if (autonomousCommand != null) {
+        if (autonomousCommand != null && runAutonomous) {
             autonomousCommand.schedule();
         }
     }
