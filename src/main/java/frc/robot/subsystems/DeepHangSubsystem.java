@@ -11,7 +11,6 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -83,6 +82,10 @@ public class DeepHangSubsystem extends SubsystemBase {
   public Command getRunDeepHangMotorBackwardCommand(boolean increaseVoltage) {
     return new InstantCommand(
         () -> setDeepHangVoltage(-deepHangVoltage - (increaseVoltage ? deepHangBoostVoltage : 0.0)));
+  }
+  public Command getRunDeepHangMotorForwardCommand(boolean increaseVoltage) {
+    return new InstantCommand(
+        () -> setDeepHangVoltage(deepHangVoltage + (increaseVoltage ? deepHangBoostVoltage : 0.0)));
   }
 
   public Command getStopDeepHangMotorCommand() {

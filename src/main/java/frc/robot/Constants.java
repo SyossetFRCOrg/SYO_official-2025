@@ -100,6 +100,10 @@ public final class Constants {
         public static final double kD = 0.0; // TODO
 
         public static final double kGravityFF = 0.0; // TODO
-
+    }
+    public static final class DeepHangConstants {
+        public static final int DEEP_HANG_MOTOR_ID = 20;
+        public static final int DEEP_HANG_CURRENT_LIMIT = 40;
+        public static final int DEEP_HANG_VOLTAGE = 3;
     }
 }

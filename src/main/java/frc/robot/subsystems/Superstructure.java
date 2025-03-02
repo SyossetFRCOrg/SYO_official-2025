@@ -24,6 +24,7 @@ public class Superstructure extends SubsystemBase {
     private final Optional<Drivetrain> drivetrain;
     private final Optional<AlgaeIntakeSubsystem> algaeIntake;
     private final Optional<ElevatorStructure> elevatorStructure;
+    private final Optional<DeepHangSubsystem> deepHang;
 
     public Superstructure() {
         var deployDir = Filesystem.getDeployDirectory();
@@ -58,7 +59,12 @@ public class Superstructure extends SubsystemBase {
             algaeIntake = Optional.of(new AlgaeIntakeSubsystem());
             algaeIntake.ifPresent(intake -> {
                 intake.setDefaultCommand(
-                        new InstantCommand(() -> intake.setRollerVoltage((subsystemController.getLeftY() < -0.1 ? -AlgaeIntakeConstants.ALGAE_INTAKE_SPEED : (subsystemController.getLeftY() > 0.1 ? AlgaeIntakeConstants.ALGAE_INTAKE_SPEED : 0.0))),algaeIntake.get()));
+                        new InstantCommand(() -> intake.setRollerVoltage(
+                                (subsystemController.getLeftY() < -0.1 ? -AlgaeIntakeConstants.ALGAE_INTAKE_SPEED
+                                        : (subsystemController.getLeftY() > 0.1
+                                                ? AlgaeIntakeConstants.ALGAE_INTAKE_SPEED
+                                                : 0.0))),
+                                algaeIntake.get()));
             });
         } else {
             algaeIntake = Optional.empty();
@@ -70,7 +76,21 @@ public class Superstructure extends SubsystemBase {
         } else {
             elevatorStructure = Optional.empty();
         }
+
+        if (subsystems.get("deep_hang").getBoolean("enabled")) {
+            deepHang = Optional.of(new DeepHangSubsystem());
+            deepHang.ifPresent(hang -> {
+                hang.setDefaultCommand(
+                        new InstantCommand(() -> hang.setDeepHangVoltage(
+                            (driverController.leftTrigger().getAsBoolean() ? (3.0 + (driverController.a().getAsBoolean() ? 2.0 : 0.0))
+                            : (driverController.rightTrigger().getAsBoolean() ? (-3.0 - (driverController.a().getAsBoolean() ? 2.0 : 0.0))
+                            : 0.0)))));
+            });
+        } else {
+            deepHang = Optional.empty();
+        }
     }
+
     public Drivetrain getDrivetrain() {
         return drivetrain.orElseThrow(() -> new IllegalStateException("Drivetrain not enabled"));
     }
