@@ -16,7 +16,7 @@ public class ElevatorStructure extends SubsystemBase {
     private double elevatorPreparePositionL3 = 36.79;
     private double elevatorPreparePositionL4 = 23.0;
     private double elevatorIntakeLiftPosition = 10.0;
-    private double armPreparePositionL2 = 1;
+    private double armPreparePositionL2 = 1.5;
     private double armPreparePositionL3 = 1.3;
 
     private double coralArmKgIntake = 0.74;
@@ -225,9 +225,9 @@ public class ElevatorStructure extends SubsystemBase {
     private final Command prepareL4() { return getPositionCommand(1.5, elevatorPreparePositionL4).andThen(setHoldCommand()).finallyDo(() -> state = L4_READY); }
     
     private final Command scoreL1() { return Commands.none().andThen(setNeutralCommand()); }
-    private final Command scoreL2() { return getPositionCommand(-1.0, -0.1).andThen(setNeutralCommand()); }
-    private final Command scoreL3() { return getPositionCommand(-1.0, 10.5).andThen(setNeutralCommand()); }
-    private final Command scoreL4() { return getPositionCommand(-1.0, 2.0).andThen(setNeutralCommand()); }
+    private final Command scoreL2() { return getPositionCommand(-.5, -0.1).andThen(setNeutralCommand()); }
+    private final Command scoreL3() { return getPositionCommand(-0.5, 20.5).andThen(setNeutralCommand()); }
+    private final Command scoreL4() { return getPositionCommand(-0.5, 2.0).andThen(setNeutralCommand()); }
 
     public Command getL1PrepareCommand() {
         return prepareL1();

@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.AlgaeIntakeConstants;
+// import frc.robot.Constants.AlgaeIntakeConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.drive.swerve.Drivetrain;
 
@@ -22,7 +22,7 @@ public class Superstructure extends SubsystemBase {
     private final CommandXboxController subsystemController;
 
     private final Optional<Drivetrain> drivetrain;
-    private final Optional<AlgaeIntakeSubsystem> algaeIntake;
+    // private final Optional<AlgaeIntakeSubsystem> algaeIntake;
     private final Optional<ElevatorStructure> elevatorStructure;
     private final Optional<DeepHangSubsystem> deepHang;
 
@@ -55,20 +55,21 @@ public class Superstructure extends SubsystemBase {
             drivetrain = Optional.empty();
         }
 
-        if (subsystems.get("algae_intake").getBoolean("enabled")) {
-            algaeIntake = Optional.of(new AlgaeIntakeSubsystem());
-            algaeIntake.ifPresent(intake -> {
-                intake.setDefaultCommand(
-                        new InstantCommand(() -> intake.setRollerVoltage(
-                                (subsystemController.getLeftY() < -0.1 ? -AlgaeIntakeConstants.ALGAE_INTAKE_SPEED
-                                        : (subsystemController.getLeftY() > 0.1
-                                                ? AlgaeIntakeConstants.ALGAE_INTAKE_SPEED
-                                                : 0.0))),
-                                algaeIntake.get()));
-            });
-        } else {
-            algaeIntake = Optional.empty();
-        }
+        // if (subsystems.get("algae_intake").getBoolean("enabled")) {
+        // algaeIntake = Optional.of(new AlgaeIntakeSubsystem());
+        // algaeIntake.ifPresent(intake -> {
+        // intake.setDefaultCommand(
+        // new InstantCommand(() -> intake.setRollerVoltage(
+        // (subsystemController.getLeftY() < -0.1 ?
+        // -AlgaeIntakeConstants.ALGAE_INTAKE_SPEED
+        // : (subsystemController.getLeftY() > 0.1
+        // ? AlgaeIntakeConstants.ALGAE_INTAKE_SPEED
+        // : 0.0))),
+        // algaeIntake.get()));
+        // });
+        // } else {
+        // algaeIntake = Optional.empty();
+        // }
 
         if (subsystems.get("elevator_structure").getBoolean("enabled")) {
             elevatorStructure = Optional.of(new ElevatorStructure(subsystemController));
@@ -82,9 +83,8 @@ public class Superstructure extends SubsystemBase {
             deepHang.ifPresent(hang -> {
                 hang.setDefaultCommand(
                         new InstantCommand(() -> hang.setDeepHangVoltage(
-                            (driverController.leftTrigger().getAsBoolean() ? (3.0 + (driverController.a().getAsBoolean() ? 2.0 : 0.0))
-                            : (driverController.rightTrigger().getAsBoolean() ? (-3.0 - (driverController.a().getAsBoolean() ? 2.0 : 0.0))
-                            : 0.0)))));
+                                (driverController.leftTrigger().getAsBoolean() ? (3.0) : (driverController.rightTrigger().getAsBoolean() ? (-3.0) : 0.0))),
+                                deepHang.get()));
             });
         } else {
             deepHang = Optional.empty();

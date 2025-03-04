@@ -21,6 +21,6 @@ Integrated with our JIRA and Confluence.
     - Turn Motor → 8
     - Cancoder → 9
 - Back Right Motor
-    - Driver Motor → 10
+    - Drive Motor → 10
     - Turn Motor → 11
     - Cancoder → 12

@@ -61,7 +61,6 @@ public class DeepHangSubsystem extends SubsystemBase {
   }
 
   public void setDeepHangVoltage(double voltage) {
-    System.out.println(voltage);
     deepHangMotor.set(voltage);
   }
 
