@@ -15,11 +15,11 @@ public class Elevator extends SubsystemBase {
   private final ElevatorIO io;
   private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
-  private final Debouncer atSetpointDebouncer = new Debouncer(0.2);
+  private final Debouncer atSetpointDebouncer = new Debouncer(0.5);
 
-  private double heightTolerance = .5; // rad
+  private double heightTolerance = .8; // rad
 
-  
+  // DigitalInput zeroLimitSwitch = new DigitalInput(1);
 
   private static final HashMap<SuperState, LoggedTunableNumber> heights = initializeHeights();
 
@@ -27,14 +27,17 @@ public class Elevator extends SubsystemBase {
     var map = new HashMap<SuperState, LoggedTunableNumber>();
     // to be tuned
     map.put(SuperState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 0));
-    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 65));
-    map.put(SuperState.L1, new LoggedTunableNumber("Elevator/L1Position", 40));
-    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 86.5));
-    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 125));
-    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 165.5));
+    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 29.7));
+    map.put(SuperState.INTAKELOW, new LoggedTunableNumber("Elevator/LOWIntakePosition", 26));
+    map.put(SuperState.L1, new LoggedTunableNumber("Elevator/L1Position", 11));
+    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 36.4));
+    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 51));
+    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 74.5));
 
-    map.put(SuperState.L2L3ALGAE, new LoggedTunableNumber("Elevator/AlgaeL2L3", 60));
-    map.put(SuperState.L3L4ALGAE, new LoggedTunableNumber("Elevator/AlgaeL3L4", 85));
+    map.put(SuperState.L2L3ALGAE, map.get(SuperState.L2));
+    map.put(
+        SuperState.L3L4ALGAE,
+        new LoggedTunableNumber("Elevator/L3L4A", map.get(SuperState.L3).get() - 5));
 
     map.put(SuperState.L1PREPARE, map.get(SuperState.L1));
     map.put(SuperState.L2PREPARE, map.get(SuperState.L2));
@@ -42,6 +45,7 @@ public class Elevator extends SubsystemBase {
     map.put(SuperState.L4PREPARE, map.get(SuperState.L4));
 
     map.put(SuperState.INTAKEPREPARE, map.get(SuperState.INTAKE));
+    map.put(SuperState.INTAKELOWPREPARE, map.get(SuperState.INTAKELOW));
 
     return map;
   }
@@ -77,22 +81,48 @@ public class Elevator extends SubsystemBase {
 
     applyStates();
 
+    // if (zeroLimitSwitch.get()) {
+    //   io.setHeight(0);
+    // }
+    // System.out.println(zeroLimitSwitch.get());
+
     // modify the Elevator position in RobotState so that the moduleLimits changes so the max
     // acceleration changes
     // depending on the superstate of the superstructure. can technically do this anywhere, but
     // makes most sense in elevator.
 
-    if (getHeight() < heights.get(SuperState.L1).get() - heightTolerance) {
-      RobotState.getInstance().setElevatorPosition(0);
-    } else if (getHeight() >= heights.get(SuperState.L1).get() - heightTolerance) {
-      RobotState.getInstance().setElevatorPosition(1);
-    } else if (getHeight() >= heights.get(SuperState.L2).get() - heightTolerance) {
-      RobotState.getInstance().setElevatorPosition(2);
-    } else if (getHeight() >= heights.get(SuperState.L3).get() - heightTolerance) {
-      RobotState.getInstance().setElevatorPosition(3);
-    } else if (getHeight() >= heights.get(SuperState.L4).get() - heightTolerance) {
+    if (getHeight() >= heights.get(SuperState.L4).get() - heightTolerance * 1.3) {
       RobotState.getInstance().setElevatorPosition(4);
+    } else if (getHeight() >= heights.get(SuperState.L3).get() - heightTolerance * 1.3) {
+      RobotState.getInstance().setElevatorPosition(3);
+    } else if (getHeight() >= heights.get(SuperState.L2).get() - heightTolerance * 1.3) {
+      RobotState.getInstance().setElevatorPosition(2);
+    } else if (getHeight() >= heights.get(SuperState.L1).get() - heightTolerance * 1.3) {
+      RobotState.getInstance().setElevatorPosition(1);
+    } else if (getHeight() < heights.get(SuperState.L1).get() - heightTolerance * 1.3) {
+      RobotState.getInstance().setElevatorPosition(0);
     }
+    // if (Superstructure.getDesiredState() == SuperState.STOW) {
+    //   RobotState.getInstance().setElevatorPosition(0);
+    // }
+
+    // if (Superstructure.getDesiredState() == SuperState.L1
+    //     || Superstructure.getDesiredState() == SuperState.INTAKE) {
+    //   RobotState.getInstance().setElevatorPosition(1);
+    // }
+    // if (Superstructure.getDesiredState() == SuperState.L2) {
+    //   RobotState.getInstance().setElevatorPosition(2);
+    // }
+
+    // if (Superstructure.getDesiredState() == SuperState.L3
+    // // || Superstructure.getDesiredState() == SuperState.AlgaeL2L3
+    // // || Superstructure.getDesiredState() == SuperState.AlgaeL3L4
+    // ) {
+    //   RobotState.getInstance().setElevatorPosition(3);
+    // }
+    // if (Superstructure.getDesiredState() == SuperState.L4) {
+    //   RobotState.getInstance().setElevatorPosition(4);
+    // }
 
     RobotState.getInstance()
         .setAboveL1(getHeight() >= heights.get(SuperState.L1).get() - heightTolerance);

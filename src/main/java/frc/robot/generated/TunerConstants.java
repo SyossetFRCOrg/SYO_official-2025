@@ -31,14 +31,8 @@ public class TunerConstants {
                   * wheelRadius
                   * 2
                   * Math.PI)
-          .maxLinearAcceleration(
-              (5800.0 / 60.0)
-                  / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
-                  * wheelRadius
-                  * 2
-                  * Math.PI
-                  * 3.0)
-          .maxAngularVelocity(2 * Math.PI) // test out units - rad/s? was 12.0
+          .maxLinearAcceleration(25)
+          .maxAngularVelocity(1.5 * Math.PI) // test out units - rad/s? was 12.0
           .maxAngularAcceleration(3 * Math.PI) // was 6.0
           .build();
 
@@ -300,65 +294,16 @@ public class TunerConstants {
           Units.degreesToRadians(1080.0));
 
   public static final ModuleLimits moduleLimitsL1Elevator =
-      new ModuleLimits(
-          driveConfig.maxLinearVelocity() * .9,
-          driveConfig.maxLinearAcceleration() * .9,
-          Units.degreesToRadians(1080.0));
+      new ModuleLimits(driveConfig.maxLinearVelocity() * .9, 4, Units.degreesToRadians(1080.0));
 
   public static final ModuleLimits moduleLimitsL2Elevator =
-      new ModuleLimits(
-          (5800.0 / 60.0)
-              / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
-              * wheelRadius
-              * 2
-              * Math.PI
-              / 2.0
-              * .85,
-          (5800.0 / 60.0)
-              / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
-              * wheelRadius
-              * 2
-              * Math.PI
-              / 2.0
-              * 2
-              * .85,
-          Units.degreesToRadians(1080.0));
+      new ModuleLimits(3, 2.5, Units.degreesToRadians(1080.0));
 
   public static final ModuleLimits moduleLimitsL3Elevator =
-      new ModuleLimits(
-          (5800.0 / 60.0)
-              / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
-              * wheelRadius
-              * 2
-              * Math.PI
-              / 2.0
-              * .6,
-          (5800.0 / 60.0)
-              / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
-              * wheelRadius
-              * 2
-              * Math.PI
-              / 2.0
-              * 2
-              * .6,
-          Units.degreesToRadians(1080.0));
+      new ModuleLimits(2.5, 1.6, Units.degreesToRadians(1080.0));
 
   public static final ModuleLimits moduleLimitsL4Elevator =
-      new ModuleLimits(
-          (5800.0 / 60.0)
-              / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
-              * wheelRadius
-              * 2
-              * Math.PI
-              / 2.0
-              * .5,
-          (5800.0 / 60.0)
-              / ((50.0 / 13.0) * (16.0 / 28.0) * (45.0 / 15.0))
-              * wheelRadius
-              * 2
-              * Math.PI
-              * .5,
-          Units.degreesToRadians(1080.0));
+      new ModuleLimits(2, .7, Units.degreesToRadians(1080.0));
 
   /**
    * Creates a CommandSwerveDrivetrain instance. This should only be called once in your robot

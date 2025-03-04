@@ -41,7 +41,7 @@ public class ReefAlignController {
   private static final LoggedTunableNumber thetaTolerance =
       new LoggedTunableNumber("AutoAlign/controllerThetaTolerance", Units.degreesToRadians(2));
   private static final LoggedTunableNumber toleranceTime =
-      new LoggedTunableNumber("AutoAlign/controllerToleranceSecs", 0.1);
+      new LoggedTunableNumber("AutoAlign/controllerToleranceSecs", 0.15);
   //   private static final LoggedTunableNumber maxLinearVelocity =
   //       new LoggedTunableNumber(
   //           "AutoAlign/maxLinearVelocity", TunerConstants.driveConfig.maxLinearVelocity());
@@ -55,7 +55,7 @@ public class ReefAlignController {
   private static final LoggedTunableNumber maxAngularAcceleration =
       new LoggedTunableNumber(
           "AutoAlign/maxAngularAcceleration",
-          TunerConstants.driveConfig.maxAngularAcceleration() * 1);
+          TunerConstants.driveConfig.maxAngularAcceleration() * .8);
   //   private static final LoggedTunableNumber slowLinearVelocity =
   //       new LoggedTunableNumber("AutoAlign/slowLinearVelocity",
   //       TunerConstants.driveConfig.maxLinearVelocity() * .4);
@@ -69,7 +69,7 @@ public class ReefAlignController {
   //       new LoggedTunableNumber("AutoAlign/slowAngularAcceleration",
   //       TunerConstants.driveConfig.maxAngularAcceleration() * 0.8);
   private static final LoggedTunableNumber ffMinRadius =
-      new LoggedTunableNumber("AutoAlign/ffMinRadius", 0.4);
+      new LoggedTunableNumber("AutoAlign/ffMinRadius", 0.6);
   private static final LoggedTunableNumber ffMaxRadius =
       new LoggedTunableNumber("AutoAlign/ffMaxRadius", 0.8);
 
@@ -166,26 +166,24 @@ public class ReefAlignController {
 
     // Rotation2d robotToGoalAngle =
     //     goalPose.getTranslation().minus(currentPose.getTranslation()).getAngle();
-    double linearVelocity =
-        new Translation2d(fieldVelocity.vxMetersPerSecond, fieldVelocity.vyMetersPerSecond)
-            .getNorm();
-    // This one works
-    linearController.reset(
-        currentPose.getTranslation().getDistance(goalPose.getTranslation()), linearVelocity);
+    double linearVelocity = linearFieldVelocity.getNorm();
+    // This one works but not the best
+    // linearController.reset(currentPose.getTranslation().getDistance(goalPose.getTranslation()),
+    // 0);
 
     // Mechanical Advantage's 2025 approach for their auto align. It may work?
-    // linearController.reset(
-    //     currentPose.getTranslation().getDistance(goalPose.getTranslation()),
-    //     Math.min(
-    //         0.0,
-    //         -linearFieldVelocity
-    //             .rotateBy(
-    //                 goalPose
-    //                     .getTranslation()
-    //                     .minus(currentPose.getTranslation())
-    //                     .getAngle()
-    //                     .unaryMinus())
-    //             .getX()));
+    linearController.reset(
+        currentPose.getTranslation().getDistance(goalPose.getTranslation()),
+        Math.min(
+            0.0,
+            -linearFieldVelocity
+                .rotateBy(
+                    goalPose
+                        .getTranslation()
+                        .minus(currentPose.getTranslation())
+                        .getAngle()
+                        .unaryMinus())
+                .getX()));
 
     thetaController.reset(currentPose.getRotation().getRadians());
     lastSetpointTranslation = currentPose.getTranslation();

@@ -30,7 +30,7 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final TalonFX talon;
   private static TalonFXConfiguration talonConfig = new TalonFXConfiguration();
 
-  private static final LoggedTunableNumber kP = new LoggedTunableNumber("Intake/Gains/kP", 0);
+  private static final LoggedTunableNumber kP = new LoggedTunableNumber("Intake/Gains/kP", 100);
   // private static final LoggedTunableNumber kI = new LoggedTunableNumber("Arm/Gains/kI", 0);
   private static final LoggedTunableNumber kD = new LoggedTunableNumber("Intake/Gains/kD", 0);
   private static final LoggedTunableNumber kS = new LoggedTunableNumber("Intake/Gains/kS", 0);
@@ -64,7 +64,7 @@ public class IntakeIOTalonFX implements IntakeIO {
   // Speed", 0 + " rad/s").getEntry();
 
   public IntakeIOTalonFX() {
-    talon = new TalonFX(16, "rio");
+    talon = new TalonFX(23, "rio");
 
     talonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     // talonConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
@@ -82,9 +82,9 @@ public class IntakeIOTalonFX implements IntakeIO {
 
     // talonConfig.TorqueCurrent.PeakForwardTorqueCurrent = constants.SlipCurrent;
     // talonConfig.TorqueCurrent.PeakReverseTorqueCurrent = -constants.SlipCurrent;
-    talonConfig.CurrentLimits.StatorCurrentLimit = 80;
+    talonConfig.CurrentLimits.StatorCurrentLimit = 60;
     talonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    talonConfig.CurrentLimits.SupplyCurrentLimit = 70;
+    talonConfig.CurrentLimits.SupplyCurrentLimit = 50;
     talonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     talonConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
@@ -102,7 +102,7 @@ public class IntakeIOTalonFX implements IntakeIO {
     intakeTorqueCurrent = talon.getTorqueCurrent();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        25.0,
+        50.0,
         intakePosition,
         intakeVelocity,
         intakeAppliedVolts,

@@ -30,9 +30,9 @@ public class DriveCommands {
   private static final double ANGLE_KP = 4.0;
   private static final double ANGLE_KD = 0.4;
   private static final double ANGLE_MAX_VELOCITY =
-      TunerConstants.driveConfig.maxAngularVelocity() * 2;
+      TunerConstants.driveConfig.maxAngularVelocity() * 1.5;
   private static final double ANGLE_MAX_ACCELERATION =
-      TunerConstants.driveConfig.maxAngularAcceleration() * 2;
+      TunerConstants.driveConfig.maxAngularAcceleration() * 1.5;
   private static final double FF_START_DELAY = 2.0; // Secs
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
@@ -171,6 +171,7 @@ public class DriveCommands {
             ANGLE_KD,
             new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
     angleController.enableContinuousInput(-Math.PI, Math.PI);
+    angleController.setTolerance(Units.degreesToRadians(2));
 
     // Construct command
     return Commands.run(
@@ -190,16 +191,15 @@ public class DriveCommands {
                       linearVelocity.getX() * TunerConstants.driveConfig.maxLinearVelocity(),
                       linearVelocity.getY() * TunerConstants.driveConfig.maxLinearVelocity(),
                       omega);
-              // boolean isFlipped =
-              //     DriverStation.getAlliance().isPresent()
-              //         && DriverStation.getAlliance().get() == Alliance.Red;
+              boolean isFlipped =
+                  DriverStation.getAlliance().isPresent()
+                      && DriverStation.getAlliance().get() == Alliance.Red;
               drive.runVelocity(
                   ChassisSpeeds.fromFieldRelativeSpeeds(
                       speeds,
-                      // isFlipped
-                      // ? drive.getRotation().plus(new Rotation2d(Math.PI))
-                      // :
-                      drive.getRotation()));
+                      isFlipped
+                          ? drive.getRotation().plus(new Rotation2d(Math.PI))
+                          : drive.getRotation()));
             },
             drive)
 

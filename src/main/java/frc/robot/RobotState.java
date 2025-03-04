@@ -3,8 +3,8 @@ package frc.robot;
 import edu.wpi.first.math.*;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.*;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.generated.TunerConstants;
-import frc.robot.util.AllianceFlipUtil;
 // import edu.wpi.first.math.kinematics.SwerveDriveWheelPositions;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.swerve.ModuleLimits;
@@ -24,103 +24,211 @@ import org.littletonrobotics.junction.AutoLogOutput;
 @ExtensionMethod({GeomUtil.class})
 public class RobotState {
 
-  private static RobotState instance = new RobotState();
-
   private RobotState() {}
 
+  private static RobotState instance;
+
   public static RobotState getInstance() {
+    if (instance == null) instance = new RobotState();
     return instance;
   }
 
-  @AutoLogOutput @Getter @Setter private volatile boolean aboveL1 = false;
-  @AutoLogOutput @Getter @Setter private volatile int elevatorPosition = 0;
+  @AutoLogOutput(key = "RobotState/aboveL1")
+  @Getter
+  @Setter
+  private volatile boolean aboveL1 = false;
 
-  @AutoLogOutput @Getter @Setter private volatile boolean addingVision = true;
-  @AutoLogOutput @Getter @Setter private volatile boolean wristCanMove = false;
+  @AutoLogOutput(key = "RobotState/elevatorPosition")
+  @Getter
+  @Setter
+  private volatile int elevatorPosition = 0;
 
-  @AutoLogOutput @Getter @Setter private volatile boolean autoAligning = true;
+  @AutoLogOutput(key = "RobotState/addingVision")
+  @Getter
+  @Setter
+  private volatile boolean addingVision = true;
+
+  @AutoLogOutput(key = "RobotState/wristCanMove")
+  @Getter
+  @Setter
+  private volatile boolean wristCanMove = false;
+
+  @AutoLogOutput(key = "RobotState/reefAutoAligning")
+  @Getter
+  @Setter
+  private volatile boolean reefAutoAligning = true;
+
+  @AutoLogOutput(key = "RobotState/intakeAutoAiming")
+  @Getter
+  @Setter
+  private volatile boolean intakeAutoAiming = true;
+
+  @AutoLogOutput(key = "RobotState/tuningTempPose")
+  @Getter
+  @Setter
+  private volatile Pose2d tuningTempPose = null;
 
   private Pose2d[] coralStationPositions = {
-    new Pose2d(1.1344856023788452, 7.127560615539551, Rotation2d.fromRadians(2.219791626297564)),
-    new Pose2d(1.0559332370758057, 0.9723778963088989, Rotation2d.fromRadians(-2.192456197984347)),
-    new Pose2d(16.345178604125977, 0.8527500629425049, Rotation2d.fromRadians(-0.9420003578681158)),
-    new Pose2d(16.37734603881836, 7.141775608062744, Rotation2d.fromRadians(0.9289806255220727)),
+    new Pose2d(1.1344856023788452, 7.127560615539551, Rotation2d.fromRadians(2.200791626297564)),
+    new Pose2d(1.0559332370758057, 0.9723778963088989, Rotation2d.fromRadians(-2.202456197984347)),
+    new Pose2d(16.345178604125977, 0.8527500629425049, Rotation2d.fromRadians(-0.9320003578681158)),
+    new Pose2d(16.37734603881836, 7.141775608062744, Rotation2d.fromRadians(0.9389806255220727)),
   };
 
-  private Pose2d[][]
-      L2L3reefscoringPositions = // not finalized or tuned. pose2d of all the blue reef scoring
-  // positions
-  { // use alliancefliputil to flip to get corresponding red scoring pose2ds
+  // for practice fields like Arumdaun
+  private Pose2d[][] reefscoringPositionsPractice = // not finalized or tuned.
+      { // DON'T use alliancefliputil to flip to get corresponding red scoring pose2ds THEY ARE ALL
+    // HERE AND WILL BE TUNED FOR EACH FIELD
+
+    // blue positions, in the order of A, B, C, etc. Using tuningTempPose to tune on practice day
+    // (for practice fields)
     {
-      new Pose2d(3.2292869091033936, 3.8667519092559814, Rotation2d.fromDegrees(0)),
-      new Pose2d(3.2235898971557617, 4.180093288421631, Rotation2d.fromDegrees(0))
+      new Pose2d(3.04, 4.24, Rotation2d.fromDegrees(-2.77)),
+      new Pose2d(3.085, 3.787, Rotation2d.fromDegrees(0.3))
     },
     {
-      new Pose2d(3.58, 5.16, Rotation2d.fromDegrees(-60)),
-      new Pose2d(3.85, 5.36, Rotation2d.fromDegrees(-60))
+      new Pose2d(3.662068954711103, 2.7579618237973946, Rotation2d.fromDegrees(55.40424829370364)),
+      new Pose2d(
+          3.6934151064239247, 3.1333841763974344, Rotation2d.fromDegrees(50.127172524706936)),
     },
     {
-      new Pose2d(4.970402717590332, 5.174771785736084, Rotation2d.fromRadians(-2.0988710476023327)),
-      new Pose2d(5.264289855957031, 5.011500835418701, Rotation2d.fromRadians(-2.0988710476023327))
+      new Pose2d(5.109475612640381, 2.710167169570923, Rotation2d.fromDegrees(120)),
+      new Pose2d(5.384280204772949, 2.786501884460449, Rotation2d.fromDegrees(120)),
     },
     {
+      new Pose2d(5.91, 3.96, Rotation2d.fromDegrees(-170.46)),
+      new Pose2d(5.91, 4.34, Rotation2d.fromDegrees(-168)),
+    },
+    {
+      new Pose2d(5.305, 5.256, Rotation2d.fromDegrees(-120)),
+      new Pose2d(4.83, 5.45, Rotation2d.fromDegrees(-105)),
+    },
+    {
+      new Pose2d(3.91, 5.37, Rotation2d.fromDegrees(-60.31)),
+      new Pose2d(3.56, 5.22, Rotation2d.fromDegrees(-60)),
+    },
+
+    // red alliance, also in order of A, B, C, etc
+    {
+      new Pose2d(
+          14.585301176984437, 3.896938165617065, Rotation2d.fromDegrees(-177.90584757021125)),
+      new Pose2d(14.58023245172989, 4.262148436741021, Rotation2d.fromDegrees(-178.18264814361783))
+    },
+    {
+      new Pose2d(
+          13.795372583823335, 5.199808161686881, Rotation2d.fromDegrees(-112.19009068279485)),
+      new Pose2d(
+          13.678263570728163, 5.075483712029739, Rotation2d.fromDegrees(-119.35380053745384)),
+    },
+    {
+      new Pose2d(12.553411573962745, 5.522220199513951, Rotation2d.fromDegrees(-75.56430507216514)),
+      new Pose2d(12.220190239970675, 5.313180552341106, Rotation2d.fromDegrees(-66.59963907787123)),
+    },
+    {
+      new Pose2d(11.434800574539622, 4.120487765593584, Rotation2d.fromDegrees(4.258431286310804)),
+      new Pose2d(
+          11.630359866710407, 3.8171459032191764, Rotation2d.fromDegrees(0.4258799558972908)),
+    },
+    {
+      new Pose2d(12.059619122520424, 2.9011493331040046, Rotation2d.fromDegrees(46.74099652124185)),
+      new Pose2d(12.569388978911922, 2.666802085718384, Rotation2d.fromDegrees(59.87328091953917)),
+    },
+    {
+      new Pose2d(13.658877514318094, 2.858955012982499, Rotation2d.fromDegrees(135.41335183195721)),
+      new Pose2d(14.14544804013203, 2.993801028186214, Rotation2d.fromDegrees(134.30460726161323)),
+    },
+  };
+
+  // for official fields // not finalized or tuned.
+  // DON'T use alliancefliputil to flip to get corresponding red scoring pose2ds THEY ARE ALL HERE
+  // AND WILL BE TUNED FOR EACH FIELD
+  // blue positions, in the order of A, B, C, etc. Using tuningTempPose to tune on practice day
+  private Pose2d[][] reefscoringPositionsComp = {
+    {
+      new Pose2d(3.616605043411255, 2.7942769527435303, Rotation2d.fromDegrees(180)),
+      new Pose2d(3.8963937759399414, 2.5928292274475098, Rotation2d.fromDegrees(180))
+    },
+    {
+      new Pose2d(5.082698345184326, 2.648786783218384, Rotation2d.fromDegrees(120)),
+      new Pose2d(5.3848700523376465, 2.839043140411377, Rotation2d.fromDegrees(120)),
+    },
+    {
+      new Pose2d(6.039247989654541, 3.8404667377471924, Rotation2d.fromDegrees(180)),
       new Pose2d(6.02729606628418, 4.169149875640869, Rotation2d.fromDegrees(180)),
-      new Pose2d(6.039247989654541, 3.8404667377471924, Rotation2d.fromDegrees(180))
-    }
+    },
+    {
+      new Pose2d(5.264289855957031, 5.011500835418701, Rotation2d.fromRadians(-2.0988710476023327)),
+      new Pose2d(4.970402717590332, 5.174771785736084, Rotation2d.fromRadians(-2.0988710476023327)),
+    },
+    {
+      new Pose2d(3.87, 5.395, Rotation2d.fromDegrees(-60)),
+      new Pose2d(3.56, 5.22, Rotation2d.fromDegrees(-60)),
+    },
+    {
+      new Pose2d(3.2235898971557617, 4.180093288421631, Rotation2d.fromDegrees(0)),
+      new Pose2d(3.2292869091033936, 3.8667519092559814, Rotation2d.fromDegrees(0)),
+    },
+
+    // red alliance, also in order of A, B, C, etc
+    {
+      new Pose2d(14.550749778747559, 3.846282720565796, Rotation2d.fromDegrees(180)),
+      new Pose2d(14.606707572937012, 4.1036882400512695, Rotation2d.fromDegrees(180))
+    },
+    {
+      new Pose2d(14.001158714294434, 5.266573905944824, Rotation2d.fromDegrees(-120)),
+      new Pose2d(13.718047142028809, 5.423857688903809, Rotation2d.fromDegrees(-120)),
+    },
+    {
+      new Pose2d(12.491231918334961, 5.3609442710876465, Rotation2d.fromDegrees(-60)),
+      new Pose2d(12.218605995178223, 5.266573905944824, Rotation2d.fromDegrees(-60)),
+    },
+    {
+      new Pose2d(11.578984260559082, 4.186556816101074, Rotation2d.fromRadians(0)),
+      new Pose2d(11.568498611450195, 3.8510172367095947, Rotation2d.fromRadians(0)),
+    },
+    {
+      new Pose2d(12.19763469696045, 2.7814857959747314, Rotation2d.fromDegrees(60)),
+      new Pose2d(12.470260620117188, 2.592744827270508, Rotation2d.fromDegrees(60)),
+    },
+    {
+      new Pose2d(13.644648551940918, 2.5717735290527344, Rotation2d.fromDegrees(120)),
+      new Pose2d(13.959216117858887, 2.7500288486480713, Rotation2d.fromDegrees(120)),
+    },
   };
-
-  private Pose2d[][] L4reefscoringPositions =
-      L2L3reefscoringPositions; // not finalized or tuned. pose2d of all the blue reef scoring
-
-  // positions
-
-  // L4 requires aligning to a slightly different pose
-  // { // use alliancefliputil to flip to get corresponding red scoring pose2ds
-  //   {
-  //     new Pose2d(3.2292869091033936, 3.8667519092559814, Rotation2d.fromDegrees(0)),
-  //     new Pose2d(3.2235898971557617, 4.180093288421631, Rotation2d.fromDegrees(0))
-  //   },
-  //   {
-  //     new Pose2d(3.898, 5.341, Rotation2d.fromRadians(-1.040)),
-  //     new Pose2d(3.533, 5.181, Rotation2d.fromRadians(-0.957))
-  //   },
-  //   {
-  //     new Pose2d(4.970402717590332, 5.174771785736084,
-  // Rotation2d.fromRadians(-2.0988710476023327)),
-  //     new Pose2d(5.264289855957031, 5.011500835418701,
-  // Rotation2d.fromRadians(-2.0988710476023327))
-  //   },
-  //   {
-  //     new Pose2d(6.02729606628418, 4.169149875640869, Rotation2d.fromDegrees(180)),
-  //     new Pose2d(6.039247989654541, 3.8404667377471924, Rotation2d.fromDegrees(180))
-  //   }
-  // };
 
   public double getDistanceToNearestReef(Pose2d pose) {
+
+    if (Constants.AlignTuningMode && tuningTempPose != null) {
+      return pose.getTranslation().getDistance(tuningTempPose.getTranslation());
+    }
+
     double mindistance = Double.POSITIVE_INFINITY;
     int index = -1;
-    for (int i = 0; i < L2L3reefscoringPositions.length; i++) {
-      for (int j = 0; j < L2L3reefscoringPositions[i].length; j++) {
-        if (pose.getTranslation().getDistance(L2L3reefscoringPositions[i][j].getTranslation())
+    for (int i = 0;
+        i < (Constants.CompField ? reefscoringPositionsComp : reefscoringPositionsPractice).length;
+        i++) {
+      for (int j = 0;
+          j
+              < (Constants.CompField ? reefscoringPositionsComp : reefscoringPositionsPractice)
+                  [i].length;
+          j++) {
+        if (pose.getTranslation()
+                .getDistance(
+                    (Constants.CompField ? reefscoringPositionsComp : reefscoringPositionsPractice)
+                        [i][j].getTranslation())
             < mindistance) {
           index = i;
           mindistance =
-              pose.getTranslation().getDistance(L2L3reefscoringPositions[i][j].getTranslation());
+              pose.getTranslation()
+                  .getDistance(
+                      (Constants.CompField
+                              ? reefscoringPositionsComp
+                              : reefscoringPositionsPractice)
+                          [i][j].getTranslation());
         }
       }
     }
-
     return mindistance;
-
-    // Use voronoi diagram strategy:  find region for each side of the reef
-    // Since the reef is a hexagon, we can split it across each diagonal to find the region
-    // Lines are y=y0, y-y1=sqrt(3)*(x-x1) and y-y1=-sqrt(3)*(x-x2)
-    // with y0 being the y of the middle of the reef, (x1,y1) being the bottom left corner
-    // and (x2,y1) being the bottom right corner
-
-    // double roboX = pose.getTranslation().getX(),
-    //         roboY = pose.getTranslation().getY();
-
   }
 
   public double getDistanceToNearestCoralStation(Pose2d pose) {
@@ -139,497 +247,138 @@ public class RobotState {
 
   @AutoLogOutput(key = "NearestReefPose")
   public Pose2d getNearestReefPose(Pose2d pose) {
+
+    if (Constants.AlignTuningMode && tuningTempPose != null) {
+      return tuningTempPose;
+    }
+
     double mindistance = Double.POSITIVE_INFINITY;
     int index1 = -1;
     int index2 = -1;
-    // if (Superstructure.getCurrentState() == SuperState.L2PREPARE
-    //     || Superstructure.getCurrentState() == SuperState.L2
-    //     || Superstructure.getCurrentState() == SuperState.L3PREPARE
-    //     || Superstructure.getCurrentState() == SuperState.L3) {
-    for (int i = 0; i < L2L3reefscoringPositions.length; i++) {
-      for (int j = 0; j < L2L3reefscoringPositions[i].length; j++) {
+
+    for (int i = 0;
+        i < (Constants.CompField ? reefscoringPositionsComp : reefscoringPositionsPractice).length;
+        i++) {
+      for (int j = 0;
+          j
+              < (Constants.CompField ? reefscoringPositionsComp : reefscoringPositionsPractice)
+                  [i].length;
+          j++) {
         if (pose.getTranslation()
                 .getDistance(
-                    AllianceFlipUtil.apply(L2L3reefscoringPositions[i][j].getTranslation()))
+                    ((Constants.CompField ? reefscoringPositionsComp : reefscoringPositionsPractice)
+                        [i][j].getTranslation()))
             < mindistance) {
           index1 = i;
           index2 = j;
           mindistance =
               pose.getTranslation()
                   .getDistance(
-                      AllianceFlipUtil.apply(L2L3reefscoringPositions[i][j].getTranslation()));
+                      ((Constants.CompField
+                              ? reefscoringPositionsComp
+                              : reefscoringPositionsPractice)
+                          [i][j].getTranslation()));
         }
       }
     }
 
-    return AllianceFlipUtil.apply(L2L3reefscoringPositions[index1][index2]);
+    return ((Constants.CompField ? reefscoringPositionsComp : reefscoringPositionsPractice)
+        [index1][index2]);
   }
 
   @AutoLogOutput(key = "NearestReefPose")
   public Pose2d getNearestReefPose(Pose2d pose, BooleanSupplier toggle) {
+
+    if (Constants.AlignTuningMode && tuningTempPose != null) {
+      return tuningTempPose;
+    }
+
     double mindistance = Double.POSITIVE_INFINITY;
     int index1 = -1;
     int index2 = -1;
-    // if (Superstructure.getCurrentState() == SuperState.L2PREPARE
-    //     || Superstructure.getCurrentState() == SuperState.L2
-    //     || Superstructure.getCurrentState() == SuperState.L3PREPARE
-    //     || Superstructure.getCurrentState() == SuperState.L3) {
-    for (int i = 0; i < L2L3reefscoringPositions.length; i++) {
-      for (int j = 0; j < L2L3reefscoringPositions[i].length; j++) {
+
+    for (int i = 0;
+        i < (Constants.CompField ? reefscoringPositionsComp : reefscoringPositionsPractice).length;
+        i++) {
+      for (int j = 0;
+          j
+              < (Constants.CompField ? reefscoringPositionsComp : reefscoringPositionsPractice)
+                  [i].length;
+          j++) {
         if (pose.getTranslation()
                 .getDistance(
-                    AllianceFlipUtil.apply(L2L3reefscoringPositions[i][j].getTranslation()))
+                    ((Constants.CompField ? reefscoringPositionsComp : reefscoringPositionsPractice)
+                        [i][j].getTranslation()))
             < mindistance) {
           index1 = i;
           index2 = j;
           mindistance =
               pose.getTranslation()
                   .getDistance(
-                      AllianceFlipUtil.apply(L2L3reefscoringPositions[i][j].getTranslation()));
+                      ((Constants.CompField
+                              ? reefscoringPositionsComp
+                              : reefscoringPositionsPractice)
+                          [i][j].getTranslation()));
         }
       }
     }
 
     if (toggle.getAsBoolean()) {
-      index2 = L2L3reefscoringPositions[index1].length - 1 - index2;
+      index2 =
+          (Constants.CompField ? reefscoringPositionsComp : reefscoringPositionsPractice)
+                  [index1].length
+              - 1
+              - index2;
     }
 
-    return AllianceFlipUtil.apply(L2L3reefscoringPositions[index1][index2]);
-
-    // } else if (Superstructure.getCurrentState() == SuperState.L4PREPARE
-    //     || Superstructure.getCurrentState() == SuperState.L4) {
-
-    //   for (int i = 0; i < L4reefscoringPositions.length; i++) {
-    //     for (int j = 0; j < L4reefscoringPositions[i].length; j++) {
-    //       if (pose.getTranslation()
-    //               .getDistance(
-    //                   AllianceFlipUtil.apply(L4reefscoringPositions[i][j].getTranslation()))
-    //           < mindistance) {
-    //         index1 = i;
-    //         index2 = j;
-    //         mindistance =
-    //             pose.getTranslation()
-    //                 .getDistance(
-    //                     AllianceFlipUtil.apply(L4reefscoringPositions[i][j].getTranslation()));
-    //       }
-    //     }
-    //   }
-
-    //   if (toggle.getAsBoolean()) {
-    //     index2 = L4reefscoringPositions[index1].length - 1 - index2;
-    //   }
-
-    //   return AllianceFlipUtil.apply(L4reefscoringPositions[index1][index2]);
-    // }
+    return ((Constants.CompField ? reefscoringPositionsComp : reefscoringPositionsPractice)
+        [index1][index2]);
   }
 
+  // used for auto-aim towards coral station for aiming
   @AutoLogOutput(key = "NearestCoralStationPose")
   public Pose2d getNearestCoralStationPose(Pose2d pose) {
     double mindistance = Double.POSITIVE_INFINITY;
     int index = -1;
 
     for (int i = 0; i < coralStationPositions.length; i++) {
-      if (pose.getTranslation()
-              .getDistance(AllianceFlipUtil.apply(coralStationPositions[i].getTranslation()))
+      if (pose.getTranslation().getDistance((coralStationPositions[i].getTranslation()))
           < mindistance) {
         index = i;
         mindistance =
-            pose.getTranslation()
-                .getDistance(AllianceFlipUtil.apply(coralStationPositions[i]).getTranslation());
+            pose.getTranslation().getDistance((coralStationPositions[i]).getTranslation());
       }
     }
 
-    return AllianceFlipUtil.apply(coralStationPositions[index]);
+    return (coralStationPositions[index]);
   }
 
   @AutoLogOutput(key = "Swerve/ModuleLimits")
   public ModuleLimits getModuleLimits() {
+    if (DriverStation.isTeleop()) {
+      return switch (elevatorPosition) {
+        case 0 -> TunerConstants.moduleLimitsFree;
+
+        case 1 -> TunerConstants.moduleLimitsL1Elevator;
+
+        case 2 -> TunerConstants.moduleLimitsL2Elevator;
+
+        case 3 -> TunerConstants.moduleLimitsL3Elevator;
+
+        case 4 -> TunerConstants.moduleLimitsL4Elevator;
+
+        default -> TunerConstants.moduleLimitsL3Elevator;
+      };
+    }
+
     return switch (elevatorPosition) {
-      case 0 -> TunerConstants.moduleLimitsFree;
-
-      case 1 -> TunerConstants.moduleLimitsL1Elevator;
-
-      case 2 -> TunerConstants.moduleLimitsL2Elevator;
+      case 0, 1, 2 -> TunerConstants.moduleLimitsFree;
 
       case 3 -> TunerConstants.moduleLimitsL3Elevator;
 
-      case 4 -> TunerConstants.moduleLimitsL4Elevator;
+      case 4 -> TunerConstants.moduleLimitsL3Elevator;
 
-      default -> TunerConstants.moduleLimitsFree;
+      default -> TunerConstants.moduleLimitsL3Elevator;
     };
   }
-  // public PathPlannerPath getPathToNearestReef(Pose2d pose) {
-
-  //   double mindistance = Double.POSITIVE_INFINITY;
-  //   int index = -1;
-  //   for (int i = 0; i < reefscoringPositions.length; i++) {
-  //     for (int j = 0; j < reefscoringPositions.length; j++) {
-  //     if (pose.getTranslation().getDistance(reefscoringPositions[i][j].getTranslation())
-  //         < mindistance) {
-  //       index = i;
-  //       mindistance =
-  // pose.getTranslation().getDistance(reefscoringPositions[i][j].getTranslation());
-  //     }
-  //   }
-  //   }
-
-  //   /**
-  //    * The waypointsFromPoses method required that the rotation component of each pose is the
-  //    * direction of travel, not the rotation of a swerve chassis.
-  //    *
-  //    * <p>To set the rotation the path should end with, use the GoalEndState.
-  //    */
-
-  //   // if this works i'm gonna go crazy
-  //   List<Waypoint> waypoints =
-  //       PathPlannerPath.waypointsFromPoses(
-  //           new Pose2d(pose.getX(), pose.getY(), Rotation2d.fromDegrees(0)),
-  //           new Pose2d(
-  //               pose.getTranslation()
-  //                   .interpolate(reefscoringPositions[index].getTranslation(), 0.5),
-  //               reefscoringPositions[index]
-  //                   .getTranslation()
-  //                   .minus(pose.getTranslation())
-  //                   .getAngle()),
-  //           reefscoringPositions[index]);
-
-  //   // List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
-  //   //   new Pose2d(0,4,Rotation2d.fromDegrees(0)),
-  //   //   new Pose2d(2,4,Rotation2d.fromDegrees(0))
-  //   //   //,
-  //   //   // new Pose2d(4,4,Rotation2d.fromDegrees(0))
-  //   //   );
-
-  //   PathConstraints constraints =
-  //       new PathConstraints(
-  //           TunerConstants.moduleLimitsFree.maxDriveVelocity() * .8,
-  //           TunerConstants.moduleLimitsFree.maxDriveAcceleration() * .8,
-  //           TunerConstants.moduleLimitsFree.maxSteeringVelocity() * .8,
-  //           TunerConstants.moduleLimitsFree.maxSteeringVelocity()
-  //               * 1.5); // The constraints for this path.
-  //   // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also
-  // use
-  //   // unlimited constraints, only limited by motor torque and nominal battery voltage
-
-  //   // Create the path using the waypoints created above
-  //   PathPlannerPath path =
-  //       new PathPlannerPath(
-  //           waypoints,
-  //           constraints,
-  //           null, // The ideal starting state, this is only relevant for pre-planned paths, so
-  // can
-  //           // be null for on-the-fly paths.
-  //           new GoalEndState(
-  //               0.0,
-  //               reefscoringPositions[index]
-  //                   .getRotation()) // Goal end state. You can set a holonomic rotation here. If
-  //           // using a differential drivetrain, the rotation will have no
-  //           // effect.
-  //           );
-
-  //   // Prevent the path from being flipped if the coordinates are already correct
-  //   path.preventFlipping = true;
-
-  //   return path;
-  // }
-
-  // private RobotState() {
-  //   for (int i = 0; i < 3; ++i) {
-  //     qStdDevs.set(i, 0, Math.pow(DriveConstants.odometryStateStdDevs.get(i, 0), 2));
-  //   }
-  //   kinematics = DriveConstants.kinematics;
-
-  //   // Setup NoteVisualizer
-  //   NoteVisualizer.setRobotPoseSupplier(this::getEstimatedPose);
-  // }
-
-  // /** Add odometry observation */
-  // public void addOdometryObservation(OdometryObservation observation) {
-  //   latestParameters = null;
-  //   latestSuperPoopParameters = null;
-  //   Twist2d twist = kinematics.toTwist2d(lastWheelPositions, observation.wheelPositions());
-  //   lastWheelPositions = observation.wheelPositions();
-  //   // Check gyro connected
-  //   if (observation.gyroAngle != null) {
-  //     // Update dtheta for twist if gyro connected
-  //     twist =
-  //         new Twist2d(
-  //             twist.dx, twist.dy, observation.gyroAngle().minus(lastGyroAngle).getRadians());
-  //     lastGyroAngle = observation.gyroAngle();
-  //   }
-  //   // Add twist to odometry pose
-  //   odometryPose = odometryPose.exp(twist);
-  //   // Add pose to buffer at timestamp
-  //   poseBuffer.addSample(observation.timestamp(), odometryPose);
-  //   // Calculate diff from last odometry pose and add onto pose estimate
-  //   estimatedPose = estimatedPose.exp(twist);
-  // }
-
-  // public void addVisionObservation(VisionObservation observation) {
-  //   latestParameters = null;
-  //   latestSuperPoopParameters = null;
-  //   // If measurement is old enough to be outside the pose buffer's timespan, skip.
-  //   try {
-  //     if (poseBuffer.getInternalBuffer().lastKey() - poseBufferSizeSeconds
-  //         > observation.timestamp()) {
-  //       return;
-  //     }
-  //   } catch (NoSuchElementException ex) {
-  //     return;
-  //   }
-  //   // Get odometry based pose at timestamp
-  //   var sample = poseBuffer.getSample(observation.timestamp());
-  //   if (sample.isEmpty()) {
-  //     // exit if not there
-  //     return;
-  //   }
-
-  //   // sample --> odometryPose transform and backwards of that
-  //   var sampleToOdometryTransform = new Transform2d(sample.get(), odometryPose);
-  //   var odometryToSampleTransform = new Transform2d(odometryPose, sample.get());
-  //   // get old estimate by applying odometryToSample Transform
-  //   Pose2d estimateAtTime = estimatedPose.plus(odometryToSampleTransform);
-
-  //   // Calculate 3 x 3 vision matrix
-  //   var r = new double[3];
-  //   for (int i = 0; i < 3; ++i) {
-  //     r[i] = observation.stdDevs().get(i, 0) * observation.stdDevs().get(i, 0);
-  //   }
-  //   // Solve for closed form Kalman gain for continuous Kalman filter with A = 0
-  //   // and C = I. See wpimath/algorithms.md.
-  //   Matrix<N3, N3> visionK = new Matrix<>(Nat.N3(), Nat.N3());
-  //   for (int row = 0; row < 3; ++row) {
-  //     double stdDev = qStdDevs.get(row, 0);
-  //     if (stdDev == 0.0) {
-  //       visionK.set(row, row, 0.0);
-  //     } else {
-  //       visionK.set(row, row, stdDev / (stdDev + Math.sqrt(stdDev * r[row])));
-  //     }
-  //   }
-  //   // difference between estimate and vision pose
-  //   Transform2d transform = new Transform2d(estimateAtTime, observation.visionPose());
-  //   // scale transform by visionK
-  //   var kTimesTransform =
-  //       visionK.times(
-  //           VecBuilder.fill(
-  //               transform.getX(), transform.getY(), transform.getRotation().getRadians()));
-  //   Transform2d scaledTransform =
-  //       new Transform2d(
-  //           kTimesTransform.get(0, 0),
-  //           kTimesTransform.get(1, 0),
-  //           Rotation2d.fromRadians(kTimesTransform.get(2, 0)));
-
-  //   // Recalculate current estimate by applying scaled transform to old estimate
-  //   // then replaying odometry data
-  //   estimatedPose = estimateAtTime.plus(scaledTransform).plus(sampleToOdometryTransform);
-  // }
-
-  // public void addVelocityData(Twist2d robotVelocity) {
-  //   latestParameters = null;
-  //   this.robotVelocity = robotVelocity;
-  // }
-
-  // public void addTrajectoryVelocityData(Twist2d robotVelocity) {
-  //   latestParameters = null;
-  //   trajectoryVelocity = robotVelocity;
-  // }
-
-  // public AimingParameters getAimingParameters() {
-  //   if (latestParameters != null) {
-  //     // Cache previously calculated aiming parameters. Cache is invalidated whenever new
-  //     // observations are added.
-  //     return latestParameters;
-  //   }
-
-  //   Transform2d fieldToTarget =
-  //       AllianceFlipUtil.apply(FieldConstants.Speaker.centerSpeakerOpening)
-  //           .toTranslation2d()
-  //           .toTransform2d()
-  //           .plus(FudgeFactors.speaker.getTransform());
-  //   Pose2d fieldToPredictedVehicle;
-  //   if (DriverStation.isAutonomousEnabled()) {
-  //     fieldToPredictedVehicle = getPredictedPose(autoLookahead.get(), autoLookahead.get());
-
-  //   } else {
-  //     fieldToPredictedVehicle =
-  //         lookaheadDisable.getAsBoolean()
-  //             ? getEstimatedPose()
-  //             : getPredictedPose(lookahead.get(), lookahead.get());
-  //   }
-  //   Logger.recordOutput("RobotState/AimingParameters/PredictedPose", fieldToPredictedVehicle);
-
-  //   Pose2d fieldToPredictedVehicleFixed =
-  //       new Pose2d(fieldToPredictedVehicle.getTranslation(), new Rotation2d());
-
-  //   Translation2d predictedVehicleToTargetTranslation =
-  //       fieldToPredictedVehicle.inverse().transformBy(fieldToTarget).getTranslation();
-  //   Translation2d predictedVehicleFixedToTargetTranslation =
-  //       fieldToPredictedVehicleFixed.inverse().transformBy(fieldToTarget).getTranslation();
-
-  //   Rotation2d targetVehicleDirection = predictedVehicleFixedToTargetTranslation.getAngle();
-  //   double targetDistance = predictedVehicleToTargetTranslation.getNorm();
-
-  //   double armAngleDegrees = armAngleCoefficient * Math.pow(targetDistance, armAngleExponent);
-  //   double autoFarArmCorrection =
-  //       DriverStation.isAutonomousEnabled() && targetDistance >= Units.inchesToMeters(125)
-  //           ? autoFarShotCompensationDegrees
-  //           : 0.0;
-  //   Logger.recordOutput(
-  //       "RobotState/AimingParameters/AutoFarArmCorrectionDegrees", autoFarArmCorrection);
-  //   latestParameters =
-  //       new AimingParameters(
-  //           targetVehicleDirection,
-  //           Rotation2d.fromDegrees(
-  //               armAngleDegrees + shotCompensationDegrees + autoFarArmCorrection),
-  //           targetDistance,
-  //           new FlywheelSpeeds(0, 0));
-  //   return latestParameters;
-  // }
-
-  // private static final Translation2d superPoopTarget =
-  //     FieldConstants.Subwoofer.centerFace
-  //         .getTranslation()
-  //         .interpolate(FieldConstants.ampCenter, 0.5);
-
-  // public AimingParameters getSuperPoopAimingParameters() {
-  //   if (latestSuperPoopParameters != null) {
-  //     return latestSuperPoopParameters;
-  //   }
-  //   Pose2d predictedFieldToRobot =
-  //       getPredictedPose(superPoopLookahead.get(), superPoopLookahead.get());
-  //   Translation2d predictedRobotToTarget =
-  //       AllianceFlipUtil.apply(superPoopTarget).minus(predictedFieldToRobot.getTranslation());
-  //   double effectiveDistance = predictedRobotToTarget.getNorm();
-  //   var flywheelSpeeds = superPoopFlywheelSpeedsMap.get(effectiveDistance);
-  //   var armAngle = Rotation2d.fromDegrees(superPoopArmAngleMap.get(effectiveDistance));
-
-  //   Translation2d vehicleVelocity =
-  //       new Translation2d(robotVelocity.dx, robotVelocity.dy)
-  //           .rotateBy(predictedRobotToTarget.getAngle().unaryMinus());
-  //   Logger.recordOutput("RobotState/SuperPoopParameters/RadialVelocity", vehicleVelocity.getX());
-  //   double radialVelocity =
-  //       Units.radiansPerSecondToRotationsPerMinute(
-  //               vehicleVelocity.getX() / Units.inchesToMeters(1.5))
-  //           * armAngle.getCos();
-  //   flywheelSpeeds =
-  //       new FlywheelSpeeds(
-  //           flywheelSpeeds.leftSpeed() - radialVelocity,
-  //           flywheelSpeeds.rightSpeed() - radialVelocity);
-
-  //   latestSuperPoopParameters =
-  //       new AimingParameters(
-  //           predictedRobotToTarget.getAngle(), armAngle, effectiveDistance, flywheelSpeeds);
-  //   return latestSuperPoopParameters;
-  // }
-
-  // public void setDemoTagPose(Pose3d demoTagPose) {
-  //   this.demoTagPose = demoTagPose;
-  //   latestDemoParamters = null;
-  // }
-
-  // private static final LoggedTunableNumber demoTargetDistance =
-  //     new LoggedTunableNumber("RobotState/DemoTargetDistance", 2.0);
-
-  // public Optional<DemoFollowParameters> getDemoTagParameters() {
-  //   if (latestDemoParamters != null) {
-  //     // Use cached demo parameters.
-  //     return Optional.of(latestDemoParamters);
-  //   }
-  //   // Return empty optional if no demo tag pose.
-  //   if (demoTagPose == null) return Optional.empty();
-
-  //   // Calculate target pose.
-  //   Pose2d targetPose =
-  //       demoTagPose
-  //           .toPose2d()
-  //           .transformBy(
-  //               new Transform2d(
-  //                   new Translation2d(demoTargetDistance.get(), 0.0), new Rotation2d(Math.PI)));
-
-  //   // Calculate heading without movement.
-  //   Translation2d demoTagFixed = demoTagPose.getTranslation().toTranslation2d();
-  //   Translation2d robotToDemoTagFixed = demoTagFixed.minus(getEstimatedPose().getTranslation());
-  //   Rotation2d targetHeading = robotToDemoTagFixed.getAngle();
-
-  //   // Calculate arm angle.
-  //   double z = demoTagPose.getZ();
-  //   Rotation2d armAngle =
-  //       new Rotation2d(
-  //           robotToDemoTagFixed.getNorm() - ArmConstants.armOrigin.getX(),
-  //           z - ArmConstants.armOrigin.getY());
-
-  //   latestDemoParamters = new DemoFollowParameters(targetPose, targetHeading, armAngle);
-  //   return Optional.of(latestDemoParamters);
-  // }
-
-  // public ModuleLimits getModuleLimits() {
-  //   return flywheelAccelerating && !DriverStation.isAutonomousEnabled()
-  //       ? DriveConstants.moduleLimitsFlywheelSpinup
-  //       : DriveConstants.moduleLimitsFree;
-  // }
-
-  // public boolean inShootingZone() {
-  //   Pose2d robot = AllianceFlipUtil.apply(getEstimatedPose());
-  //   if (robot.getY() <= FieldConstants.Stage.ampLeg.getY()) {
-  //     return robot.getX() <= FieldConstants.wingX;
-  //   } else {
-  //     return robot.getX() <= FieldConstants.fieldLength / 2.0 + 0.5;
-  //   }
-  // }
-
-  // public boolean inCloseShootingZone() {
-  //   return getEstimatedPose()
-  //           .getTranslation()
-  //           .getDistance(
-  //               AllianceFlipUtil.apply(
-  //                   FieldConstants.Speaker.centerSpeakerOpening.toTranslation2d()))
-  //       < Units.feetToMeters(closeShootingZoneFeet.get());
-  // }
-
-  // /**
-  //  * Reset estimated pose and odometry pose to pose <br>
-  //  * Clear pose buffer
-  //  */
-  // public void resetPose(Pose2d initialPose) {
-  //   estimatedPose = initialPose;
-  //   odometryPose = initialPose;
-  //   poseBuffer.clear();
-  // }
-
-  // @AutoLogOutput(key = "RobotState/FieldVelocity")
-  // public Twist2d fieldVelocity() {
-  //   Translation2d linearFieldVelocity =
-  //       new Translation2d(robotVelocity.dx,
-  // robotVelocity.dy).rotateBy(estimatedPose.getRotation());
-  //   return new Twist2d(
-  //       linearFieldVelocity.getX(), linearFieldVelocity.getY(), robotVelocity.dtheta);
-  // }
-
-  // @AutoLogOutput(key = "RobotState/EstimatedPose")
-  // public Pose2d getEstimatedPose() {
-  //   return estimatedPose;
-  // }
-
-  // /**
-  //  * Predicts what our pose will be in the future. Allows separate translation and rotation
-  //  * lookaheads to account for varying latencies in the different measurements.
-  //  *
-  //  * @param translationLookaheadS The lookahead time for the translation of the robot
-  //  * @param rotationLookaheadS The lookahead time for the rotation of the robot
-  //  * @return The predicted pose.
-  //  */
-  // public Pose2d getPredictedPose(double translationLookaheadS, double rotationLookaheadS) {
-  //   Twist2d velocity = DriverStation.isAutonomousEnabled() ? trajectoryVelocity : robotVelocity;
-  //   return getEstimatedPose()
-  //       .transformBy(
-  //           new Transform2d(
-  //               velocity.dx * translationLookaheadS,
-  //               velocity.dy * translationLookaheadS,
-  //               Rotation2d.fromRadians(velocity.dtheta * rotationLookaheadS)));
-  // }
-
-  // @AutoLogOutput(key = "RobotState/OdometryPose")
-  // public Pose2d getOdometryPose() {
-  //   return odometryPose;
-  // }
 }

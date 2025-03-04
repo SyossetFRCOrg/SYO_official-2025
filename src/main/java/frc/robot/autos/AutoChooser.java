@@ -1,197 +1,319 @@
-// package frc.robot.autos;
+package frc.robot.autos;
 
-// import edu.wpi.first.networktables.NetworkTableInstance;
-// import edu.wpi.first.networktables.NetworkTableValue;
-// import edu.wpi.first.util.sendable.SendableBuilder;
-// import edu.wpi.first.wpilibj.DriverStation;
-// import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-// import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-// import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTableValue;
+import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.RobotContainer;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.drive.Drive;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-// import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+/**
+ * A {@link edu.wpi.first.wpilibj.smartdashboard.SendableChooser} for selecting an autonomous
+ * program. <br>
+ * <br>
+ *
+ * <p>How to add a new autonomous program.
+ *
+ * <ol>
+ *   <li>Add a new value to {@link Auto}<br>
+ *       The name of the value should use screaming snake case
+ *   <li>Add a new method in {@link AutoFactory} that returns a {@link
+ *       edu.wpi.first.wpilibj2.command.Command}.
+ *   <li>Add a new {@link AutoProgram} to {@link AutoChooser#AUTO_PROGRAMS}.
+ *   <li>Implement the autonomous program factory method.
+ *   <li>Test, test, and test some more.
+ * </ol>
+ */
+public class AutoChooser extends SendableChooser<Auto> {
+  private static final List<AutoProgram> AUTO_PROGRAMS =
+      List.of(
+          new AutoProgram(Auto.IDLE, "IDLE", AutoFactory::createIdleCommand),
+          new AutoProgram(
+              Auto.FLSTARTBACKCORALSTATIONJKL,
+              "FL START BACK CORAL STATION JKL",
+              AutoFactory::FarLeftStartBackCoralStationKLA),
+          new AutoProgram(
+              Auto.FLSTARTFORWARDCORALSTATIONHIJ,
+              "FL START FORWARD CORAL STATION HIJ",
+              AutoFactory::FarLeftStartForwardCoralStationHIJ),
+          new AutoProgram(
+              Auto.FLSTARTFORWARDCORALSTATIONIJK,
+              "FL START FORWARD CORAL STATION IJK",
+              AutoFactory::FarLeftStartForwardCoralStationIJK),
+          new AutoProgram(
+              Auto.FLSTARTFORWARDCORALSTATIONJKL,
+              "FL START FORWARD CORAL STATION JKL",
+              AutoFactory::FarLeftStartForwardCoralStationJKL),
+          new AutoProgram(
+              Auto.FLSTARTFORWARDCORALSTATIONJIH,
+              "FL START FORWARD CORAL STATION JIH",
+              AutoFactory::FarLeftStartForwardCoralStationJIH),
+          new AutoProgram(
+              Auto.FLSTARTFORWARDCORALSTATIONKJI,
+              "FL START FORWARD CORAL STATION KJI",
+              AutoFactory::FarLeftStartForwardCoralStationKJI),
+          new AutoProgram(
+              Auto.FLSTARTFORWARDCORALSTATIONHGI,
+              "FL START FORWARD CORAL STATION HGI",
+              AutoFactory::FarLeftStartForwardCoralStationHGI),
+          new AutoProgram(
+              Auto.MLSTARTFORWARDCORALSTATIONHIJ,
+              "ML START FORWARD CORAL STATION HIJ",
+              AutoFactory::MidLeftStartForwardCoralStationHIJ),
+          new AutoProgram(
+              Auto.MLSTARTFORWARDCORALSTATIONHGI,
+              "ML START FORWARD CORAL STATION HGI",
+              AutoFactory::MidLeftStartForwardCoralStationHGI),
+          new AutoProgram(
+              Auto.MLSTARTFORWARDCORALSTATIONGHI,
+              "ML START FORWARD CORAL STATION GHI",
+              AutoFactory::MidLeftStartForwardCoralStationGHI),
+          new AutoProgram(
+              Auto.MLSTARTFORWARDCORALSTATIONIJK,
+              "ML START FORWARD CORAL STATION IJK",
+              AutoFactory::MidLeftStartForwardCoralStationIJK),
+          new AutoProgram(
+              Auto.MLSTARTFORWARDCORALSTATIONJKL,
+              "ML START FORWARD CORAL STATION JKL",
+              AutoFactory::MidLeftStartForwardCoralStationJKL),
+          new AutoProgram(
+              Auto.MLSTARTFORWARDCORALSTATIONJIH,
+              "ML START FORWARD CORAL STATION JIH",
+              AutoFactory::MidLeftStartForwardCoralStationJIH),
+          new AutoProgram(
+              Auto.MLSTARTFORWARDCORALSTATIONKJI,
+              "ML START FORWARD CORAL STATION KJI",
+              AutoFactory::MidLeftStartForwardCoralStationKJI),
+          new AutoProgram(
+              Auto.FLSTARTBACKCORALSTATIONKLA,
+              "FL START BACK CORAL STATION KLA",
+              AutoFactory::FarLeftStartBackCoralStationKLA),
+          new AutoProgram(
+              Auto.FLSTARTBACKCORALSTATIONLAB,
+              "FL START BACK CORAL STATION LAB",
+              AutoFactory::FarLeftStartBackCoralStationLAB),
+          new AutoProgram(
+              Auto.FRSTARTFORWARDCORALSTATIONGFE,
+              "FR START FORWARD CORAL STATION GFE",
+              AutoFactory::FarRightStartForwardCoralStationGFE),
+          new AutoProgram(
+              Auto.FRSTARTFORWARDCORALSTATIONFED,
+              "FR START FORWARD CORAL STATION FED",
+              AutoFactory::FarRightStartForwardCoralStationFED),
+          new AutoProgram(
+              Auto.FRSTARTFORWARDCORALSTATIONEDC,
+              "FR START FORWARD CORAL STATION EDC",
+              AutoFactory::FarRightStartForwardCoralStationEDC),
+          new AutoProgram(
+              Auto.FRSTARTFORWARDCORALSTATIONEFG,
+              "FR START FORWARD CORAL STATION EFG",
+              AutoFactory::FarRightStartForwardCoralStationEFG),
+          new AutoProgram(
+              Auto.FRSTARTFORWARDCORALSTATIONDEF,
+              "FR START FORWARD CORAL STATION DEF",
+              AutoFactory::FarRightStartForwardCoralStationDEF),
+          new AutoProgram(
+              Auto.FRSTARTFORWARDCORALSTATIONGHF,
+              "FR START FORWARD CORAL STATION GHF",
+              AutoFactory::FarRightStartForwardCoralStationGHF),
+          new AutoProgram(
+              Auto.MRSTARTFORWARDCORALSTATIONGFE,
+              "MR START FORWARD CORAL STATION GFE",
+              AutoFactory::MidRightStartForwardCoralStationGFE),
+          new AutoProgram(
+              Auto.MRSTARTFORWARDCORALSTATIONGHF,
+              "MR START FORWARD CORAL STATION GHF",
+              AutoFactory::MidRightStartForwardCoralStationGHF),
+          new AutoProgram(
+              Auto.MRSTARTFORWARDCORALSTATIONHGF,
+              "MR START FORWARD CORAL STATION HGF",
+              AutoFactory::MidRightStartForwardCoralStationHGF),
+          new AutoProgram(
+              Auto.MRSTARTFORWARDCORALSTATIONFED,
+              "MR START FORWARD CORAL STATION FED",
+              AutoFactory::MidRightStartForwardCoralStationFED),
+          new AutoProgram(
+              Auto.MRSTARTFORWARDCORALSTATIONEDC,
+              "MR START FORWARD CORAL STATION EDC",
+              AutoFactory::MidRightStartForwardCoralStationEDC),
+          new AutoProgram(
+              Auto.MRSTARTFORWARDCORALSTATIONEFG,
+              "MR START FORWARD CORAL STATION EFG",
+              AutoFactory::MidRightStartForwardCoralStationEFG),
+          new AutoProgram(
+              Auto.MRSTARTFORWARDCORALSTATIONDEF,
+              "MR START FORWARD CORAL STATION DEF",
+              AutoFactory::MidRightStartForwardCoralStationDEF),
+          new AutoProgram(
+              Auto.FRSTARTBACKCORALSTATIONDCB,
+              "FR START BACK CORAL STATION DCB",
+              AutoFactory::FarRightStartBackCoralStationDCB),
+          new AutoProgram(
+              Auto.FRSTARTBACKCORALSTATIONCBA,
+              "FR START BACK CORAL STATION CBA",
+              AutoFactory::FarRightStartBackCoralStationCBA)
 
+          // new AutoProgram(
+          //     Auto.RIGHTSTARTALLCD, "LEFT START ALL CD", AutoFactory::createRightStartAllCD)
+          // new AutoProgram(
+          //     Auto.LEFTSTARTALLLK, "LEFT START ALL LK", AutoFactory::createLeftStartAllLK),
+          // new AutoProgram(Auto.LEFTSTARTIJKL, "LEFT START IJKL",
+          // AutoFactory::createLeftStartIJKL),
+          // new AutoProgram(Auto.LEFTSTARTJIKL, "LEFT START JIKL",
+          // AutoFactory::createLeftStartJIKL)
 
-// import edu.wpi.first.wpilibj2.command.Command;
-// import frc.robot.RobotContainer;
-// import frc.robot.subsystems.drive.Drive;
-// import java.util.HashMap;
-// import java.util.List;
-// import java.util.Map;
-// import java.util.Optional;
-// import java.util.stream.Collectors;
-// import java.util.stream.Stream;
+          // ,
+          // new AutoProgram(
+          //     Auto.THREETOONETOA, "THREE TO ONE TO A", AutoFactory::createThreeToOneToA),
+          // new AutoProgram(Auto.MIDFIELDABC, "MIDFIELD A B C", AutoFactory::createMidfieldABC),
+          // new AutoProgram(Auto.MIDFIELDACB, "MIDFIELD A C B", AutoFactory::createMidfieldACB),
+          // new AutoProgram(Auto.MIDFIELDBAC, "MIDFIELD B A C", AutoFactory::createMidfieldBAC),
+          // new AutoProgram(Auto.MIDFIELDBCA, "MIDFIELD B C A", AutoFactory::createMidfieldBCA),
+          // new AutoProgram(Auto.MIDFIELDED, "MIDFIELD E D", AutoFactory::createMidfieldED),
+          // new AutoProgram(Auto.MIDFIELDDE, "MIDFIELD D E", AutoFactory::createMidfieldDE)
+          );
 
-// /**
-//  * A {@link edu.wpi.first.wpilibj.smartdashboard.SendableChooser} for selecting an autonomous
-//  * program. <br>
-//  * <br>
-//  *
-//  * <p>How to add a new autonomous program.
-//  *
-//  * <ol>
-//  *   <li>Add a new value to {@link Auto}<br>
-//  *       The name of the value should use screaming snake case
-//  *   <li>Add a new method in {@link AutoFactory} that returns a {@link
-//  *       edu.wpi.first.wpilibj2.command.Command}.
-//  *   <li>Add a new {@link AutoProgram} to {@link AutoChooser#AUTO_PROGRAMS}.
-//  *   <li>Implement the autonomous program factory method.
-//  *   <li>Test, test, and test some more.
-//  * </ol>
-//  */
-// public class AutoChooser extends SendableChooser<Auto> {
-//   private static final List<AutoProgram> AUTO_PROGRAMS =
-//       List.of(
-//           new AutoProgram(Auto.IDLE, "IDLE", AutoFactory::createIdleCommand),
-//           new AutoProgram(
-//               Auto.LEFTSTARTALLKL, "LEFT START ALL KL", AutoFactory::createLeftStartAllKL),
-//           new AutoProgram(
-//               Auto.LEFTSTARTALLLK, "LEFT START ALL LK", AutoFactory::createLeftStartAllLK),
-//           new AutoProgram(Auto.LEFTSTARTIJKL, "LEFT START IJKL", AutoFactory::createLeftStartIJKL),
-//           new AutoProgram(Auto.LEFTSTARTJIKL, "LEFT START JIKL", AutoFactory::createLeftStartJIKL)
+  /**
+   * Create a new <code>AutoChooser</code>
+   *
+   * @param robotContainer A {@link RobotContainer}
+   * @return A new <code>AutoChooser</code> populated with the programs defined in the private field
+   *     {@link AutoChooser#AUTO_PROGRAMS}.
+   */
+  public static AutoChooser create(
+      final RobotContainer robotContainer, final Drive drive, final Superstructure superstructure) {
+    var autoFactories =
+        Stream.of(DriverStation.Alliance.values())
+            .map(
+                alliance ->
+                    Map.entry(
+                        alliance, new AutoFactory(alliance, robotContainer, drive, superstructure)))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    var programs =
+        AUTO_PROGRAMS.stream()
+            .map(program -> Map.entry(program.getAuto(), program))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-//           // ,
-//           // new AutoProgram(
-//           //     Auto.THREETOONETOA, "THREE TO ONE TO A", AutoFactory::createThreeToOneToA),
-//           // new AutoProgram(Auto.MIDFIELDABC, "MIDFIELD A B C", AutoFactory::createMidfieldABC),
-//           // new AutoProgram(Auto.MIDFIELDACB, "MIDFIELD A C B", AutoFactory::createMidfieldACB),
-//           // new AutoProgram(Auto.MIDFIELDBAC, "MIDFIELD B A C", AutoFactory::createMidfieldBAC),
-//           // new AutoProgram(Auto.MIDFIELDBCA, "MIDFIELD B C A", AutoFactory::createMidfieldBCA),
-//           // new AutoProgram(Auto.MIDFIELDED, "MIDFIELD E D", AutoFactory::createMidfieldED),
-//           // new AutoProgram(Auto.MIDFIELDDE, "MIDFIELD D E", AutoFactory::createMidfieldDE)
-//           );
+    var autoChooser = new AutoChooser(programs, autoFactories);
 
-//   /**
-//    * Create a new <code>AutoChooser</code>
-//    *
-//    * @param robotContainer A {@link RobotContainer}
-//    * @return A new <code>AutoChooser</code> populated with the programs defined in the private field
-//    *     {@link AutoChooser#AUTO_PROGRAMS}.
-//    */
-//   public static AutoChooser create(
-//       final RobotContainer robotContainer,
-//       final Drive drive /*, final Superstructure superstructure*/) {
-//     var autoFactories =
-//         Stream.of(DriverStation.Alliance.values())
-//             .map(
-//                 alliance ->
-//                     Map.entry(
-//                         alliance,
-//                         new AutoFactory(alliance, robotContainer, drive /*, superstructure*/)))
-//             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-//     var programs =
-//         AUTO_PROGRAMS.stream()
-//             .map(program -> Map.entry(program.getAuto(), program))
-//             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    AUTO_PROGRAMS.forEach(
+        program -> {
+          if (program.getAuto() == Auto.IDLE) {
+            autoChooser.setDefaultOption(program.getLabel(), program.getAuto());
+          } else {
+            autoChooser.addOption(program.getLabel(), program.getAuto());
+          }
+        });
 
-//     var autoChooser = new AutoChooser(programs, autoFactories);
+    autoChooser.reset(null);
 
-//     AUTO_PROGRAMS.forEach(
-//         program -> {
-//           if (program.getAuto() == Auto.IDLE) {
-//             autoChooser.setDefaultOption(program.getLabel(), program.getAuto());
-//           } else {
-//             autoChooser.addOption(program.getLabel(), program.getAuto());
-//           }
-//         });
+    Shuffleboard.getTab("Match")
+        .addString("Selected Auto", () -> autoChooser.getSelected().name())
+        .withPosition(12, 3)
+        .withSize(6, 2)
+        .withWidget(BuiltInWidgets.kTextView);
 
-//     autoChooser.reset(null);
+    return autoChooser;
+  }
 
-//     Shuffleboard.getTab("Match")
-//         .addString("Selected Auto", () -> autoChooser.getSelected().name())
-//         .withPosition(12, 3)
-//         .withSize(6, 2)
-//         .withWidget(BuiltInWidgets.kTextView);
+  /**
+   * Update the <code>AutoChooser</code><br>
+   * <br>
+   *
+   * <p>The commands for the selected autonomous program are loaded and cached (if not already
+   * present) and the selected program is sent to the {@link
+   * edu.wpi.first.wpilibj.shuffleboard.Shuffleboard} under the key <code>Auto/Selected</code>.
+   */
+  public void update() {
+    var selected = getSelected();
 
-//     return autoChooser;
-//   }
+    Stream.of(DriverStation.Alliance.values())
+        .forEach(
+            alliance -> {
+              commandCache
+                  .get(alliance)
+                  .computeIfAbsent(selected, auto -> loadCommand(alliance, auto));
+            });
+  }
 
-//   /**
-//    * Update the <code>AutoChooser</code><br>
-//    * <br>
-//    *
-//    * <p>The commands for the selected autonomous program are loaded and cached (if not already
-//    * present) and the selected program is sent to the {@link
-//    * edu.wpi.first.wpilibj.shuffleboard.Shuffleboard} under the key <code>Auto/Selected</code>.
-//    */
-//   public void update() {
-//     var selected = getSelected();
+  /**
+   * Reset the caches behind this <code>AutoChooser</code>
+   *
+   * @param key Optional {@link edu.wpi.first.networktables.NetworkTable} key. If provided the
+   *     selected value of the entry at this location will also be reset.
+   */
+  public void reset(final String key) {
+    Stream.of(DriverStation.Alliance.values())
+        .forEach(alliance -> commandCache.get(alliance).clear());
 
-//     Stream.of(DriverStation.Alliance.values())
-//         .forEach(
-//             alliance -> {
-//               commandCache
-//                   .get(alliance)
-//                   .computeIfAbsent(selected, auto -> loadCommand(alliance, auto));
-//             });
-//   }
+    if (key != null) {
+      var table = NetworkTableInstance.getDefault().getTable(key);
+      table.putValue("selected", NetworkTableValue.makeString("%s".formatted(Auto.IDLE)));
+    }
+  }
 
-//   /**
-//    * Reset the caches behind this <code>AutoChooser</code>
-//    *
-//    * @param key Optional {@link edu.wpi.first.networktables.NetworkTable} key. If provided the
-//    *     selected value of the entry at this location will also be reset.
-//    */
-//   public void reset(final String key) {
-//     Stream.of(DriverStation.Alliance.values())
-//         .forEach(alliance -> commandCache.get(alliance).clear());
+  /**
+   * Get the {@link Command} for the selected autonomous program, if available.
+   *
+   * @return The {@link Command} for the selected autonomous program as an {@link Optional} if
+   *     available, otherwise {@link Optional#empty}.
+   */
+  public Optional<Command> getSelectedCommand() {
+    var selected = getSelected();
 
-//     if (key != null) {
-//       var table = NetworkTableInstance.getDefault().getTable(key);
-//       table.putValue("selected", NetworkTableValue.makeString("%s".formatted(Auto.IDLE)));
-//     }
-//   }
+    return DriverStation.getAlliance()
+        .map(
+            alliance -> {
+              System.out.printf("Running program %s/%s\n", alliance, selected);
 
-//   /**
-//    * Get the {@link Command} for the selected autonomous program, if available.
-//    *
-//    * @return The {@link Command} for the selected autonomous program as an {@link Optional} if
-//    *     available, otherwise {@link Optional#empty}.
-//    */
-//   public Optional<Command> getSelectedCommand() {
-//     var selected = getSelected();
+              return commandCache.get(alliance).get(selected);
+            });
+  }
 
-//     return DriverStation.getAlliance()
-//         .map(
-//             alliance -> {
-//               System.out.printf("Running program %s/%s\n", alliance, selected);
+  public AutoProgram getProgram() {
+    return programs.get(getSelected());
+  }
 
-//               return commandCache.get(alliance).get(selected);
-//             });
-//   }
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    super.initSendable(builder);
 
-//   public AutoProgram getProgram() {
-//     return programs.get(getSelected());
-//   }
+    builder.publishConstString("selected", "%s".formatted(Auto.IDLE));
+  }
 
-//   @Override
-//   public void initSendable(SendableBuilder builder) {
-//     super.initSendable(builder);
+  private Command loadCommand(final DriverStation.Alliance alliance, final Auto auto) {
+    var program = programs.get(auto);
 
-//     builder.publishConstString("selected", "%s".formatted(Auto.IDLE));
-//   }
+    System.out.printf("Loading command %s/%s\n", alliance, auto);
 
-//   private Command loadCommand(final DriverStation.Alliance alliance, final Auto auto) {
-//     var program = programs.get(auto);
+    return program.getCommand(autoFactories.get(alliance));
+  }
 
-//     System.out.printf("Loading command %s/%s\n", alliance, auto);
+  private final Map<Auto, AutoProgram> programs;
 
-//     return program.getCommand(autoFactories.get(alliance));
-//   }
+  private final Map<DriverStation.Alliance, Map<Auto, Command>> commandCache;
 
-//   private final Map<Auto, AutoProgram> programs;
+  private final Map<DriverStation.Alliance, AutoFactory> autoFactories;
 
-//   private final Map<DriverStation.Alliance, Map<Auto, Command>> commandCache;
-
-//   private final Map<DriverStation.Alliance, AutoFactory> autoFactories;
-
-//   private AutoChooser(
-//       final Map<Auto, AutoProgram> programs,
-//       final Map<DriverStation.Alliance, AutoFactory> autoFactories) {
-//     this.programs = programs;
-//     this.autoFactories = autoFactories;
-//     commandCache =
-//         Stream.of(DriverStation.Alliance.values())
-//             .map(alliance -> Map.entry(alliance, new HashMap<Auto, Command>()))
-//             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-//   }
-// }
+  private AutoChooser(
+      final Map<Auto, AutoProgram> programs,
+      final Map<DriverStation.Alliance, AutoFactory> autoFactories) {
+    this.programs = programs;
+    this.autoFactories = autoFactories;
+    commandCache =
+        Stream.of(DriverStation.Alliance.values())
+            .map(alliance -> Map.entry(alliance, new HashMap<Auto, Command>()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+  }
+}

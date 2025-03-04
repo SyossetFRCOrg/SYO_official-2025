@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 // import frc.robot.subsystems.climber.ClimberSubsystem;
 // import frc.robot.config.FieldConstants;
+import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.wrist.Wrist;
@@ -35,6 +36,8 @@ public class Superstructure extends SubsystemBase {
     // MANUAL,
     INTAKEPREPARE,
     INTAKE,
+    INTAKELOW,
+    INTAKELOWPREPARE,
     L1,
     L2,
     L3,
@@ -82,6 +85,40 @@ public class Superstructure extends SubsystemBase {
     // percentageOfThreeMetersPerSecond);
 
     currentState = handleStateTransitions();
+
+    // janky way of logging robotstate values. Robot state @AutoLog doesn't work???
+    Logger.recordOutput("RobotState/aboveL1", RobotState.getInstance().isAboveL1());
+
+    Logger.recordOutput(
+        "RobotState/elevatorPosition", RobotState.getInstance().getElevatorPosition());
+
+    Logger.recordOutput("RobotState/addingVision", RobotState.getInstance().isAddingVision());
+
+    Logger.recordOutput("RobotState/wristCanMove", RobotState.getInstance().isWristCanMove());
+
+    Logger.recordOutput(
+        "RobotState/reefAutoAligning", RobotState.getInstance().isReefAutoAligning());
+
+    Logger.recordOutput(
+        "RobotState/intakeAutoAiming", RobotState.getInstance().isIntakeAutoAiming());
+
+    if (RobotState.getInstance().getTuningTempPose() != null) {
+      Logger.recordOutput(
+          "RobotState/tuningTempPose",
+          new double[] {
+            RobotState.getInstance().getTuningTempPose().getX(),
+            RobotState.getInstance().getTuningTempPose().getY(),
+            RobotState.getInstance().getTuningTempPose().getRotation().getDegrees()
+          });
+    } else {
+      Logger.recordOutput("RobotState/tuningTempPose", new double[] {0, 0, 0});
+    }
+
+    Logger.recordOutput(
+        "Drive/EstimatedPose",
+        new double[] {
+          drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation().getDegrees()
+        });
 
     Logger.recordOutput("Superstructure/CurrentSuperState", currentState.toString());
     Logger.recordOutput("Superstructure/DesiredSuperState", desiredState.toString());
@@ -132,6 +169,7 @@ public class Superstructure extends SubsystemBase {
           case L3 -> ready ? SuperState.L3 : SuperState.L3PREPARE;
           case L4 -> ready ? SuperState.L4 : SuperState.L4PREPARE;
           case INTAKE -> ready ? SuperState.INTAKE : SuperState.INTAKEPREPARE;
+          case INTAKELOW -> ready ? SuperState.INTAKELOW : SuperState.INTAKELOWPREPARE;
           default -> desiredState;
         };
 
@@ -154,6 +192,7 @@ public class Superstructure extends SubsystemBase {
         // L1 is prospectively manual driving alignment
       case L1 -> elevator.atSetPoint(state) && wrist.atSetPoint(state);
       case INTAKE -> elevator.atSetPoint(state);
+      case INTAKELOW -> elevator.atSetPoint(state);
       case STOW, INTAKEPREPARE, L2L3ALGAE, L3L4ALGAE -> true;
       default -> false;
     };

@@ -57,6 +57,10 @@ public class SwitchableChooser extends LoggedNetworkInput {
     return active == placeholder ? null : active;
   }
 
+  public void setDefault(String str) {
+    active = str;
+  }
+
   public void periodic() {
     String selected = selectedInput.get();
     active = null;

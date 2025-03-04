@@ -23,12 +23,12 @@ import org.littletonrobotics.junction.Logger;
 @ExtensionMethod({GeomUtil.class})
 public class AutonReefAlignController {
   private static final LoggedTunableNumber linearkP =
-      new LoggedTunableNumber("AutonAlign/drivekP", 1);
+      new LoggedTunableNumber("AutonAlign/drivekP", .85);
   private static final LoggedTunableNumber linearkD =
       new LoggedTunableNumber("AutonAlign/drivekD", 0.0);
 
   private static final LoggedTunableNumber linearkI =
-      new LoggedTunableNumber("AutonAlign/drivekI", 10);
+      new LoggedTunableNumber("AutonAlign/drivekI", 7.5);
 
   private static final LoggedTunableNumber thetakP =
       new LoggedTunableNumber("AutonAlign/thetakP", 4);
@@ -366,7 +366,8 @@ public class AutonReefAlignController {
 //   //           RobotState.getInstance().getModuleLimits().maxDriveAcceleration() * 0.8);
 //   private static final LoggedTunableNumber maxAngularVelocity =
 //       new LoggedTunableNumber(
-//           "AutonAlign/maxAngularVelocity", TunerConstants.driveConfig.maxAngularVelocity() * 0.6);
+//           "AutonAlign/maxAngularVelocity", TunerConstants.driveConfig.maxAngularVelocity() *
+// 0.6);
 //   private static final LoggedTunableNumber maxAngularAcceleration =
 //       new LoggedTunableNumber(
 //           "AutonAlign/maxAngularAcceleration",
@@ -583,7 +584,8 @@ public class AutonReefAlignController {
 //     // Log data
 
 //     Logger.recordOutput("AutonAlign/MaxVel", linearController.getConstraints().maxVelocity);
-//     Logger.recordOutput("AutonAlign/MaxAccel", linearController.getConstraints().maxAcceleration);
+//     Logger.recordOutput("AutonAlign/MaxAccel",
+// linearController.getConstraints().maxAcceleration);
 
 //     Logger.recordOutput("AutonAlign/DistanceMeasured", currentDistance);
 //     Logger.recordOutput("AutonAlign/DistanceSetpoint", linearController.getSetpoint().position);

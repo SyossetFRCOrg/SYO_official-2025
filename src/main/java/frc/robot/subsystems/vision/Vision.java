@@ -115,11 +115,10 @@ public class Vision extends SubsystemBase {
                 || observation.pose().getY() < 0.0
                 || observation.pose().getY() > aprilTagLayout.getFieldWidth()
                 || (observation.pose().getX() == 0.0 && observation.pose().getY() == 0.0)
-                || velocity.getNorm() > 3.0 // reject if velocity is too high
-                || Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond)
-                    > (Math.PI * 3.0 / 4.0) // reject if omega too high
-                || (observation.type() == PoseObservationType.MEGATAG_1
-                    && observation.averageTagDistance() < .5); //instability for MT1 when too near
+                || (Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond) > (Math.PI * 3.0 / 4.0)
+                    && observation.type()
+                        == PoseObservationType.MEGATAG_2) // reject if omega too high
+                || (observation.averageTagDistance() < .85); // instability for MT1 when too near
 
         // Add pose to log
         robotPoses.add(observation.pose());

@@ -6,10 +6,6 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
-import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -17,7 +13,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -35,31 +30,29 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private static final double GEAR_RATIO = 4.6875 * 5.0 / 3.0;
   // public static final double maxspeed = 5600.0 / GEAR_RATIO; // rpm
 
-  
-
+  private double desiredPosRads;
   private final TalonFX talon;
   // private final TalonFX followertalon;
   private static TalonFXConfiguration talonConfig = new TalonFXConfiguration();
 
-  private static final LoggedTunableNumber kP = new LoggedTunableNumber("Arm/Gains/kP", 1000);
-  // private static final LoggedTunableNumber kI = new LoggedTunableNumber("Arm/Gains/kI", 0);
-  private static final LoggedTunableNumber kD = new LoggedTunableNumber("Arm/Gains/kD", 20);
-  private static final LoggedTunableNumber kS = new LoggedTunableNumber("Arm/Gains/kS", 0);
+  private static final LoggedTunableNumber kP = new LoggedTunableNumber("Elevator/Gains/kP", 1000);
+  // private static final LoggedTunableNumber kI = new LoggedTunableNumber("Elevator/Gains/kI", 0);
+  private static final LoggedTunableNumber kD = new LoggedTunableNumber("Elevator/Gains/kD", 50);
+  private static final LoggedTunableNumber kS = new LoggedTunableNumber("Elevator/Gains/kS", 0);
   // kV is Voltage given per unit of velocity, in this case volts / rad / s
-  private static final LoggedTunableNumber kV =
-      new LoggedTunableNumber("Arm/Gains/kV", 0);
+  private static final LoggedTunableNumber kV = new LoggedTunableNumber("Elevator/Gains/kV", 0);
   // kA is Voltage given per unit of acceleration, volts / rad / s^2
-  private static final LoggedTunableNumber kA = new LoggedTunableNumber("Arm/Gains/kA", 0);
+  private static final LoggedTunableNumber kA = new LoggedTunableNumber("Elevator/Gains/kA", 0);
   // kG is a constant voltage needed to keep the elevator at that height, the Voltage needed to
   // counteract gravity
-  private static final LoggedTunableNumber kG = new LoggedTunableNumber("Arm/Gains/kG", 0);
+  private static final LoggedTunableNumber kG = new LoggedTunableNumber("Elevator/Gains/kG", 0);
 
   private static final LoggedTunableNumber motionMagicVelocity =
-      new LoggedTunableNumber("Arm/maxVelocity", .2);
+      new LoggedTunableNumber("Elevator/maxVelocity", 100);
   private static final LoggedTunableNumber motionMagicAcceleration =
-      new LoggedTunableNumber("Arm/maxAcceleration", .1);
+      new LoggedTunableNumber("Elevator/maxAcceleration", 20);
   private static final LoggedTunableNumber motionMagicJerk =
-      new LoggedTunableNumber("Arm/maxJerk", 100);
+      new LoggedTunableNumber("Elevator/maxJerk", 10000);
 
   private final StatusSignal<Angle> elevatorPosition;
   private final StatusSignal<AngularVelocity> elevatorVelocity;
@@ -68,7 +61,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final StatusSignal<Current> elevatorTorqueCurrent;
   private final StatusSignal<Temperature> tempCelsius;
 
-  final DynamicMotionMagicTorqueCurrentFOC elevatorRequest = new DynamicMotionMagicTorqueCurrentFOC(0, motionMagicVelocity.get(), motionMagicAcceleration.get(), motionMagicJerk.get());
+  final DynamicMotionMagicTorqueCurrentFOC elevatorRequest =
+      new DynamicMotionMagicTorqueCurrentFOC(
+          0, motionMagicVelocity.get(), motionMagicAcceleration.get(), motionMagicJerk.get());
+
+  // final DynamicMotionMagicTorqueCurrentFOC elevatorRequest = new
+  // DynamicMotionMagicTorqueCurrentFOC(4, 2, 2, 100);
+  // final MotionMagicVoltage elevatorRequest = new MotionMagicVoltage(0);
 
   private final Debouncer elevatorConnectedDebounce = new Debouncer(0.5);
 
@@ -83,8 +82,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   // Speed", 0 + " rad/s").getEntry();
 
   public ElevatorIOTalonFX() {
-    talon = new TalonFX(16, "rio");
-    // followertalon = new TalonFX(17, "rio");
+    talon = new TalonFX(16, "*");
 
     talonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     talonConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
@@ -126,7 +124,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     tempCelsius = talon.getDeviceTemp();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0,
+        100.0,
         elevatorPosition,
         elevatorVelocity,
         elevatorAppliedVolts,
@@ -162,13 +160,24 @@ public class ElevatorIOTalonFX implements ElevatorIO {
           talonConfig.MotionMagic.MotionMagicCruiseVelocity = motionMagicVelocity.get();
           talonConfig.MotionMagic.MotionMagicJerk = motionMagicJerk.get();
           tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
-          elevatorRequest.Velocity =  motionMagicVelocity.get();
-          elevatorRequest.Acceleration =  motionMagicAcceleration.get();
-          elevatorRequest.Jerk =  motionMagicJerk.get();          
+          elevatorRequest.Velocity = motionMagicVelocity.get();
+          elevatorRequest.Acceleration = motionMagicAcceleration.get();
+          elevatorRequest.Jerk = motionMagicJerk.get();
         },
         motionMagicAcceleration,
         motionMagicJerk,
         motionMagicVelocity);
+
+    if (desiredPosRads > Units.rotationsToRadians(elevatorPosition.getValueAsDouble())) {
+      elevatorRequest.Velocity = motionMagicVelocity.get();
+      elevatorRequest.Acceleration = motionMagicAcceleration.get();
+      elevatorRequest.Jerk = motionMagicJerk.get();
+
+    } else if (desiredPosRads < Units.rotationsToRadians(elevatorPosition.getValueAsDouble())) {
+      elevatorRequest.Velocity = motionMagicVelocity.get() * .7;
+      elevatorRequest.Acceleration = motionMagicAcceleration.get() * .7;
+      elevatorRequest.Jerk = motionMagicJerk.get() * .7;
+    }
     var talonStatus =
         BaseStatusSignal.refreshAll(
             elevatorPosition,
@@ -197,41 +206,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   }
 
   /** Resets the angle of the intake to 0. */
-  public void set(double positionRads) {
+  public void setHeight(double positionRads) {
     talon.setPosition(Units.radiansToRotations(positionRads));
   }
 
   /** Run elevator to position - Motion Magic */
   public void movetoHeight(double posRads) {
-    if (posRads > Units.rotationsToRadians(elevatorPosition.getValueAsDouble())) {
-      elevatorRequest.Velocity = motionMagicVelocity.get();
-      elevatorRequest.Acceleration = motionMagicAcceleration.get();
-      elevatorRequest.Jerk = motionMagicJerk.get();
-
-    } else if (posRads < Units.rotationsToRadians(elevatorPosition.getValueAsDouble())) {
-      elevatorRequest.Velocity = motionMagicVelocity.get() / 3.0;
-      elevatorRequest.Acceleration = motionMagicAcceleration.get() / 3.0;
-      elevatorRequest.Jerk = motionMagicJerk.get() / 3.0;
-    }
+    desiredPosRads = posRads;
     talon.setControl(elevatorRequest.withPosition(Units.radiansToRotations(posRads)));
-    // followertalon.setControl(new Follower(talon.getDeviceID(), true));
   }
-
-  //   /** Displays the periodically updated intake rate on the Shuffleboard */
-  //   public void updateShuffleboard() {
-  //       m_intakeRateEntry.setString(intake_encoder.getVelocity() + " rpm");
-  //       m_rotateAngleEntry.setString(rotate_encoder.getPosition() + " rad");
-  //       m_rotateAngularSpeedEntry.setString(rotate_encoder.getVelocity() + " rad/s");
-
-  //   }
-
-  // @Override
-  // public void configurePID(double kP, double kI, double kD) {
-  //   pid.setP(kP);
-  //   pid.setI(kI);
-  //   pid.setD(kD);
-  //   // pid.setFF(0);
-  // }
-
-
 }

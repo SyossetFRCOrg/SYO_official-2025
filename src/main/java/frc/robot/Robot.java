@@ -4,7 +4,8 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-// import frc.robot.autos.AutoChooser;
+import frc.robot.autos.AutoChooser;
+import frc.robot.subsystems.Superstructure.SuperState;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -13,8 +14,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 public class Robot extends LoggedRobot {
-  private Command m_autonomousCommand;
-  // private AutoChooser autoChooser;
+  private Command autonomousCommand;
+  private AutoChooser autoChooser;
 
   private final RobotContainer robotContainer;
 
@@ -43,18 +44,14 @@ public class Robot extends LoggedRobot {
 
     Logger.start();
 
-    // autoChooser =
-    //     AutoChooser.create(
-    //         robotContainer, robotContainer.getDrive()
-    //         // ,robotContainer.getSuperstructure()
-    //         );
-    // Shuffleboard.getTab("Autonomous")
-    //     .add("Auto Program", autoChooser)
-    //     .withSize(6, 3)
-    //     .withPosition(12, 0)
-    //     .withWidget(BuiltInWidgets.kComboBoxChooser);
-
-
+    autoChooser =
+        AutoChooser.create(
+            robotContainer, robotContainer.getDrive(), robotContainer.getSuperstructure());
+    Shuffleboard.getTab("Autonomous")
+        .add("Auto Program", autoChooser)
+        .withSize(6, 3)
+        .withPosition(12, 0)
+        .withWidget(BuiltInWidgets.kComboBoxChooser);
   }
 
   @Override
@@ -66,14 +63,14 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
 
-    // autoChooser.reset("SmartDashboard/Autonomous/2025Programs");
-    // robotContainer.getSuperstructure().setWantedSuperState(SuperState.STOPPED);
+    autoChooser.reset("SmartDashboard/Autonomous/2025Programs");
+    robotContainer.getSuperstructure().setWantedSuperState(SuperState.STOPPED);
   }
 
   /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {
-    // autoChooser.update();
+    autoChooser.update();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -86,13 +83,12 @@ public class Robot extends LoggedRobot {
     //   autonomousCommand.schedule();
     // }
 
-
-    // autoChooser.getSelectedCommand().ifPresent(CommandScheduler.getInstance()::schedule);
+    autoChooser.getSelectedCommand().ifPresent(CommandScheduler.getInstance()::schedule);
   }
 
   @Override
   public void disabledExit() {
-    // robotContainer.getSuperstructure().setWantedSuperState(SuperState.STOW);
+    robotContainer.getSuperstructure().setWantedSuperState(SuperState.STOW);
   }
 
   @Override
@@ -103,8 +99,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    if (autonomousCommand != null) {
+      autonomousCommand.cancel();
     }
   }
 

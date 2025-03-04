@@ -1,13 +1,27 @@
 package frc.robot.autos;
 
 public enum Location {
-  A,B,C,D,E,F,G,H,
+  A,
+  B,
+  C,
+  D,
+  E,
+  F,
+  G,
+  H,
   I,
   J,
   K,
   L,
-  
-  PREA, PREB, PREC, PRED, PREE, PREF, PREG, PREH,
+
+  PREA,
+  PREB,
+  PREC,
+  PRED,
+  PREE,
+  PREF,
+  PREG,
+  PREH,
   PREI,
   PREJ,
   PREK,
@@ -23,5 +37,4 @@ public enum Location {
   MIDRIGHTSTART,
   FARRIGHTSTART,
   NONE,
-
 }

@@ -3,8 +3,58 @@
  "version":1,
  "type":"Swerve",
  "variables":{
-  "expressions":{},
+  "expressions":{
+   "ReefApproachSpeed":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"0.3 m / s",
+     "val":0.3
+    }
+   }
+  },
   "poses":{
+   "FARLEFTSTART":{
+    "x":{
+     "exp":"7.12465763092041 m",
+     "val":7.12465763092041
+    },
+    "y":{
+     "exp":"5.918367862701416 m",
+     "val":5.918367862701416
+    },
+    "heading":{
+     "exp":"-2.3561937052685336 rad",
+     "val":-2.3561937052685336
+    }
+   },
+   "FARRIGHTSTART":{
+    "x":{
+     "exp":"FARLEFTSTART.x",
+     "val":7.12465763092041
+    },
+    "y":{
+     "exp":"317 inches - FARLEFTSTART.y",
+     "val":2.133432137298584
+    },
+    "heading":{
+     "exp":"-FARLEFTSTART.heading",
+     "val":2.3561937052685336
+    }
+   },
+   "LEFTBACKCORALSTATION":{
+    "x":{
+     "exp":"0.7555842995643616 m",
+     "val":0.7555842995643616
+    },
+    "y":{
+     "exp":"6.771861553192139 m",
+     "val":6.771861553192139
+    },
+    "heading":{
+     "exp":"2.22 rad",
+     "val":2.22
+    }
+   },
    "LEFTFORWARDCORALSTATION":{
     "x":{
      "exp":"1.6146800518035889 m",
@@ -47,20 +97,6 @@
      "val":-3.141592653589793
     }
    },
-   "FARRIGHTSTART":{
-    "x":{
-     "exp":"FARLEFTSTART.x",
-     "val":7.12465763092041
-    },
-    "y":{
-     "exp":"317 inches - FARLEFTSTART.y",
-     "val":2.133432137298584
-    },
-    "heading":{
-     "exp":"-FARLEFTSTART.heading",
-     "val":2.3561937052685336
-    }
-   },
    "RIGHTBACKCORALSTATION":{
     "x":{
      "exp":"LEFTBACKCORALSTATION.x",
@@ -75,20 +111,6 @@
      "val":-2.22
     }
    },
-   "FARLEFTSTART":{
-    "x":{
-     "exp":"7.12465763092041 m",
-     "val":7.12465763092041
-    },
-    "y":{
-     "exp":"5.918367862701416 m",
-     "val":5.918367862701416
-    },
-    "heading":{
-     "exp":"-2.3561937052685336 rad",
-     "val":-2.3561937052685336
-    }
-   },
    "RIGHTFORWARDCORALSTATION":{
     "x":{
      "exp":"LEFTFORWARDCORALSTATION.x",
@@ -101,20 +123,6 @@
     "heading":{
      "exp":"-LEFTFORWARDCORALSTATION.heading",
      "val":-2.2162658510874333
-    }
-   },
-   "LEFTBACKCORALSTATION":{
-    "x":{
-     "exp":"0.7555842995643616 m",
-     "val":0.7555842995643616
-    },
-    "y":{
-     "exp":"6.771861553192139 m",
-     "val":6.771861553192139
-    },
-    "heading":{
-     "exp":"2.22 rad",
-     "val":2.22
     }
    }
   }
@@ -157,12 +165,12 @@
    "val":0.0427228
   },
   "vmax":{
-   "exp":"3500 RPM",
-   "val":366.5191429188092
+   "exp":"5500 RPM",
+   "val":575.9586531581288
   },
   "tmax":{
-   "exp":"0.5 N * m",
-   "val":0.5
+   "exp":"0.45 N * m",
+   "val":0.45
   },
   "cof":{
    "exp":"1.1",
