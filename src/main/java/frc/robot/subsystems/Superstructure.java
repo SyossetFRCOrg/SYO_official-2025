@@ -95,7 +95,7 @@ public class Superstructure extends SubsystemBase {
         return drivetrain.orElseThrow(() -> new IllegalStateException("Drivetrain not enabled"));
     }
 
-    public ElevatorStructure getElevatorStructure() {
-        return elevatorStructure.orElseThrow(() -> new IllegalStateException("Elevator structure not enabled"));
-    }
+    // public ElevatorStructure getElevatorStructure() {
+    //     return elevatorStructure.orElseThrow(() -> new IllegalStateException("Elevator structure not enabled"));
+    // }
 }

@@ -68,23 +68,23 @@ public class Robot extends TimedRobot {
 
     }
 
-    @Override
-    public void robotInit() {
-        autonomousCommand = new SequentialCommandGroup(
-            superstructure.getDrivetrain().joystickDrive(
-                superstructure.getDrivetrain(),
-                () -> -0.5,
-                () -> 0.0,
-                () -> 0.0
-            ).alongWith(superstructure.getElevatorStructure().getL3PrepareCommand()).withDeadline(new WaitCommand(4)),
-            superstructure.getElevatorStructure().getL3ScoreCommand()
-        );
-    }
+    // @Override
+    // public void robotInit() {
+    //     autonomousCommand = new SequentialCommandGroup(
+    //         superstructure.getDrivetrain().joystickDrive(
+    //             superstructure.getDrivetrain(),
+    //             () -> -0.5,
+    //             () -> 0.0,
+    //             () -> 0.0
+    //         ).alongWith(superstructure.getElevatorStructure().getL3PrepareCommand()).withDeadline(new WaitCommand(4)),
+    //         superstructure.getElevatorStructure().getL3ScoreCommand()
+    //     );
+    // }
 
-    @Override
-    public void autonomousInit() {
-        if (autonomousCommand != null && runAutonomous) {
-            autonomousCommand.schedule();
-        }
-    }
+    // @Override
+    // public void autonomousInit() {
+    //     if (autonomousCommand != null && runAutonomous) {
+    //         autonomousCommand.schedule();
+    //     }
+    // }
 }
