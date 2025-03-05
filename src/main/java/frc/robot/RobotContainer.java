@@ -456,6 +456,8 @@ public class RobotContainer {
                 .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L1))
                 .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
 
+    
+
     Trigger AAL2 =
         new Trigger(() -> controller.getAButton() && RobotState.getInstance().isReefAutoAligning());
 
@@ -497,6 +499,19 @@ public class RobotContainer {
             new WaitCommand(1)
                 .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L2))
                 .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
+
+    Trigger AAimL2 =
+    new Trigger(
+        () -> (controller.getAButton() && !RobotState.getInstance().isReefAutoAligning() && RobotState.getInstance().isReefAutoAiming()));
+
+    AAimL2.onTrue(superstructure.setWantedSuperStateCommand(SuperState.L2PREPARE))
+    .whileTrue(DriveCommands.joystickDriveAtAngle(
+        drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> RobotState.getInstance().getNearestReefPose(drive.getPose()).getRotation()))
+    .onFalse(
+        new WaitCommand(1)
+            .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L2))
+            .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
+            
 
     Trigger AAL3 =
         new Trigger(
@@ -547,6 +562,18 @@ public class RobotContainer {
                 .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L3))
                 .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
 
+    Trigger AAimL3 =
+    new Trigger(
+        () -> (controller.getYButton() && !RobotState.getInstance().isReefAutoAligning() && RobotState.getInstance().isReefAutoAiming()));
+
+    AAimL3.onTrue(superstructure.setWantedSuperStateCommand(SuperState.L3PREPARE))
+    .whileTrue(DriveCommands.joystickDriveAtAngle(
+        drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> RobotState.getInstance().getNearestReefPose(drive.getPose()).getRotation()))
+    .onFalse(
+        new WaitCommand(1)
+            .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L3))
+            .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
+
     Trigger AAL4 =
         new Trigger(
             () -> (controller.getYButton() && RobotState.getInstance().isReefAutoAligning()));
@@ -587,7 +614,7 @@ public class RobotContainer {
 
     Trigger noAAL4 =
         new Trigger(
-            () -> controller.getYButton() && !RobotState.getInstance().isReefAutoAligning());
+            () -> controller.getYButton() && !RobotState.getInstance().isReefAutoAligning() && !RobotState.getInstance().isReefAutoAiming());
 
     noAAL4
         .onTrue(superstructure.setWantedSuperStateCommand(SuperState.L4PREPARE))
@@ -595,6 +622,20 @@ public class RobotContainer {
             new WaitCommand(1)
                 .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L4))
                 .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
+
+
+    Trigger AAimL4 =
+    new Trigger(
+        () -> (controller.getYButton() && !RobotState.getInstance().isReefAutoAligning() && RobotState.getInstance().isReefAutoAiming()));
+
+    AAimL4.onTrue(superstructure.setWantedSuperStateCommand(SuperState.L4PREPARE))
+    .whileTrue(DriveCommands.joystickDriveAtAngle(
+        drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> RobotState.getInstance().getNearestReefPose(drive.getPose()).getRotation()))
+    .onFalse(
+        new WaitCommand(1)
+            .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L4))
+            .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
+
 
     Trigger WheelCharacterize = new Trigger(() -> buttonboard.getRawAxis(2) > .5);
     WheelCharacterize.onTrue(
@@ -636,6 +677,13 @@ public class RobotContainer {
             () ->
                 RobotState.getInstance()
                     .setIntakeAutoAiming(!RobotState.getInstance().isIntakeAutoAiming())));
+
+    Trigger reefAutoAimToggle = new Trigger(() -> buttonboard.getRawButton(5));
+    reefAutoAimToggle.onTrue(
+        new InstantCommand(
+            () ->
+                RobotState.getInstance()
+                    .setReefAutoAiming(!RobotState.getInstance().isReefAutoAiming())));
 
     Trigger elevatorUpManual = new Trigger(() -> buttonboard.getRawButton(6));
     elevatorUpManual.whileTrue(

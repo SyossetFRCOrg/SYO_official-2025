@@ -58,6 +58,13 @@ public class RobotState {
   @Setter
   private volatile boolean reefAutoAligning = true;
 
+  @AutoLogOutput(key = "RobotState/reefAutoAiming")
+  @Getter
+  @Setter
+  private volatile boolean reefAutoAiming = false;
+
+  
+
   @AutoLogOutput(key = "RobotState/intakeAutoAiming")
   @Getter
   @Setter
@@ -67,6 +74,8 @@ public class RobotState {
   @Getter
   @Setter
   private volatile Pose2d tuningTempPose = null;
+
+  
 
   private Pose2d[] coralStationPositions = {
     new Pose2d(1.1344856023788452, 7.127560615539551, Rotation2d.fromRadians(2.200791626297564)),

@@ -1,0 +1,361 @@
+{
+  "hubs": [
+    {
+      "x": 90,
+      "y": 74,
+      "width": 1100,
+      "height": 654,
+      "state": {
+        "sidebar": {
+          "width": 229,
+          "expanded": [
+            "/AdvantageKit/URCL/Raw",
+            "/AdvantageKit/Drive/Module0/TurnAbsolutePosition",
+            "/AdvantageKit/Drive/Module0/TurnPosition",
+            "/AdvantageKit/Drive/Module1/TurnAbsolutePosition",
+            "/AdvantageKit/Drive/Module2/TurnAbsolutePosition",
+            "/AdvantageKit/Drive/Module3/TurnAbsolutePosition",
+            "/Shuffleboard/Autonomous",
+            "/AdvantageKit",
+            "/AdvantageKit/Vision",
+            "/AdvantageKit/Vision/Camera0/PoseObservations",
+            "/AdvantageKit/Vision/Camera1/PoseObservations",
+            "/AdvantageKit/RealOutputs",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/MT2RobotPosesAccepted",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/MT1RobotPosesAccepted/0/translation",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/MT1RobotPosesAccepted/0/rotation/q",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/MT2RobotPosesAccepted/0",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/MT2RobotPosesAccepted/0/translation",
+            "/AdvantageKit/RealOutputs/AutoAlign",
+            "/Limelight3_1",
+            "/CameraPublisher/limelight/streams",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/MT1RobotPosesAccepted",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/MT1RobotPosesAccepted/0",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/MT1RobotPosesAccepted",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/MT1RobotPosesAccepted/0",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/MT1RobotPosesAccepted/0/translation",
+            "/AdvantageKit/RealOutputs/Vision/Camera0",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/MT1RobotPosesRejected",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/MT1StdDevs",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/PREEMT1StdDevs",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/MT2StdDevs",
+            "/AdvantageKit/Elevator",
+            "/AdvantageKit/RealOutputs/Elevator",
+            "/AdvantageKit/RealOutputs/SwerveStates/desiredspeeds",
+            "/AdvantageKit/Wrist",
+            "/AdvantageKit/Intake",
+            "/AdvantageKit/RealOutputs/Wrist",
+            "/AdvantageKit/RealOutputs/Odometry/Robot/rotation",
+            "/AdvantageKit/RealOutputs/Odometry/Robot/translation",
+            "/AdvantageKit/RealOutputs/AutoAlign/Pose2ddriveVelocity",
+            "/PathPlanner",
+            "/AdvantageKit/Drive/Module1",
+            "/AdvantageKit/RealOutputs/Vision/Camera2/MT1RobotPosesAccepted",
+            "/AdvantageKit/RealOutputs/Vision/Camera2/MT1RobotPosesRejected",
+            "/AdvantageKit/RealOutputs/Vision/Camera2/MT2RobotPosesAccepted",
+            "/AdvantageKit/RealOutputs/Vision/Camera2/MT2RobotPosesRejected",
+            "/AdvantageKit/RealOutputs/Vision/Camera2/MT1RobotPosesAccepted/0",
+            "/AdvantageKit/RealOutputs/Vision/Camera2/MT1RobotPosesAccepted/0/translation",
+            "/AdvantageKit/RealOutputs/Superstructure",
+            "/AdvantageKit/RealOutputs/SwerveChassisSpeeds",
+            "/AdvantageKit/RealOutputs/RobotState",
+            "/AdvantageKit/RealOutputs/Odometry",
+            "/AdvantageKit/RealOutputs/SwerveStates"
+          ]
+        },
+        "tabs": {
+          "selected": 3,
+          "tabs": [
+            {
+              "type": 0,
+              "title": "",
+              "controller": null,
+              "controllerUUID": "z14gdn1va9vt0o4303hy1b5t8soh3aad",
+              "renderer": "#/",
+              "controlsHeight": 0
+            },
+            {
+              "type": 9,
+              "title": "Swerve",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "chassisSpeeds",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/SwerveChassisSpeeds/Setpoints",
+                    "logType": "ChassisSpeeds",
+                    "visible": true,
+                    "options": {
+                      "color": "#ff0000"
+                    }
+                  },
+                  {
+                    "type": "chassisSpeeds",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/SwerveChassisSpeeds/Measured",
+                    "logType": "ChassisSpeeds",
+                    "visible": true,
+                    "options": {
+                      "color": "#00ff00"
+                    }
+                  },
+                  {
+                    "type": "states",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/SwerveStates/Measured",
+                    "logType": "SwerveModuleState[]",
+                    "visible": true,
+                    "options": {
+                      "color": "#ff0000",
+                      "arrangement": "0,1,2,3"
+                    }
+                  },
+                  {
+                    "type": "states",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/SwerveStates/SetpointsOptimized",
+                    "logType": "SwerveModuleState[]",
+                    "visible": true,
+                    "options": {
+                      "color": "#0000ff",
+                      "arrangement": "0,1,2,3"
+                    }
+                  },
+                  {
+                    "type": "chassisSpeeds",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/SwerveChassisSpeeds/PreviousChassisSPeeds",
+                    "logType": "ChassisSpeeds",
+                    "visible": true,
+                    "options": {
+                      "color": "#ff8c00"
+                    }
+                  }
+                ],
+                "maxSpeed": 5,
+                "sizeX": 0.65,
+                "sizeY": 0.65,
+                "orientation": 1
+              },
+              "controllerUUID": "rfk4jc6d4j764on0n9gkihabllwbv5qq",
+              "renderer": null,
+              "controlsHeight": 222
+            },
+            {
+              "type": 1,
+              "title": "Line Graph",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Elevator/desiredPositionRads",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Elevator/PositionRads",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Elevator/DistanceSetpoint",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#d993aa",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Intake/CurrentAmps",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#5f4528",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Wrist/PositionRad",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Wrist/desiredPositionRads",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Wrist/desiredVelocity",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#e48b32",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Wrist/VelocityRadPerSec",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#c0b487",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Wrist/PIDVelocityOutput",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#858584",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "rightUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "cg4ew1oohrfzp2bi33d1b4a8rg2pcxq8",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 3,
+              "title": "3D Field",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "robot",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Odometry/Robot",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "model": "2024 KitBot"
+                    }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Vision/Summary/RobotPosesAccepted",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "model": "2025 KitBot",
+                      "color": "#00ff00"
+                    }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Vision/Summary/RobotPosesRejected",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "model": "Crab Bot",
+                      "color": "#ff0000"
+                    }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/AutoAlign/SetpointPose",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "model": "Duck Bot",
+                      "color": "#0000ff"
+                    }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "NT:/PathPlanner/activePath",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "model": "2025 KitBot",
+                      "color": "#ff8c00"
+                    }
+                  }
+                ],
+                "game": "2025 Field (Welded)",
+                "origin": "blue"
+              },
+              "controllerUUID": "wr3zenr4etoalwh7tga1td3r28j0vd1w",
+              "renderer": {
+                "cameraIndex": -1,
+                "orbitFov": 50,
+                "cameraPosition": [
+                  -8.716405233228537,
+                  7.543638928202316,
+                  0.6749541920376134
+                ],
+                "cameraTarget": [
+                  -0.2860424824366345,
+                  -8.477372042991284,
+                  0.4324081167322731
+                ]
+              },
+              "controlsHeight": 106
+            },
+            {
+              "type": 6,
+              "title": "Statistics",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "independent",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Vision/Camera2/MT1RobotPosesAccepted/0/translation/y",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2"
+                    }
+                  }
+                ],
+                "timeRange": "live-30",
+                "rangeMin": 5.8,
+                "rangeMax": 6.2,
+                "stepSize": 0.01
+              },
+              "controllerUUID": "ps5c81kq4rf2dgx8vf93t6p0xbonskml",
+              "renderer": null,
+              "controlsHeight": 200
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "satellites": [],
+  "version": "4.1.0"
+}

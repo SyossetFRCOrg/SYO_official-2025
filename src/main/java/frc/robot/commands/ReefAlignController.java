@@ -23,7 +23,7 @@ import org.littletonrobotics.junction.Logger;
 @ExtensionMethod({GeomUtil.class})
 public class ReefAlignController {
   private static final LoggedTunableNumber linearkP =
-      new LoggedTunableNumber("AutoAlign/drivekP", .8);
+      new LoggedTunableNumber("AutoAlign/drivekP", .85);
   private static final LoggedTunableNumber linearkD =
       new LoggedTunableNumber("AutoAlign/drivekD", 0.0);
 
@@ -36,8 +36,7 @@ public class ReefAlignController {
       new LoggedTunableNumber("AutoAlign/thetakD", 0.5);
   private static final LoggedTunableNumber linearTolerance =
       new LoggedTunableNumber(
-          "AutoAlign/controllerLinearTolerance",
-          Superstructure.getDesiredState() == SuperState.L4 ? 0.008 : 0.01);
+          "AutoAlign/controllerLinearTolerance", .005);
   private static final LoggedTunableNumber thetaTolerance =
       new LoggedTunableNumber("AutoAlign/controllerThetaTolerance", Units.degreesToRadians(2));
   private static final LoggedTunableNumber toleranceTime =

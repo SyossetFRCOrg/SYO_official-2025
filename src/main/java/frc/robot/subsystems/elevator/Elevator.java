@@ -27,8 +27,8 @@ public class Elevator extends SubsystemBase {
     var map = new HashMap<SuperState, LoggedTunableNumber>();
     // to be tuned
     map.put(SuperState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 0));
-    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 29.7));
-    map.put(SuperState.INTAKELOW, new LoggedTunableNumber("Elevator/LOWIntakePosition", 26));
+    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 30));
+    map.put(SuperState.INTAKELOW, new LoggedTunableNumber("Elevator/LOWIntakePosition", 26.5));
     map.put(SuperState.L1, new LoggedTunableNumber("Elevator/L1Position", 11));
     map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 36.4));
     map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 51));
