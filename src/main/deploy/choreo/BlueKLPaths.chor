@@ -43,12 +43,12 @@
    },
    "LEFTBACKCORALSTATION":{
     "x":{
-     "exp":"0.7555842995643616 m",
-     "val":0.7555842995643616
+     "exp":"0.7855842995643616 m",
+     "val":0.7855842995643616
     },
     "y":{
-     "exp":"6.771861553192139 m",
-     "val":6.771861553192139
+     "exp":"6.971861553192139 m",
+     "val":6.971861553192139
     },
     "heading":{
      "exp":"2.22 rad",
@@ -100,11 +100,11 @@
    "RIGHTBACKCORALSTATION":{
     "x":{
      "exp":"LEFTBACKCORALSTATION.x",
-     "val":0.7555842995643616
+     "val":0.7855842995643616
     },
     "y":{
      "exp":"317 inches - LEFTBACKCORALSTATION.y",
-     "val":1.2799384468078614
+     "val":1.0799384468078612
     },
     "heading":{
      "exp":"-LEFTBACKCORALSTATION.heading",
@@ -169,8 +169,8 @@
    "val":575.9586531581288
   },
   "tmax":{
-   "exp":"0.37 N * m",
-   "val":0.37
+   "exp":"0.3 N * m",
+   "val":0.3
   },
   "cof":{
    "exp":"1.1",
