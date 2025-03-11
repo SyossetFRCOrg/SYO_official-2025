@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -108,6 +110,11 @@ public class RobotContainer {
     climbCam = CameraServer.startAutomaticCapture();
     climbCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
     climbCam.setResolution(80, 60);
+    Shuffleboard.getTab("Match")
+        .add(climbCam)
+        .withWidget(BuiltInWidgets.kCameraStream)
+        .withSize(4, 3)
+        .withPosition(4, 3);
   }
 
   //   private void configureAutos() {
