@@ -7,7 +7,6 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
@@ -97,10 +96,10 @@ public class Vision extends SubsystemBase {
       // Loop over pose observations
       for (var observation : inputs[cameraIndex].poseObservations) {
         // Check whether to reject pose
-        Translation2d velocity =
-            new Translation2d(
-                drive.getChassisSpeeds().vxMetersPerSecond,
-                drive.getChassisSpeeds().vyMetersPerSecond);
+        // Translation2d velocity =
+        //     new Translation2d(
+        //         drive.getChassisSpeeds().vxMetersPerSecond,
+        //         drive.getChassisSpeeds().vyMetersPerSecond);
 
         boolean rejectPose =
             observation.tagCount() == 0 // Must have at least one tag
@@ -118,9 +117,7 @@ public class Vision extends SubsystemBase {
                 || (Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond) > (Math.PI * 3.0 / 4.0)
                     && observation.type()
                         == PoseObservationType.MEGATAG_2) // reject if omega too high
-                || (observation.averageTagDistance() < .85
-                    && observation.type()
-                        == PoseObservationType.MEGATAG_1) // instability for MT1 when too near
+                || (observation.averageTagDistance() < .75) // instability for MT1 when too near
             ;
 
         // Add pose to log
@@ -251,7 +248,7 @@ public class Vision extends SubsystemBase {
         // the
         // pose itself jumps so often. This should smooth it out while still not directly neglecting
         // the new pose inputs.
-        if (observation.averageTagDistance() < .85) {
+        if (observation.averageTagDistance() < 1) {
           linearstdDevFactor *= 40;
         }
 

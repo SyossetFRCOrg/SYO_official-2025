@@ -34,9 +34,9 @@ public class Intake extends SubsystemBase {
     map.put(SuperState.STOW, new LoggedTunableNumber("Intake/StowSpeed", 0));
     map.put(SuperState.INTAKE, new LoggedTunableNumber("Intake/IntakeSpeed", -5));
     map.put(SuperState.L1, new LoggedTunableNumber("Intake/L1Speed", 2));
-    map.put(SuperState.L2, new LoggedTunableNumber("Intake/L2Speed", 6));
-    map.put(SuperState.L3, new LoggedTunableNumber("Intake/L3Speed", 6));
-    map.put(SuperState.L4, new LoggedTunableNumber("Intake/L4Speed", 6));
+    map.put(SuperState.L2, new LoggedTunableNumber("Intake/L2Speed", 4));
+    map.put(SuperState.L3, new LoggedTunableNumber("Intake/L3Speed", 4));
+    map.put(SuperState.L4, new LoggedTunableNumber("Intake/L4Speed", 4));
 
     map.put(SuperState.L1PREPARE, map.get(SuperState.STOW));
     map.put(SuperState.L2PREPARE, map.get(SuperState.STOW));

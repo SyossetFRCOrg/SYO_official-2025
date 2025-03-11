@@ -13,7 +13,7 @@
    }
   },
   "poses":{
-   "FARLEFTSTART":{
+   "FAREFTSTART":{
     "x":{
      "exp":"7.12465763092041 m",
      "val":7.12465763092041
@@ -29,15 +29,15 @@
    },
    "FARRIGHTSTART":{
     "x":{
-     "exp":"FARLEFTSTART.x",
+     "exp":"FAREFTSTART.x",
      "val":7.12465763092041
     },
     "y":{
-     "exp":"317 inches - FARLEFTSTART.y",
+     "exp":"317 inches - FAREFTSTART.y",
      "val":2.133432137298584
     },
     "heading":{
-     "exp":"-FARLEFTSTART.heading",
+     "exp":"-FAREFTSTART.heading",
      "val":2.3561937052685336
     }
    },

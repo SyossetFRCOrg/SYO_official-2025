@@ -28,7 +28,7 @@ public class AutonReefAlignController {
       new LoggedTunableNumber("AutonAlign/drivekD", 0.0);
 
   private static final LoggedTunableNumber linearkI =
-      new LoggedTunableNumber("AutonAlign/drivekI", 10);
+      new LoggedTunableNumber("AutonAlign/drivekI", 5);
 
   private static final LoggedTunableNumber thetakP =
       new LoggedTunableNumber("AutonAlign/thetakP", 4);

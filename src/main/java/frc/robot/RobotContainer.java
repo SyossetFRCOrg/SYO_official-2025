@@ -3,7 +3,6 @@ package frc.robot;
 import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import static frc.robot.subsystems.vision.VisionConstants.camera0Name;
 import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
-import static frc.robot.subsystems.vision.VisionConstants.camera2Name;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
@@ -91,8 +90,9 @@ public class RobotContainer {
             drive::addVisionMeasurement,
             drive,
             new VisionIOLimelight(camera0Name, drive::getRotation),
-            new VisionIOLimelight(camera1Name, drive::getRotation),
-            new VisionIOLimelight(camera2Name, drive::getRotation));
+            new VisionIOLimelight(camera1Name, drive::getRotation)
+            // new VisionIOLimelight(camera2Name, drive::getRotation)
+            );
 
     reefAlignController = new ReefAlignController(drive, () -> false, () -> false);
 
@@ -804,7 +804,7 @@ public class RobotContainer {
             // superstructure
             //     .setWantedSuperStateCommand(SuperState.L1PREPARE)
             // .alongWith(
-            climber.setMotorVoltage(-12))
+            climber.setMotorVoltage(-6))
         // )
         .onFalse(climber.setMotorVoltage(0));
 
@@ -814,7 +814,7 @@ public class RobotContainer {
             // superstructure
             //     .setWantedSuperStateCommand(SuperState.L1PREPARE)
             // .alongWith(
-            climber.setMotorVoltage(12))
+            climber.setMotorVoltage(6))
         // )
         .onFalse(climber.setMotorVoltage(0));
   }

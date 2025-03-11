@@ -27,7 +27,7 @@ import frc.robot.util.LoggedTunableNumber;
  */
 public class ElevatorIOTalonFX implements ElevatorIO {
 
-  private static final double GEAR_RATIO = 4.6875 * 5.0 / 3.0;
+  private static final double GEAR_RATIO = 4.6875 * 4.0 / 3.0;
   // public static final double maxspeed = 5600.0 / GEAR_RATIO; // rpm
 
   private double desiredPosRads;
@@ -50,9 +50,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private static final LoggedTunableNumber motionMagicVelocity =
       new LoggedTunableNumber("Elevator/maxVelocity", 100);
   private static final LoggedTunableNumber motionMagicAcceleration =
-      new LoggedTunableNumber("Elevator/maxAcceleration", 30);
+      new LoggedTunableNumber("Elevator/maxAcceleration", 70);
   private static final LoggedTunableNumber motionMagicJerk =
-      new LoggedTunableNumber("Elevator/maxJerk", 10000);
+      new LoggedTunableNumber("Elevator/maxJerk", 1000);
 
   private final StatusSignal<Angle> elevatorPosition;
   private final StatusSignal<AngularVelocity> elevatorVelocity;
@@ -99,7 +99,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     talonConfig.MotionMagic.MotionMagicJerk = motionMagicJerk.get();
 
     talonConfig.Feedback.SensorToMechanismRatio = GEAR_RATIO;
-    talonConfig.TorqueCurrent.PeakForwardTorqueCurrent = 120;
+    talonConfig.TorqueCurrent.PeakForwardTorqueCurrent = 150;
     talonConfig.TorqueCurrent.PeakReverseTorqueCurrent = -120;
     talonConfig.CurrentLimits.StatorCurrentLimit = 120;
     talonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -131,6 +131,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         elevatorCurrent,
         elevatorTorqueCurrent,
         tempCelsius);
+
     ParentDevice.optimizeBusUtilizationForAll(talon);
   }
 
@@ -174,10 +175,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
       elevatorRequest.Jerk = motionMagicJerk.get();
 
     } else if (desiredPosRads < Units.rotationsToRadians(elevatorPosition.getValueAsDouble())) {
-      elevatorRequest.Velocity = motionMagicVelocity.get() * .7;
-      elevatorRequest.Acceleration = motionMagicAcceleration.get() * .7;
-      elevatorRequest.Jerk = motionMagicJerk.get() * .7;
+      elevatorRequest.Velocity = motionMagicVelocity.get() * .5;
+      elevatorRequest.Acceleration = motionMagicAcceleration.get() * .5;
+      elevatorRequest.Jerk = motionMagicJerk.get() * .5;
     }
+
     var talonStatus =
         BaseStatusSignal.refreshAll(
             elevatorPosition,

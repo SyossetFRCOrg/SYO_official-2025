@@ -26,7 +26,7 @@ public class ReefAlignController {
       new LoggedTunableNumber("AutoAlign/drivekD", 0.0);
 
   private static final LoggedTunableNumber linearkI =
-      new LoggedTunableNumber("AutoAlign/drivekI", 15);
+      new LoggedTunableNumber("AutoAlign/drivekI", 5);
 
   private static final LoggedTunableNumber thetakP =
       new LoggedTunableNumber("AutoAlign/thetakP", 4);
@@ -223,8 +223,8 @@ public class ReefAlignController {
     double ffScaler = // 1.0;
         MathUtil.clamp(
             (currentDistance - ffMinRadius.get()) / (ffMaxRadius.get() - ffMinRadius.get()),
-            0.0,
-            1.0);
+            0.4,
+            0.8);
 
     linearController.reset(
         linearController.getSetpoint().position, linearController.getSetpoint().velocity);

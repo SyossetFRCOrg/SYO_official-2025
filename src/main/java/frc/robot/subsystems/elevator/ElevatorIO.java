@@ -13,9 +13,6 @@ public interface ElevatorIO {
     public double supplyCurrentAmps = 0.0;
     public double torqueCurrentAmps = 0.0;
     public double avgTempCelsius = 0.0;
-    // public TrapezoidProfile trapezoidProfile = new TrapezoidProfile(new
-    // TrapezoidProfile.Constraints(0,0));
-    // public TrapezoidProfile.State trapezoidalProfileState = new TrapezoidProfile.State();
   }
 
   /** Update the inputs. */
