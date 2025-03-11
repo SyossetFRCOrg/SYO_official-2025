@@ -110,6 +110,10 @@ public class RobotContainer {
     climbCam = CameraServer.startAutomaticCapture();
     climbCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
     climbCam.setResolution(80, 60);
+    m_limelight = new HttpCamera("Limelight", "http://limelight.local:5800/stream.mjpeg");
+    m_limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    Shuffleboard.getTab("Match").add(m_limelight).withWidget(BuiltInWidgets.kCameraStream).withSize(2, 2).withPosition(4, 0);
+
     Shuffleboard.getTab("Match")
         .add(climbCam)
         .withWidget(BuiltInWidgets.kCameraStream)
