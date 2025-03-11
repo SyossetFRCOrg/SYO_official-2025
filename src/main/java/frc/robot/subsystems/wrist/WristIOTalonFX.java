@@ -47,9 +47,9 @@ public class WristIOTalonFX implements WristIO {
   private static final LoggedTunableNumber kG = new LoggedTunableNumber("Wrist/Gains/kG", 0);
 
   private static final LoggedTunableNumber motionMagicVelocity =
-      new LoggedTunableNumber("Wrist/maxVelocity", 3);
+      new LoggedTunableNumber("Wrist/maxVelocity", 4);
   private static final LoggedTunableNumber motionMagicAcceleration =
-      new LoggedTunableNumber("Wrist/maxAcceleration", 3);
+      new LoggedTunableNumber("Wrist/maxAcceleration", 4);
   private static final LoggedTunableNumber motionMagicJerk =
       new LoggedTunableNumber("Wrist/maxJerk", 1000);
 
@@ -95,8 +95,8 @@ public class WristIOTalonFX implements WristIO {
     talonConfig.MotionMagic.MotionMagicJerk = motionMagicJerk.get();
 
     talonConfig.Feedback.SensorToMechanismRatio = GEAR_RATIO;
-    talonConfig.TorqueCurrent.PeakForwardTorqueCurrent = 20;
-    talonConfig.TorqueCurrent.PeakReverseTorqueCurrent = -40;
+    talonConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60;
+    talonConfig.TorqueCurrent.PeakReverseTorqueCurrent = -60;
     talonConfig.CurrentLimits.StatorCurrentLimit = 80;
     talonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     talonConfig.CurrentLimits.SupplyCurrentLimit = 60;

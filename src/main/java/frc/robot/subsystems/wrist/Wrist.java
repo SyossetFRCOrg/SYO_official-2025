@@ -15,7 +15,7 @@ public class Wrist extends SubsystemBase {
 
   private final WristIOInputsAutoLogged inputs = new WristIOInputsAutoLogged();
 
-  private final Debouncer aimedDebounce = new Debouncer(0.4);
+  private final Debouncer aimedDebounce = new Debouncer(1);
 
   private static final HashMap<SuperState, LoggedTunableNumber> positions = initializePositions();
 
@@ -30,7 +30,7 @@ public class Wrist extends SubsystemBase {
     map.put(SuperState.L1, new LoggedTunableNumber("Wrist/L1Position", 1.8));
     map.put(SuperState.L2, new LoggedTunableNumber("Wrist/L2Position", 3.2));
     map.put(SuperState.L3, new LoggedTunableNumber("Wrist/L3Position", 3.2));
-    map.put(SuperState.L4, new LoggedTunableNumber("Wrist/L4Position", 3.2));
+    map.put(SuperState.L4, new LoggedTunableNumber("Wrist/L4Position", 3.4));
 
     map.put(SuperState.L1PREPARE, map.get(SuperState.L1));
     map.put(SuperState.L2PREPARE, map.get(SuperState.L2));
@@ -78,7 +78,7 @@ public class Wrist extends SubsystemBase {
 
     if (positions.containsKey(setpointState)) position = positions.get(setpointState).get();
     return aimedDebounce.calculate(
-        MathUtil.isNear(position, inputs.positionRad, 0.05 /*0.106 rad*/)
+        MathUtil.isNear(position, inputs.positionRad, 0.03 /*0.106 rad*/)
             && Math.abs(inputs.velocityRadPerSec) < .1);
   }
 

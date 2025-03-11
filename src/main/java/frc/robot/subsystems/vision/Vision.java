@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.vision.VisionIO.PoseObservation;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.LinkedList;
 import java.util.List;
@@ -119,9 +118,10 @@ public class Vision extends SubsystemBase {
                 || (Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond) > (Math.PI * 3.0 / 4.0)
                     && observation.type()
                         == PoseObservationType.MEGATAG_2) // reject if omega too high
-                || (observation.averageTagDistance() < .85 && observation.type() == PoseObservationType.MEGATAG_1) // instability for MT1 when too near
-                ;
-
+                || (observation.averageTagDistance() < .85
+                    && observation.type()
+                        == PoseObservationType.MEGATAG_1) // instability for MT1 when too near
+            ;
 
         // Add pose to log
         robotPoses.add(observation.pose());
@@ -155,7 +155,8 @@ public class Vision extends SubsystemBase {
         // The farther the current estimate is from the pose right now, the less we trust it.
         // It should still allow for correction when we are very off because of the many poses
         // coming in continuously.
-        // This is meant to allow for that extreme correction (albeit slow) while making occasional nonsense
+        // This is meant to allow for that extreme correction (albeit slow) while making occasional
+        // nonsense
         // negligible.
         if (observation
                 .pose()
@@ -189,7 +190,7 @@ public class Vision extends SubsystemBase {
             > 2) {
           linearstdDevFactor *= 10;
         }
-        
+
         // same for rotational corrections.
         // However, also increase linear StdDev because the way MT1 works, if it returns a rotation
         // that is very off, it takes the translation with it as well. This should already be
@@ -246,14 +247,13 @@ public class Vision extends SubsystemBase {
           // linearstdDevFactor *= 5;
         }
 
-        //for some reason mt2 is also somewhat jumpy near the tag, which messes up auto align since the
-        //pose itself jumps so often. This should smooth it out while still not directly neglecting the new pose inputs.
-        if (observation.averageTagDistance() < .6)
-        {
-          linearstdDevFactor *= 20;
+        // for some reason mt2 is also somewhat jumpy near the tag, which messes up auto align since
+        // the
+        // pose itself jumps so often. This should smooth it out while still not directly neglecting
+        // the new pose inputs.
+        if (observation.averageTagDistance() < .85) {
+          linearstdDevFactor *= 40;
         }
-
-
 
         double linearStdDev = linearStdDevBaseline * linearstdDevFactor;
         double angularStdDev = angularStdDevBaseline * thetastdDevFactor;

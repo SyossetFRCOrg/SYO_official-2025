@@ -15,9 +15,9 @@ public class Elevator extends SubsystemBase {
   private final ElevatorIO io;
   private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
-  private final Debouncer atSetpointDebouncer = new Debouncer(0.5);
+  private final Debouncer atSetpointDebouncer = new Debouncer(0.1);
 
-  private double heightTolerance = .8; // rad
+  private double heightTolerance = 1; // rad
 
   // DigitalInput zeroLimitSwitch = new DigitalInput(1);
 
@@ -28,13 +28,13 @@ public class Elevator extends SubsystemBase {
     // to be tuned
     map.put(SuperState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 0));
     map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 30));
-    map.put(SuperState.INTAKELOW, new LoggedTunableNumber("Elevator/LOWIntakePosition", 26.5));
+    map.put(SuperState.INTAKELOW, new LoggedTunableNumber("Elevator/LOWIntakePosition", 27.25));
     map.put(SuperState.L1, new LoggedTunableNumber("Elevator/L1Position", 11));
-    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 36.4));
+    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 36.7));
     map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 51));
-    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 74.5));
+    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 73.77));
 
-    map.put(SuperState.L2L3ALGAE, map.get(SuperState.L2));
+    map.put(SuperState.L2L3ALGAE, new LoggedTunableNumber("Elevator/L2L3A", 34.7));
     map.put(
         SuperState.L3L4ALGAE,
         new LoggedTunableNumber("Elevator/L3L4A", map.get(SuperState.L3).get() - 5));

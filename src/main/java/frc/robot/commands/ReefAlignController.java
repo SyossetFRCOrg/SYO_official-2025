@@ -9,8 +9,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.RobotState;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.LoggedTunableNumber;
@@ -28,19 +26,18 @@ public class ReefAlignController {
       new LoggedTunableNumber("AutoAlign/drivekD", 0.0);
 
   private static final LoggedTunableNumber linearkI =
-      new LoggedTunableNumber("AutoAlign/drivekI", 10);
+      new LoggedTunableNumber("AutoAlign/drivekI", 15);
 
   private static final LoggedTunableNumber thetakP =
       new LoggedTunableNumber("AutoAlign/thetakP", 4);
   private static final LoggedTunableNumber thetakD =
       new LoggedTunableNumber("AutoAlign/thetakD", 0.5);
   private static final LoggedTunableNumber linearTolerance =
-      new LoggedTunableNumber(
-          "AutoAlign/controllerLinearTolerance", .005);
+      new LoggedTunableNumber("AutoAlign/controllerLinearTolerance", .01);
   private static final LoggedTunableNumber thetaTolerance =
       new LoggedTunableNumber("AutoAlign/controllerThetaTolerance", Units.degreesToRadians(2));
   private static final LoggedTunableNumber toleranceTime =
-      new LoggedTunableNumber("AutoAlign/controllerToleranceSecs", 0.15);
+      new LoggedTunableNumber("AutoAlign/controllerToleranceSecs", 0.5);
   //   private static final LoggedTunableNumber maxLinearVelocity =
   //       new LoggedTunableNumber(
   //           "AutoAlign/maxLinearVelocity", TunerConstants.driveConfig.maxLinearVelocity());

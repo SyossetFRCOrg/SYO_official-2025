@@ -14,7 +14,7 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"RIGHTBACKCORALSTATION.x", "val":0.7555842995643616}, "y":{"exp":"RIGHTBACKCORALSTATION.y", "val":1.0799384468078612}, "heading":{"exp":"RIGHTBACKCORALSTATION.heading", "val":-2.22}, "intervals":69, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"RIGHTBACKCORALSTATION.x", "val":0.7855842995643616}, "y":{"exp":"RIGHTBACKCORALSTATION.y", "val":1.0799384468078612}, "heading":{"exp":"RIGHTBACKCORALSTATION.heading", "val":-2.22}, "intervals":69, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"5.651122093200684 m", "val":5.651122093200684}, "y":{"exp":"2.5875837802886963 m", "val":2.5875837802886963}, "heading":{"exp":"2.141179467286725 rad", "val":2.141179467286725}, "intervals":6, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},

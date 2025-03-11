@@ -13,8 +13,6 @@ import frc.robot.subsystems.wrist.Wrist;
 import java.util.function.BooleanSupplier;
 import lombok.Getter;
 import lombok.Setter;
-
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 // import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -102,7 +100,6 @@ public class Superstructure extends SubsystemBase {
         "RobotState/reefAutoAligning", RobotState.getInstance().isReefAutoAligning());
 
     Logger.recordOutput("RobotState/reefAutoAiming", RobotState.getInstance().isReefAutoAiming());
-
 
     Logger.recordOutput(
         "RobotState/intakeAutoAiming", RobotState.getInstance().isIntakeAutoAiming());

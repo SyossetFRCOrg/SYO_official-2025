@@ -14,7 +14,7 @@ public final class Constants {
 
   public static final boolean AlignTuningMode = true;
 
-  public static final boolean CompField = false;
+  public static final boolean CompField = true;
 
   public static enum Mode {
     /** Running on a real robot. */

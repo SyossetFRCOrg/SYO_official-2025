@@ -28,7 +28,7 @@ public class AutonReefAlignController {
       new LoggedTunableNumber("AutonAlign/drivekD", 0.0);
 
   private static final LoggedTunableNumber linearkI =
-      new LoggedTunableNumber("AutonAlign/drivekI", 7.5);
+      new LoggedTunableNumber("AutonAlign/drivekI", 10);
 
   private static final LoggedTunableNumber thetakP =
       new LoggedTunableNumber("AutonAlign/thetakP", 4);
@@ -37,11 +37,11 @@ public class AutonReefAlignController {
   private static final LoggedTunableNumber linearTolerance =
       new LoggedTunableNumber(
           "AutonAlign/controllerLinearTolerance",
-          Superstructure.getDesiredState() == SuperState.L4 ? 0.008 : 0.01);
+          Superstructure.getDesiredState() == SuperState.L4 ? 0.009 : 0.01);
   private static final LoggedTunableNumber thetaTolerance =
       new LoggedTunableNumber("AutonAlign/controllerThetaTolerance", Units.degreesToRadians(2));
   private static final LoggedTunableNumber toleranceTime =
-      new LoggedTunableNumber("AutonAlign/controllerToleranceSecs", 0.1);
+      new LoggedTunableNumber("AutonAlign/controllerToleranceSecs", 0.75);
   //   private static final LoggedTunableNumber maxLinearVelocity =
   //       new LoggedTunableNumber(
   //           "AutonAlign/maxLinearVelocity", TunerConstants.driveConfig.maxLinearVelocity());

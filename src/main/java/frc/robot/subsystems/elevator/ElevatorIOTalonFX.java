@@ -50,7 +50,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private static final LoggedTunableNumber motionMagicVelocity =
       new LoggedTunableNumber("Elevator/maxVelocity", 100);
   private static final LoggedTunableNumber motionMagicAcceleration =
-      new LoggedTunableNumber("Elevator/maxAcceleration", 20);
+      new LoggedTunableNumber("Elevator/maxAcceleration", 30);
   private static final LoggedTunableNumber motionMagicJerk =
       new LoggedTunableNumber("Elevator/maxJerk", 10000);
 

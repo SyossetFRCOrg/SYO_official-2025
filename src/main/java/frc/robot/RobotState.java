@@ -3,8 +3,8 @@ package frc.robot;
 import edu.wpi.first.math.*;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.*;
-import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.generated.TunerConstants;
+import frc.robot.util.AllianceFlipUtil;
 // import edu.wpi.first.math.kinematics.SwerveDriveWheelPositions;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.swerve.ModuleLimits;
@@ -56,14 +56,12 @@ public class RobotState {
   @AutoLogOutput(key = "RobotState/reefAutoAligning")
   @Getter
   @Setter
-  private volatile boolean reefAutoAligning = true;
+  private volatile boolean reefAutoAligning = false;
 
   @AutoLogOutput(key = "RobotState/reefAutoAiming")
   @Getter
   @Setter
   private volatile boolean reefAutoAiming = false;
-
-  
 
   @AutoLogOutput(key = "RobotState/intakeAutoAiming")
   @Getter
@@ -74,8 +72,6 @@ public class RobotState {
   @Getter
   @Setter
   private volatile Pose2d tuningTempPose = null;
-
-  
 
   private Pose2d[] coralStationPositions = {
     new Pose2d(1.1344856023788452, 7.127560615539551, Rotation2d.fromRadians(2.200791626297564)),
@@ -154,54 +150,59 @@ public class RobotState {
   // blue positions, in the order of A, B, C, etc. Using tuningTempPose to tune on practice day
   private Pose2d[][] reefscoringPositionsComp = {
     {
-      new Pose2d(3.616605043411255, 2.7942769527435303, Rotation2d.fromDegrees(180)),
-      new Pose2d(3.8963937759399414, 2.5928292274475098, Rotation2d.fromDegrees(180))
+      new Pose2d(3.035805043411255, 4.182767868041992, Rotation2d.fromDegrees(0)),
+      new Pose2d(3.035805043411255, 3.8617191314697266, Rotation2d.fromDegrees(0))
     },
     {
-      new Pose2d(5.082698345184326, 2.648786783218384, Rotation2d.fromDegrees(120)),
-      new Pose2d(5.3848700523376465, 2.839043140411377, Rotation2d.fromDegrees(120)),
+      new Pose2d(3.6188, 2.84801, Rotation2d.fromDegrees(60)),
+      new Pose2d(3.895, 2.68101, Rotation2d.fromDegrees(60)),
     },
     {
-      new Pose2d(6.039247989654541, 3.8404667377471924, Rotation2d.fromDegrees(180)),
-      new Pose2d(6.02729606628418, 4.169149875640869, Rotation2d.fromDegrees(180)),
+      new Pose2d(4.959644001960754395, 2.68101, Rotation2d.fromDegrees(120)),
+      new Pose2d(5.3597538566589355, 2.84801, Rotation2d.fromDegrees(120)),
     },
     {
-      new Pose2d(5.264289855957031, 5.011500835418701, Rotation2d.fromRadians(-2.0988710476023327)),
-      new Pose2d(4.970402717590332, 5.174771785736084, Rotation2d.fromRadians(-2.0988710476023327)),
+      new Pose2d(6.0959417724609375, 3.801184997558594, Rotation2d.fromDegrees(180)),
+      AllianceFlipUtil.apply(
+          new Pose2d(11.588498611450195, 3.8510172367095947, Rotation2d.fromRadians(0)))
     },
     {
-      new Pose2d(3.87, 5.395, Rotation2d.fromDegrees(-60)),
-      new Pose2d(3.56, 5.22, Rotation2d.fromDegrees(-60)),
+      new Pose2d(5.368289222717285, 5.235887756347656, Rotation2d.fromDegrees(-120)),
+      new Pose2d(5.111470928192139, 5.392832508087158, Rotation2d.fromDegrees(-120)),
     },
     {
-      new Pose2d(3.2235898971557617, 4.180093288421631, Rotation2d.fromDegrees(0)),
-      new Pose2d(3.2292869091033936, 3.8667519092559814, Rotation2d.fromDegrees(0)),
+      new Pose2d(3.8932504449234008789, 5.3975392832508087158, Rotation2d.fromDegrees(-60)),
+      new Pose2d(3.602333632564544678, 5.231181619834899902, Rotation2d.fromDegrees(-60)),
     },
 
     // red alliance, also in order of A, B, C, etc
     {
-      new Pose2d(14.550749778747559, 3.846282720565796, Rotation2d.fromDegrees(180)),
-      new Pose2d(14.606707572937012, 4.1036882400512695, Rotation2d.fromDegrees(180))
+      new Pose2d(14.539, 3.900, Rotation2d.fromDegrees(-178.379)),
+      new Pose2d(
+          14.44165855591995367, 4.2523386002392076, Rotation2d.fromDegrees(-180.17210675287777))
     },
     {
-      new Pose2d(14.001158714294434, 5.266573905944824, Rotation2d.fromDegrees(-120)),
-      new Pose2d(13.718047142028809, 5.423857688903809, Rotation2d.fromDegrees(-120)),
+      new Pose2d(13.991158714294434, 5.256573905944824, Rotation2d.fromDegrees(-120)),
+      new Pose2d(13.708047142028809, 5.413857688903809, Rotation2d.fromDegrees(-120)),
     },
     {
-      new Pose2d(12.491231918334961, 5.3609442710876465, Rotation2d.fromDegrees(-60)),
-      new Pose2d(12.218605995178223, 5.266573905944824, Rotation2d.fromDegrees(-60)),
+      new Pose2d(
+          12.448975945229831, 5.391850951541687, Rotation2d.fromDegrees(-57.931551216345206)),
+      new Pose2d(12.103763639987946, 5.297896918328212, Rotation2d.fromDegrees(-58.27866028322585)),
     },
     {
-      new Pose2d(11.578984260559082, 4.186556816101074, Rotation2d.fromRadians(0)),
-      new Pose2d(11.568498611450195, 3.8510172367095947, Rotation2d.fromRadians(0)),
+      new Pose2d(11.588984260559082, 4.186556816101074, Rotation2d.fromRadians(0)),
+      new Pose2d(11.588498611450195, 3.8510172367095947, Rotation2d.fromRadians(0)),
     },
     {
-      new Pose2d(12.19763469696045, 2.7814857959747314, Rotation2d.fromDegrees(60)),
-      new Pose2d(12.470260620117188, 2.592744827270508, Rotation2d.fromDegrees(60)),
+      new Pose2d(12.20763469696045, 2.7914857959747314, Rotation2d.fromDegrees(60)),
+      new Pose2d(12.480260620117188, 2.602744827270508, Rotation2d.fromDegrees(60)),
     },
     {
-      new Pose2d(13.644648551940918, 2.5717735290527344, Rotation2d.fromDegrees(120)),
-      new Pose2d(13.959216117858887, 2.7500288486480713, Rotation2d.fromDegrees(120)),
+      AllianceFlipUtil.apply(
+          new Pose2d(3.8932504449234008789, 5.3975392832508087158, Rotation2d.fromDegrees(-60))),
+      AllianceFlipUtil.apply(
+          new Pose2d(3.602333632564544678, 5.231181619834899902, Rotation2d.fromDegrees(-60))),
     },
   };
 
@@ -364,30 +365,21 @@ public class RobotState {
 
   @AutoLogOutput(key = "Swerve/ModuleLimits")
   public ModuleLimits getModuleLimits() {
-    if (DriverStation.isTeleop()) {
-      return switch (elevatorPosition) {
-        case 0 -> TunerConstants.moduleLimitsFree;
-
-        case 1 -> TunerConstants.moduleLimitsL1Elevator;
-
-        case 2 -> TunerConstants.moduleLimitsL2Elevator;
-
-        case 3 -> TunerConstants.moduleLimitsL3Elevator;
-
-        case 4 -> TunerConstants.moduleLimitsL4Elevator;
-
-        default -> TunerConstants.moduleLimitsL3Elevator;
-      };
-    }
-
+    // if (DriverStation.isTeleop()) {
     return switch (elevatorPosition) {
-      case 0, 1, 2 -> TunerConstants.moduleLimitsFree;
+      case 0 -> TunerConstants.moduleLimitsFree;
+
+      case 1 -> TunerConstants.moduleLimitsL1Elevator;
+
+      case 2 -> TunerConstants.moduleLimitsL2Elevator;
 
       case 3 -> TunerConstants.moduleLimitsL3Elevator;
 
-      case 4 -> TunerConstants.moduleLimitsL3Elevator;
+      case 4 -> TunerConstants.moduleLimitsL4Elevator;
 
       default -> TunerConstants.moduleLimitsL3Elevator;
     };
+    // }
+
   }
 }

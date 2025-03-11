@@ -6,7 +6,6 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -813,9 +812,10 @@ class AutoFactory {
                           () ->
                               RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
                                   < 1.0,
-                          RobotState.getInstance()
-                              .getNearestReefPose(
-                                  segment.getIdealTrajectory(null).get().getEndState().pose));
+                          AllianceFlipUtil.apply(
+                              RobotState.getInstance()
+                                  .getNearestReefPose(
+                                      segment.getIdealTrajectory(null).get().getEndState().pose)));
                 }))
         .andThen(
             new InstantCommand(
@@ -843,9 +843,10 @@ class AutoFactory {
                           () ->
                               RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
                                   < 1.0,
-                          RobotState.getInstance()
-                              .getNearestReefPose(
-                                  segment.getIdealTrajectory(null).get().getEndState().pose));
+                          AllianceFlipUtil.apply(
+                              RobotState.getInstance()
+                                  .getNearestReefPose(
+                                      segment.getIdealTrajectory(null).get().getEndState().pose)));
                 }))
         .andThen(
             new InstantCommand(
@@ -860,6 +861,7 @@ class AutoFactory {
                             && Superstructure.getCurrentState() == SuperState.L3))
         .andThen(waitSeconds(.4));
   }
+
   private Command AutoAlignL2Score(PathPlannerPath segment) {
     return superstructure
         .setWantedSuperStateCommand(SuperState.L2)
@@ -872,9 +874,10 @@ class AutoFactory {
                           () ->
                               RobotState.getInstance().getDistanceToNearestReef(drive.getPose())
                                   < 1.0,
-                          RobotState.getInstance()
-                              .getNearestReefPose(
-                                  segment.getIdealTrajectory(null).get().getEndState().pose));
+                          AllianceFlipUtil.apply(
+                              RobotState.getInstance()
+                                  .getNearestReefPose(
+                                      segment.getIdealTrajectory(null).get().getEndState().pose)));
                 }))
         .andThen(
             new InstantCommand(
