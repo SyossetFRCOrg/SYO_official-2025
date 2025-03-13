@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.math.*;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.*;
+import edu.wpi.first.math.util.Units;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.AllianceFlipUtil;
 // import edu.wpi.first.math.kinematics.SwerveDriveWheelPositions;
@@ -32,6 +33,11 @@ public class RobotState {
     if (instance == null) instance = new RobotState();
     return instance;
   }
+
+  @AutoLogOutput(key = "RobotState/RobotPose")
+  @Getter
+  @Setter
+  private volatile Pose2d RobotPose = new Pose2d();
 
   @AutoLogOutput(key = "RobotState/aboveL1")
   @Getter
@@ -80,6 +86,8 @@ public class RobotState {
     new Pose2d(16.37734603881836, 7.141775608062744, Rotation2d.fromRadians(0.9389806255220727)),
   };
 
+  public static final int[] tagList = {18, 17, 22, 21, 20, 19, 7, 8, 9, 10, 11, 6};
+
   // for practice fields like Arumdaun
   private Pose2d[][] reefscoringPositionsPractice = // not finalized or tuned.
       { // DON'T use alliancefliputil to flip to get corresponding red scoring pose2ds THEY ARE ALL
@@ -88,60 +96,81 @@ public class RobotState {
     // blue positions, in the order of A, B, C, etc. Using tuningTempPose to tune on practice day
     // (for practice fields)
     {
-      new Pose2d(3.04, 4.24, Rotation2d.fromDegrees(-2.77)),
-      new Pose2d(3.085, 3.787, Rotation2d.fromDegrees(0.3))
-    },
-    {
-      new Pose2d(3.662068954711103, 2.7579618237973946, Rotation2d.fromDegrees(55.40424829370364)),
+      new Pose2d(3.041071103970148, 4.293447909270577, Rotation2d.fromDegrees(-3.0783260740831717)),
       new Pose2d(
-          3.6934151064239247, 3.1333841763974344, Rotation2d.fromDegrees(50.127172524706936)),
+          3.0683496108296837, 3.9108521991330374, Rotation2d.fromDegrees(-1.3530922714832148))
     },
     {
-      new Pose2d(5.109475612640381, 2.710167169570923, Rotation2d.fromDegrees(120)),
-      new Pose2d(5.384280204772949, 2.786501884460449, Rotation2d.fromDegrees(120)),
+      new Pose2d(3.60906001701, 2.83975443317, Rotation2d.fromDegrees(60.0)),
+      new Pose2d(3.89478060379, 2.67338571025, Rotation2d.fromDegrees(60)),
     },
     {
-      new Pose2d(5.91, 3.96, Rotation2d.fromDegrees(-170.46)),
-      new Pose2d(5.91, 4.34, Rotation2d.fromDegrees(-168)),
+      new Pose2d(
+          5.007975101470947 + (Units.inchesToMeters(5) / 2.0),
+          2.7906148433685303 - (Units.inchesToMeters(5) * Math.sin(Math.PI / 3)),
+          Rotation2d.fromDegrees(120)),
+      new Pose2d(
+          5.295468807220459 + (Units.inchesToMeters(5) / 2.0),
+          2.952014684677124 - (Units.inchesToMeters(5) * Math.sin(Math.PI / 3)),
+          Rotation2d.fromDegrees(120)),
     },
     {
-      new Pose2d(5.305, 5.256, Rotation2d.fromDegrees(-120)),
-      new Pose2d(4.83, 5.45, Rotation2d.fromDegrees(-105)),
+      new Pose2d(
+          5.814974784851074 + Units.inchesToMeters(5),
+          3.8649332523345947,
+          Rotation2d.fromDegrees(180)),
+      new Pose2d(
+          5.814974784851074 + Units.inchesToMeters(5),
+          4.177645683288574,
+          Rotation2d.fromDegrees(180)),
     },
     {
-      new Pose2d(3.91, 5.37, Rotation2d.fromDegrees(-60.31)),
-      new Pose2d(3.56, 5.22, Rotation2d.fromDegrees(-60)),
+      new Pose2d(5.416180952724039, 5.15533300102414, Rotation2d.fromDegrees(-124)),
+      new Pose2d(5.104646308735331, 5.31305427615843, Rotation2d.fromDegrees(-120.49203483381365)),
+    },
+    {
+      new Pose2d(
+          3.8784240482492045, 5.3663110371013865, Rotation2d.fromDegrees(-52.83859951538885)),
+      new Pose2d(3.6415587639550885, 5.203588735653487, Rotation2d.fromDegrees(-61.75839876694931)),
     },
 
-    // red alliance, also in order of A, B, C, etc
-    {
-      new Pose2d(
-          14.585301176984437, 3.896938165617065, Rotation2d.fromDegrees(-177.90584757021125)),
-      new Pose2d(14.58023245172989, 4.262148436741021, Rotation2d.fromDegrees(-178.18264814361783))
-    },
-    {
-      new Pose2d(
-          13.795372583823335, 5.199808161686881, Rotation2d.fromDegrees(-112.19009068279485)),
-      new Pose2d(
-          13.678263570728163, 5.075483712029739, Rotation2d.fromDegrees(-119.35380053745384)),
-    },
-    {
-      new Pose2d(12.553411573962745, 5.522220199513951, Rotation2d.fromDegrees(-75.56430507216514)),
-      new Pose2d(12.220190239970675, 5.313180552341106, Rotation2d.fromDegrees(-66.59963907787123)),
-    },
-    {
-      new Pose2d(11.434800574539622, 4.120487765593584, Rotation2d.fromDegrees(4.258431286310804)),
-      new Pose2d(
-          11.630359866710407, 3.8171459032191764, Rotation2d.fromDegrees(0.4258799558972908)),
-    },
-    {
-      new Pose2d(12.059619122520424, 2.9011493331040046, Rotation2d.fromDegrees(46.74099652124185)),
-      new Pose2d(12.569388978911922, 2.666802085718384, Rotation2d.fromDegrees(59.87328091953917)),
-    },
-    {
-      new Pose2d(13.658877514318094, 2.858955012982499, Rotation2d.fromDegrees(135.41335183195721)),
-      new Pose2d(14.14544804013203, 2.993801028186214, Rotation2d.fromDegrees(134.30460726161323)),
-    },
+    // // red alliance, also in order of A, B, C, etc
+    // {
+    //   new Pose2d(
+    //       14.585301176984437, 3.896938165617065, Rotation2d.fromDegrees(-177.90584757021125)),
+    //   new Pose2d(14.58023245172989, 4.262148436741021,
+    // Rotation2d.fromDegrees(-178.18264814361783))
+    // },
+    // {
+    //   new Pose2d(
+    //       13.795372583823335, 5.199808161686881, Rotation2d.fromDegrees(-112.19009068279485)),
+    //   new Pose2d(
+    //       13.678263570728163, 5.075483712029739, Rotation2d.fromDegrees(-119.35380053745384)),
+    // },
+    // {
+    //   new Pose2d(12.553411573962745, 5.522220199513951,
+    // Rotation2d.fromDegrees(-75.56430507216514)),
+    //   new Pose2d(12.220190239970675, 5.313180552341106,
+    // Rotation2d.fromDegrees(-66.59963907787123)),
+    // },
+    // {
+    //   new Pose2d(11.434800574539622, 4.120487765593584,
+    // Rotation2d.fromDegrees(4.258431286310804)),
+    //   new Pose2d(
+    //       11.630359866710407, 3.8171459032191764, Rotation2d.fromDegrees(0.4258799558972908)),
+    // },
+    // {
+    //   new Pose2d(12.059619122520424, 2.9011493331040046,
+    // Rotation2d.fromDegrees(46.74099652124185)),
+    //   new Pose2d(12.569388978911922, 2.666802085718384,
+    // Rotation2d.fromDegrees(59.87328091953917)),
+    // },
+    // {
+    //   new Pose2d(13.658877514318094, 2.858955012982499,
+    // Rotation2d.fromDegrees(135.41335183195721)),
+    //   new Pose2d(14.14544804013203, 2.993801028186214,
+    // Rotation2d.fromDegrees(134.30460726161323)),
+    // },
   };
 
   // for official fields // not finalized or tuned.
@@ -343,6 +372,41 @@ public class RobotState {
 
     return ((Constants.CompField ? reefscoringPositionsComp : reefscoringPositionsPractice)
         [index1][index2]);
+  }
+
+  @AutoLogOutput(key = "NearestReefTagID")
+  public int getNearestReefTagID(Pose2d pose) {
+
+    double mindistance = Double.POSITIVE_INFINITY;
+    int index1 = -1;
+    int index2 = -1;
+
+    for (int i = 0;
+        i < (Constants.CompField ? reefscoringPositionsComp : reefscoringPositionsPractice).length;
+        i++) {
+      for (int j = 0;
+          j
+              < (Constants.CompField ? reefscoringPositionsComp : reefscoringPositionsPractice)
+                  [i].length;
+          j++) {
+        if (pose.getTranslation()
+                .getDistance(
+                    ((Constants.CompField ? reefscoringPositionsComp : reefscoringPositionsPractice)
+                        [i][j].getTranslation()))
+            < mindistance) {
+          index1 = i;
+          index2 = j;
+          mindistance =
+              pose.getTranslation()
+                  .getDistance(
+                      ((Constants.CompField
+                              ? reefscoringPositionsComp
+                              : reefscoringPositionsPractice)
+                          [i][j].getTranslation()));
+        }
+      }
+    }
+    return tagList[index1];
   }
 
   // used for auto-aim towards coral station for aiming

@@ -7,8 +7,8 @@
    "ReefApproachSpeed":{
     "dimension":"LinVel",
     "var":{
-     "exp":"0.3 m / s",
-     "val":0.3
+     "exp":"0.4 m / s",
+     "val":0.4
     }
    }
   },
@@ -43,12 +43,12 @@
    },
    "LEFTBACKCORALSTATION":{
     "x":{
-     "exp":"0.7855842995643616 m",
-     "val":0.7855842995643616
+     "exp":"0.855842995643616 m",
+     "val":0.855842995643616
     },
     "y":{
-     "exp":"6.971861553192139 m",
-     "val":6.971861553192139
+     "exp":"6.851861553192139 m",
+     "val":6.851861553192139
     },
     "heading":{
      "exp":"2.22 rad",
@@ -57,8 +57,8 @@
    },
    "LEFTFORWARDCORALSTATION":{
     "x":{
-     "exp":"1.6146800518035889 m",
-     "val":1.6146800518035889
+     "exp":"1.576800518035889 m",
+     "val":1.576800518035889
     },
     "y":{
      "exp":"7.366710186004639 m",
@@ -100,11 +100,11 @@
    "RIGHTBACKCORALSTATION":{
     "x":{
      "exp":"LEFTBACKCORALSTATION.x",
-     "val":0.7855842995643616
+     "val":0.855842995643616
     },
     "y":{
      "exp":"317 inches - LEFTBACKCORALSTATION.y",
-     "val":1.0799384468078612
+     "val":1.199938446807861
     },
     "heading":{
      "exp":"-LEFTBACKCORALSTATION.heading",
@@ -114,7 +114,7 @@
    "RIGHTFORWARDCORALSTATION":{
     "x":{
      "exp":"LEFTFORWARDCORALSTATION.x",
-     "val":1.6146800518035889
+     "val":1.576800518035889
     },
     "y":{
      "exp":"317 inches - LEFTFORWARDCORALSTATION.y",
@@ -149,8 +149,8 @@
    }
   },
   "mass":{
-   "exp":"115 lbs",
-   "val":52.16312255
+   "exp":"135 lbs",
+   "val":61.23496995
   },
   "inertia":{
    "exp":"13 kg m ^ 2",
@@ -161,16 +161,16 @@
    "val":6.593406593404615
   },
   "radius":{
-   "exp":"1.682 in",
-   "val":0.0427228
+   "exp":"1.742 in",
+   "val":0.0442468
   },
   "vmax":{
    "exp":"5500 RPM",
    "val":575.9586531581288
   },
   "tmax":{
-   "exp":"0.3 N * m",
-   "val":0.3
+   "exp":"0.37 N * m",
+   "val":0.37
   },
   "cof":{
    "exp":"1.1",

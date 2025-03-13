@@ -2,6 +2,7 @@ package frc.robot.subsystems.elevator;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
 import frc.robot.subsystems.Superstructure;
@@ -19,7 +20,7 @@ public class Elevator extends SubsystemBase {
 
   private double heightTolerance = 1; // rad
 
-  // DigitalInput zeroLimitSwitch = new DigitalInput(1);
+  DigitalInput zeroLimitSwitch = new DigitalInput(0);
 
   private static final HashMap<SuperState, LoggedTunableNumber> heights = initializeHeights();
 
@@ -31,7 +32,7 @@ public class Elevator extends SubsystemBase {
     map.put(SuperState.INTAKELOW, new LoggedTunableNumber("Elevator/LOWIntakePosition", 27.25));
     map.put(SuperState.L1, new LoggedTunableNumber("Elevator/L1Position", 11));
     map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 36.7));
-    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 51));
+    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 50.5));
     map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 73.77));
 
     map.put(SuperState.L2L3ALGAE, new LoggedTunableNumber("Elevator/L2L3A", 34.7));
@@ -81,10 +82,11 @@ public class Elevator extends SubsystemBase {
 
     applyStates();
 
-    // if (zeroLimitSwitch.get()) {
-    //   io.setHeight(0);
-    // }
+    if (!zeroLimitSwitch.get()) {
+      io.setHeight(0);
+    }
     // System.out.println(zeroLimitSwitch.get());
+    Logger.recordOutput("Elevator/LimitSwitch", !zeroLimitSwitch.get());
 
     // modify the Elevator position in RobotState so that the moduleLimits changes so the max
     // acceleration changes

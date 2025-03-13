@@ -40,10 +40,6 @@ public class AutoChooser extends SendableChooser<Auto> {
       List.of(
           new AutoProgram(Auto.IDLE, "IDLE", AutoFactory::createIdleCommand),
           new AutoProgram(
-              Auto.FLSTARTBACKCORALSTATIONJKL,
-              "FL START BACK CORAL STATION JKL",
-              AutoFactory::FarLeftStartBackCoralStationKLA),
-          new AutoProgram(
               Auto.FLSTARTFORWARDCORALSTATIONHIJ,
               "FL START FORWARD CORAL STATION HIJ",
               AutoFactory::FarLeftStartForwardCoralStationHIJ),

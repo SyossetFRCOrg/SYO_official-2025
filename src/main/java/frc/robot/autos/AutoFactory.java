@@ -784,13 +784,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.C, Location.RIGHTBACKCORALSTATION));
-    c.addCommands(waitSeconds(.85));
+    c.addCommands(waitSeconds(.75));
 
     c.addCommands(IntakeFollow(Location.RIGHTBACKCORALSTATION, Location.PREB));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTBACKCORALSTATION, Location.PREB)));
 
     c.addCommands(IntakeFollow(Location.B, Location.RIGHTBACKCORALSTATION));
-    c.addCommands(waitSeconds(.85));
+    c.addCommands(waitSeconds(.75));
 
     c.addCommands(IntakeFollow(Location.RIGHTBACKCORALSTATION, Location.PREA));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTBACKCORALSTATION, Location.PREA)));
@@ -802,7 +802,7 @@ class AutoFactory {
 
   private Command AutoAlignL4Score(PathPlannerPath segment) {
     return superstructure
-        .setWantedSuperStateCommand(SuperState.L4)
+        .setWantedSuperStateCommand(SuperState.L4PREPARE)
         .andThen(
             new InstantCommand(
                 () -> {
@@ -824,10 +824,8 @@ class AutoFactory {
                     },
                     drive)
                 .repeatedly()
-                .until(
-                    () ->
-                        autonreefAlignController.atGoal()
-                            && Superstructure.getCurrentState() == SuperState.L4))
+                .until(() -> autonreefAlignController.atGoal()))
+        .andThen(superstructure.setWantedSuperStateCommand(SuperState.L4))
         .andThen(waitSeconds(.4));
   }
 

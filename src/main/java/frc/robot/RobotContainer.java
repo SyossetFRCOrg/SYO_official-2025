@@ -5,6 +5,7 @@ import static frc.robot.subsystems.vision.VisionConstants.camera0Name;
 import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -64,6 +65,8 @@ public class RobotContainer {
 
   private final UsbCamera climbCam;
 
+  //   private final HttpCamera climberCamera;
+
   //   private final AutoSelector autoSelector = new AutoSelector("Auto");
 
   //   private ReefAlignController autoAlignController;
@@ -110,12 +113,18 @@ public class RobotContainer {
     climbCam = CameraServer.startAutomaticCapture();
     climbCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
     climbCam.setResolution(80, 60);
-    m_limelight = new HttpCamera("Limelight", "http://limelight.local:5800/stream.mjpeg");
-    m_limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    Shuffleboard.getTab("Match").add(m_limelight).withWidget(BuiltInWidgets.kCameraStream).withSize(2, 2).withPosition(4, 0);
+
+    // climberCamera =
+    //     new HttpCamera("ClimberCamera", "http://roborio-9016-frc.local:1181/?action=stream");
+    // climberCamera.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    // Shuffleboard.getTab("Match")
+    //     .add(climberCamera)
+    //     .withWidget(BuiltInWidgets.kCameraStream)
+    //     .withSize(2, 2)
+    //     .withPosition(4, 0);
 
     Shuffleboard.getTab("Match")
-        .add(climbCam)
+        .add(new HttpCamera("ClimberCam", "http://roborio-9016-frc.local:1181/?action=stream"))
         .withWidget(BuiltInWidgets.kCameraStream)
         .withSize(4, 3)
         .withPosition(4, 3);

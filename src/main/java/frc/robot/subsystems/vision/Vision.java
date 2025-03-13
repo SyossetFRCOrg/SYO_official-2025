@@ -117,7 +117,7 @@ public class Vision extends SubsystemBase {
                 || (Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond) > (Math.PI * 3.0 / 4.0)
                     && observation.type()
                         == PoseObservationType.MEGATAG_2) // reject if omega too high
-                || (observation.averageTagDistance() < .75) // instability for MT1 when too near
+                || (observation.averageTagDistance() < .25) // instability for MT1 when too near
             ;
 
         // Add pose to log
@@ -248,9 +248,9 @@ public class Vision extends SubsystemBase {
         // the
         // pose itself jumps so often. This should smooth it out while still not directly neglecting
         // the new pose inputs.
-        if (observation.averageTagDistance() < 1) {
-          linearstdDevFactor *= 40;
-        }
+        // if (observation.averageTagDistance() < 1) {
+        //   linearstdDevFactor *= 40;
+        // }
 
         double linearStdDev = linearStdDevBaseline * linearstdDevFactor;
         double angularStdDev = angularStdDevBaseline * thetastdDevFactor;

@@ -99,7 +99,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     talonConfig.MotionMagic.MotionMagicJerk = motionMagicJerk.get();
 
     talonConfig.Feedback.SensorToMechanismRatio = GEAR_RATIO;
-    talonConfig.TorqueCurrent.PeakForwardTorqueCurrent = 150;
+    talonConfig.TorqueCurrent.PeakForwardTorqueCurrent = 120;
     talonConfig.TorqueCurrent.PeakReverseTorqueCurrent = -120;
     talonConfig.CurrentLimits.StatorCurrentLimit = 120;
     talonConfig.CurrentLimits.StatorCurrentLimitEnable = true;

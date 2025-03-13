@@ -7,6 +7,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
+import frc.robot.RobotState;
 import frc.robot.subsystems.vision.LimelightHelpers.PoseEstimate;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -50,6 +51,12 @@ public class VisionIOLimelight implements VisionIO {
 
   @Override
   public void updateInputs(VisionIOInputs inputs) {
+
+    LimelightHelpers.SetFiducialIDFiltersOverride(
+        name,
+        new int[] {
+          RobotState.getInstance().getNearestReefTagID(RobotState.getInstance().getRobotPose())
+        });
 
     latencySubscriber = LimelightHelpers.getLatency_Pipeline(name);
     txSubscriber = LimelightHelpers.getTX(name);
