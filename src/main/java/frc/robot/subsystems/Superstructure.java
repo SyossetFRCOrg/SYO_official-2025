@@ -44,9 +44,9 @@ public class Superstructure extends SubsystemBase {
             drivetrain.ifPresent(drive -> {
                 drive.setDefaultCommand(drive.joystickDrive(
                         drive,
-                        () -> 0.6 * driverController.getLeftY(),
-                        () -> 0.6 * driverController.getLeftX(),
-                        () -> 0.5 * driverController.getRightX()));
+                        () -> 0.7 * driverController.getLeftY(),
+                        () -> 0.7 * driverController.getLeftX(),
+                        () -> 0.6 * driverController.getRightX()));
             });
 
             driverController.button(8).onTrue(drivetrain.get().setRotation(

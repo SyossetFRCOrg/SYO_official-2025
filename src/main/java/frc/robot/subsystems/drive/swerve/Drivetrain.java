@@ -162,7 +162,7 @@ public class Drivetrain extends SubsystemBase {
     double maxTranslationDeltaPerLoopRatio =
         TranslationDelta
                 .getNorm() /*magnitude of difference of current and desired velocity vectors*/
-            / ((.05) //max acceleration in m/s^2
+            / ((.75) //max acceleration in m/s^2
              * .02);
 
     if (maxTranslationDeltaPerLoopRatio > 1) {
