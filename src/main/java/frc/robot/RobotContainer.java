@@ -10,6 +10,7 @@ import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -25,7 +26,7 @@ import frc.robot.commands.ControllerRumbleCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ReefAlignController;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.*;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIOSparkMax;
@@ -40,6 +41,8 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristIOTalonFX;
+import frc.robot.util.AllianceFlipUtil;
+import frc.robot.util.Container;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -58,6 +61,8 @@ public class RobotContainer {
   private final Superstructure superstructure;
 
   private final Climber climber;
+
+  private final LEDs LEDs;
 
   // Controller
   private final XboxController controller = new XboxController(0);
@@ -89,6 +94,8 @@ public class RobotContainer {
     elevator = new Elevator(new ElevatorIOTalonFX());
     wrist = new Wrist(new WristIOTalonFX());
     intake = new Intake(new IntakeIOTalonFX());
+
+    LEDs = new LEDs();
 
     vision =
         new Vision(
@@ -130,284 +137,6 @@ public class RobotContainer {
         .withPosition(4, 3);
   }
 
-  //   private void configureAutos() {
-  //     AutoFactory autoBuilder = new AutoFactory(drive, superstructure,
-  // autoSelector::getResponses);
-
-  //     // Add autos
-  //     autoSelector.addRoutine(
-  //         "4 Coral flexible",
-  //         List.of(
-  //             new AutoQuestion(
-  //                 "Starting location?",
-  //                 List.of(
-  //                     AutoQuestionResponse.FAR_LEFT,
-  //                     AutoQuestionResponse.MID_LEFT,
-  //                     AutoQuestionResponse.MID_RIGHT,
-  //                     AutoQuestionResponse.FAR_RIGHT)),
-  //             new AutoQuestion(
-  //                 "First Scoring Location?",
-  //                 List.of(
-  //                     AutoQuestionResponse.A,
-  //                     AutoQuestionResponse.B,
-  //                     AutoQuestionResponse.C,
-  //                     AutoQuestionResponse.D,
-  //                     AutoQuestionResponse.E,
-  //                     AutoQuestionResponse.F,
-  //                     AutoQuestionResponse.G,
-  //                     AutoQuestionResponse.H,
-  //                     AutoQuestionResponse.I,
-  //                     AutoQuestionResponse.J,
-  //                     AutoQuestionResponse.K,
-  //                     AutoQuestionResponse.L)),
-  //             new AutoQuestion(
-  //                 "First Scoring Height?",
-  //                 List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3,
-  // AutoQuestionResponse.L4)),
-  //             new AutoQuestion(
-  //                 "First Intaking Position?",
-  //                 List.of(
-  //                     AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.RIGHT_BACK_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_BACK_CORALSTATION)),
-  //             new AutoQuestion(
-  //                 "Second Scoring Location?",
-  //                 List.of(
-  //                     AutoQuestionResponse.A,
-  //                     AutoQuestiosponse.E,
-  //                     AutoQuestionResponse.F,
-  //                     AutoQuestionResponse.G,
-  //                     AutoQuestionResponse.H,
-  //                     AutoQuestionResponse.I,
-  //                     AutoQuestionResponse.J,
-  //                     AutoQuestionResponse.K,
-  //                     AutoQuestionResponse.B,
-  //                     AutoQuestionResponse.C,
-  //                     AutoQuestionResponse.D,
-  //                     AutoQuestionRense.L)),
-  //             new AutoQuestion(
-  //                 "Second Scoring Height?",
-  //                 List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3,
-  // AutoQuestionResponse.L4)),
-  //             new AutoQuestion(
-  //                 "Second Intaking Position?",
-  //                 List.of(
-  //                     AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.RIGHT_BACK_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_BACK_CORALSTATION)),
-  //             new AutoQuestion(
-  //                 "Third Scoring Location?",
-  //                 List.of(
-  //                     AutoQuestionResponse.A,
-  //                     AutoQuestionResponse.B,
-  //                     AutoQuestionResponse.C,
-  //                     AutoQuestionResponse.D,
-  //                     AutoQuestionResponse.E,
-  //                     AutoQuestionResponse.F,
-  //                     AutoQuestionResponse.G,
-  //                     AutoQuestionResponse.H,
-  //                     AutoQuestionResponse.I,
-  //                     AutoQuestionResponse.J,
-  //                     AutoQuestionResponse.K,
-  //                     AutoQuestionResponse.L)),
-  //             new AutoQuestion(
-  //                 "Third Scoring Height?",
-  //                 List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3,
-  // AutoQuestionResponse.L4)),
-  //             new AutoQuestion(
-  //                 "Third Intaking Position?",
-  //                 List.of(
-  //                     AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.RIGHT_BACK_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_BACK_CORALSTATION)),
-  //             new AutoQuestion(
-  //                 "Fourth Scoring Location?",
-  //                 List.of(
-  //                     AutoQuestionResponse.A,
-  //                     AutoQuestionResponse.B,
-  //                     AutoQuestionResponse.C,
-  //                     AutoQuestionResponse.D,
-  //                     AutoQuestionResponse.E,
-  //                     AutoQuestionResponse.F,
-  //                     AutoQuestionResponse.G,
-  //                     AutoQuestionResponse.H,
-  //                     AutoQuestionResponse.I,
-  //                     AutoQuestionResponse.J,
-  //                     AutoQuestionResponse.K,
-  //                     AutoQuestionResponse.L)),
-  //             new AutoQuestion(
-  //                 "Fourth Scoring Height?",
-  //                 List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3,
-  // AutoQuestionResponse.L4)),
-  //             new AutoQuestion(
-  //                 "Fourth Intaking Position?",
-  //                 List.of(
-  //                     AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.RIGHT_BACK_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_BACK_CORALSTATION))),
-  //         autoBuilder.FourAuto()
-  //         // autoBuilder.createIdleCommand()
-  //         );
-
-  //     autoSelector.addRoutine(
-  //         "3 Coral flexible",
-  //         List.of(
-  //             new AutoQuestion(
-  //                 "Starting location?",
-  //                 List.of(
-  //                     AutoQuestionResponse.FAR_LEFT,
-  //                     AutoQuestionResponse.MID_LEFT,
-  //                     AutoQuestionResponse.MID_RIGHT,
-  //                     AutoQuestionResponse.FAR_RIGHT)),
-  //             new AutoQuestion(
-  //                 "First Scoring Location?",
-  //                 List.of(
-  //                     AutoQuestionResponse.A,
-  //                     AutoQuestionResponse.B,
-  //                     AutoQuestionResponse.C,
-  //                     AutoQuestionResponse.D,
-  //                     AutoQuestionResponse.E,
-  //                     AutoQuestionResponse.F,
-  //                     AutoQuestionResponse.G,
-  //                     AutoQuestionResponse.H,
-  //                     AutoQuestionResponse.I,
-  //                     AutoQuestionResponse.J,
-  //                     AutoQuestionResponse.K,
-  //                     AutoQuestionResponse.L)),
-  //             new AutoQuestion(
-  //                 "First Scoring Height?",
-  //                 List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3,
-  // AutoQuestionResponse.L4)),
-  //             new AutoQuestion(
-  //                 "First Intaking Position?",
-  //                 List.of(
-  //                     AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.RIGHT_BACK_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_BACK_CORALSTATION)),
-  //             new AutoQuestion(
-  //                 "Second Scoring Location?",
-  //                 List.of(
-  //                     AutoQuestionResponse.A,
-  //                     AutoQuestionResponse.B,
-  //                     AutoQuestionResponse.C,
-  //                     AutoQuestionResponse.D,
-  //                     AutoQuestionResponse.E,
-  //                     AutoQuestionResponse.F,
-  //                     AutoQuestionResponse.G,
-  //                     AutoQuestionResponse.H,
-  //                     AutoQuestionResponse.I,
-  //                     AutoQuestionResponse.J,
-  //                     AutoQuestionResponse.K,
-  //                     AutoQuestionResponse.L)),
-  //             new AutoQuestion(
-  //                 "Second Scoring Height?",
-  //                 List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3,
-  // AutoQuestionResponse.L4)),
-  //             new AutoQuestion(
-  //                 "Second Intaking Position?",
-  //                 List.of(
-  //                     AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.RIGHT_BACK_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_BACK_CORALSTATION)),
-  //             new AutoQuestion(
-  //                 "Third Scoring Location?",
-  //                 List.of(
-  //                     AutoQuestionResponse.A,
-  //                     AutoQuestionResponse.B,
-  //                     AutoQuestionResponse.C,
-  //                     AutoQuestionResponse.D,
-  //                     AutoQuestionResponse.E,
-  //                     AutoQuestionResponse.F,
-  //                     AutoQuestionResponse.G,
-  //                     AutoQuestionResponse.H,
-  //                     AutoQuestionResponse.I,
-  //                     AutoQuestionResponse.J,
-  //                     AutoQuestionResponse.K,
-  //                     AutoQuestionResponse.L)),
-  //             new AutoQuestion(
-  //                 "Third Scoring Height?",
-  //                 List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3,
-  // AutoQuestionResponse.L4)),
-  //             new AutoQuestion(
-  //                 "Third Intaking Position?",
-  //                 List.of(
-  //                     AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.RIGHT_BACK_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_BACK_CORALSTATION))),
-  //         autoBuilder.ThreeAuto());
-
-  //     autoSelector.addRoutine(
-  //         "2 Coral flexible",
-  //         List.of(
-  //             new AutoQuestion(
-  //                 "Starting location?",
-  //                 List.of(
-  //                     AutoQuestionResponse.FAR_LEFT,
-  //                     AutoQuestionResponse.MID_LEFT,
-  //                     AutoQuestionResponse.MID_RIGHT,
-  //                     AutoQuestionResponse.FAR_RIGHT)),
-  //             new AutoQuestion(
-  //                 "First Scoring Location?",
-  //                 List.of(
-  //                     AutoQuestionResponse.A,
-  //                     AutoQuestionResponse.B,
-  //                     AutoQuestionResponse.C,
-  //                     AutoQuestionResponse.D,
-  //                     AutoQuestionResponse.E,
-  //                     AutoQuestionResponse.F,
-  //                     AutoQuestionResponse.G,
-  //                     AutoQuestionResponse.H,
-  //                     AutoQuestionResponse.I,
-  //                     AutoQuestionResponse.J,
-  //                     AutoQuestionResponse.K,
-  //                     AutoQuestionResponse.L)),
-  //             new AutoQuestion(
-  //                 "First Scoring Height?",
-  //                 List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3,
-  // AutoQuestionResponse.L4)),
-  //             new AutoQuestion(
-  //                 "First Intaking Position?",
-  //                 List.of(
-  //                     AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.RIGHT_BACK_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_BACK_CORALSTATION)),
-  //             new AutoQuestion(
-  //                 "Second Scoring Location?",
-  //                 List.of(
-  //                     AutoQuestionResponse.A,
-  //                     AutoQuestionResponse.B,
-  //                     AutoQuestionResponse.C,
-  //                     AutoQuestionResponse.D,
-  //                     AutoQuestionResponse.E,
-  //                     AutoQuestionResponse.F,
-  //                     AutoQuestionResponse.G,
-  //                     AutoQuestionResponse.H,
-  //                     AutoQuestionResponse.I,
-  //                     AutoQuestionResponse.J,
-  //                     AutoQuestionResponse.K,
-  //                     AutoQuestionResponse.L)),
-  //             new AutoQuestion(
-  //                 "Second Scoring Height?",
-  //                 List.of(AutoQuestionResponse.L2, AutoQuestionResponse.L3,
-  // AutoQuestionResponse.L4)),
-  //             new AutoQuestion(
-  //                 "Second Intaking Position?",
-  //                 List.of(
-  //                     AutoQuestionResponse.RIGHT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.RIGHT_BACK_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_FORWARD_CORALSTATION,
-  //                     AutoQuestionResponse.LEFT_BACK_CORALSTATION))),
-  //         autoBuilder.TwoAuto());
-  //   }
-
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
@@ -416,8 +145,8 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    // Default command, normal field-relative drive
-    Trigger stow = new Trigger(() -> Superstructure.getCurrentState() == SuperState.STOW);
+    // kinda stupid but it works
+    Container<Translation2d> AAFFSupplier = new Container<>();
 
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
@@ -490,23 +219,54 @@ public class RobotContainer {
 
     AAL2.onTrue(
             superstructure
-                .setWantedSuperStateCommand(SuperState.L2)
+                .setWantedSuperStateCommand(SuperState.L2PREPARE)
                 .andThen(
                     new InstantCommand(
                         () -> {
                           reefAlignController =
                               new ReefAlignController(
                                   drive,
+                                  () -> AAFFSupplier.value,
                                   () ->
                                       RobotState.getInstance()
                                               .getDistanceToNearestReef(drive.getPose())
                                           < 1.0,
                                   () -> false);
                         })))
-        .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW))
+        .onFalse(
+            new WaitCommand(.5)
+                .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L2))
+                .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)))
+        .onFalse(
+            DriveCommands.joystickDrive(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () -> -controller.getRightX()))
         .whileTrue(
             new InstantCommand(
                     () -> {
+                      AAFFSupplier.value =
+                          DriveCommands.getLinearVelocityFromJoysticks(
+                                  -controller.getLeftY(), -controller.getLeftX())
+                              .times(RobotState.getInstance().getModuleLimits().maxDriveVelocity())
+                              .rotateBy(
+                                  AllianceFlipUtil.shouldFlip()
+                                      ? new Rotation2d(Math.PI)
+                                      : new Rotation2d())
+                              .plus(
+                                  DriveCommands.getLinearVelocityFromJoysticks(
+                                          -controller.getLeftY(), -controller.getLeftX())
+                                      .times(
+                                          RobotState.getInstance()
+                                              .getModuleLimits()
+                                              .maxDriveVelocity())
+                                      .rotateBy(
+                                          AllianceFlipUtil.shouldFlip()
+                                              ? new Rotation2d(Math.PI)
+                                              : new Rotation2d())
+                                      .times(0.02));
+
                       drive.runVelocity(reefAlignController.update().get());
                     },
                     drive)
@@ -523,7 +283,7 @@ public class RobotContainer {
     noAAL2
         .onTrue(superstructure.setWantedSuperStateCommand(SuperState.L2PREPARE))
         .onFalse(
-            new WaitCommand(1)
+            new WaitCommand(.4)
                 .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L2))
                 .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
 
@@ -542,7 +302,7 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 () -> RobotState.getInstance().getNearestReefPose(drive.getPose()).getRotation()))
         .onFalse(
-            new WaitCommand(1)
+            new WaitCommand(.4)
                 .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L2))
                 .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
 
@@ -552,20 +312,24 @@ public class RobotContainer {
 
     AAL3.onTrue(
             superstructure
-                .setWantedSuperStateCommand(SuperState.L3)
+                .setWantedSuperStateCommand(SuperState.L3PREPARE)
                 .andThen(
                     new InstantCommand(
                         () -> {
                           reefAlignController =
                               new ReefAlignController(
                                   drive,
+                                  () -> AAFFSupplier.value,
                                   () ->
                                       RobotState.getInstance()
                                               .getDistanceToNearestReef(drive.getPose())
                                           < 1.0,
                                   () -> false);
                         })))
-        .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW))
+        .onFalse(
+            new WaitCommand(.5)
+                .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L3))
+                .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)))
         .onFalse(
             DriveCommands.joystickDrive(
                 drive,
@@ -575,6 +339,26 @@ public class RobotContainer {
         .whileTrue(
             new InstantCommand(
                     () -> {
+                      AAFFSupplier.value =
+                          DriveCommands.getLinearVelocityFromJoysticks(
+                                  -controller.getLeftY(), -controller.getLeftX())
+                              .times(RobotState.getInstance().getModuleLimits().maxDriveVelocity())
+                              .rotateBy(
+                                  AllianceFlipUtil.shouldFlip()
+                                      ? new Rotation2d(Math.PI)
+                                      : new Rotation2d())
+                              .plus(
+                                  DriveCommands.getLinearVelocityFromJoysticks(
+                                          -controller.getLeftY(), -controller.getLeftX())
+                                      .times(
+                                          RobotState.getInstance()
+                                              .getModuleLimits()
+                                              .maxDriveVelocity())
+                                      .rotateBy(
+                                          AllianceFlipUtil.shouldFlip()
+                                              ? new Rotation2d(Math.PI)
+                                              : new Rotation2d())
+                                      .times(0.02));
                       drive.runVelocity(reefAlignController.update().get());
                     },
                     drive)
@@ -591,7 +375,7 @@ public class RobotContainer {
     noAAL3
         .onTrue(superstructure.setWantedSuperStateCommand(SuperState.L3PREPARE))
         .onFalse(
-            new WaitCommand(1)
+            new WaitCommand(.4)
                 .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L3))
                 .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
 
@@ -610,7 +394,7 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 () -> RobotState.getInstance().getNearestReefPose(drive.getPose()).getRotation()))
         .onFalse(
-            new WaitCommand(1)
+            new WaitCommand(.4)
                 .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L3))
                 .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
 
@@ -620,20 +404,24 @@ public class RobotContainer {
 
     AAL4.onTrue(
             superstructure
-                .setWantedSuperStateCommand(SuperState.L4)
+                .setWantedSuperStateCommand(SuperState.L4PREPARE)
                 .andThen(
                     new InstantCommand(
                         () -> {
                           reefAlignController =
                               new ReefAlignController(
                                   drive,
+                                  () -> AAFFSupplier.value,
                                   () ->
                                       RobotState.getInstance()
                                               .getDistanceToNearestReef(drive.getPose())
                                           < 1.0,
                                   () -> false);
                         })))
-        .onFalse(superstructure.setWantedSuperStateCommand(SuperState.STOW))
+        .onFalse(
+            new WaitCommand(.5)
+                .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L4))
+                .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)))
         .onFalse(
             DriveCommands.joystickDrive(
                 drive,
@@ -643,6 +431,26 @@ public class RobotContainer {
         .whileTrue(
             new InstantCommand(
                     () -> {
+                      AAFFSupplier.value =
+                          DriveCommands.getLinearVelocityFromJoysticks(
+                                  -controller.getLeftY(), -controller.getLeftX())
+                              .times(RobotState.getInstance().getModuleLimits().maxDriveVelocity())
+                              .rotateBy(
+                                  AllianceFlipUtil.shouldFlip()
+                                      ? new Rotation2d(Math.PI)
+                                      : new Rotation2d())
+                              .plus(
+                                  DriveCommands.getLinearVelocityFromJoysticks(
+                                          -controller.getLeftY(), -controller.getLeftX())
+                                      .times(
+                                          RobotState.getInstance()
+                                              .getModuleLimits()
+                                              .maxDriveVelocity())
+                                      .rotateBy(
+                                          AllianceFlipUtil.shouldFlip()
+                                              ? new Rotation2d(Math.PI)
+                                              : new Rotation2d())
+                                      .times(0.02));
                       drive.runVelocity(reefAlignController.update().get());
                     },
                     drive)
@@ -662,7 +470,7 @@ public class RobotContainer {
     noAAL4
         .onTrue(superstructure.setWantedSuperStateCommand(SuperState.L4PREPARE))
         .onFalse(
-            new WaitCommand(1)
+            new WaitCommand(.4)
                 .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L4))
                 .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
 
@@ -681,7 +489,7 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 () -> RobotState.getInstance().getNearestReefPose(drive.getPose()).getRotation()))
         .onFalse(
-            new WaitCommand(1)
+            new WaitCommand(.4)
                 .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L4))
                 .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
 

@@ -30,7 +30,7 @@ public class Wrist extends SubsystemBase {
     map.put(SuperState.L1, new LoggedTunableNumber("Wrist/L1Position", 1.8));
     map.put(SuperState.L2, new LoggedTunableNumber("Wrist/L2Position", 3.2));
     map.put(SuperState.L3, new LoggedTunableNumber("Wrist/L3Position", 3.2));
-    map.put(SuperState.L4, new LoggedTunableNumber("Wrist/L4Position", 3.4));
+    map.put(SuperState.L4, new LoggedTunableNumber("Wrist/L4Position", 3.6));
 
     map.put(SuperState.L1PREPARE, map.get(SuperState.L1));
     map.put(SuperState.L2PREPARE, map.get(SuperState.L2));

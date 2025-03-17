@@ -23,7 +23,7 @@ import org.littletonrobotics.junction.Logger;
 @ExtensionMethod({GeomUtil.class})
 public class AutonReefAlignController {
   private static final LoggedTunableNumber linearkP =
-      new LoggedTunableNumber("AutonAlign/drivekP", .85);
+      new LoggedTunableNumber("AutonAlign/drivekP", .95);
   private static final LoggedTunableNumber linearkD =
       new LoggedTunableNumber("AutonAlign/drivekD", 0.0);
 
@@ -41,7 +41,7 @@ public class AutonReefAlignController {
   private static final LoggedTunableNumber thetaTolerance =
       new LoggedTunableNumber("AutonAlign/controllerThetaTolerance", Units.degreesToRadians(2));
   private static final LoggedTunableNumber toleranceTime =
-      new LoggedTunableNumber("AutonAlign/controllerToleranceSecs", 0.3);
+      new LoggedTunableNumber("AutonAlign/controllerToleranceSecs", 0.25);
   //   private static final LoggedTunableNumber maxLinearVelocity =
   //       new LoggedTunableNumber(
   //           "AutonAlign/maxLinearVelocity", TunerConstants.driveConfig.maxLinearVelocity());
@@ -168,23 +168,22 @@ public class AutonReefAlignController {
         new Translation2d(fieldVelocity.vxMetersPerSecond, fieldVelocity.vyMetersPerSecond)
             .getNorm();
     // This one works
-    linearController.reset(
-        currentPose.getTranslation().getDistance(goalPose.getTranslation()), linearVelocity);
+    // linearController.reset(
+    //     currentPose.getTranslation().getDistance(goalPose.getTranslation()), linearVelocity);
 
     // Mechanical Advantage's 2025 approach for their auto align. It may work?
-    // linearController.reset(
-    //     currentPose.getTranslation().getDistance(goalPose.getTranslation()),
-    //     Math.min(
-    //         0.0,
-    //         -linearFieldVelocity
-    //             .rotateBy(
-    //                 goalPose
-    //                     .getTranslation()
-    //                     .minus(currentPose.getTranslation())
-    //                     .getAngle()
-    //                     .unaryMinus())
-    //             .getX()));
-
+    linearController.reset(
+        currentPose.getTranslation().getDistance(goalPose.getTranslation()),
+        Math.min(
+            0.0,
+            -linearFieldVelocity
+                .rotateBy(
+                    goalPose
+                        .getTranslation()
+                        .minus(currentPose.getTranslation())
+                        .getAngle()
+                        .unaryMinus())
+                .getX()));
     thetaController.reset(currentPose.getRotation().getRadians());
     lastSetpointTranslation = currentPose.getTranslation();
   }

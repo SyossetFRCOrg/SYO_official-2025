@@ -108,9 +108,9 @@ public class AutoChooser extends SendableChooser<Auto> {
               "FR START FORWARD CORAL STATION FED",
               AutoFactory::FarRightStartForwardCoralStationFED),
           new AutoProgram(
-              Auto.FRSTARTFORWARDCORALSTATIONEDC,
-              "FR START FORWARD CORAL STATION EDC",
-              AutoFactory::FarRightStartForwardCoralStationEDC),
+              Auto.FRSTARTFORWARDCORALSTATIONFDC,
+              "FR START FORWARD CORAL STATION FDC",
+              AutoFactory::FarRightStartForwardCoralStationFDC),
           new AutoProgram(
               Auto.FRSTARTFORWARDCORALSTATIONEFG,
               "FR START FORWARD CORAL STATION EFG",

@@ -187,10 +187,8 @@ public class Superstructure extends SubsystemBase {
   private boolean ready(SuperState state) {
     return switch (state) {
         // also has to be at alignment goal to score
-      case L2, L3, L4 ->
-          elevator.atSetPoint(state)
-              && wrist.atSetPoint(state)
-              && container.getReefAlignController().atGoal();
+      case L2, L3, L4 -> elevator.atSetPoint(state) && wrist.atSetPoint(state);
+        // && container.getReefAlignController().atGoal();
         // L1 is prospectively manual driving alignment
       case L1 -> elevator.atSetPoint(state) && wrist.atSetPoint(state);
       case INTAKE -> elevator.atSetPoint(state);

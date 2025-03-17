@@ -86,33 +86,23 @@ public class RobotState {
     new Pose2d(16.37734603881836, 7.141775608062744, Rotation2d.fromRadians(0.9389806255220727)),
   };
 
+  // in order, blue A-L and then red A-L
   public static final int[] tagList = {18, 17, 22, 21, 20, 19, 7, 8, 9, 10, 11, 6};
 
   // for practice fields like Arumdaun
   private Pose2d[][] reefscoringPositionsPractice = // not finalized or tuned.
-      { // DON'T use alliancefliputil to flip to get corresponding red scoring pose2ds THEY ARE ALL
-    // HERE AND WILL BE TUNED FOR EACH FIELD
-
-    // blue positions, in the order of A, B, C, etc. Using tuningTempPose to tune on practice day
-    // (for practice fields)
+      {
     {
-      new Pose2d(3.041071103970148, 4.293447909270577, Rotation2d.fromDegrees(-3.0783260740831717)),
-      new Pose2d(
-          3.0683496108296837, 3.9108521991330374, Rotation2d.fromDegrees(-1.3530922714832148))
+      new Pose2d(3.035805043411255, 4.182767868041992, Rotation2d.fromDegrees(0)),
+      new Pose2d(3.035805043411255, 3.8617191314697266, Rotation2d.fromDegrees(0))
     },
     {
-      new Pose2d(3.60906001701, 2.83975443317, Rotation2d.fromDegrees(60.0)),
-      new Pose2d(3.89478060379, 2.67338571025, Rotation2d.fromDegrees(60)),
+      new Pose2d(3.6188, 2.84801, Rotation2d.fromDegrees(60)),
+      new Pose2d(3.8880816027179366, 2.6979360979593423, Rotation2d.fromDegrees(55.55251942824823)),
     },
     {
-      new Pose2d(
-          5.007975101470947 + (Units.inchesToMeters(5) / 2.0),
-          2.7906148433685303 - (Units.inchesToMeters(5) * Math.sin(Math.PI / 3)),
-          Rotation2d.fromDegrees(120)),
-      new Pose2d(
-          5.295468807220459 + (Units.inchesToMeters(5) / 2.0),
-          2.952014684677124 - (Units.inchesToMeters(5) * Math.sin(Math.PI / 3)),
-          Rotation2d.fromDegrees(120)),
+      new Pose2d(4.959644001960754395, 2.68101, Rotation2d.fromDegrees(120)),
+      new Pose2d(5.293663674429707, 2.8533856345831374, Rotation2d.fromDegrees(119.27960984178554)),
     },
     {
       new Pose2d(
@@ -125,52 +115,43 @@ public class RobotState {
           Rotation2d.fromDegrees(180)),
     },
     {
-      new Pose2d(5.416180952724039, 5.15533300102414, Rotation2d.fromDegrees(-124)),
-      new Pose2d(5.104646308735331, 5.31305427615843, Rotation2d.fromDegrees(-120.49203483381365)),
+      new Pose2d(5.368289222717285, 5.235887756347656, Rotation2d.fromDegrees(-120)),
+      new Pose2d(5.111470928192139, 5.392832508087158, Rotation2d.fromDegrees(-120)),
+    },
+    {
+      new Pose2d(3.8932504449234008789, 5.3975392832508087158, Rotation2d.fromDegrees(-60)),
+      new Pose2d(3.602333632564544678, 5.231181619834899902, Rotation2d.fromDegrees(-60)),
+    },
+
+    // red alliance, also in order of A, B, C, etc
+    {
+      new Pose2d(14.539, 3.900, Rotation2d.fromDegrees(-178.379)),
+      new Pose2d(
+          14.44165855591995367, 4.2523386002392076, Rotation2d.fromDegrees(-180.17210675287777))
+    },
+    {
+      new Pose2d(13.991158714294434, 5.256573905944824, Rotation2d.fromDegrees(-120)),
+      new Pose2d(13.708047142028809, 5.413857688903809, Rotation2d.fromDegrees(-120)),
     },
     {
       new Pose2d(
-          3.8784240482492045, 5.3663110371013865, Rotation2d.fromDegrees(-52.83859951538885)),
-      new Pose2d(3.6415587639550885, 5.203588735653487, Rotation2d.fromDegrees(-61.75839876694931)),
+          12.448975945229831, 5.391850951541687, Rotation2d.fromDegrees(-57.931551216345206)),
+      new Pose2d(12.103763639987946, 5.297896918328212, Rotation2d.fromDegrees(-58.27866028322585)),
     },
-
-    // // red alliance, also in order of A, B, C, etc
-    // {
-    //   new Pose2d(
-    //       14.585301176984437, 3.896938165617065, Rotation2d.fromDegrees(-177.90584757021125)),
-    //   new Pose2d(14.58023245172989, 4.262148436741021,
-    // Rotation2d.fromDegrees(-178.18264814361783))
-    // },
-    // {
-    //   new Pose2d(
-    //       13.795372583823335, 5.199808161686881, Rotation2d.fromDegrees(-112.19009068279485)),
-    //   new Pose2d(
-    //       13.678263570728163, 5.075483712029739, Rotation2d.fromDegrees(-119.35380053745384)),
-    // },
-    // {
-    //   new Pose2d(12.553411573962745, 5.522220199513951,
-    // Rotation2d.fromDegrees(-75.56430507216514)),
-    //   new Pose2d(12.220190239970675, 5.313180552341106,
-    // Rotation2d.fromDegrees(-66.59963907787123)),
-    // },
-    // {
-    //   new Pose2d(11.434800574539622, 4.120487765593584,
-    // Rotation2d.fromDegrees(4.258431286310804)),
-    //   new Pose2d(
-    //       11.630359866710407, 3.8171459032191764, Rotation2d.fromDegrees(0.4258799558972908)),
-    // },
-    // {
-    //   new Pose2d(12.059619122520424, 2.9011493331040046,
-    // Rotation2d.fromDegrees(46.74099652124185)),
-    //   new Pose2d(12.569388978911922, 2.666802085718384,
-    // Rotation2d.fromDegrees(59.87328091953917)),
-    // },
-    // {
-    //   new Pose2d(13.658877514318094, 2.858955012982499,
-    // Rotation2d.fromDegrees(135.41335183195721)),
-    //   new Pose2d(14.14544804013203, 2.993801028186214,
-    // Rotation2d.fromDegrees(134.30460726161323)),
-    // },
+    {
+      new Pose2d(11.588984260559082, 4.186556816101074, Rotation2d.fromRadians(0)),
+      new Pose2d(11.588498611450195, 3.8510172367095947, Rotation2d.fromRadians(0)),
+    },
+    {
+      new Pose2d(12.20763469696045, 2.7914857959747314, Rotation2d.fromDegrees(60)),
+      new Pose2d(12.480260620117188, 2.602744827270508, Rotation2d.fromDegrees(60)),
+    },
+    {
+      AllianceFlipUtil.apply(
+          new Pose2d(3.8932504449234008789, 5.3975392832508087158, Rotation2d.fromDegrees(-60))),
+      AllianceFlipUtil.apply(
+          new Pose2d(3.602333632564544678, 5.231181619834899902, Rotation2d.fromDegrees(-60))),
+    },
   };
 
   // for official fields // not finalized or tuned.
@@ -191,9 +172,14 @@ public class RobotState {
       new Pose2d(5.3597538566589355, 2.84801, Rotation2d.fromDegrees(120)),
     },
     {
-      new Pose2d(6.0959417724609375, 3.801184997558594, Rotation2d.fromDegrees(180)),
-      AllianceFlipUtil.apply(
-          new Pose2d(11.588498611450195, 3.8510172367095947, Rotation2d.fromRadians(0)))
+      new Pose2d(
+          5.814974784851074 + Units.inchesToMeters(5),
+          3.8649332523345947,
+          Rotation2d.fromDegrees(180)),
+      new Pose2d(
+          5.814974784851074 + Units.inchesToMeters(5),
+          4.177645683288574,
+          Rotation2d.fromDegrees(180)),
     },
     {
       new Pose2d(5.368289222717285, 5.235887756347656, Rotation2d.fromDegrees(-120)),

@@ -21,7 +21,7 @@ import lombok.Builder;
 public class TunerConstants {
 
   // how to figure out how to tune this properly
-  public static final double wheelRadius = Units.inchesToMeters(1.745 /*Wheel radius */);
+  public static final double wheelRadius = Units.inchesToMeters(1.735 /*Wheel radius */);
 
   public static final DriveConfig driveConfig =
       DriveConfig.builder()
@@ -300,10 +300,10 @@ public class TunerConstants {
       new ModuleLimits(3, 2.5, Units.degreesToRadians(1080.0));
 
   public static final ModuleLimits moduleLimitsL3Elevator =
-      new ModuleLimits(2.5, 1.6, Units.degreesToRadians(1080.0));
+      new ModuleLimits(3, 2.4, Units.degreesToRadians(1080.0));
 
   public static final ModuleLimits moduleLimitsL4Elevator =
-      new ModuleLimits(2, .5, Units.degreesToRadians(1080.0));
+      new ModuleLimits(2, 1, Units.degreesToRadians(1080.0));
 
   /**
    * Creates a CommandSwerveDrivetrain instance. This should only be called once in your robot

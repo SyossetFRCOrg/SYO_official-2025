@@ -27,7 +27,7 @@ import frc.robot.util.LoggedTunableNumber;
  */
 public class ElevatorIOTalonFX implements ElevatorIO {
 
-  private static final double GEAR_RATIO = 4.6875 * 4.0 / 3.0;
+  private static final double GEAR_RATIO = 4.6875 * 5.0 / 3.0;
   // public static final double maxspeed = 5600.0 / GEAR_RATIO; // rpm
 
   private double desiredPosRads;
@@ -99,11 +99,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     talonConfig.MotionMagic.MotionMagicJerk = motionMagicJerk.get();
 
     talonConfig.Feedback.SensorToMechanismRatio = GEAR_RATIO;
-    talonConfig.TorqueCurrent.PeakForwardTorqueCurrent = 120;
-    talonConfig.TorqueCurrent.PeakReverseTorqueCurrent = -120;
+    talonConfig.TorqueCurrent.PeakForwardTorqueCurrent = 175;
+    talonConfig.TorqueCurrent.PeakReverseTorqueCurrent = -175;
     talonConfig.CurrentLimits.StatorCurrentLimit = 120;
     talonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    talonConfig.CurrentLimits.SupplyCurrentLimit = 80;
+    talonConfig.CurrentLimits.SupplyCurrentLimit = 120;
     talonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     // tryUntilOk(5, () -> followertalon.getConfigurator().apply(talonConfig, 0.25));
@@ -175,8 +175,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
       elevatorRequest.Jerk = motionMagicJerk.get();
 
     } else if (desiredPosRads < Units.rotationsToRadians(elevatorPosition.getValueAsDouble())) {
-      elevatorRequest.Velocity = motionMagicVelocity.get() * .5;
-      elevatorRequest.Acceleration = motionMagicAcceleration.get() * .5;
+      elevatorRequest.Velocity = motionMagicVelocity.get();
+      elevatorRequest.Acceleration = motionMagicAcceleration.get() * .35;
       elevatorRequest.Jerk = motionMagicJerk.get() * .5;
     }
 
@@ -194,8 +194,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     inputs.motorConnected = elevatorConnectedDebounce.calculate(talonStatus.isOK());
 
     inputs.positionRads = Units.rotationsToRadians(elevatorPosition.getValueAsDouble());
-    inputs.velocityRadsPerSec =
-        Units.rotationsPerMinuteToRadiansPerSecond(elevatorVelocity.getValueAsDouble());
+    inputs.velocityRadsPerSec = elevatorVelocity.getValueAsDouble();
     inputs.appliedVoltage = elevatorAppliedVolts.getValueAsDouble();
     inputs.supplyCurrentAmps = elevatorCurrent.getValueAsDouble();
     inputs.torqueCurrentAmps = elevatorTorqueCurrent.getValueAsDouble();

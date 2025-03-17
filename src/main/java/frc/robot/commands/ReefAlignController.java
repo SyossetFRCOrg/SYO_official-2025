@@ -37,7 +37,7 @@ public class ReefAlignController {
   private static final LoggedTunableNumber thetaTolerance =
       new LoggedTunableNumber("AutoAlign/controllerThetaTolerance", Units.degreesToRadians(2));
   private static final LoggedTunableNumber toleranceTime =
-      new LoggedTunableNumber("AutoAlign/controllerToleranceSecs", 0.2);
+      new LoggedTunableNumber("AutoAlign/controllerToleranceSecs", 0.25);
   //   private static final LoggedTunableNumber maxLinearVelocity =
   //       new LoggedTunableNumber(
   //           "AutoAlign/maxLinearVelocity", TunerConstants.driveConfig.maxLinearVelocity());
@@ -65,13 +65,13 @@ public class ReefAlignController {
   //       new LoggedTunableNumber("AutoAlign/slowAngularAcceleration",
   //       TunerConstants.driveConfig.maxAngularAcceleration() * 0.8);
   private static final LoggedTunableNumber ffMinRadius =
-      new LoggedTunableNumber("AutoAlign/ffMinRadius", 0.6);
+      new LoggedTunableNumber("AutoAlign/ffMinRadius", 0.4);
   private static final LoggedTunableNumber ffMaxRadius =
       new LoggedTunableNumber("AutoAlign/ffMaxRadius", 0.8);
 
   private final Pose2d desiredPose;
   private final Drive drive;
-  //   private final Supplier<Translation2d> feedforwardSupplier;
+  private final Supplier<Translation2d> feedforwardSupplier;
   private final BooleanSupplier slowMode;
   private final BooleanSupplier toggle;
   private Translation2d lastSetpointTranslation;
@@ -89,14 +89,41 @@ public class ReefAlignController {
 
   public ReefAlignController(
       Drive drive,
-      //   Supplier<Translation2d> feedforwardSupplier,
+      //  Supplier<Translation2d> feedforwardSupplier,
       BooleanSupplier slowMode,
       BooleanSupplier toggle) {
     this.drive = drive;
     this.toggle = toggle;
     this.desiredPose = RobotState.getInstance().getNearestReefPose(drive.getPose(), toggle);
 
-    // this.feedforwardSupplier = feedforwardSupplier;
+    this.feedforwardSupplier = () -> new Translation2d();
+    this.slowMode = slowMode;
+    // Set up both controllers
+
+    linearController =
+        new ProfiledPIDController(
+            linearkP.get(), 0, linearkD.get(), new TrapezoidProfile.Constraints(0, 0));
+    linearController.setTolerance(linearTolerance.get());
+    thetaController =
+        new ProfiledPIDController(
+            thetakP.get(), 0, thetakD.get(), new TrapezoidProfile.Constraints(0, 0));
+    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+    thetaController.setTolerance(thetaTolerance.get());
+    toleranceTimer.restart();
+    updateConstraints();
+    resetControllers();
+  }
+
+  public ReefAlignController(
+      Drive drive,
+      Supplier<Translation2d> feedforwardSupplier,
+      BooleanSupplier slowMode,
+      BooleanSupplier toggle) {
+    this.drive = drive;
+    this.toggle = toggle;
+    this.desiredPose = RobotState.getInstance().getNearestReefPose(drive.getPose(), toggle);
+
+    this.feedforwardSupplier = feedforwardSupplier;
     this.slowMode = slowMode;
     // Set up both controllers
 
@@ -225,9 +252,7 @@ public class ReefAlignController {
     double currentDistance = currentPose.getTranslation().getDistance(targetPose.getTranslation());
     double ffScaler = // 1.0;
         MathUtil.clamp(
-            (currentDistance - ffMinRadius.get()) / (ffMaxRadius.get() - ffMinRadius.get()),
-            0.4,
-            0.8);
+            (currentDistance - ffMinRadius.get()) / (ffMaxRadius.get() - ffMinRadius.get()), 0, 1);
 
     linearController.reset(
         linearController.getSetpoint().position, linearController.getSetpoint().velocity);
@@ -288,8 +313,8 @@ public class ReefAlignController {
                 new Translation2d(0, 0),
                 currentPose.getTranslation().minus(targetPose.getTranslation()).getAngle())
             .transformBy(GeomUtil.toTransform2d(driveVelocityScalar, 0.0))
-            .getTranslation();
-    // .plus(feedforwardSupplier.get());
+            .getTranslation()
+            .plus(feedforwardSupplier.get());
     final double finalThetaVelocity = thetaVelocity;
 
     updateConstraints();
