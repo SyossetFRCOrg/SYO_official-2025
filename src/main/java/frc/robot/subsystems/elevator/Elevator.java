@@ -27,15 +27,15 @@ public class Elevator extends SubsystemBase {
   private static final HashMap<SuperState, LoggedTunableNumber> initializeHeights() {
     var map = new HashMap<SuperState, LoggedTunableNumber>();
     // to be tuned
-    map.put(SuperState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 0));
-    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 30));
+    map.put(SuperState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 24));
+    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 28.45));
     map.put(SuperState.INTAKELOW, new LoggedTunableNumber("Elevator/LOWIntakePosition", 27.25));
     map.put(SuperState.L1, new LoggedTunableNumber("Elevator/L1Position", 11));
-    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 34.5));
-    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 48.5));
-    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 72.5));
+    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 33.5));
+    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 47.5));
+    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 71));
 
-    map.put(SuperState.L2L3ALGAE, new LoggedTunableNumber("Elevator/L2L3A", 30.7));
+    map.put(SuperState.L2L3ALGAE, new LoggedTunableNumber("Elevator/L2L3A", 29.7));
     map.put(
         SuperState.L3L4ALGAE,
         new LoggedTunableNumber("Elevator/L3L4A", map.get(SuperState.L3).get() - 5));

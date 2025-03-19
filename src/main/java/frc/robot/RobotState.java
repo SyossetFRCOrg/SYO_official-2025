@@ -62,7 +62,12 @@ public class RobotState {
   @AutoLogOutput(key = "RobotState/reefAutoAligning")
   @Getter
   @Setter
-  private volatile boolean reefAutoAligning = false;
+  private volatile boolean reefAutoAligning = true;
+
+  @AutoLogOutput(key = "RobotState/limitSwitching")
+  @Getter
+  @Setter
+  private volatile boolean limitSwitching = true;
 
   @AutoLogOutput(key = "RobotState/reefAutoAiming")
   @Getter
@@ -93,64 +98,138 @@ public class RobotState {
   private Pose2d[][] reefscoringPositionsPractice = // not finalized or tuned.
       {
     {
-      new Pose2d(3.035805043411255, 4.182767868041992, Rotation2d.fromDegrees(0)),
-      new Pose2d(3.035805043411255, 3.8617191314697266, Rotation2d.fromDegrees(0))
-    },
-    {
-      new Pose2d(3.6188, 2.84801, Rotation2d.fromDegrees(60)),
-      new Pose2d(3.8880816027179366, 2.6979360979593423, Rotation2d.fromDegrees(55.55251942824823)),
-    },
-    {
-      new Pose2d(4.959644001960754395, 2.68101, Rotation2d.fromDegrees(120)),
-      new Pose2d(5.293663674429707, 2.8533856345831374, Rotation2d.fromDegrees(119.27960984178554)),
+      new Pose2d(
+          3.165418872833252 - Units.inchesToMeters(1.75),
+          4.173290481567383,
+          Rotation2d.fromDegrees(0)),
+      new Pose2d(
+          3.165418872833252 - Units.inchesToMeters(1.75),
+          3.858736753463745,
+          Rotation2d.fromDegrees(0))
     },
     {
       new Pose2d(
-          5.814974784851074 + Units.inchesToMeters(5),
-          3.8649332523345947,
+          3.6852595386505127 - Units.inchesToMeters(1.75) / 2.0,
+          2.9454032344818115 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          Rotation2d.fromDegrees(60)),
+      new Pose2d(
+          3.9753434658050537 - Units.inchesToMeters(1.75) / 2.0,
+          2.793973445892334 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          Rotation2d.fromDegrees(60)),
+    },
+    {
+      new Pose2d(
+          5.0181637210845947 + Units.inchesToMeters(1.75) / 2.0,
+          2.803973445892334 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          Rotation2d.fromDegrees(120)),
+      new Pose2d(
+          5.296333312988281 + Units.inchesToMeters(1.75) / 2.0,
+          2.947709321975708 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          Rotation2d.fromDegrees(120)),
+    },
+    {
+      new Pose2d(
+          5.825868129730225 + Units.inchesToMeters(1.75),
+          3.8744309043884277,
           Rotation2d.fromDegrees(180)),
       new Pose2d(
-          5.814974784851074 + Units.inchesToMeters(5),
-          4.177645683288574,
+          5.825868129730225 + Units.inchesToMeters(1.75),
+          4.183290481567383,
           Rotation2d.fromDegrees(180)),
     },
     {
-      new Pose2d(5.368289222717285, 5.235887756347656, Rotation2d.fromDegrees(-120)),
-      new Pose2d(5.111470928192139, 5.392832508087158, Rotation2d.fromDegrees(-120)),
+      new Pose2d(
+          5.2896333312988281 + Units.inchesToMeters(1.75) / 2.0,
+          5.0910011825561523 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          Rotation2d.fromDegrees(-120)),
+      new Pose2d(
+          5.011637210845947 + Units.inchesToMeters(1.75) / 2.0,
+          5.2550011825561525 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          Rotation2d.fromDegrees(-120)),
     },
     {
-      new Pose2d(3.8932504449234008789, 5.3975392832508087158, Rotation2d.fromDegrees(-60)),
-      new Pose2d(3.602333632564544678, 5.231181619834899902, Rotation2d.fromDegrees(-60)),
+      new Pose2d(
+          3.9653434658050537 - Units.inchesToMeters(1.75) / 2.0,
+          5.255135288238525 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          Rotation2d.fromDegrees(-60)),
+      new Pose2d(
+          3.6792595386505127 - Units.inchesToMeters(1.75) / 2.0,
+          5.095135288238525 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          Rotation2d.fromDegrees(-60)),
     },
 
     // red alliance, also in order of A, B, C, etc
     {
-      new Pose2d(14.539, 3.900, Rotation2d.fromDegrees(-178.379)),
-      new Pose2d(
-          14.44165855591995367, 4.2523386002392076, Rotation2d.fromDegrees(-180.17210675287777))
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              3.165418872833252 - Units.inchesToMeters(1.75),
+              4.173290481567383,
+              Rotation2d.fromDegrees(0))),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              3.165418872833252 - Units.inchesToMeters(1.75),
+              3.858736753463745,
+              Rotation2d.fromDegrees(0)))
     },
     {
-      new Pose2d(13.991158714294434, 5.256573905944824, Rotation2d.fromDegrees(-120)),
-      new Pose2d(13.708047142028809, 5.413857688903809, Rotation2d.fromDegrees(-120)),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              3.6852595386505127 - Units.inchesToMeters(1.75) / 2.0,
+              2.9454032344818115 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              Rotation2d.fromDegrees(60))),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              3.9753434658050537 - Units.inchesToMeters(1.75) / 2.0,
+              2.793973445892334 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              Rotation2d.fromDegrees(60))),
     },
     {
-      new Pose2d(
-          12.448975945229831, 5.391850951541687, Rotation2d.fromDegrees(-57.931551216345206)),
-      new Pose2d(12.103763639987946, 5.297896918328212, Rotation2d.fromDegrees(-58.27866028322585)),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              5.0181637210845947 + Units.inchesToMeters(1.75) / 2.0,
+              2.803973445892334 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              Rotation2d.fromDegrees(120))),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              5.296333312988281 + Units.inchesToMeters(1.75) / 2.0,
+              2.947709321975708 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              Rotation2d.fromDegrees(120))),
     },
     {
-      new Pose2d(11.588984260559082, 4.186556816101074, Rotation2d.fromRadians(0)),
-      new Pose2d(11.588498611450195, 3.8510172367095947, Rotation2d.fromRadians(0)),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              5.825868129730225 + Units.inchesToMeters(1.75),
+              3.8744309043884277,
+              Rotation2d.fromDegrees(180))),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              5.825868129730225 + Units.inchesToMeters(1.75),
+              4.183290481567383,
+              Rotation2d.fromDegrees(180))),
     },
     {
-      new Pose2d(12.20763469696045, 2.7914857959747314, Rotation2d.fromDegrees(60)),
-      new Pose2d(12.480260620117188, 2.602744827270508, Rotation2d.fromDegrees(60)),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              5.2896333312988281 + Units.inchesToMeters(1.75) / 2.0,
+              5.0910011825561523 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              Rotation2d.fromDegrees(-120))),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              5.011637210845947 + Units.inchesToMeters(1.75) / 2.0,
+              5.2550011825561525 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              Rotation2d.fromDegrees(-120))),
     },
     {
-      AllianceFlipUtil.apply(
-          new Pose2d(3.8932504449234008789, 5.3975392832508087158, Rotation2d.fromDegrees(-60))),
-      AllianceFlipUtil.apply(
-          new Pose2d(3.602333632564544678, 5.231181619834899902, Rotation2d.fromDegrees(-60))),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              3.9653434658050537 - Units.inchesToMeters(1.75) / 2.0,
+              5.255135288238525 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              Rotation2d.fromDegrees(-60))),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              3.6792595386505127 - Units.inchesToMeters(1.75) / 2.0,
+              5.095135288238525 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              Rotation2d.fromDegrees(-60))),
     },
   };
 
@@ -160,64 +239,138 @@ public class RobotState {
   // blue positions, in the order of A, B, C, etc. Using tuningTempPose to tune on practice day
   private Pose2d[][] reefscoringPositionsComp = {
     {
-      new Pose2d(3.035805043411255, 4.182767868041992, Rotation2d.fromDegrees(0)),
-      new Pose2d(3.035805043411255, 3.8617191314697266, Rotation2d.fromDegrees(0))
-    },
-    {
-      new Pose2d(3.6188, 2.84801, Rotation2d.fromDegrees(60)),
-      new Pose2d(3.895, 2.68101, Rotation2d.fromDegrees(60)),
-    },
-    {
-      new Pose2d(4.959644001960754395, 2.68101, Rotation2d.fromDegrees(120)),
-      new Pose2d(5.3597538566589355, 2.84801, Rotation2d.fromDegrees(120)),
+      new Pose2d(
+          3.165418872833252 - Units.inchesToMeters(1.75),
+          4.173290481567383,
+          Rotation2d.fromDegrees(0)),
+      new Pose2d(
+          3.165418872833252 - Units.inchesToMeters(1.75),
+          3.858736753463745,
+          Rotation2d.fromDegrees(0))
     },
     {
       new Pose2d(
-          5.814974784851074 + Units.inchesToMeters(5),
-          3.8649332523345947,
+          3.6852595386505127 - Units.inchesToMeters(1.75) / 2.0,
+          2.9454032344818115 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          Rotation2d.fromDegrees(60)),
+      new Pose2d(
+          3.9753434658050537 - Units.inchesToMeters(1.75) / 2.0,
+          2.793973445892334 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          Rotation2d.fromDegrees(60)),
+    },
+    {
+      new Pose2d(
+          5.0181637210845947 + Units.inchesToMeters(1.75) / 2.0,
+          2.803973445892334 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          Rotation2d.fromDegrees(120)),
+      new Pose2d(
+          5.296333312988281 + Units.inchesToMeters(1.75) / 2.0,
+          2.947709321975708 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          Rotation2d.fromDegrees(120)),
+    },
+    {
+      new Pose2d(
+          5.825868129730225 + Units.inchesToMeters(1.75),
+          3.8744309043884277,
           Rotation2d.fromDegrees(180)),
       new Pose2d(
-          5.814974784851074 + Units.inchesToMeters(5),
-          4.177645683288574,
+          5.825868129730225 + Units.inchesToMeters(1.75),
+          4.183290481567383,
           Rotation2d.fromDegrees(180)),
     },
     {
-      new Pose2d(5.368289222717285, 5.235887756347656, Rotation2d.fromDegrees(-120)),
-      new Pose2d(5.111470928192139, 5.392832508087158, Rotation2d.fromDegrees(-120)),
+      new Pose2d(
+          5.2896333312988281 + Units.inchesToMeters(1.75) / 2.0,
+          5.0910011825561523 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          Rotation2d.fromDegrees(-120)),
+      new Pose2d(
+          5.011637210845947 + Units.inchesToMeters(1.75) / 2.0,
+          5.2550011825561525 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          Rotation2d.fromDegrees(-120)),
     },
     {
-      new Pose2d(3.8932504449234008789, 5.3975392832508087158, Rotation2d.fromDegrees(-60)),
-      new Pose2d(3.602333632564544678, 5.231181619834899902, Rotation2d.fromDegrees(-60)),
+      new Pose2d(
+          3.9653434658050537 - Units.inchesToMeters(1.75) / 2.0,
+          5.255135288238525 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          Rotation2d.fromDegrees(-60)),
+      new Pose2d(
+          3.6792595386505127 - Units.inchesToMeters(1.75) / 2.0,
+          5.095135288238525 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          Rotation2d.fromDegrees(-60)),
     },
 
     // red alliance, also in order of A, B, C, etc
     {
-      new Pose2d(14.539, 3.900, Rotation2d.fromDegrees(-178.379)),
-      new Pose2d(
-          14.44165855591995367, 4.2523386002392076, Rotation2d.fromDegrees(-180.17210675287777))
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              3.165418872833252 - Units.inchesToMeters(1.75),
+              4.173290481567383,
+              Rotation2d.fromDegrees(0))),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              3.165418872833252 - Units.inchesToMeters(1.75),
+              3.858736753463745,
+              Rotation2d.fromDegrees(0)))
     },
     {
-      new Pose2d(13.991158714294434, 5.256573905944824, Rotation2d.fromDegrees(-120)),
-      new Pose2d(13.708047142028809, 5.413857688903809, Rotation2d.fromDegrees(-120)),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              3.6852595386505127 - Units.inchesToMeters(1.75) / 2.0,
+              2.9454032344818115 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              Rotation2d.fromDegrees(60))),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              3.9753434658050537 - Units.inchesToMeters(1.75) / 2.0,
+              2.793973445892334 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              Rotation2d.fromDegrees(60))),
     },
     {
-      new Pose2d(
-          12.448975945229831, 5.391850951541687, Rotation2d.fromDegrees(-57.931551216345206)),
-      new Pose2d(12.103763639987946, 5.297896918328212, Rotation2d.fromDegrees(-58.27866028322585)),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              5.0181637210845947 + Units.inchesToMeters(1.75) / 2.0,
+              2.803973445892334 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              Rotation2d.fromDegrees(120))),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              5.296333312988281 + Units.inchesToMeters(1.75) / 2.0,
+              2.947709321975708 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              Rotation2d.fromDegrees(120))),
     },
     {
-      new Pose2d(11.588984260559082, 4.186556816101074, Rotation2d.fromRadians(0)),
-      new Pose2d(11.588498611450195, 3.8510172367095947, Rotation2d.fromRadians(0)),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              5.825868129730225 + Units.inchesToMeters(1.75),
+              3.8744309043884277,
+              Rotation2d.fromDegrees(180))),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              5.825868129730225 + Units.inchesToMeters(1.75),
+              4.183290481567383,
+              Rotation2d.fromDegrees(180))),
     },
     {
-      new Pose2d(12.20763469696045, 2.7914857959747314, Rotation2d.fromDegrees(60)),
-      new Pose2d(12.480260620117188, 2.602744827270508, Rotation2d.fromDegrees(60)),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              5.2896333312988281 + Units.inchesToMeters(1.75) / 2.0,
+              5.0910011825561523 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              Rotation2d.fromDegrees(-120))),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              5.011637210845947 + Units.inchesToMeters(1.75) / 2.0,
+              5.2550011825561525 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              Rotation2d.fromDegrees(-120))),
     },
     {
-      AllianceFlipUtil.apply(
-          new Pose2d(3.8932504449234008789, 5.3975392832508087158, Rotation2d.fromDegrees(-60))),
-      AllianceFlipUtil.apply(
-          new Pose2d(3.602333632564544678, 5.231181619834899902, Rotation2d.fromDegrees(-60))),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              3.9653434658050537 - Units.inchesToMeters(1.75) / 2.0,
+              5.255135288238525 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              Rotation2d.fromDegrees(-60))),
+      AllianceFlipUtil.forcedApply(
+          new Pose2d(
+              3.6792595386505127 - Units.inchesToMeters(1.75) / 2.0,
+              5.095135288238525 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              Rotation2d.fromDegrees(-60))),
     },
   };
 

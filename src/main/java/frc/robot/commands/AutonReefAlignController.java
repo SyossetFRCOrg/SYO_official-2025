@@ -28,7 +28,7 @@ public class AutonReefAlignController {
       new LoggedTunableNumber("AutonAlign/drivekD", 0.0);
 
   private static final LoggedTunableNumber linearkI =
-      new LoggedTunableNumber("AutonAlign/drivekI", 7.5);
+      new LoggedTunableNumber("AutonAlign/drivekI", 10.0);
 
   private static final LoggedTunableNumber thetakP =
       new LoggedTunableNumber("AutonAlign/thetakP", 4.5);
@@ -41,7 +41,7 @@ public class AutonReefAlignController {
   private static final LoggedTunableNumber thetaTolerance =
       new LoggedTunableNumber("AutonAlign/controllerThetaTolerance", Units.degreesToRadians(2));
   private static final LoggedTunableNumber toleranceTime =
-      new LoggedTunableNumber("AutonAlign/controllerToleranceSecs", 0.25);
+      new LoggedTunableNumber("AutonAlign/controllerToleranceSecs", 0.18);
   //   private static final LoggedTunableNumber maxLinearVelocity =
   //       new LoggedTunableNumber(
   //           "AutonAlign/maxLinearVelocity", TunerConstants.driveConfig.maxLinearVelocity());
@@ -149,7 +149,7 @@ public class AutonReefAlignController {
       thetaController.setConstraints(
           new TrapezoidProfile.Constraints(maxAngularVelocity.get(), maxAngularAcceleration.get()));
       linearController.setPID(linearkP.get(), linearkI.get(), linearkD.get());
-      linearController.setIZone(0.2);
+      linearController.setIZone(0.15);
     }
   }
 

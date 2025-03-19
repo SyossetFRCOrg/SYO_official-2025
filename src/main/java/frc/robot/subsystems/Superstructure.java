@@ -101,6 +101,7 @@ public class Superstructure extends SubsystemBase {
 
     Logger.recordOutput("RobotState/reefAutoAiming", RobotState.getInstance().isReefAutoAiming());
 
+    Logger.recordOutput("RobotState/isLSwitching", RobotState.getInstance().isLimitSwitching());
     Logger.recordOutput(
         "RobotState/intakeAutoAiming", RobotState.getInstance().isIntakeAutoAiming());
 

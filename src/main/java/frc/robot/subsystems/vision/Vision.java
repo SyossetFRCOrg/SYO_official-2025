@@ -117,7 +117,7 @@ public class Vision extends SubsystemBase {
                 || (Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond) > (Math.PI * 3.0 / 4.0)
                     && observation.type()
                         == PoseObservationType.MEGATAG_2) // reject if omega too high
-                || (observation.averageTagDistance() < .4
+                || (observation.averageTagDistance() < .45
                     && observation.type()
                         == PoseObservationType.MEGATAG_1) // instability for MT1 when too near
             ;

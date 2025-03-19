@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import static frc.robot.subsystems.vision.VisionConstants.camera0Name;
 import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
+import static frc.robot.subsystems.vision.VisionConstants.camera2Name;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
@@ -29,7 +30,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.subsystems.climber.Climber;
-import frc.robot.subsystems.climber.ClimberIOSparkMax;
+import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
@@ -102,13 +103,12 @@ public class RobotContainer {
             drive::addVisionMeasurement,
             drive,
             new VisionIOLimelight(camera0Name, drive::getRotation),
-            new VisionIOLimelight(camera1Name, drive::getRotation)
-            // new VisionIOLimelight(camera2Name, drive::getRotation)
-            );
+            new VisionIOLimelight(camera1Name, drive::getRotation),
+            new VisionIOLimelight(camera2Name, drive::getRotation));
 
     reefAlignController = new ReefAlignController(drive, () -> false, () -> false);
 
-    climber = new Climber(new ClimberIOSparkMax());
+    climber = new Climber(new ClimberIOTalonFX());
 
     superstructure = new Superstructure(drive, elevator, wrist, this);
 
@@ -541,7 +541,8 @@ public class RobotContainer {
                 RobotState.getInstance()
                     .setReefAutoAiming(!RobotState.getInstance().isReefAutoAiming())));
 
-    Trigger elevatorUpManual = new Trigger(() -> buttonboard.getRawButton(6));
+    Trigger elevatorUpManual =
+        new Trigger(() -> buttonboard.getRawButton(6) && !(buttonboard.getRawAxis(3) > .5));
     elevatorUpManual.whileTrue(
         new InstantCommand(
                 () -> {
@@ -550,7 +551,8 @@ public class RobotContainer {
             .repeatedly()
             .ignoringDisable(true));
 
-    Trigger elevatorDownManual = new Trigger(() -> buttonboard.getRawAxis(3) > .5);
+    Trigger elevatorDownManual =
+        new Trigger(() -> (buttonboard.getRawAxis(3) > .5) && !buttonboard.getRawButton(6));
     elevatorDownManual.whileTrue(
         new InstantCommand(
                 () -> {
@@ -558,6 +560,16 @@ public class RobotContainer {
                 })
             .repeatedly()
             .ignoringDisable(true));
+
+    Trigger limitSwitching =
+        new Trigger(() -> (buttonboard.getRawAxis(3) > .5) && buttonboard.getRawButton(6));
+
+    limitSwitching.onTrue(
+        new InstantCommand(
+            () -> {
+              RobotState.getInstance()
+                  .setLimitSwitching(!RobotState.getInstance().isLimitSwitching());
+            }));
 
     Trigger wristUpManual = new Trigger(() -> controller.getPOV() == 90);
     // reseting wrist and elevator encoder to their "zero" positions

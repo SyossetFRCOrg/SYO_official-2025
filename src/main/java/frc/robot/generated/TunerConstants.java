@@ -303,7 +303,7 @@ public class TunerConstants {
       new ModuleLimits(3, 2.4, Units.degreesToRadians(1080.0));
 
   public static final ModuleLimits moduleLimitsL4Elevator =
-      new ModuleLimits(2, 1, Units.degreesToRadians(1080.0));
+      new ModuleLimits(1.6, .9, Units.degreesToRadians(1080.0));
 
   /**
    * Creates a CommandSwerveDrivetrain instance. This should only be called once in your robot

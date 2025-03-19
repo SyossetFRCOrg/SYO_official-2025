@@ -53,7 +53,8 @@ import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
 
-  private Timer dtTimer = new Timer();
+  private double currentTime;
+  private double dt;
 
   private ChassisSpeeds previousChassisSpeeds = new ChassisSpeeds();
 
@@ -261,7 +262,8 @@ public class Drive extends SubsystemBase {
   public void runVelocity(ChassisSpeeds speeds) {
 
     Logger.recordOutput("SwerveStates/desiredspeeds", speeds);
-
+    dt = Timer.getFPGATimestamp() - currentTime;
+    currentTime = Timer.getFPGATimestamp();
     // the following serves as global translational acceleration limiting
 
     Translation2d prevSpeedsTranslation = GeomUtil.toTranslation2d(previousChassisSpeeds);
@@ -274,9 +276,7 @@ public class Drive extends SubsystemBase {
     double maxTranslationDeltaPerLoopRatio =
         TranslationDelta
                 .getNorm() /*magnitude of difference of current and desired velocity vectors*/
-            / (RobotState.getInstance().getModuleLimits().maxDriveAcceleration() * .02);
-
-    dtTimer.reset();
+            / (RobotState.getInstance().getModuleLimits().maxDriveAcceleration() * dt);
 
     if (maxTranslationDeltaPerLoopRatio > 1) {
       // have to make it so that it approaches prevSpeedsTranslation in a
@@ -291,11 +291,11 @@ public class Drive extends SubsystemBase {
     speeds.vxMetersPerSecond = desiredSpeedsTranslation.getX();
     speeds.vyMetersPerSecond = desiredSpeedsTranslation.getY();
     // Calculate module setpoints
-    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, dt);
     // SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
     currentSetpoint =
         setpointGenerator.generateSetpoint(
-            TunerConstants.moduleLimitsFree, currentSetpoint, discreteSpeeds, 0.02);
+            TunerConstants.moduleLimitsFree, currentSetpoint, discreteSpeeds, dt);
     SwerveDriveKinematics.desaturateWheelSpeeds(
         currentSetpoint.moduleStates(),
         RobotState.getInstance().getModuleLimits().maxDriveVelocity());

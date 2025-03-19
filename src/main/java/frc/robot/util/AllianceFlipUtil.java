@@ -36,6 +36,26 @@ public class AllianceFlipUtil {
         : pose;
   }
 
+  public static Rotation2d forcedApply(Rotation2d rotation) {
+    return rotation.rotateBy(Rotation2d.kPi);
+  }
+
+  public static double forcedApplyX(double x) {
+    return Units.inchesToMeters(690.876) - x;
+  }
+
+  public static double forcedApplyY(double y) {
+    return Units.inchesToMeters(317) - y;
+  }
+
+  public static Translation2d forcedApply(Translation2d translation) {
+    return new Translation2d(forcedApplyX(translation.getX()), forcedApplyY(translation.getY()));
+  }
+
+  public static Pose2d forcedApply(Pose2d pose) {
+    return new Pose2d(forcedApply(pose.getTranslation()), forcedApply(pose.getRotation()));
+  }
+
   // public static VehicleState apply(VehicleState state) {
   //   return shouldFlip()
   //       ? VehicleState.newBuilder()
