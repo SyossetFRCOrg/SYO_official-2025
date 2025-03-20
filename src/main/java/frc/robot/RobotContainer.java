@@ -546,7 +546,7 @@ public class RobotContainer {
     elevatorUpManual.whileTrue(
         new InstantCommand(
                 () -> {
-                  elevator.setHeight(elevator.getHeight() - .05);
+                  elevator.setHeight(elevator.getHeight() - .1);
                 })
             .repeatedly()
             .ignoringDisable(true));
@@ -556,7 +556,7 @@ public class RobotContainer {
     elevatorDownManual.whileTrue(
         new InstantCommand(
                 () -> {
-                  elevator.setHeight(elevator.getHeight() + .05);
+                  elevator.setHeight(elevator.getHeight() + .1);
                 })
             .repeatedly()
             .ignoringDisable(true));
@@ -644,7 +644,7 @@ public class RobotContainer {
             // superstructure
             //     .setWantedSuperStateCommand(SuperState.L1PREPARE)
             // .alongWith(
-            climber.setMotorVoltage(-6))
+            climber.setMotorVoltage(-4))
         // )
         .onFalse(climber.setMotorVoltage(0));
 
@@ -654,7 +654,7 @@ public class RobotContainer {
             // superstructure
             //     .setWantedSuperStateCommand(SuperState.L1PREPARE)
             // .alongWith(
-            climber.setMotorVoltage(6))
+            climber.setMotorVoltage(4))
         // )
         .onFalse(climber.setMotorVoltage(0));
   }
