@@ -15,7 +15,7 @@
   "waypoints":[
     {"x":{"exp":"3.527975082397461 m", "val":3.527975082397461}, "y":{"exp":"2.6750354766845703 m", "val":2.6750354766845703}, "heading":{"exp":"60 deg", "val":1.0471975511965976}, "intervals":57, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"1.9238111972808838 m", "val":1.923811197280884}, "y":{"exp":"1.1168581247329712 m", "val":1.1168581247329712}, "heading":{"exp":"RIGHTBACKCORALSTATION.heading", "val":-2.22}, "intervals":19, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"RIGHTFORWARDCORALSTATION.x", "val":1.406800518035889}, "y":{"exp":"RIGHTFORWARDCORALSTATION.y", "val":0.6450898139953614}, "heading":{"exp":"RIGHTFORWARDCORALSTATION.heading", "val":-2.2162658510874333}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"RIGHTFORWARDCORALSTATION.x", "val":1.386800518035889}, "y":{"exp":"RIGHTFORWARDCORALSTATION.y", "val":0.7310898139953608}, "heading":{"exp":"RIGHTFORWARDCORALSTATION.heading", "val":-2.2162658510874333}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true}],

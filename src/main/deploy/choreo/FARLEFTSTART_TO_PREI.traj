@@ -17,7 +17,7 @@
     {"x":{"exp":"6.22595739364624 m", "val":6.22595739364624}, "y":{"exp":"6.043944358825684 m", "val":6.043944358825684}, "heading":{"exp":"-2.12510403007896 rad", "val":-2.12510403007896}, "intervals":6, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
-    {"from":1, "to":1, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"ReefApproachSpeed", "val":1.0}}}, "enabled":true},
+    {"from":1, "to":1, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"ReefApproachSpeed", "val":0.4}}}, "enabled":true},
     {"from":1, "to":1, "data":{"type":"MaxAngularVelocity", "props":{"max":{"exp":"0.1 rad / s", "val":0.1}}}, "enabled":true}],
   "targetDt":{
    "exp":"0.05 s",

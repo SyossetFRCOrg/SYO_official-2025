@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.RobotState;
 import frc.robot.subsystems.vision.LimelightHelpers.PoseEstimate;
@@ -52,11 +53,20 @@ public class VisionIOLimelight implements VisionIO {
   @Override
   public void updateInputs(VisionIOInputs inputs) {
 
-    LimelightHelpers.SetFiducialIDFiltersOverride(
-        name,
-        new int[] {
-          RobotState.getInstance().getNearestReefTagID(RobotState.getInstance().getRobotPose())
-        });
+    if (DriverStation.isDisabled()) {
+      LimelightHelpers.SetFiducialIDFiltersOverride(
+          name,
+          new int[] {
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+            24, 25, 36, 27, 28, 29, 30
+          });
+    } else {
+      LimelightHelpers.SetFiducialIDFiltersOverride(
+          name,
+          new int[] {
+            RobotState.getInstance().getNearestReefTagID(RobotState.getInstance().getRobotPose())
+          });
+    }
 
     latencySubscriber = LimelightHelpers.getLatency_Pipeline(name);
     txSubscriber = LimelightHelpers.getTX(name);

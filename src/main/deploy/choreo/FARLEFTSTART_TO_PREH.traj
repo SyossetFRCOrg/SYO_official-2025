@@ -19,7 +19,7 @@
     {"x":{"exp":"6.638735294342041 m", "val":6.638735294342041}, "y":{"exp":"4.424356937408447 m", "val":4.424356937408447}, "heading":{"exp":"180 deg", "val":3.141592653589793}, "intervals":11, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
-    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"ReefApproachSpeed", "val":1.0}}}, "enabled":true},
+    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"ReefApproachSpeed", "val":0.4}}}, "enabled":true},
     {"from":2, "to":2, "data":{"type":"MaxAngularVelocity", "props":{"max":{"exp":"0.1 rad / s", "val":0.1}}}, "enabled":true}],
   "targetDt":{
    "exp":"0.05 s",

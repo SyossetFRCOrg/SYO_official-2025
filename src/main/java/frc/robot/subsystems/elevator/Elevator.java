@@ -28,12 +28,12 @@ public class Elevator extends SubsystemBase {
     var map = new HashMap<SuperState, LoggedTunableNumber>();
     // to be tuned
     map.put(SuperState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 24));
-    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 28.45));
-    map.put(SuperState.INTAKELOW, new LoggedTunableNumber("Elevator/LOWIntakePosition", 27.25));
+    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 27.35));
+    map.put(SuperState.INTAKELOW, new LoggedTunableNumber("Elevator/LOWIntakePosition", 25.95));
     map.put(SuperState.L1, new LoggedTunableNumber("Elevator/L1Position", 11));
-    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 33.5));
-    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 47.5));
-    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 71));
+    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 32.6));
+    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 47));
+    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 70.7));
 
     map.put(SuperState.L2L3ALGAE, new LoggedTunableNumber("Elevator/L2L3A", 29.7));
     map.put(
@@ -82,7 +82,7 @@ public class Elevator extends SubsystemBase {
 
     applyStates();
 
-    if (!zeroLimitSwitch.get()) {
+    if (!zeroLimitSwitch.get() && RobotState.getInstance().isLimitSwitching()) {
       io.setHeight(0);
     }
     // System.out.println(zeroLimitSwitch.get());

@@ -16,13 +16,13 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"MIDRIGHTSTART.x", "val":7.1287428855896}, "y":{"exp":"MIDRIGHTSTART.y", "val":3.2365356796264653}, "heading":{"exp":"MIDRIGHTSTART.heading", "val":-3.141592653589793}, "intervals":60, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"MIDRIGHTSTART.x", "val":7.4287428855896}, "y":{"exp":"MIDRIGHTSTART.y", "val":3.336535679626465}, "heading":{"exp":"MIDRIGHTSTART.heading", "val":-3.141592653589793}, "intervals":60, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"4.129729270935059 m", "val":4.129729270935059}, "y":{"exp":"1.8511790037155151 m", "val":1.8511790037155151}, "heading":{"exp":"60 deg", "val":1.0471975511965976}, "intervals":11, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"3.9462661743164062 m", "val":3.9462661743164062}, "y":{"exp":"2.0142574310302734 m", "val":2.0142574310302734}, "heading":{"exp":"60 deg", "val":1.0471975511965976}, "intervals":13, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"first", "to":"last", "data":{"type":"KeepInRectangle", "props":{"x":{"exp":"0 m", "val":0.0}, "y":{"exp":"0 m", "val":0.0}, "w":{"exp":"17.548 m", "val":17.548}, "h":{"exp":"8.052 m", "val":8.052}}}, "enabled":true},
-    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"ReefApproachSpeed", "val":1.0}}}, "enabled":true},
+    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"ReefApproachSpeed", "val":0.4}}}, "enabled":true},
     {"from":1, "to":2, "data":{"type":"MaxAngularVelocity", "props":{"max":{"exp":"0.1 rad / s", "val":0.1}}}, "enabled":true},
     {"from":0, "to":1, "data":{"type":"KeepOutCircle", "props":{"x":{"exp":"4.561031616292894 m", "val":4.561031616292894}, "y":{"exp":"3.9079005047678947 m", "val":3.9079005047678943}, "r":{"exp":"1 m", "val":1.0}}}, "enabled":true}],
   "targetDt":{

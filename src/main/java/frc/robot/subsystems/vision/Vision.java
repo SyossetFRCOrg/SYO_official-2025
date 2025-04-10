@@ -11,6 +11,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
@@ -120,7 +121,8 @@ public class Vision extends SubsystemBase {
                 || (observation.averageTagDistance() < .45
                     && observation.type()
                         == PoseObservationType.MEGATAG_1) // instability for MT1 when too near
-            ;
+                || (observation.type() == PoseObservationType.MEGATAG_2
+                    && DriverStation.isDisabled());
 
         // Add pose to log
         robotPoses.add(observation.pose());
@@ -151,10 +153,12 @@ public class Vision extends SubsystemBase {
         double thetastdDevFactor =
             Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
 
+        // if (DriverStation.isEnabled()) {
         // The farther the current estimate is from the pose right now, the less we trust it.
         // It should still allow for correction when we are very off because of the many poses
         // coming in continuously.
-        // This is meant to allow for that extreme correction (albeit slow) while making occasional
+        // This is meant to allow for that extreme correction (albeit slow) while making
+        // occasional
         // nonsense
         // negligible.
         if (observation
@@ -191,7 +195,8 @@ public class Vision extends SubsystemBase {
         }
 
         // same for rotational corrections.
-        // However, also increase linear StdDev because the way MT1 works, if it returns a rotation
+        // However, also increase linear StdDev because the way MT1 works, if it returns a
+        // rotation
         // that is very off, it takes the translation with it as well. This should already be
         // compensated for
         // in the translational adjustments, but this is for more safety
@@ -246,13 +251,16 @@ public class Vision extends SubsystemBase {
           // linearstdDevFactor *= 5;
         }
 
-        // for some reason mt2 is also somewhat jumpy near the tag, which messes up auto align since
+        // for some reason mt2 is also somewhat jumpy near the tag, which messes up auto align
+        // since
         // the
-        // pose itself jumps so often. This should smooth it out while still not directly neglecting
+        // pose itself jumps so often. This should smooth it out while still not directly
+        // neglecting
         // the new pose inputs.
         if (observation.averageTagDistance() < 1) {
           thetastdDevFactor *= 4000000;
         }
+        // }
 
         double linearStdDev = linearStdDevBaseline * linearstdDevFactor;
         double angularStdDev = angularStdDevBaseline * thetastdDevFactor;

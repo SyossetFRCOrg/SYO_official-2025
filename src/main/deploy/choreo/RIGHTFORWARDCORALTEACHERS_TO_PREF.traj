@@ -14,12 +14,13 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"RIGHTFORWARDCORALSTATION.x", "val":1.406800518035889}, "y":{"exp":"RIGHTFORWARDCORALSTATION.y", "val":0.6450898139953614}, "heading":{"exp":"RIGHTFORWARDCORALSTATION.heading", "val":-2.2162658510874333}, "intervals":66, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"RIGHTFORWARDCORALSTATION.x", "val":1.386800518035889}, "y":{"exp":"RIGHTFORWARDCORALSTATION.y", "val":0.7310898139953608}, "heading":{"exp":"RIGHTFORWARDCORALSTATION.heading", "val":-2.2162658510874333}, "intervals":66, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"5.7892746925354 m", "val":5.7892746925354}, "y":{"exp":"2.015846014022827 m", "val":2.015846014022827}, "heading":{"exp":"2.141179467286725 rad", "val":2.141179467286725}, "intervals":11, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"5.758603572845459 m", "val":5.758603572845459}, "y":{"exp":"2.2458786964416504 m", "val":2.2458786964416504}, "heading":{"exp":"2.141179467286725 rad", "val":2.141179467286725}, "intervals":20, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"5.758603572845459 m", "val":5.758603572845459}, "y":{"exp":"2.2458786964416504 m", "val":2.2458786964416504}, "heading":{"exp":"2.141179467286725 rad", "val":2.141179467286725}, "intervals":20, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"1.386800518035889 m", "val":1.386800518035889}, "y":{"exp":"0.7310898139953608 m", "val":0.7310898139953608}, "heading":{"exp":"-2.2162658510874333 rad", "val":-2.2162658510874333}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
-    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"ReefApproachSpeed", "val":1.0}}}, "enabled":true},
+    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"ReefApproachSpeed", "val":0.4}}}, "enabled":true},
     {"from":1, "to":1, "data":{"type":"MaxAngularVelocity", "props":{"max":{"exp":"0.1 rad / s", "val":0.1}}}, "enabled":true}],
   "targetDt":{
    "exp":"0.05 s",

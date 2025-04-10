@@ -274,7 +274,7 @@ public class RobotContainer {
                 .until(() -> reefAlignController.atGoal())
                 .andThen(
                     new ParallelRaceGroup(
-                        new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
+                        new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.2))));
 
     Trigger noAAL2 =
         new Trigger(
@@ -283,7 +283,7 @@ public class RobotContainer {
     noAAL2
         .onTrue(superstructure.setWantedSuperStateCommand(SuperState.L2PREPARE))
         .onFalse(
-            new WaitCommand(.4)
+            new WaitCommand(.2)
                 .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L2))
                 .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
 
@@ -302,7 +302,7 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 () -> RobotState.getInstance().getNearestReefPose(drive.getPose()).getRotation()))
         .onFalse(
-            new WaitCommand(.4)
+            new WaitCommand(.2)
                 .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L2))
                 .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
 
@@ -366,7 +366,7 @@ public class RobotContainer {
                 .until(() -> reefAlignController.atGoal())
                 .andThen(
                     new ParallelRaceGroup(
-                        new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
+                        new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.2))));
 
     Trigger noAAL3 =
         new Trigger(
@@ -375,7 +375,7 @@ public class RobotContainer {
     noAAL3
         .onTrue(superstructure.setWantedSuperStateCommand(SuperState.L3PREPARE))
         .onFalse(
-            new WaitCommand(.4)
+            new WaitCommand(.2)
                 .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L3))
                 .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
 
@@ -394,7 +394,7 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 () -> RobotState.getInstance().getNearestReefPose(drive.getPose()).getRotation()))
         .onFalse(
-            new WaitCommand(.4)
+            new WaitCommand(.2)
                 .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L3))
                 .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
 
@@ -458,7 +458,7 @@ public class RobotContainer {
                 .until(() -> reefAlignController.atGoal())
                 .andThen(
                     new ParallelRaceGroup(
-                        new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.4))));
+                        new ControllerRumbleCommand(controller, () -> true), new WaitCommand(.2))));
 
     Trigger noAAL4 =
         new Trigger(
@@ -470,7 +470,7 @@ public class RobotContainer {
     noAAL4
         .onTrue(superstructure.setWantedSuperStateCommand(SuperState.L4PREPARE))
         .onFalse(
-            new WaitCommand(.4)
+            new WaitCommand(.2)
                 .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L4))
                 .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
 
@@ -489,7 +489,7 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 () -> RobotState.getInstance().getNearestReefPose(drive.getPose()).getRotation()))
         .onFalse(
-            new WaitCommand(.4)
+            new WaitCommand(.2)
                 .deadlineFor(superstructure.setWantedSuperStateCommand(SuperState.L4))
                 .andThen(superstructure.setWantedSuperStateCommand(SuperState.STOW)));
 
@@ -546,7 +546,7 @@ public class RobotContainer {
     elevatorUpManual.whileTrue(
         new InstantCommand(
                 () -> {
-                  elevator.setHeight(elevator.getHeight() - .1);
+                  elevator.setHeight(elevator.getHeight() - .2);
                 })
             .repeatedly()
             .ignoringDisable(true));
@@ -556,7 +556,7 @@ public class RobotContainer {
     elevatorDownManual.whileTrue(
         new InstantCommand(
                 () -> {
-                  elevator.setHeight(elevator.getHeight() + .1);
+                  elevator.setHeight(elevator.getHeight() + .2);
                 })
             .repeatedly()
             .ignoringDisable(true));
@@ -641,21 +641,17 @@ public class RobotContainer {
         .onTrue(
             // moving elevator up during climb, we want the robot to lean backwards
             // so the chain doesn't touch the elevator (hopefully)
-            // superstructure
-            //     .setWantedSuperStateCommand(SuperState.L1PREPARE)
-            // .alongWith(
-            climber.setMotorVoltage(-4))
-        // )
+            superstructure
+                .setWantedSuperStateCommand(SuperState.L1PREPARE)
+                .alongWith(climber.setMotorVoltage(-6)))
         .onFalse(climber.setMotorVoltage(0));
 
     Trigger climberDownTrigger = new Trigger(() -> controller.getPOV() == 180);
     climberDownTrigger
         .onTrue(
-            // superstructure
-            //     .setWantedSuperStateCommand(SuperState.L1PREPARE)
-            // .alongWith(
-            climber.setMotorVoltage(4))
-        // )
+            superstructure
+                .setWantedSuperStateCommand(SuperState.L1PREPARE)
+                .alongWith(climber.setMotorVoltage(6)))
         .onFalse(climber.setMotorVoltage(0));
   }
 

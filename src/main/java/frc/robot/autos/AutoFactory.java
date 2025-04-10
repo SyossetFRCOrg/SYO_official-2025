@@ -76,13 +76,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.H, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREI));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREI)));
 
     c.addCommands(IntakeFollow(Location.I, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREJ));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREJ)));
@@ -100,13 +100,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.I, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREJ));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREJ)));
 
     c.addCommands(IntakeFollow(Location.J, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREK));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREK)));
@@ -124,13 +124,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.J, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREK));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREK)));
 
     c.addCommands(IntakeFollow(Location.K, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREL));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREL)));
@@ -148,13 +148,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.J, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREH));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREH)));
 
     c.addCommands(IntakeFollow(Location.H, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREI));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREI)));
@@ -172,13 +172,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.K, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREJ));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREJ)));
 
     c.addCommands(IntakeFollow(Location.J, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREI));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREI)));
@@ -198,13 +198,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.H, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREG));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREG)));
 
     c.addCommands(IntakeFollow(Location.G, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREI));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREI)));
@@ -222,13 +222,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.H, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREI));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREI)));
 
     c.addCommands(IntakeFollow(Location.I, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREJ));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREJ)));
@@ -246,13 +246,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.H, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREG));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREG)));
 
     c.addCommands(IntakeFollow(Location.G, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREI));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREI)));
@@ -270,13 +270,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.G, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREH));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREH)));
 
     c.addCommands(IntakeFollow(Location.H, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREI));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREI)));
@@ -294,13 +294,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.I, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREJ));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREJ)));
 
     c.addCommands(IntakeFollow(Location.J, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREK));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREK)));
@@ -318,13 +318,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.J, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREK));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREK)));
 
     c.addCommands(IntakeFollow(Location.K, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREL));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREL)));
@@ -342,13 +342,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.J, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREH));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREH)));
 
     c.addCommands(IntakeFollow(Location.H, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREI));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREI)));
@@ -366,13 +366,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.K, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREJ));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREJ)));
 
     c.addCommands(IntakeFollow(Location.J, Location.LEFTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTFORWARDCORALSTATION, Location.PREI));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTFORWARDCORALSTATION, Location.PREI)));
@@ -390,13 +390,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.K, Location.LEFTBACKCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTBACKCORALSTATION, Location.PREL));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTBACKCORALSTATION, Location.PREL)));
 
     c.addCommands(IntakeFollow(Location.L, Location.LEFTBACKCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTBACKCORALSTATION, Location.PREA));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTBACKCORALSTATION, Location.PREA)));
@@ -414,13 +414,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.L, Location.LEFTBACKCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTBACKCORALSTATION, Location.PREA));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTBACKCORALSTATION, Location.PREA)));
 
     c.addCommands(IntakeFollow(Location.A, Location.LEFTBACKCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.LEFTBACKCORALSTATION, Location.PREB));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.LEFTBACKCORALSTATION, Location.PREB)));
@@ -450,13 +450,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.G, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREF));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREF)));
 
     c.addCommands(IntakeFollow(Location.F, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREE));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREE)));
@@ -474,13 +474,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.F, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREE));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREE)));
 
     c.addCommands(IntakeFollow(Location.E, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PRED));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PRED)));
@@ -488,8 +488,8 @@ class AutoFactory {
     return c;
   }
 
-  Command FarRightStartForwardCoralStationFDC() {
-    PathPlannerPath firstSegment = loadSegment(Location.FARRIGHTSTART, Location.PREF);
+  Command FarRightStartForwardCoralStationEDC() {
+    PathPlannerPath firstSegment = loadSegment(Location.FARRIGHTSTART, Location.PREE);
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
@@ -497,14 +497,14 @@ class AutoFactory {
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
-    c.addCommands(IntakeFollow(Location.F, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(IntakeFollow(Location.E, Location.RIGHTFORWARDCORALSTATION));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PRED));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PRED)));
 
     c.addCommands(IntakeFollow(Location.D, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREC));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREC)));
@@ -522,13 +522,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.E, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREF));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREF)));
 
     c.addCommands(IntakeFollow(Location.F, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREG));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREG)));
@@ -546,13 +546,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.D, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREE));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREE)));
 
     c.addCommands(IntakeFollow(Location.E, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREF));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREF)));
@@ -570,13 +570,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.G, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREH));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREH)));
 
     c.addCommands(IntakeFollow(Location.H, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREF));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREF)));
@@ -594,13 +594,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.G, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREF));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREF)));
 
     c.addCommands(IntakeFollow(Location.F, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREE));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREE)));
@@ -618,13 +618,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.G, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREH));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREH)));
 
     c.addCommands(IntakeFollow(Location.G, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREF));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREF)));
@@ -642,13 +642,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.H, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREG));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREG)));
 
     c.addCommands(IntakeFollow(Location.G, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREF));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREF)));
@@ -666,13 +666,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.F, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREE));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREE)));
 
     c.addCommands(IntakeFollow(Location.E, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PRED));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PRED)));
@@ -690,13 +690,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.E, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PRED));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PRED)));
 
     c.addCommands(IntakeFollow(Location.D, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREC));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREC)));
@@ -714,13 +714,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.E, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREF));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREF)));
 
     c.addCommands(IntakeFollow(Location.F, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREG));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREG)));
@@ -738,13 +738,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.D, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREE));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREE)));
 
     c.addCommands(IntakeFollow(Location.E, Location.RIGHTFORWARDCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTFORWARDCORALSTATION, Location.PREF));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTFORWARDCORALSTATION, Location.PREF)));
@@ -762,13 +762,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.D, Location.RIGHTBACKCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTBACKCORALSTATION, Location.PREC));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTBACKCORALSTATION, Location.PREC)));
 
     c.addCommands(IntakeFollow(Location.C, Location.RIGHTBACKCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTBACKCORALSTATION, Location.PREB));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTBACKCORALSTATION, Location.PREB)));
@@ -786,13 +786,13 @@ class AutoFactory {
     c.addCommands(AutoAlignL4Score(firstSegment));
 
     c.addCommands(IntakeFollow(Location.C, Location.RIGHTBACKCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTBACKCORALSTATION, Location.PREB));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTBACKCORALSTATION, Location.PREB)));
 
     c.addCommands(IntakeFollow(Location.B, Location.RIGHTBACKCORALSTATION));
-    c.addCommands(waitSeconds(.01));
+    c.addCommands(waitSeconds(.04));
 
     c.addCommands(L3PrepareFollow(Location.RIGHTBACKCORALSTATION, Location.PREA));
     c.addCommands(AutoAlignL4Score(loadSegment(Location.RIGHTBACKCORALSTATION, Location.PREA)));
@@ -828,7 +828,7 @@ class AutoFactory {
                 .repeatedly()
                 .until(() -> autonreefAlignController.atGoal()))
         .andThen(superstructure.setWantedSuperStateCommand(SuperState.L4))
-        .andThen(waitSeconds(.4));
+        .andThen(waitSeconds(.5));
   }
 
   private Command AutoAlignL3Score(PathPlannerPath segment) {
@@ -859,7 +859,7 @@ class AutoFactory {
                     () ->
                         autonreefAlignController.atGoal()
                             && Superstructure.getCurrentState() == SuperState.L3))
-        .andThen(waitSeconds(.4));
+        .andThen(waitSeconds(.1));
   }
 
   private Command AutoAlignL2Score(PathPlannerPath segment) {
@@ -890,7 +890,7 @@ class AutoFactory {
                     () ->
                         autonreefAlignController.atGoal()
                             && Superstructure.getCurrentState() == SuperState.L2))
-        .andThen(waitSeconds(.4));
+        .andThen(waitSeconds(.1));
   }
 
   // Auto init helpers

@@ -13,12 +13,12 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"RIGHTBACKCORALSTATION.x", "val":0.755842995643616}, "y":{"exp":"RIGHTBACKCORALSTATION.y", "val":1.0931844680786105}, "heading":{"exp":"RIGHTBACKCORALSTATION.heading", "val":-2.22}, "intervals":53, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"RIGHTBACKCORALSTATION.x", "val":0.855842995643616}, "y":{"exp":"RIGHTBACKCORALSTATION.y", "val":1.199938446807861}, "heading":{"exp":"RIGHTBACKCORALSTATION.heading", "val":-2.22}, "intervals":53, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"2.8448586463928223 m", "val":2.8448586463928223}, "y":{"exp":"1.2644065618515015 m", "val":1.2644065618515017}, "heading":{"exp":"1.8270197348698154 rad", "val":1.8270197348698152}, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"3.2124130725860596 m", "val":3.2124130725860596}, "y":{"exp":"1.525022029876709 m", "val":1.525022029876709}, "heading":{"exp":"1.347319955436083 rad", "val":1.347319955436083}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
-    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"ReefApproachSpeed", "val":1.0}}}, "enabled":true}],
+    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"ReefApproachSpeed", "val":0.4}}}, "enabled":true}],
   "targetDt":{
    "exp":"0.05 s",
    "val":0.05

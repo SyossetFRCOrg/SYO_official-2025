@@ -13,12 +13,12 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"MIDRIGHTSTART.x", "val":7.1287428855896}, "y":{"exp":"MIDRIGHTSTART.y", "val":3.2365356796264653}, "heading":{"exp":"MIDRIGHTSTART.heading", "val":-3.141592653589793}, "intervals":14, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"MIDRIGHTSTART.x", "val":7.4287428855896}, "y":{"exp":"MIDRIGHTSTART.y", "val":3.336535679626465}, "heading":{"exp":"MIDRIGHTSTART.heading", "val":-3.141592653589793}, "intervals":14, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"6.851733684539795 m", "val":6.851733684539795}, "y":{"exp":"3.4901483058929443 m", "val":3.4901483058929443}, "heading":{"exp":"180 deg", "val":3.141592653589793}, "intervals":10, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"6.718599796295166 m", "val":6.718599796295166}, "y":{"exp":"3.6450419425964355 m", "val":3.645041942596435}, "heading":{"exp":"180 deg", "val":3.141592653589793}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
-    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"ReefApproachSpeed", "val":1.0}}}, "enabled":true}],
+    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"ReefApproachSpeed", "val":0.4}}}, "enabled":true}],
   "targetDt":{
    "exp":"0.05 s",
    "val":0.05

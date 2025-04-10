@@ -16,11 +16,11 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"RIGHTFORWARDCORALSTATION.x", "val":1.406800518035889}, "y":{"exp":"RIGHTFORWARDCORALSTATION.y", "val":0.6450898139953614}, "heading":{"exp":"RIGHTFORWARDCORALSTATION.heading", "val":-2.2162658510874333}, "intervals":70, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"RIGHTFORWARDCORALSTATION.x", "val":1.386800518035889}, "y":{"exp":"RIGHTFORWARDCORALSTATION.y", "val":0.7310898139953608}, "heading":{"exp":"RIGHTFORWARDCORALSTATION.heading", "val":-2.2162658510874333}, "intervals":70, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"6.740075588226318 m", "val":6.740075588226318}, "y":{"exp":"4.254829406738281 m", "val":4.254829406738281}, "heading":{"exp":"180 deg", "val":3.141592653589793}, "intervals":12, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
-    {"from":1, "to":1, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"ReefApproachSpeed", "val":1.0}}}, "enabled":true},
+    {"from":1, "to":1, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"ReefApproachSpeed", "val":0.4}}}, "enabled":true},
     {"from":1, "to":1, "data":{"type":"MaxAngularVelocity", "props":{"max":{"exp":"0.1 rad / s", "val":0.1}}}, "enabled":true},
     {"from":0, "to":1, "data":{"type":"KeepOutCircle", "props":{"x":{"exp":"4.916268348693848 m", "val":4.916268348693848}, "y":{"exp":"3.605213362723589 m", "val":3.605213362723589}, "r":{"exp":"0.625395543939468 m", "val":0.625395543939468}}}, "enabled":true},
     {"from":0, "to":1, "data":{"type":"KeepOutCircle", "props":{"x":{"exp":"4.427409738302231 m", "val":4.427409738302231}, "y":{"exp":"4.091536924242973 m", "val":4.091536924242973}, "r":{"exp":"1 m", "val":1.0}}}, "enabled":true},

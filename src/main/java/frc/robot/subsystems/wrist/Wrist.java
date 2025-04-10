@@ -27,10 +27,10 @@ public class Wrist extends SubsystemBase {
     map.put(SuperState.L2L3ALGAE, new LoggedTunableNumber("Wrist/L2L3AlgaePosition", 2.4));
     map.put(SuperState.L3L4ALGAE, map.get(SuperState.L2L3ALGAE));
 
-    map.put(SuperState.L1, new LoggedTunableNumber("Wrist/L1Position", 1.8));
+    map.put(SuperState.L1, new LoggedTunableNumber("Wrist/L1Position", 2.2));
     map.put(SuperState.L2, new LoggedTunableNumber("Wrist/L2Position", 3.2));
     map.put(SuperState.L3, new LoggedTunableNumber("Wrist/L3Position", 3.2));
-    map.put(SuperState.L4, new LoggedTunableNumber("Wrist/L4Position", 3.55));
+    map.put(SuperState.L4, new LoggedTunableNumber("Wrist/L4Position", 3.58));
 
     map.put(SuperState.L1PREPARE, map.get(SuperState.L1));
     map.put(SuperState.L2PREPARE, map.get(SuperState.L2));

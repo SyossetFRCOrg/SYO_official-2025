@@ -57,12 +57,12 @@
    },
    "LEFTFORWARDCORALSTATION":{
     "x":{
-     "exp":"1.576800518035889 m",
-     "val":1.576800518035889
+     "exp":"1.386800518035889 m",
+     "val":1.386800518035889
     },
     "y":{
-     "exp":"7.366710186004639 m",
-     "val":7.366710186004639
+     "exp":"7.320710186004639 m",
+     "val":7.320710186004639
     },
     "heading":{
      "exp":"2.2162658510874333 rad",
@@ -114,11 +114,11 @@
    "RIGHTFORWARDCORALSTATION":{
     "x":{
      "exp":"LEFTFORWARDCORALSTATION.x",
-     "val":1.576800518035889
+     "val":1.386800518035889
     },
     "y":{
      "exp":"317 inches - LEFTFORWARDCORALSTATION.y",
-     "val":0.6850898139953614
+     "val":0.7310898139953608
     },
     "heading":{
      "exp":"-LEFTFORWARDCORALSTATION.heading",

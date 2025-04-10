@@ -95,8 +95,7 @@ public class RobotState {
   public static final int[] tagList = {18, 17, 22, 21, 20, 19, 7, 8, 9, 10, 11, 6};
 
   // for practice fields like Arumdaun
-  private Pose2d[][] reefscoringPositionsPractice = // not finalized or tuned.
-      {
+  private Pose2d[][] reefscoringPositionsPractice = {
     {
       new Pose2d(
           3.165418872833252 - Units.inchesToMeters(1.75),
@@ -104,23 +103,23 @@ public class RobotState {
           Rotation2d.fromDegrees(0)),
       new Pose2d(
           3.165418872833252 - Units.inchesToMeters(1.75),
-          3.858736753463745,
+          3.778736753463745,
           Rotation2d.fromDegrees(0))
     },
     {
       new Pose2d(
-          3.6852595386505127 - Units.inchesToMeters(1.75) / 2.0,
-          2.9454032344818115 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          3.7052595386505127 - Units.inchesToMeters(1.75) / 2.0,
+          2.9254032344818115 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
           Rotation2d.fromDegrees(60)),
       new Pose2d(
-          3.9753434658050537 - Units.inchesToMeters(1.75) / 2.0,
-          2.793973445892334 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          3.9753434658050537 - Units.inchesToMeters(4.5) / 2.0,
+          2.793973445892334 - Units.inchesToMeters(4.5) * Math.sin(Math.PI / 3),
           Rotation2d.fromDegrees(60)),
     },
     {
       new Pose2d(
-          5.0181637210845947 + Units.inchesToMeters(1.75) / 2.0,
-          2.803973445892334 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          5.0181637210845947 + Units.inchesToMeters(2.25) / 2.0,
+          2.803973445892334 - Units.inchesToMeters(2.25) * Math.sin(Math.PI / 3),
           Rotation2d.fromDegrees(120)),
       new Pose2d(
           5.296333312988281 + Units.inchesToMeters(1.75) / 2.0,
@@ -143,8 +142,8 @@ public class RobotState {
           5.0910011825561523 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
           Rotation2d.fromDegrees(-120)),
       new Pose2d(
-          5.011637210845947 + Units.inchesToMeters(1.75) / 2.0,
-          5.2550011825561525 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          4.9981637210845947 + Units.inchesToMeters(2.3) / 2.0,
+          5.247050011825561525 + Units.inchesToMeters(2.3) * Math.sin(Math.PI / 3),
           Rotation2d.fromDegrees(-120)),
     },
     {
@@ -174,20 +173,20 @@ public class RobotState {
     {
       AllianceFlipUtil.forcedApply(
           new Pose2d(
-              3.6852595386505127 - Units.inchesToMeters(1.75) / 2.0,
+              3.6952595386505127 - Units.inchesToMeters(1.75) / 2.0,
               2.9454032344818115 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
               Rotation2d.fromDegrees(60))),
       AllianceFlipUtil.forcedApply(
           new Pose2d(
-              3.9753434658050537 - Units.inchesToMeters(1.75) / 2.0,
+              3.92053434658050537 - Units.inchesToMeters(1.75) / 2.0,
               2.793973445892334 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
               Rotation2d.fromDegrees(60))),
     },
     {
       AllianceFlipUtil.forcedApply(
           new Pose2d(
-              5.0181637210845947 + Units.inchesToMeters(1.75) / 2.0,
-              2.803973445892334 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              5.0181637210845947 + Units.inchesToMeters(2.25) / 2.0,
+              2.803973445892334 - Units.inchesToMeters(2.25) * Math.sin(Math.PI / 3),
               Rotation2d.fromDegrees(120))),
       AllianceFlipUtil.forcedApply(
           new Pose2d(
@@ -215,8 +214,8 @@ public class RobotState {
               Rotation2d.fromDegrees(-120))),
       AllianceFlipUtil.forcedApply(
           new Pose2d(
-              5.011637210845947 + Units.inchesToMeters(1.75) / 2.0,
-              5.2550011825561525 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              5.011637210845947 + Units.inchesToMeters(1.85) / 2.0,
+              5.2550011825561525 + Units.inchesToMeters(1.85) * Math.sin(Math.PI / 3),
               Rotation2d.fromDegrees(-120))),
     },
     {
@@ -260,8 +259,8 @@ public class RobotState {
     },
     {
       new Pose2d(
-          5.0181637210845947 + Units.inchesToMeters(1.75) / 2.0,
-          2.803973445892334 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          5.0181637210845947 + Units.inchesToMeters(2.25) / 2.0,
+          2.803973445892334 - Units.inchesToMeters(2.25) * Math.sin(Math.PI / 3),
           Rotation2d.fromDegrees(120)),
       new Pose2d(
           5.296333312988281 + Units.inchesToMeters(1.75) / 2.0,
@@ -284,8 +283,8 @@ public class RobotState {
           5.0910011825561523 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
           Rotation2d.fromDegrees(-120)),
       new Pose2d(
-          5.011637210845947 + Units.inchesToMeters(1.75) / 2.0,
-          5.2550011825561525 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+          5.0381637210845947 + Units.inchesToMeters(1.75) / 2.0,
+          5.257050011825561525 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
           Rotation2d.fromDegrees(-120)),
     },
     {
@@ -315,20 +314,20 @@ public class RobotState {
     {
       AllianceFlipUtil.forcedApply(
           new Pose2d(
-              3.6852595386505127 - Units.inchesToMeters(1.75) / 2.0,
+              3.6952595386505127 - Units.inchesToMeters(1.75) / 2.0,
               2.9454032344818115 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
               Rotation2d.fromDegrees(60))),
       AllianceFlipUtil.forcedApply(
           new Pose2d(
-              3.9753434658050537 - Units.inchesToMeters(1.75) / 2.0,
+              3.92053434658050537 - Units.inchesToMeters(1.75) / 2.0,
               2.793973445892334 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
               Rotation2d.fromDegrees(60))),
     },
     {
       AllianceFlipUtil.forcedApply(
           new Pose2d(
-              5.0181637210845947 + Units.inchesToMeters(1.75) / 2.0,
-              2.803973445892334 - Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              5.0181637210845947 + Units.inchesToMeters(2.25) / 2.0,
+              2.803973445892334 - Units.inchesToMeters(2.25) * Math.sin(Math.PI / 3),
               Rotation2d.fromDegrees(120))),
       AllianceFlipUtil.forcedApply(
           new Pose2d(
@@ -356,8 +355,8 @@ public class RobotState {
               Rotation2d.fromDegrees(-120))),
       AllianceFlipUtil.forcedApply(
           new Pose2d(
-              5.011637210845947 + Units.inchesToMeters(1.75) / 2.0,
-              5.2550011825561525 + Units.inchesToMeters(1.75) * Math.sin(Math.PI / 3),
+              5.011637210845947 + Units.inchesToMeters(1.85) / 2.0,
+              5.2550011825561525 + Units.inchesToMeters(1.85) * Math.sin(Math.PI / 3),
               Rotation2d.fromDegrees(-120))),
     },
     {
