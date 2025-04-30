@@ -15,10 +15,13 @@ import com.ctre.phoenix.led.StrobeAnimation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.MathUtils;
-import frc.robot.Constants.LightsConstants;
+
 
 public class LightsSubsystem extends SubsystemBase {
-    private static final CANdle candle = new CANdle(LightsConstants.CANDLE_PORT);
+
+    public static final int CANdleID = 35;
+
+    private static final CANdle candle = new CANdle(CANdleID);
 
     // Team colors
     public static final Color orange = new Color(255, 25, 0);
