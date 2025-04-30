@@ -71,7 +71,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -95,7 +95,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -119,7 +119,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -143,7 +143,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -167,7 +167,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -193,7 +193,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -217,7 +217,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -241,7 +241,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -265,7 +265,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -289,7 +289,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -313,7 +313,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -337,7 +337,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -361,7 +361,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -385,7 +385,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -409,7 +409,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -445,7 +445,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -469,7 +469,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -493,7 +493,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -517,7 +517,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -541,7 +541,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -565,7 +565,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -589,7 +589,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -613,7 +613,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -637,7 +637,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -661,7 +661,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -685,7 +685,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -709,7 +709,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -733,7 +733,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -757,7 +757,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 
@@ -781,7 +781,7 @@ class AutoFactory {
 
     preloadTrajectoryClass(firstSegment);
     SequentialCommandGroup c = new SequentialCommandGroup();
-    c.addCommands(resetPose(firstSegment));
+    //c.addCommands(resetPose(firstSegment));//
     c.addCommands(StowFollow(firstSegment));
     c.addCommands(AutoAlignL4Score(firstSegment));
 

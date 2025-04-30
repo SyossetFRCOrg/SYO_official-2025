@@ -139,19 +139,6 @@ public class ModuleIOTalonFX implements ModuleIO {
     // Configure CANCoder
     CANcoderConfiguration cancoderConfig = constants.EncoderInitialConfigs;
 
-    // somewhat janky way of doing offsets. first, make the swerve modules face forward, then
-    // get the rotation count that it returns and apply that here. therefore, there should be
-    // no need to do any other sort of offset in the way we need to in the sparkmax code, because
-    // cancoders are part of the ctre ecosystem.
-    // cancoderConfig.MagnetSensor.withMagnetOffset(
-    //     switch (constants.EncoderId){
-    //         case 3 -> Rotations.of(0);
-    //         case 6 -> Rotations.of(0);
-    //         case 9 -> Rotations.of(0);
-    //         case 12 -> Rotations.of(0);
-    //         default -> Rotations.of(0);
-
-    //     });
 
     cancoderConfig.MagnetSensor.MagnetOffset = constants.EncoderOffset;
 
