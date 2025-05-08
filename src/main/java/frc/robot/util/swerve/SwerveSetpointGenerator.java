@@ -323,7 +323,7 @@ public class SwerveSetpointGenerator {
         continue;
       }
 
-      final int kMaxIterations = 7;
+      final int kMaxIterations = 1;
       double s =
           findSteeringMaxS(
               prev_vx[i],
@@ -351,7 +351,7 @@ public class SwerveSetpointGenerator {
       // Find the max s for this drive wheel. Search on the interval between 0 and min_s, because we
       // already know we can't go faster
       // than that.
-      final int kMaxIterations = 7;
+      final int kMaxIterations = 1;
       double s =
           min_s
               * findDriveMaxS(

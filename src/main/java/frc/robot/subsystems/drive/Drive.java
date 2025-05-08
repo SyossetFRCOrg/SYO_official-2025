@@ -292,23 +292,22 @@ public class Drive extends SubsystemBase {
     speeds.vyMetersPerSecond = desiredSpeedsTranslation.getY();
     // Calculate module setpoints
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, dt);
-    // SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
-    currentSetpoint =
-        setpointGenerator.generateSetpoint(
-            TunerConstants.moduleLimitsFree, currentSetpoint, discreteSpeeds, dt);
+    SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
+    // currentSetpoint =
+    //     setpointGenerator.generateSetpoint(
+    //         TunerConstants.moduleLimitsFree, currentSetpoint, discreteSpeeds, dt);
     SwerveDriveKinematics.desaturateWheelSpeeds(
-        currentSetpoint.moduleStates(),
-        RobotState.getInstance().getModuleLimits().maxDriveVelocity());
+        setpointStates, RobotState.getInstance().getModuleLimits().maxDriveVelocity());
 
     // Log unoptimized setpoints and setpoint speeds
-    Logger.recordOutput("SwerveStates/Setpoints", currentSetpoint.moduleStates());
-    Logger.recordOutput("SwerveChassisSpeeds/Setpoints", currentSetpoint.chassisSpeeds());
+    Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
+    // Logger.recordOutput("SwerveChassisSpeeds/Setpoints", currentSetpoint.chassisSpeeds());
 
     Logger.recordOutput("SwerveChassisSpeeds/PreviousChassisSPeeds", previousChassisSpeeds);
 
     // Send setpoints to modules
     for (int i = 0; i < 4; i++) {
-      modules[i].runSetpoint(currentSetpoint.moduleStates()[i]);
+      modules[i].runSetpoint(setpointStates[i]);
     }
 
     // Log optimized setpoints (runSetpoint mutates each state)
