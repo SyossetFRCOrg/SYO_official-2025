@@ -62,7 +62,7 @@ public class RobotState {
   @AutoLogOutput(key = "RobotState/reefAutoAligning")
   @Getter
   @Setter
-  private volatile boolean reefAutoAligning = true;
+  private volatile boolean reefAutoAligning = false;
 
   @AutoLogOutput(key = "RobotState/limitSwitching")
   @Getter
@@ -77,7 +77,7 @@ public class RobotState {
   @AutoLogOutput(key = "RobotState/intakeAutoAiming")
   @Getter
   @Setter
-  private volatile boolean intakeAutoAiming = true;
+  private volatile boolean intakeAutoAiming = false;
 
   @AutoLogOutput(key = "RobotState/tuningTempPose")
   @Getter
