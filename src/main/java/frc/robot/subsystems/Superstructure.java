@@ -85,6 +85,7 @@ public class Superstructure extends SubsystemBase {
     // percentageOfThreeMetersPerSecond);
 
     currentState = handleStateTransitions();
+    applyStates();
 
     // janky way of logging robotstate values. Robot state @AutoLog doesn't work???
     Logger.recordOutput("RobotState/aboveL1", RobotState.getInstance().isAboveL1());
@@ -178,11 +179,82 @@ public class Superstructure extends SubsystemBase {
 
     return currentState;
   }
+  private void applyStates() {
+    switch (currentState) {
+        case INTAKEPREPARE:
+            prepareForIntake();
+            break;
+        case INTAKE:
+            intake();
+            break;
+        case INTAKELOWPREPARE:
+            prepareForLowIntake();
+            break;
+        case INTAKELOW:
+            intakeLow();
+            break;
+        case L1PREPARE:
+            prepareForL1();
+            break;
+        case L1:
+            scoreL1();
+            break;
+        case L2PREPARE:
+            prepareForL2();
+            break;
+        case L2:
+            scoreL2();
+            break;
+        case L3PREPARE:
+            prepareForL3();
+            break;
+        case L3:
+            scoreL3();
+            break;
+        case L4PREPARE:
+            prepareForL4();
+            break;
+        case L4:
+            scoreL4();
+            break;
+        case STOW:
+            stow();
+            break;
+        case L2L3ALGAE:
+            l2l3Algae();
+            break;
+        case L3L4ALGAE:
+            l2l3AlgaePrepare();
+            break;
+        case STOPPED:
+        default:
+            handleStopped();
+            break;
+    }
+  }
 
   private void handleStopped() {
     drive.stop();
     elevator.stop();
   }
+
+  //TODO define the behavior for these methods
+  private void prepareForIntake(){}
+  private void intake(){}
+  private void prepareForLowIntake(){}
+  private void intakeLow(){}
+  private void prepareForL1(){}
+  private void scoreL1(){}
+  private void prepareForL2(){}
+  private void scoreL2(){}
+  private void prepareForL3(){}
+  private void scoreL3(){}
+  private void prepareForL4(){}
+  private void scoreL4(){}
+  private void stow(){}
+  private void l2l3Algae(){}
+  private void l2l3AlgaePrepare(){}
+
 
   /** Transition check */
   private boolean ready(SuperState state) {
