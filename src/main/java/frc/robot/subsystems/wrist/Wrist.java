@@ -58,9 +58,9 @@ public class Wrist extends SubsystemBase {
     Logger.processInputs("Wrist", inputs);
     wristIO.periodic();
 
-    if (positions.containsKey(Superstructure.getCurrentState())
+    if (positions.containsKey(Superstructure.getCurrentSuperState())
         && RobotState.getInstance().isAboveL1()) {
-      position = positions.get(Superstructure.getCurrentState()).get();
+      position = positions.get(Superstructure.getCurrentSuperState()).get();
     } else {
       position = positions.get(SuperState.STOW).get();
     }

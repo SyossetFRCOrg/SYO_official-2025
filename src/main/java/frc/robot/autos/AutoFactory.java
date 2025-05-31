@@ -858,7 +858,7 @@ class AutoFactory {
                 .until(
                     () ->
                         autonreefAlignController.atGoal()
-                            && Superstructure.getCurrentState() == SuperState.L3))
+                            && Superstructure.getCurrentSuperState() == SuperState.L3))
         .andThen(waitSeconds(.1));
   }
 
@@ -889,7 +889,7 @@ class AutoFactory {
                 .until(
                     () ->
                         autonreefAlignController.atGoal()
-                            && Superstructure.getCurrentState() == SuperState.L2))
+                            && Superstructure.getCurrentSuperState() == SuperState.L2))
         .andThen(waitSeconds(.1));
   }
 

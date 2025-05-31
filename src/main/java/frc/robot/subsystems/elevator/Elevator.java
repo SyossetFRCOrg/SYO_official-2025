@@ -13,7 +13,30 @@ import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
 
+  public enum Substate
+  {
+    STOPPED,
+    MOVING_TO_TARGET
+  }
+
+  public enum Target
+  {
+    STOW,
+    INTAKE,
+    INTAKELOW,
+    L1,
+    L2,
+    L3,
+    L4,
+    L2L3ALGAE,
+    L3L4ALGAE
+  }
+
   private final ElevatorIO io;
+  private Substate currentState;
+  private Substate desiredState;
+  private Target target;
+
   private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
   private final Debouncer atSetpointDebouncer = new Debouncer(0.3);
@@ -22,32 +45,44 @@ public class Elevator extends SubsystemBase {
 
   DigitalInput zeroLimitSwitch = new DigitalInput(0);
 
-  private static final HashMap<SuperState, LoggedTunableNumber> heights = initializeHeights();
+  private static final HashMap<Target, LoggedTunableNumber> heights = initializeHeights();
 
-  private static final HashMap<SuperState, LoggedTunableNumber> initializeHeights() {
-    var map = new HashMap<SuperState, LoggedTunableNumber>();
+  private static final HashMap<Target, LoggedTunableNumber> initializeHeights() {
+    var map = new HashMap<Target, LoggedTunableNumber>();
     // to be tuned
-    map.put(SuperState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 24));
-    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 27.35));
-    map.put(SuperState.INTAKELOW, new LoggedTunableNumber("Elevator/LOWIntakePosition", 25.95));
-    map.put(SuperState.L1, new LoggedTunableNumber("Elevator/L1Position", 11));
-    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 32.6));
-    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 47));
-    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 70.7));
+    // map.put(SuperState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 24));
+    // map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 27.35));
+    // map.put(SuperState.INTAKELOW, new LoggedTunableNumber("Elevator/LOWIntakePosition", 25.95));
+    // map.put(SuperState.L1, new LoggedTunableNumber("Elevator/L1Position", 11));
+    // map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 32.6));
+    // map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 47));
+    // map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 70.7));
+    
+    // map.put(SuperState.L2L3ALGAE, new LoggedTunableNumber("Elevator/L2L3A", 29.7));
+    // map.put(
+    //     SuperState.L3L4ALGAE,
+    //     new LoggedTunableNumber("Elevator/L3L4A", map.get(SuperState.L3).get() - 5));
 
-    map.put(SuperState.L2L3ALGAE, new LoggedTunableNumber("Elevator/L2L3A", 29.7));
+    // map.put(SuperState.L1PREPARE, map.get(SuperState.L1));
+    // map.put(SuperState.L2PREPARE, map.get(SuperState.L2));
+    // map.put(SuperState.L3PREPARE, map.get(SuperState.L3));
+    // map.put(SuperState.L4PREPARE, map.get(SuperState.L4));
+
+    // map.put(SuperState.INTAKEPREPARE, map.get(SuperState.INTAKE));
+    // map.put(SuperState.INTAKELOWPREPARE, map.get(SuperState.INTAKELOW));
+
+    map.put(Target.STOW, new LoggedTunableNumber("Elevator/StowPosition", 24));
+    map.put(Target.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 27.35));
+    map.put(Target.INTAKELOW, new LoggedTunableNumber("Elevator/LOWIntakePosition", 25.95));
+    map.put(Target.L1, new LoggedTunableNumber("Elevator/L1Position", 11));
+    map.put(Target.L2, new LoggedTunableNumber("Elevator/L2Position", 32.6));
+    map.put(Target.L3, new LoggedTunableNumber("Elevator/L3Position", 47));
+    map.put(Target.L4, new LoggedTunableNumber("Elevator/L4Position", 70.7));
+    
+    map.put(Target.L2L3ALGAE, new LoggedTunableNumber("Elevator/L2L3A", 29.7));
     map.put(
-        SuperState.L3L4ALGAE,
+        Target.L3L4ALGAE,
         new LoggedTunableNumber("Elevator/L3L4A", map.get(SuperState.L3).get() - 5));
-
-    map.put(SuperState.L1PREPARE, map.get(SuperState.L1));
-    map.put(SuperState.L2PREPARE, map.get(SuperState.L2));
-    map.put(SuperState.L3PREPARE, map.get(SuperState.L3));
-    map.put(SuperState.L4PREPARE, map.get(SuperState.L4));
-
-    map.put(SuperState.INTAKEPREPARE, map.get(SuperState.INTAKE));
-    map.put(SuperState.INTAKELOWPREPARE, map.get(SuperState.INTAKELOW));
-
     return map;
   }
 
@@ -77,6 +112,14 @@ public class Elevator extends SubsystemBase {
     if (inputs.motorType.equals("Sparkmax")) {
       io.periodic();
     }
+
+    //log state transition
+    if(desiredState != currentState)
+    {
+      Logger.recordOutput("Elevator/Substate", desiredState.toString());
+      currentState = desiredState;
+    }
+    
 
     Logger.recordOutput("Elevator/AtGoal", atSetPoint());
 
@@ -131,23 +174,55 @@ public class Elevator extends SubsystemBase {
   }
 
   private void applyStates() {
-    var state = Superstructure.getCurrentState();
-    if (heights.containsKey(state)) targetHeight = heights.get(state).get();
-    RobotState.getInstance()
-        .setWristCanMove(getHeight() > heights.get(SuperState.L1).get() - heightTolerance);
-    io.movetoHeight(targetHeight);
+    // var state = Superstructure.getCurrentState();
+    // if (heights.containsKey(state)) targetHeight = heights.get(state).get();
+    // RobotState.getInstance()
+    //     .setWristCanMove(getHeight() > heights.get(SuperState.L1).get() - heightTolerance);
+    // io.movetoHeight(targetHeight);
+    switch(currentState)
+    {
+      case STOPPED:
+        stop();
+        break;
+      case MOVING_TO_TARGET:
+        moveToTarget();
+    }
   }
 
-  /** Check if the height is close enough to desired state setpoint */
+  public void setDesiredState(Substate desiredState)
+  {
+    this.desiredState = desiredState;
+  }
+
+  public void setTarget(Target target)
+  {
+    this.target = target;
+  }
+
+  public void moveToTarget()
+  {
+    double desiredHeight = heights.get(target).get();
+    io.setHeight(desiredHeight);
+  }
+
+
+// /** Check if the height is close enough to desired state setpoint */
+//   public boolean atSetPoint() {
+//     // Make sure the targetHeight is updated
+//     return atSetPoint(Superstructure.getCurrentSuperState());
+//   }  
+
+
   public boolean atSetPoint() {
-    // Make sure the targetHeight is updated
-    return atSetPoint(Superstructure.getCurrentState());
+    return atSetPoint(target);
   }
 
-  /** Check if the height is close enough to the given state setpoint */
-  public boolean atSetPoint(SuperState state) {
-    var height = targetHeight;
-    if (heights.containsKey(state)) height = heights.get(state).get();
+  /** Check if the height is close enough to the given state target */
+  public boolean atSetPoint(Target targetHeight) {
+    double height;
+    // if (heights.containsKey(state)) height = heights.get(state).get();
+    // return atSetpointDebouncer.calculate(MathUtil.isNear(height, getHeight(), heightTolerance));
+    if (heights.containsKey(targetHeight)) height = heights.get(targetHeight).get();
     return atSetpointDebouncer.calculate(MathUtil.isNear(height, getHeight(), heightTolerance));
   }
 

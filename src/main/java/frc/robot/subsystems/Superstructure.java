@@ -9,6 +9,7 @@ import frc.robot.RobotContainer;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.Elevator.Substate;
 import frc.robot.subsystems.wrist.Wrist;
 import java.util.function.BooleanSupplier;
 import lombok.Getter;
@@ -52,8 +53,8 @@ public class Superstructure extends SubsystemBase {
     L3L4ALGAE
   }
 
-  private static @Getter @Setter SuperState desiredState = SuperState.STOW;
-  private static @Getter @Setter SuperState currentState = SuperState.STOW;
+  private static @Getter @Setter SuperState desiredSuperState = SuperState.STOW;
+  private static @Getter @Setter SuperState currentSuperState = SuperState.STOW;
   private static SuperState previousState = SuperState.STOW;
 
   // RobotState.AimingParameters aimingParameters =
@@ -84,7 +85,8 @@ public class Superstructure extends SubsystemBase {
     //         .getAimingParameters(0.6 * percentageOfThreeMetersPerSecond, 0.25 *
     // percentageOfThreeMetersPerSecond);
 
-    currentState = handleStateTransitions();
+    currentSuperState = handleStateTransitions();
+    applyStates();
 
     // janky way of logging robotstate values. Robot state @AutoLog doesn't work???
     Logger.recordOutput("RobotState/aboveL1", RobotState.getInstance().isAboveL1());
@@ -123,10 +125,10 @@ public class Superstructure extends SubsystemBase {
           drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation().getDegrees()
         });
 
-    Logger.recordOutput("Superstructure/CurrentSuperState", currentState.toString());
-    Logger.recordOutput("Superstructure/DesiredSuperState", desiredState.toString());
+    Logger.recordOutput("Superstructure/CurrentSuperState", currentSuperState.toString());
+    Logger.recordOutput("Superstructure/DesiredSuperState", desiredSuperState.toString());
 
-    if (currentState == SuperState.STOPPED) handleStopped();
+    if (currentSuperState == SuperState.STOPPED) handleStopped();
 
     // Logger.recordOutput("TeleopShotReady/PivotAtSetpoint", pivot.pivotAtSetpoint());
     // Logger.recordOutput("TeleopShotReady/PivotGreaterThan10", pivot.getCurrentPosition() > 10.0);
@@ -163,20 +165,63 @@ public class Superstructure extends SubsystemBase {
    * @return The current super state
    */
   private SuperState handleStateTransitions() {
-    previousState = currentState;
-    var ready = ready(desiredState);
-    currentState =
-        switch (desiredState) {
+    previousState = currentSuperState;
+    var ready = ready(desiredSuperState);
+    currentSuperState =
+        switch (desiredSuperState) {
           case L1 -> ready ? SuperState.L1 : SuperState.L1PREPARE;
           case L2 -> ready ? SuperState.L2 : SuperState.L2PREPARE;
           case L3 -> ready ? SuperState.L3 : SuperState.L3PREPARE;
           case L4 -> ready ? SuperState.L4 : SuperState.L4PREPARE;
           case INTAKE -> ready ? SuperState.INTAKE : SuperState.INTAKEPREPARE;
           case INTAKELOW -> ready ? SuperState.INTAKELOW : SuperState.INTAKELOWPREPARE;
-          default -> desiredState;
+          default -> desiredSuperState;
         };
+    return currentSuperState;
+  }
 
-    return currentState;
+  private void applyStates()
+  {
+    switch(currentSuperState)
+    {
+      case L1, L1PREPARE:
+        elevator.setTarget(Elevator.Target.L1);
+        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
+        break;
+      case L2, L2PREPARE:
+        elevator.setTarget(Elevator.Target.L1);
+        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
+        break;
+      case L3, L3PREPARE:
+        elevator.setTarget(Elevator.Target.L1);
+        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
+        break;
+      case L4, L4PREPARE:
+        elevator.setTarget(Elevator.Target.L1);
+        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
+        break;
+      case INTAKE, INTAKEPREPARE:
+        elevator.setTarget(Elevator.Target.INTAKE);
+        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
+        break;
+      case INTAKELOW, INTAKELOWPREPARE:
+        elevator.setTarget(Elevator.Target.INTAKELOW);
+        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
+        break;
+      case L2L3ALGAE:
+        elevator.setTarget(Elevator.Target.L2L3ALGAE);
+        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
+        break;
+      case L3L4ALGAE:
+        elevator.setTarget(Elevator.Target.L3L4ALGAE);
+        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
+        break;
+      case STOW:
+        elevator.setTarget(Elevator.Target.STOW);
+        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
+      default:
+        break;
+    }
   }
 
   private void handleStopped() {
@@ -188,24 +233,28 @@ public class Superstructure extends SubsystemBase {
   private boolean ready(SuperState state) {
     return switch (state) {
         // also has to be at alignment goal to score
-      case L2, L3, L4 -> elevator.atSetPoint(state) && wrist.atSetPoint(state);
-        // && container.getReefAlignController().atGoal();
-        // L1 is prospectively manual driving alignment
-      case L1 -> elevator.atSetPoint(state) && wrist.atSetPoint(state);
-      case INTAKE -> elevator.atSetPoint(state);
-      case INTAKELOW -> elevator.atSetPoint(state);
-      case STOW, INTAKEPREPARE, L2L3ALGAE, L3L4ALGAE -> true;
+      // case L2, L3, L4 -> elevator.atSetPoint(state) && wrist.atSetPoint(state);
+      //   // && container.getReefAlignController().atGoal();
+      //   // L1 is prospectively manual driving alignment
+      // case L1 -> elevator.atSetPoint(state) && wrist.atSetPoint(state);
+      // case INTAKE -> elevator.atSetPoint(state);
+      // case INTAKELOW -> elevator.atSetPoint(state);
+      // case STOW, INTAKEPREPARE, L2L3ALGAE, L3L4ALGAE -> true;
+      case L2, L3, L4, L1, INTAKE, INTAKELOW, STOW, INTAKEPREPARE, L2L3ALGAE, L3L4ALGAE -> 
+        elevator.atSetPoint();
+          // && wrist.atSetPoint(); have to do wrist later
+          break;
       default -> false;
     };
   }
 
   public BooleanSupplier doesCommandMatch(SuperState currentState) {
-    return () -> Superstructure.currentState == currentState;
+    return () -> Superstructure.currentSuperState == currentState;
   }
 
   /** State pushers */
   public void setWantedSuperState(SuperState desiredState) {
-    Superstructure.desiredState = desiredState;
+    Superstructure.desiredSuperState = desiredState;
   }
 
   public Command setWantedSuperStateCommand(SuperState desiredState) {

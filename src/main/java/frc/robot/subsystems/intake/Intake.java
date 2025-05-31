@@ -77,8 +77,8 @@ public class Intake extends SubsystemBase {
     intakeIO.updateInputs(inputs);
     Logger.processInputs("Intake", inputs);
 
-    if (intakeSpeeds.containsKey(Superstructure.getCurrentState())) {
-      intakeSpeed = intakeSpeeds.get(Superstructure.getCurrentState()).get();
+    if (intakeSpeeds.containsKey(Superstructure.getCurrentSuperState())) {
+      intakeSpeed = intakeSpeeds.get(Superstructure.getCurrentSuperState()).get();
     }
 
     intakeIO.setVelocity(intakeSpeed);
