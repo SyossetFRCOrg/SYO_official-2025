@@ -189,15 +189,15 @@ public class Superstructure extends SubsystemBase {
         elevator.setDesiredState(Substate.MOVING_TO_TARGET);
         break;
       case L2, L2PREPARE:
-        elevator.setTarget(Elevator.Target.L1);
+        elevator.setTarget(Elevator.Target.L2);
         elevator.setDesiredState(Substate.MOVING_TO_TARGET);
         break;
       case L3, L3PREPARE:
-        elevator.setTarget(Elevator.Target.L1);
+        elevator.setTarget(Elevator.Target.L3);
         elevator.setDesiredState(Substate.MOVING_TO_TARGET);
         break;
       case L4, L4PREPARE:
-        elevator.setTarget(Elevator.Target.L1);
+        elevator.setTarget(Elevator.Target.L4);
         elevator.setDesiredState(Substate.MOVING_TO_TARGET);
         break;
       case INTAKE, INTAKEPREPARE:
