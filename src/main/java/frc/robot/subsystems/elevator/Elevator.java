@@ -5,7 +5,6 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
-import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.HashMap;
@@ -13,14 +12,12 @@ import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
 
-  public enum Substate
-  {
+  public enum Substate {
     STOPPED,
     MOVING_TO_TARGET
   }
 
-  public enum Target
-  {
+  public enum Target {
     STOW,
     INTAKE,
     INTAKELOW,
@@ -57,7 +54,7 @@ public class Elevator extends SubsystemBase {
     // map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 32.6));
     // map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 47));
     // map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 70.7));
-    
+
     // map.put(SuperState.L2L3ALGAE, new LoggedTunableNumber("Elevator/L2L3A", 29.7));
     // map.put(
     //     SuperState.L3L4ALGAE,
@@ -78,7 +75,7 @@ public class Elevator extends SubsystemBase {
     map.put(Target.L2, new LoggedTunableNumber("Elevator/L2Position", 32.6));
     map.put(Target.L3, new LoggedTunableNumber("Elevator/L3Position", 47));
     map.put(Target.L4, new LoggedTunableNumber("Elevator/L4Position", 70.7));
-    
+
     map.put(Target.L2L3ALGAE, new LoggedTunableNumber("Elevator/L2L3A", 29.7));
     map.put(
         Target.L3L4ALGAE,
@@ -113,13 +110,11 @@ public class Elevator extends SubsystemBase {
       io.periodic();
     }
 
-    //log state transition
-    if(desiredState != currentState)
-    {
+    // log state transition
+    if (desiredState != currentState) {
       Logger.recordOutput("Elevator/Substate", desiredState.toString());
       currentState = desiredState;
     }
-    
 
     Logger.recordOutput("Elevator/AtGoal", atSetPoint());
 
@@ -179,8 +174,7 @@ public class Elevator extends SubsystemBase {
     // RobotState.getInstance()
     //     .setWristCanMove(getHeight() > heights.get(SuperState.L1).get() - heightTolerance);
     // io.movetoHeight(targetHeight);
-    switch(currentState)
-    {
+    switch (currentState) {
       case STOPPED:
         stop();
         break;
@@ -189,40 +183,33 @@ public class Elevator extends SubsystemBase {
     }
   }
 
-  public void setDesiredState(Substate desiredState)
-  {
+  public void setDesiredState(Substate desiredState) {
     this.desiredState = desiredState;
   }
 
-  public void setTarget(Target target)
-  {
+  public void setTarget(Target target) {
     this.target = target;
   }
 
-  public void moveToTarget()
-  {
+  public void moveToTarget() {
     double desiredHeight = heights.get(target).get();
-    io.setHeight(desiredHeight);
+    io.movetoHeight(desiredHeight);
   }
 
-
-// /** Check if the height is close enough to desired state setpoint */
-//   public boolean atSetPoint() {
-//     // Make sure the targetHeight is updated
-//     return atSetPoint(Superstructure.getCurrentSuperState());
-//   }  
-
-
+  // /** Check if the height is close enough to desired state setpoint */
+  //   public boolean atSetPoint() {
+  //     // Make sure the targetHeight is updated
+  //     return atSetPoint(Superstructure.getCurrentSuperState());
+  //   }
   public boolean atSetPoint() {
     return atSetPoint(target);
   }
 
   /** Check if the height is close enough to the given state target */
   public boolean atSetPoint(Target targetHeight) {
-    double height;
+    double height = heights.get(targetHeight).get();
     // if (heights.containsKey(state)) height = heights.get(state).get();
     // return atSetpointDebouncer.calculate(MathUtil.isNear(height, getHeight(), heightTolerance));
-    if (heights.containsKey(targetHeight)) height = heights.get(targetHeight).get();
     return atSetpointDebouncer.calculate(MathUtil.isNear(height, getHeight(), heightTolerance));
   }
 

@@ -180,47 +180,49 @@ public class Superstructure extends SubsystemBase {
     return currentSuperState;
   }
 
-  private void applyStates()
-  {
-    switch(currentSuperState)
-    {
-      case L1, L1PREPARE:
-        elevator.setTarget(Elevator.Target.L1);
-        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
+  private void applyStates() {
+    switch (currentSuperState) {
+      case STOPPED:
+        elevator.setDesiredState(Elevator.Substate.STOPPED);
+        wrist.setDesiredState(Wrist.Substate.STOPPED);
         break;
-      case L2, L2PREPARE:
-        elevator.setTarget(Elevator.Target.L2);
-        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
-        break;
-      case L3, L3PREPARE:
-        elevator.setTarget(Elevator.Target.L3);
-        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
-        break;
-      case L4, L4PREPARE:
-        elevator.setTarget(Elevator.Target.L4);
-        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
-        break;
-      case INTAKE, INTAKEPREPARE:
-        elevator.setTarget(Elevator.Target.INTAKE);
-        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
-        break;
-      case INTAKELOW, INTAKELOWPREPARE:
-        elevator.setTarget(Elevator.Target.INTAKELOW);
-        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
-        break;
-      case L2L3ALGAE:
-        elevator.setTarget(Elevator.Target.L2L3ALGAE);
-        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
-        break;
-      case L3L4ALGAE:
-        elevator.setTarget(Elevator.Target.L3L4ALGAE);
-        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
-        break;
-      case STOW:
-        elevator.setTarget(Elevator.Target.STOW);
-        elevator.setDesiredState(Substate.MOVING_TO_TARGET);
-      default:
-        break;
+      case L1, L2, L3, L4, L1PREPARE, L2PREPARE, L3PREPARE, L4PREPARE, INTAKE,
+            INTAKEPREPARE, INTAKELOW, INTAKELOWPREPARE, L2L3ALGAE, L3L4ALGAE, STOW:
+
+        elevator.setDesiredState(Elevator.Substate.MOVING_TO_TARGET);
+        wrist.setDesiredState(Wrist.Substate.MOVING_TO_TARGET);
+        
+        elevator.setTarget(
+          switch(currentSuperState)
+          {
+            case L1, L1PREPARE -> Elevator.Target.L1;
+            case L2, L2PREPARE -> Elevator.Target.L2;
+            case L3, L3PREPARE -> Elevator.Target.L3;
+            case L4, L4PREPARE -> Elevator.Target.L4;
+            case INTAKE, INTAKEPREPARE -> Elevator.Target.INTAKE;
+            case INTAKELOW, INTAKELOWPREPARE -> Elevator.Target.INTAKELOW;
+            case L2L3ALGAE -> Elevator.Target.L2L3ALGAE;
+            case L3L4ALGAE -> Elevator.Target.L3L4ALGAE;
+            case STOW -> Elevator.Target.STOW;
+            default -> null;
+          }
+        );
+
+        wrist.setTarget(
+          switch(currentSuperState)
+          {
+            case L1, L1PREPARE -> Wrist.Target.L1;
+            case L2, L2PREPARE -> Wrist.Target.L2;
+            case L3, L3PREPARE -> Wrist.Target.L3;
+            case L4, L4PREPARE -> Wrist.Target.L4;
+            case INTAKE, INTAKEPREPARE -> Wrist.Target.INTAKE;
+            case INTAKELOW, INTAKELOWPREPARE -> Wrist.Target.INTAKELOW;
+            case L2L3ALGAE -> Wrist.Target.L2L3ALGAE;
+            case L3L4ALGAE -> Wrist.Target.L3L4ALGAE;
+            case STOW -> Wrist.Target.STOW;
+            default -> null;
+          }
+        );
     }
   }
 
@@ -233,17 +235,16 @@ public class Superstructure extends SubsystemBase {
   private boolean ready(SuperState state) {
     return switch (state) {
         // also has to be at alignment goal to score
-      // case L2, L3, L4 -> elevator.atSetPoint(state) && wrist.atSetPoint(state);
-      //   // && container.getReefAlignController().atGoal();
-      //   // L1 is prospectively manual driving alignment
-      // case L1 -> elevator.atSetPoint(state) && wrist.atSetPoint(state);
-      // case INTAKE -> elevator.atSetPoint(state);
-      // case INTAKELOW -> elevator.atSetPoint(state);
-      // case STOW, INTAKEPREPARE, L2L3ALGAE, L3L4ALGAE -> true;
-      case L2, L3, L4, L1, INTAKE, INTAKELOW, STOW, INTAKEPREPARE, L2L3ALGAE, L3L4ALGAE -> 
-        elevator.atSetPoint();
-          // && wrist.atSetPoint(); have to do wrist later
-          break;
+        // case L2, L3, L4 -> elevator.atSetPoint(state) && wrist.atSetPoint(state);
+        //   // && container.getReefAlignController().atGoal();
+        //   // L1 is prospectively manual driving alignment
+        // case L1 -> elevator.atSetPoint(state) && wrist.atSetPoint(state);
+        // case INTAKE -> elevator.atSetPoint(state);
+        // case INTAKELOW -> elevator.atSetPoint(state);
+        // case STOW, INTAKEPREPARE, L2L3ALGAE, L3L4ALGAE -> true;
+      case L2, L3, L4, L1, INTAKE, INTAKELOW, STOW, INTAKEPREPARE, L2L3ALGAE, L3L4ALGAE ->
+          elevator.atSetPoint();
+        // && wrist.atSetPoint(); have to do wrist later
       default -> false;
     };
   }
