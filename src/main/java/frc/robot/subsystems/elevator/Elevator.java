@@ -7,9 +7,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.HashMap;
-import org.littletonrobotics.junction.Logger;
 import lombok.Getter;
 import lombok.Setter;
+import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
 
@@ -88,7 +88,7 @@ public class Elevator extends SubsystemBase {
     // io.updateShuffleboard();
 
     ElevatorState newState = handleStateTransitions();
-    if(newState != previousState) {
+    if (newState != previousState) {
       Logger.recordOutput("Elevator/StateChange", newState.toString());
       previousState = newState;
     }
@@ -123,7 +123,7 @@ public class Elevator extends SubsystemBase {
     } else if (getHeight() < heights.get(ElevatorState.L1).get() - heightTolerance * 1.3) {
       RobotState.getInstance().setElevatorPosition(0);
     }
-   
+
     RobotState.getInstance()
         .setAboveL1(getHeight() >= heights.get(ElevatorState.L1).get() - heightTolerance);
   }
@@ -136,28 +136,38 @@ public class Elevator extends SubsystemBase {
     io.movetoHeight(targetHeight);
   }
 
-  private ElevatorState handleStateTransitions(){
-    currentState = switch(desiredState){
-      case L1 -> ElevatorState.L1;
-      case L1PREPARE -> (atSetPoint(ElevatorState.L1) ?  ElevatorState.L1 : ElevatorState.L1PREPARE);
-      case L2 -> ElevatorState.L2;
-      case L2PREPARE -> (atSetPoint(ElevatorState.L2) ?  ElevatorState.L2 : ElevatorState.L2PREPARE);
-      case L3 -> ElevatorState.L3;
-      case L3PREPARE -> (atSetPoint(ElevatorState.L3) ?  ElevatorState.L3 : ElevatorState.L3PREPARE);
-      case L4 -> ElevatorState.L4;
-      case L4PREPARE -> (atSetPoint(ElevatorState.L3) ?  ElevatorState.L4 : ElevatorState.L4PREPARE);
-      case INTAKE -> ElevatorState.INTAKE;
-      case INTAKEPREPARE -> (atSetPoint(ElevatorState.INTAKE) ?  ElevatorState.INTAKE : ElevatorState.INTAKEPREPARE);
-      case INTAKELOW -> ElevatorState.INTAKELOW;
-      case INTAKELOWPREPARE -> (atSetPoint(ElevatorState.INTAKELOW) ?  ElevatorState.INTAKELOW : ElevatorState.INTAKELOWPREPARE);
-      case STOW -> ElevatorState.STOW;
-      case STOPPED -> ElevatorState.STOPPED;
-      case L2L3ALGAE -> ElevatorState.L2L3ALGAE;
-      case L3L4ALGAE -> ElevatorState.L3L4ALGAE;
-      default -> ElevatorState.STOW;
-    };
+  private ElevatorState handleStateTransitions() {
+    currentState =
+        switch (desiredState) {
+          case L1 -> ElevatorState.L1;
+          case L1PREPARE ->
+              (atSetPoint(ElevatorState.L1) ? ElevatorState.L1 : ElevatorState.L1PREPARE);
+          case L2 -> ElevatorState.L2;
+          case L2PREPARE ->
+              (atSetPoint(ElevatorState.L2) ? ElevatorState.L2 : ElevatorState.L2PREPARE);
+          case L3 -> ElevatorState.L3;
+          case L3PREPARE ->
+              (atSetPoint(ElevatorState.L3) ? ElevatorState.L3 : ElevatorState.L3PREPARE);
+          case L4 -> ElevatorState.L4;
+          case L4PREPARE ->
+              (atSetPoint(ElevatorState.L3) ? ElevatorState.L4 : ElevatorState.L4PREPARE);
+          case INTAKE -> ElevatorState.INTAKE;
+          case INTAKEPREPARE ->
+              (atSetPoint(ElevatorState.INTAKE)
+                  ? ElevatorState.INTAKE
+                  : ElevatorState.INTAKEPREPARE);
+          case INTAKELOW -> ElevatorState.INTAKELOW;
+          case INTAKELOWPREPARE ->
+              (atSetPoint(ElevatorState.INTAKELOW)
+                  ? ElevatorState.INTAKELOW
+                  : ElevatorState.INTAKELOWPREPARE);
+          case STOW -> ElevatorState.STOW;
+          case STOPPED -> ElevatorState.STOPPED;
+          case L2L3ALGAE -> ElevatorState.L2L3ALGAE;
+          case L3L4ALGAE -> ElevatorState.L3L4ALGAE;
+          default -> ElevatorState.STOW;
+        };
     return currentState;
-      
   }
 
   /** Check if the height is close enough to desired state setpoint */
@@ -174,7 +184,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public boolean atState(ElevatorState state) {
-     return currentState == state;
+    return currentState == state;
   }
 
   /** Returns the current angle of the intake in radians. */

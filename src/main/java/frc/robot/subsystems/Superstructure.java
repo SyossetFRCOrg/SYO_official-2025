@@ -7,16 +7,15 @@ import frc.robot.RobotContainer;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.elevator.Elevator.ElevatorState;
 import frc.robot.subsystems.intake.Intake;
-
+import frc.robot.subsystems.intake.Intake.IntakeState;
+import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.wrist.Wrist.WristState;
 import java.util.function.BooleanSupplier;
 import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
-import frc.robot.subsystems.elevator.Elevator.ElevatorState;
-import frc.robot.subsystems.wrist.Wrist.WristState;
-import frc.robot.subsystems.intake.Intake.IntakeState;
 
 public class Superstructure extends SubsystemBase {
   private Drive drive;
@@ -59,7 +58,11 @@ public class Superstructure extends SubsystemBase {
   @Override
   public void periodic() {
 
-    currentState = handleStateTransitions();
+    SuperState newState = handleStateTransitions();
+    if (newState != previousState) {
+      Logger.recordOutput("Superstructure/StateChange", newState.toString());
+      previousState = newState;
+    }
     applyStates();
 
     // janky way of logging robotstate values. Robot state @AutoLog doesn't work???
@@ -85,26 +88,24 @@ public class Superstructure extends SubsystemBase {
       Logger.recordOutput(
           "RobotState/tuningTempPose",
           new double[] {
-              RobotState.getInstance().getTuningTempPose().getX(),
-              RobotState.getInstance().getTuningTempPose().getY(),
-              RobotState.getInstance().getTuningTempPose().getRotation().getDegrees()
+            RobotState.getInstance().getTuningTempPose().getX(),
+            RobotState.getInstance().getTuningTempPose().getY(),
+            RobotState.getInstance().getTuningTempPose().getRotation().getDegrees()
           });
     } else {
-      Logger.recordOutput("RobotState/tuningTempPose", new double[] { 0, 0, 0 });
+      Logger.recordOutput("RobotState/tuningTempPose", new double[] {0, 0, 0});
     }
 
     Logger.recordOutput(
         "Drive/EstimatedPose",
         new double[] {
-            drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation().getDegrees()
+          drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation().getDegrees()
         });
 
     Logger.recordOutput("Superstructure/CurrentSuperState", currentState.toString());
     Logger.recordOutput("Superstructure/DesiredSuperState", desiredState.toString());
 
-    if (currentState == SuperState.STOPPED)
-      handleStopped();
-
+    if (currentState == SuperState.STOPPED) handleStopped();
   }
 
   /**
@@ -113,17 +114,17 @@ public class Superstructure extends SubsystemBase {
    * @return The current super state
    */
   private SuperState handleStateTransitions() {
-    previousState = currentState;
     var ready = ready(currentState);
-    currentState = switch (desiredState) {
-      case L1 -> ready ? SuperState.L1 : SuperState.L1PREPARE;
-      case L2 -> ready ? SuperState.L2 : SuperState.L2PREPARE;
-      case L3 -> ready ? SuperState.L3 : SuperState.L3PREPARE;
-      case L4 -> ready ? SuperState.L4 : SuperState.L4PREPARE;
-      case INTAKE -> ready ? SuperState.INTAKE : SuperState.INTAKEPREPARE;
-      case INTAKELOW -> ready ? SuperState.INTAKELOW : SuperState.INTAKE;
-      default -> currentState;
-    };
+    currentState =
+        switch (desiredState) {
+          case L1 -> ready ? SuperState.L1 : SuperState.L1PREPARE;
+          case L2 -> ready ? SuperState.L2 : SuperState.L2PREPARE;
+          case L3 -> ready ? SuperState.L3 : SuperState.L3PREPARE;
+          case L4 -> ready ? SuperState.L4 : SuperState.L4PREPARE;
+          case INTAKE -> ready ? SuperState.INTAKE : SuperState.INTAKEPREPARE;
+          case INTAKELOW -> ready ? SuperState.INTAKELOW : SuperState.INTAKE;
+          default -> currentState;
+        };
     return currentState;
   }
 
@@ -186,7 +187,6 @@ public class Superstructure extends SubsystemBase {
     elevator.stop();
   }
 
-  // TODO define the behavior for these methods
   private void prepareForIntake() {
     elevator.setWantedState(ElevatorState.INTAKEPREPARE);
     wrist.setWantedState(WristState.INTAKEPREPARE);
@@ -274,14 +274,17 @@ public class Superstructure extends SubsystemBase {
   /** Transition check */
   private boolean ready(SuperState state) {
     return switch (state) {
-      // also has to be at alignment goal to score
+        // also has to be at alignment goal to score
       case L1 -> elevator.atState(ElevatorState.L1) && wrist.atState(WristState.L1);
       case L2 -> elevator.atState(ElevatorState.L2) && wrist.atState(WristState.L2L3);
       case L3 -> elevator.atState(ElevatorState.L3) && wrist.atState(WristState.L2L3);
       case L4 -> elevator.atState(ElevatorState.L4) && wrist.atState(WristState.L4);
-      case INTAKE -> elevator.atState(ElevatorState.INTAKE); // TODO check if &&wrist.atState(WristState.INTAKE);
-      case INTAKELOW -> elevator.atState(ElevatorState.INTAKELOW); // TODO check if
-                                                                   // &&wrist.atState(WristState.INTAKELOW);
+      case INTAKE ->
+          elevator.atState(
+              ElevatorState.INTAKE); // TODO check if &&wrist.atState(WristState.INTAKE);
+      case INTAKELOW ->
+          elevator.atState(
+              ElevatorState.INTAKELOW); // TODO check if  // &&wrist.atState(WristState.INTAKELOW);
       case STOW, INTAKEPREPARE, L2L3ALGAE, L3L4ALGAE -> true;
       default -> false;
     };

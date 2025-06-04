@@ -2,7 +2,6 @@ package frc.robot.subsystems.intake;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.Superstructure;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.HashMap;
 import java.util.function.BooleanSupplier;
@@ -38,13 +37,12 @@ public class Intake extends SubsystemBase {
     return map;
   }
 
-
   private static @Getter @Setter IntakeState desiredState = IntakeState.STOPPED;
   private static @Getter @Setter IntakeState currentState = IntakeState.STOPPED;
   private static IntakeState previousState = IntakeState.STOPPED;
-  
+
   private double intakeSpeed;
-  
+
   private final IntakeIO intakeIO;
 
   public Intake(IntakeIO intakeIO) {
@@ -63,7 +61,7 @@ public class Intake extends SubsystemBase {
 
     IntakeState newState = handleStateTransition();
     if (newState != previousState) {
-      Logger. recordOutput("Intake/State", newState.toString());
+      Logger.recordOutput("Intake/State", newState.toString());
       previousState = newState;
     }
 
@@ -79,14 +77,15 @@ public class Intake extends SubsystemBase {
   }
 
   private IntakeState handleStateTransition() {
-    currentState = switch(desiredState) {
-      case STOPPED -> IntakeState.STOPPED;
-      case INTAKE -> IntakeState.INTAKE;
-      case L1OUTTAKE -> IntakeState.L1OUTTAKE;
-      case L2L3OUTTAKE -> IntakeState.L2L3OUTTAKE;
-      case L4OUTTAKE -> IntakeState.L4OUTTAKE;
-      default -> IntakeState.STOPPED;
-    };
+    currentState =
+        switch (desiredState) {
+          case STOPPED -> IntakeState.STOPPED;
+          case INTAKE -> IntakeState.INTAKE;
+          case L1OUTTAKE -> IntakeState.L1OUTTAKE;
+          case L2L3OUTTAKE -> IntakeState.L2L3OUTTAKE;
+          case L4OUTTAKE -> IntakeState.L4OUTTAKE;
+          default -> IntakeState.STOPPED;
+        };
     return currentState;
   }
 
@@ -98,6 +97,7 @@ public class Intake extends SubsystemBase {
     }
     intakeIO.setVelocity(intakeSpeed);
   }
+
   public void setWantedState(IntakeState state) {
     desiredState = state;
   }

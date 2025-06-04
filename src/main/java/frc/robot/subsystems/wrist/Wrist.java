@@ -4,13 +4,10 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
-import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.elevator.Elevator.ElevatorState;
 import frc.robot.util.LoggedTunableNumber;
+import java.util.HashMap;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.HashMap;
 import org.littletonrobotics.junction.Logger;
 
 public class Wrist extends SubsystemBase {
@@ -87,7 +84,6 @@ public class Wrist extends SubsystemBase {
     }
 
     applyStates();
-
   }
 
   public void resetPosition(double posRads) {
@@ -96,8 +92,7 @@ public class Wrist extends SubsystemBase {
 
   public boolean atSetPoint(WristState setpointState) {
 
-    if (positions.containsKey(setpointState))
-      position = positions.get(setpointState).get();
+    if (positions.containsKey(setpointState)) position = positions.get(setpointState).get();
     return aimedDebounce.calculate(
         MathUtil.isNear(position, inputs.positionRad, 0.03 /* 0.106 rad */)
             && Math.abs(inputs.velocityRadPerSec) < .1);
@@ -108,21 +103,27 @@ public class Wrist extends SubsystemBase {
   }
 
   private WristState handleStateTransitions() {
-    currentState = switch (desiredState) {
-      case L1 -> WristState.L1;
-      case L1PREPARE -> (atSetPoint(WristState.L1) ? WristState.L1 : WristState.L1PREPARE);
-      case L2L3 -> WristState.L2L3;
-      case L2L3PREPARE -> (atSetPoint(WristState.L2L3) ? WristState.L2L3 : WristState.L2L3PREPARE);
-      case L4 -> WristState.L4;
-      case L4PREPARE -> (atSetPoint(WristState.L4) ? WristState.L4 : WristState.L4PREPARE);
-      case INTAKE -> (atSetPoint(WristState.INTAKE) ? WristState.INTAKE : WristState.INTAKEPREPARE);
-      case INTAKELOW -> (atSetPoint(WristState.INTAKELOW) ? WristState.INTAKELOW : WristState.INTAKELOWPREPARE);
-      case STOW -> WristState.STOW;
-      case STOPPED -> WristState.STOPPED;
-      case L2L3ALGAE -> WristState.L2L3ALGAE;
-      case L3L4ALGAE -> WristState.L3L4ALGAE;
-      default -> WristState.STOW;
-    };
+    currentState =
+        switch (desiredState) {
+          case L1 -> WristState.L1;
+          case L1PREPARE -> (atSetPoint(WristState.L1) ? WristState.L1 : WristState.L1PREPARE);
+          case L2L3 -> WristState.L2L3;
+          case L2L3PREPARE ->
+              (atSetPoint(WristState.L2L3) ? WristState.L2L3 : WristState.L2L3PREPARE);
+          case L4 -> WristState.L4;
+          case L4PREPARE -> (atSetPoint(WristState.L4) ? WristState.L4 : WristState.L4PREPARE);
+          case INTAKE ->
+              (atSetPoint(WristState.INTAKE) ? WristState.INTAKE : WristState.INTAKEPREPARE);
+          case INTAKELOW ->
+              (atSetPoint(WristState.INTAKELOW)
+                  ? WristState.INTAKELOW
+                  : WristState.INTAKELOWPREPARE);
+          case STOW -> WristState.STOW;
+          case STOPPED -> WristState.STOPPED;
+          case L2L3ALGAE -> WristState.L2L3ALGAE;
+          case L3L4ALGAE -> WristState.L3L4ALGAE;
+          default -> WristState.STOW;
+        };
 
     return currentState;
   }
