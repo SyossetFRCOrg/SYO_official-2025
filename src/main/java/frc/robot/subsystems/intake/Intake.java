@@ -26,8 +26,8 @@ public class Intake extends SubsystemBase {
     INTAKELOW,
     INTAKELOWPREPARE,
     STOW,
-    L2L3ALGAE,
-    L3L4ALGAE,
+    L2L3ALGAE, //Algae don't have prepare state because we want rollers to be rolling whole time
+    L3L4ALGAE
   }
   
 
@@ -74,7 +74,7 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     intakeIO.updateInputs(inputs);
     Logger.processInputs("Intake", inputs);
-
+    //properly transitions states
     Substate newState = handleStateTransitions();
     if(newState != currentState)
     {
@@ -89,67 +89,44 @@ public class Intake extends SubsystemBase {
     }
   }
 
-  public Substate handleStateTransitions()
-  {
-    switch(desiredState)
-    {
+  /**
+   * 
+   * @return desired state
+   */
+  public Substate handleStateTransitions() {
+    switch(desiredState) {
       case INTAKING:
-        return Substate.INTAKING;
       case INTAKEPREPARE:
-        return Substate.INTAKEPREPARE;
       case L1OUTTAKING:
-        return Substate.L1OUTTAKING;
       case L2OUTTAKING:
-        return Substate.L2OUTTAKING;
       case L3OUTTAKING:
-        return Substate.L3OUTTAKING;
       case L4OUTTAKING:
-        return Substate.L4OUTTAKING;
       case OUTTAKEPREPARE:
-        return Substate.OUTTAKEPREPARE;
       case INTAKELOW:
-        return Substate.INTAKELOW;
       case INTAKELOWPREPARE:
-        return Substate.INTAKELOWPREPARE;
       case STOW:
-        return Substate.STOW;
       case L2L3ALGAE:
-        return Substate.L2L3ALGAE;
       case L3L4ALGAE:
-        return Substate.L3L4ALGAE;
+      //handle state transitions pretty pointless in intake tbh
+        return desiredState;
       default:
         return null;
     }
   }
 
+  /**Sets intake velocity according to state */
   public void applyStates()
   {
     switch(currentState)
     {
       case L1OUTTAKING:
-        intakeIO.setVelocity(intakeSpeeds.get(Substate.L1OUTTAKING).get());
-        break;
       case L2OUTTAKING:
-        intakeIO.setVelocity(intakeSpeeds.get(Substate.L2OUTTAKING).get());
-        break;
       case L3OUTTAKING:
-        intakeIO.setVelocity(intakeSpeeds.get(Substate.L3OUTTAKING).get());
-        break;
       case L4OUTTAKING:
-        intakeIO.setVelocity(intakeSpeeds.get(Substate.L4OUTTAKING).get());
-        break;
       case INTAKING:
-        intakeIO.setVelocity(intakeSpeeds.get(Substate.INTAKING).get());
-        break;
       case INTAKELOW:
-        intakeIO.setVelocity(intakeSpeeds.get(Substate.INTAKELOW).get());
-        break;
       case L2L3ALGAE:
-        intakeIO.setVelocity(intakeSpeeds.get(Substate.L2L3ALGAE).get());
-        break;
       case L3L4ALGAE:
-        intakeIO.setVelocity(intakeSpeeds.get(Substate.L3L4ALGAE).get());
-        break;
       default:
         intakeIO.setVelocity(intakeSpeeds.get(currentState).get());
     }

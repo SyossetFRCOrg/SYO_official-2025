@@ -50,17 +50,28 @@ public class Wrist extends SubsystemBase {
     var map = new HashMap<Substate, LoggedTunableNumber>();
 
     map.put(Substate.STOW, new LoggedTunableNumber("Wrist/StowPosition", 0));
+    map.put(Substate.STOWPREPARE, map.get(Substate.STOW));
+
     map.put(Substate.INTAKE, new LoggedTunableNumber("Wrist/IntakePosition", 1.4));
     map.put(Substate.INTAKELOW, new LoggedTunableNumber("Wrist/LOWIntakePosition", 2.4));
+    map.put(Substate.INTAKEPREPARE, map.get(Substate.INTAKE));
+    map.put(Substate.INTAKELOWPREPARE, map.get(Substate.INTAKELOW));
+
     map.put(Substate.L1, new LoggedTunableNumber("Wrist/L1Position", 2.2));
     map.put(Substate.L2, new LoggedTunableNumber("Wrist/L2Position", 3.2));
     map.put(Substate.L3, new LoggedTunableNumber("Wrist/L3Position", 3.2));
     map.put(Substate.L4, new LoggedTunableNumber("Wrist/L4Position", 3.58));
-    
+    map.put(Substate.L1PREPARE, map.get(Substate.L1));
+    map.put(Substate.L2PREPARE, map.get(Substate.L2));
+    map.put(Substate.L3PREPARE, map.get(Substate.L3));
+    map.put(Substate.L4PREPARE, map.get(Substate.L4));
     map.put(Substate.L2L3ALGAE, new LoggedTunableNumber("Wrist/L2L3A", 2.4));
     map.put(
         Substate.L3L4ALGAE,
         new LoggedTunableNumber("Wrist/L3L4A", map.get(Substate.L2L3ALGAE).get()));
+    map.put(Substate.L2L3ALGAEPREPARE, map.get(Substate.L2L3ALGAE));
+    map.put(Substate.L3L4ALGAEPREPARE, map.get(Substate.L3L4ALGAE));
+    
     return map;
   }
 
@@ -79,8 +90,7 @@ public class Wrist extends SubsystemBase {
     wristIO.periodic();
 
     Substate newState = handleStateTransitions();
-    if(newState != currentState)
-    {
+    if(newState != currentState) {
       Logger.recordOutput("Wrist/Substate", newState.toString());
       currentState = newState;
     }
@@ -90,8 +100,7 @@ public class Wrist extends SubsystemBase {
     // } else {
     //   position = positions.get(SuperState.STOW).get();
     // }
-    if(desiredState != currentState)
-    {
+    if(desiredState != currentState) {
       Logger.recordOutput("Wrist/Substate", desiredState.toString());
       currentState = desiredState;
     }
@@ -101,11 +110,9 @@ public class Wrist extends SubsystemBase {
     else wristIO.runPosition(positions.get(Substate.STOW).get());
   }
 
-  private Substate handleStateTransitions()
-  {
+  private Substate handleStateTransitions() {
     boolean ready = atSetPoint();
-    switch(desiredState)
-    {
+    switch(desiredState) {
       case STOPPED:
         return Substate.STOPPED;
       case L1, L1PREPARE:
@@ -127,26 +134,22 @@ public class Wrist extends SubsystemBase {
       case L3L4ALGAE, L3L4ALGAEPREPARE:
         return ready ? Substate.L3L4ALGAE : Substate.L3L4ALGAEPREPARE;
       default:
-        return null;
+        return Substate.STOW;
     }
   }
 
-  private void applyStates()
-  {
-    switch(currentState)
-    {
+  private void applyStates() {
+    switch(currentState) {
       case STOPPED:
         wristIO.stop();
-        break;
       default:
-        moveToDesiredPosition();
+        moveToDesiredPosition(currentState);
     }
   }
 
   /** Moves wrist to target position */
-  public void moveToDesiredPosition()
-  {
-    double desiredPosition = positions.get(currentState).get();
+  public void moveToDesiredPosition(Substate state) {
+    double desiredPosition = positions.get(state).get();
     wristIO.runPosition(desiredPosition);
   }
 
@@ -155,17 +158,14 @@ public class Wrist extends SubsystemBase {
   }
 
   /** checks if wrist is at setpoint */
-  public boolean atSetPoint()
-  {
+  public boolean atSetPoint() {
     return atSetPoint(currentState);
   }
   /** checks if wrist is at setpoint given a target */
-  public boolean atSetPoint(Substate state)
-  {
+  public boolean atSetPoint(Substate state) {
     double position = positions.get(state).get();
     return aimedDebounce.calculate(MathUtil.isNear(position, inputs.positionRad, 0.03 /*0.106 rad*/)
                && Math.abs(inputs.velocityRadPerSec) < .1);
-
   }
 
   public double getPosition() {

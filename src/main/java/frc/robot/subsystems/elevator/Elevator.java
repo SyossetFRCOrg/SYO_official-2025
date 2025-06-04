@@ -89,12 +89,6 @@ public class Elevator extends SubsystemBase {
       io.periodic();
     }
 
-    // log state transition
-    // if (desiredState != currentState) {
-    //   Logger.recordOutput("Elevator/Substate", desiredState.toString());
-    //   currentState = desiredState;
-    // }
-
     Substate newState = handleStateTransitions();
     if(currentState != newState)
     {
@@ -104,8 +98,6 @@ public class Elevator extends SubsystemBase {
     applyStates();
 
     Logger.recordOutput("Elevator/AtGoal", atSetPoint());
-
-
     if (!zeroLimitSwitch.get() && RobotState.getInstance().isLimitSwitching()) {
       io.setHeight(0);
     }
@@ -165,17 +157,12 @@ public class Elevator extends SubsystemBase {
   }
 
   private void applyStates() {
-    // var state = Superstructure.getCurrentState();
-    // if (heights.containsKey(state)) targetHeight = heights.get(state).get();
-    // RobotState.getInstance()
-    //     .setWristCanMove(getHeight() > heights.get(SuperState.L1).get() - heightTolerance);
-    // io.movetoHeight(targetHeight);
-    switch (currentState) {
-      case STOPPED:
-        stop();
-        break;
-      default:
-        moveToDesiredHeight(currentState);
+    switch(currentState) {  
+    case STOPPED:
+      stop();
+      break;
+    default:
+      moveToDesiredHeight(currentState);
     }
   }
 
@@ -186,10 +173,6 @@ public class Elevator extends SubsystemBase {
   }
 
   // /** Check if the height is close enough to desired state setpoint */
-  //   public boolean atSetPoint() {
-  //     // Make sure the targetHeight is updated
-  //     return atSetPoint(Superstructure.getCurrentSuperState());
-  //   }
   public boolean atSetPoint() {
     return atSetPoint(currentState);
   }
