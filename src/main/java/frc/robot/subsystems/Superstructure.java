@@ -8,21 +8,22 @@ import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.wrist.Wrist;
-import frc.robot.subsystems.wrist.Wrist.WristState;
+import frc.robot.subsystems.intake.Intake;
 
 import java.util.function.BooleanSupplier;
 import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 import frc.robot.subsystems.elevator.Elevator.ElevatorState;
+import frc.robot.subsystems.wrist.Wrist.WristState;
+import frc.robot.subsystems.intake.Intake.IntakeState;
 
 public class Superstructure extends SubsystemBase {
   private Drive drive;
   private Elevator elevator;
   private RobotContainer container;
   private Wrist wrist;
-
- 
+  private Intake intake;
 
   public static enum SuperState {
     // MANUAL,
@@ -47,7 +48,6 @@ public class Superstructure extends SubsystemBase {
   private static @Getter @Setter SuperState desiredState = SuperState.STOW;
   private static @Getter @Setter SuperState currentState = SuperState.STOW;
   private static SuperState previousState = SuperState.STOW;
-
 
   public Superstructure(Drive drive, Elevator elevator, Wrist wrist, RobotContainer container) {
     this.drive = drive;
@@ -85,24 +85,25 @@ public class Superstructure extends SubsystemBase {
       Logger.recordOutput(
           "RobotState/tuningTempPose",
           new double[] {
-            RobotState.getInstance().getTuningTempPose().getX(),
-            RobotState.getInstance().getTuningTempPose().getY(),
-            RobotState.getInstance().getTuningTempPose().getRotation().getDegrees()
+              RobotState.getInstance().getTuningTempPose().getX(),
+              RobotState.getInstance().getTuningTempPose().getY(),
+              RobotState.getInstance().getTuningTempPose().getRotation().getDegrees()
           });
     } else {
-      Logger.recordOutput("RobotState/tuningTempPose", new double[] {0, 0, 0});
+      Logger.recordOutput("RobotState/tuningTempPose", new double[] { 0, 0, 0 });
     }
 
     Logger.recordOutput(
         "Drive/EstimatedPose",
         new double[] {
-          drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation().getDegrees()
+            drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation().getDegrees()
         });
 
     Logger.recordOutput("Superstructure/CurrentSuperState", currentState.toString());
     Logger.recordOutput("Superstructure/DesiredSuperState", desiredState.toString());
 
-    if (currentState == SuperState.STOPPED) handleStopped();
+    if (currentState == SuperState.STOPPED)
+      handleStopped();
 
   }
 
@@ -113,70 +114,70 @@ public class Superstructure extends SubsystemBase {
    */
   private SuperState handleStateTransitions() {
     previousState = currentState;
-    var ready = ready(currentState); 
-    currentState =
-        switch (desiredState) {
-          case L1 ->  ready ? SuperState.L1 : SuperState.L1PREPARE;
-          case L2  ->  ready ? SuperState.L2 : SuperState.L2PREPARE;
-          case L3 -> ready? SuperState.L3  : SuperState.L3PREPARE;
-          case L4   -> ready ? SuperState.L4  : SuperState.L4PREPARE;
-          case INTAKE -> ready ? SuperState.INTAKE  : SuperState.INTAKEPREPARE;
-          case INTAKELOW -> ready ? SuperState.INTAKELOW  : SuperState.INTAKE;
-          default -> currentState;
-        };
+    var ready = ready(currentState);
+    currentState = switch (desiredState) {
+      case L1 -> ready ? SuperState.L1 : SuperState.L1PREPARE;
+      case L2 -> ready ? SuperState.L2 : SuperState.L2PREPARE;
+      case L3 -> ready ? SuperState.L3 : SuperState.L3PREPARE;
+      case L4 -> ready ? SuperState.L4 : SuperState.L4PREPARE;
+      case INTAKE -> ready ? SuperState.INTAKE : SuperState.INTAKEPREPARE;
+      case INTAKELOW -> ready ? SuperState.INTAKELOW : SuperState.INTAKE;
+      default -> currentState;
+    };
     return currentState;
   }
+
   private void applyStates() {
     switch (currentState) {
-        case INTAKEPREPARE:
-            prepareForIntake();
-            break;
-        case INTAKE:
-            intake();
-            break;
-        case INTAKELOWPREPARE:
-            prepareForLowIntake();
-            break;
-        case INTAKELOW:
-            intakeLow();
-            break;
-        case L1PREPARE:
-            prepareForL1();
-            break;
-        case L1:
-            scoreL1();
-            break;
-        case L2PREPARE:
-            prepareForL2();
-            break;
-        case L2:
-            scoreL2();
-            break;
-        case L3PREPARE:
-            prepareForL3();
-            break;
-        case L3:
-            scoreL3();
-            break;
-        case L4PREPARE:
-            prepareForL4();
-            break;
-        case L4:
-            scoreL4();
-            break;
-        case STOW:
-            stow();
-            break;
-        case L2L3ALGAE:
-            l2l3Algae();
-            break;
-        case L3L4ALGAE:
-            l2l3AlgaePrepare();
-            break;
-        case STOPPED:
-        default:
-            handleStopped();
-            break;
+      case INTAKEPREPARE:
+        prepareForIntake();
+        break;
+      case INTAKE:
+        intake();
+        break;
+      case INTAKELOWPREPARE:
+        prepareForLowIntake();
+        break;
+      case INTAKELOW:
+        intakeLow();
+        break;
+      case L1PREPARE:
+        prepareForL1();
+        break;
+      case L1:
+        scoreL1();
+        break;
+      case L2PREPARE:
+        prepareForL2();
+        break;
+      case L2:
+        scoreL2();
+        break;
+      case L3PREPARE:
+        prepareForL3();
+        break;
+      case L3:
+        scoreL3();
+        break;
+      case L4PREPARE:
+        prepareForL4();
+        break;
+      case L4:
+        scoreL4();
+        break;
+      case STOW:
+        stow();
+        break;
+      case L2L3ALGAE:
+        descoreL2L3ALGAE();
+        break;
+      case L3L4ALGAE:
+        descoreL3L4ALGAE();
+        break;
+      case STOPPED:
+      default:
+        handleStopped();
+        break;
     }
   }
 
@@ -185,65 +186,102 @@ public class Superstructure extends SubsystemBase {
     elevator.stop();
   }
 
-  //TODO define the behavior for these methods
-  private void prepareForIntake(){
+  // TODO define the behavior for these methods
+  private void prepareForIntake() {
     elevator.setWantedState(ElevatorState.INTAKEPREPARE);
     wrist.setWantedState(WristState.INTAKEPREPARE);
   }
-  private void intake(){
 
-  }
-  private void prepareForLowIntake(){
-
-  }
-  private void intakeLow(){
-
-  }
-  private void prepareForL1(){
-
-  }
-  private void scoreL1(){
-
-  }
-  private void prepareForL2(){
-
-  }
-  private void scoreL2(){
-
-  }
-  private void prepareForL3(){
-
-  }
-  private void scoreL3(){
-
-  }
-  private void prepareForL4(){
-
-  }
-  private void scoreL4(){
-
-  }
-  private void stow(){
-
-  }
-  private void l2l3Algae(){
-
-  }
-  private void l2l3AlgaePrepare(){
-
+  private void intake() {
+    elevator.setWantedState(ElevatorState.INTAKE);
+    wrist.setWantedState(WristState.INTAKE);
+    intake.setWantedState(IntakeState.INTAKE);
   }
 
+  private void prepareForLowIntake() {
+    elevator.setWantedState(ElevatorState.INTAKELOWPREPARE);
+    wrist.setWantedState(WristState.INTAKELOWPREPARE);
+  }
+
+  private void intakeLow() {
+    elevator.setWantedState(ElevatorState.INTAKELOW);
+    wrist.setWantedState(WristState.INTAKELOW);
+    intake.setWantedState(IntakeState.INTAKE);
+  }
+
+  private void prepareForL1() {
+    elevator.setWantedState(ElevatorState.L1PREPARE);
+    wrist.setWantedState(WristState.L1PREPARE);
+  }
+
+  private void scoreL1() {
+    elevator.setWantedState(ElevatorState.L1);
+    wrist.setWantedState(WristState.L1);
+    intake.setWantedState(IntakeState.L1OUTTAKE);
+  }
+
+  private void prepareForL2() {
+    elevator.setWantedState(ElevatorState.L2PREPARE);
+    wrist.setWantedState(WristState.L2L3PREPARE);
+  }
+
+  private void scoreL2() {
+    elevator.setWantedState(ElevatorState.L2);
+    wrist.setWantedState(WristState.L2L3);
+    intake.setWantedState(IntakeState.L2L3OUTTAKE);
+  }
+
+  private void prepareForL3() {
+    elevator.setWantedState(ElevatorState.L3PREPARE);
+    wrist.setWantedState(WristState.L2L3PREPARE);
+  }
+
+  private void scoreL3() {
+    elevator.setWantedState(ElevatorState.L3);
+    wrist.setWantedState(WristState.L2L3);
+    intake.setWantedState(IntakeState.L2L3OUTTAKE);
+  }
+
+  private void prepareForL4() {
+    elevator.setWantedState(ElevatorState.L4PREPARE);
+    wrist.setWantedState(WristState.L4PREPARE);
+  }
+
+  private void scoreL4() {
+    elevator.setWantedState(ElevatorState.L4);
+    wrist.setWantedState(WristState.L4);
+    intake.setWantedState(IntakeState.L4OUTTAKE);
+  }
+
+  private void stow() {
+    elevator.setWantedState(ElevatorState.STOW);
+    wrist.setWantedState(WristState.STOW);
+    intake.setWantedState(IntakeState.STOPPED);
+  }
+
+  private void descoreL2L3ALGAE() {
+    elevator.setWantedState(ElevatorState.L2L3ALGAE);
+    wrist.setWantedState(WristState.L2L3ALGAE);
+    intake.setWantedState(IntakeState.INTAKE);
+  }
+
+  private void descoreL3L4ALGAE() {
+    elevator.setWantedState(ElevatorState.L3L4ALGAE);
+    wrist.setWantedState(WristState.L3L4ALGAE);
+    intake.setWantedState(IntakeState.INTAKE);
+  }
 
   /** Transition check */
   private boolean ready(SuperState state) {
     return switch (state) {
-        // also has to be at alignment goal to score
+      // also has to be at alignment goal to score
       case L1 -> elevator.atState(ElevatorState.L1) && wrist.atState(WristState.L1);
       case L2 -> elevator.atState(ElevatorState.L2) && wrist.atState(WristState.L2L3);
       case L3 -> elevator.atState(ElevatorState.L3) && wrist.atState(WristState.L2L3);
       case L4 -> elevator.atState(ElevatorState.L4) && wrist.atState(WristState.L4);
-      case INTAKE -> elevator.atState(ElevatorState.INTAKE); //TODO check if &&wrist.atState(WristState.INTAKE);
-      case INTAKELOW  -> elevator.atState(ElevatorState.INTAKELOW); //TODO check if &&wrist.atState(WristState.INTAKELOW);
+      case INTAKE -> elevator.atState(ElevatorState.INTAKE); // TODO check if &&wrist.atState(WristState.INTAKE);
+      case INTAKELOW -> elevator.atState(ElevatorState.INTAKELOW); // TODO check if
+                                                                   // &&wrist.atState(WristState.INTAKELOW);
       case STOW, INTAKEPREPARE, L2L3ALGAE, L3L4ALGAE -> true;
       default -> false;
     };
@@ -265,4 +303,3 @@ public class Superstructure extends SubsystemBase {
         });
   }
 }
-

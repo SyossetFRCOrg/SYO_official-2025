@@ -38,14 +38,13 @@ public class Intake extends SubsystemBase {
     return map;
   }
 
-  // private final LoggedTunableNumber intakeVelocity =
-  //     new LoggedTunableNumber("Intake/IntakeVelocity", 2);
-  // private final LoggedTunableNumber outtakeVelocity =
-  //     new LoggedTunableNumber("Intake/OuttakeVelocity", -2);
 
-  private @Getter @Setter IntakeState state = IntakeState.STOPPED;
-
+  private static @Getter @Setter IntakeState desiredState = IntakeState.STOPPED;
+  private static @Getter @Setter IntakeState currentState = IntakeState.STOPPED;
+  private static IntakeState previousState = IntakeState.STOPPED;
+  
   private double intakeSpeed;
+  
   private final IntakeIO intakeIO;
 
   public Intake(IntakeIO intakeIO) {
@@ -58,35 +57,48 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
+
     intakeIO.updateInputs(inputs);
     Logger.processInputs("Intake", inputs);
 
-    if (intakeSpeeds.containsKey(Superstructure.getCurrentState())) {
-      intakeSpeed = intakeSpeeds.get(Superstructure.getCurrentState()).get();
+    IntakeState newState = handleStateTransition();
+    if (newState != previousState) {
+      Logger. recordOutput("Intake/State", newState.toString());
+      previousState = newState;
     }
 
-    intakeIO.setVelocity(intakeSpeed);
+    applyStates();
 
     if (inputs.currentAmps < 1.5) {
       debounceTimer.reset();
     }
-    // intakeSpeed * 6
-    // switch (state) {
-    //   case INTAKING:
-
-    //     intakeIO.setVelocity(intakeVelocity.get());
-    //     break;
-    //   case OUTTAKING:
-    //     intakeIO.setVelocity(outtakeVelocity.get());
-    //     break;
-    //   case STOW:
-    //   default:
-    //     intakeIO.setVelocity(0);
-    //     break;
-    // }
   }
 
   public BooleanSupplier intaked() {
     return () -> debounceTimer.get() > toleranceTime;
+  }
+
+  private IntakeState handleStateTransition() {
+    currentState = switch(desiredState) {
+      case STOPPED -> IntakeState.STOPPED;
+      case INTAKE -> IntakeState.INTAKE;
+      case L1OUTTAKE -> IntakeState.L1OUTTAKE;
+      case L2L3OUTTAKE -> IntakeState.L2L3OUTTAKE;
+      case L4OUTTAKE -> IntakeState.L4OUTTAKE;
+      default -> IntakeState.STOPPED;
+    };
+    return currentState;
+  }
+
+  private void applyStates() {
+    var state = currentState;
+
+    if (intakeSpeeds.containsKey(state)) {
+      intakeSpeed = intakeSpeeds.get(state).get();
+    }
+    intakeIO.setVelocity(intakeSpeed);
+  }
+  public void setWantedState(IntakeState state) {
+    desiredState = state;
   }
 }
