@@ -110,7 +110,7 @@ public class RobotContainer {
 
     climber = new Climber(new ClimberIOTalonFX());
 
-    superstructure = new Superstructure(drive, elevator, wrist, this);
+    superstructure = new Superstructure(drive, elevator, wrist, this, intake);
 
     // configureAutos();
 

@@ -10,6 +10,7 @@ import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.Substate;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.wrist.Wrist;
 import java.util.function.BooleanSupplier;
 import lombok.Getter;
@@ -25,6 +26,7 @@ public class Superstructure extends SubsystemBase {
   private Elevator elevator;
   private RobotContainer container;
   private Wrist wrist;
+  private Intake intake;
 
   // private ClimberSubsystem climber;
 
@@ -66,11 +68,12 @@ public class Superstructure extends SubsystemBase {
   // private Rotation2d manualTurretSetpoint = new Rotation2d();
   // private Rotation2d manualPitchSetpoint = new Rotation2d();
 
-  public Superstructure(Drive drive, Elevator elevator, Wrist wrist, RobotContainer container) {
+  public Superstructure(Drive drive, Elevator elevator, Wrist wrist, RobotContainer container, Intake intake) {
     this.drive = drive;
     this.elevator = elevator;
     this.container = container;
     this.wrist = wrist;
+    this.intake = intake;
   }
 
   @Override
@@ -185,43 +188,21 @@ public class Superstructure extends SubsystemBase {
       case STOPPED:
         elevator.setDesiredState(Elevator.Substate.STOPPED);
         wrist.setDesiredState(Wrist.Substate.STOPPED);
+        intake.setDesiredState(Intake.Substate.STOPPED);
         break;
-      case L1, L2, L3, L4, L1PREPARE, L2PREPARE, L3PREPARE, L4PREPARE, INTAKE,
-            INTAKEPREPARE, INTAKELOW, INTAKELOWPREPARE, L2L3ALGAE, L3L4ALGAE, STOW:
-
-        elevator.setDesiredState(Elevator.Substate.MOVING_TO_TARGET);
-        wrist.setDesiredState(Wrist.Substate.MOVING_TO_TARGET);
-        
-        elevator.setTarget(
-          switch(currentSuperState)
-          {
-            case L1, L1PREPARE -> Elevator.Target.L1;
-            case L2, L2PREPARE -> Elevator.Target.L2;
-            case L3, L3PREPARE -> Elevator.Target.L3;
-            case L4, L4PREPARE -> Elevator.Target.L4;
-            case INTAKE, INTAKEPREPARE -> Elevator.Target.INTAKE;
-            case INTAKELOW, INTAKELOWPREPARE -> Elevator.Target.INTAKELOW;
-            case L2L3ALGAE -> Elevator.Target.L2L3ALGAE;
-            case L3L4ALGAE -> Elevator.Target.L3L4ALGAE;
-            case STOW -> Elevator.Target.STOW;
-            default -> null;
-          }
+      case L1, L1PREPARE:
+        elevator.setDesiredState(Elevator.Substate.L1);
+        wrist.setDesiredState(Wrist.Substate.L1);
+        intake.setDesiredState(
+          //check if it's ready to intake. If it is, intake.
+          ready(currentSuperState) ? Intake.Substate.INTAKING : Intake.Substate.INTAKE_PREPARE
         );
-
-        wrist.setTarget(
-          switch(currentSuperState)
-          {
-            case L1, L1PREPARE -> Wrist.Target.L1;
-            case L2, L2PREPARE -> Wrist.Target.L2;
-            case L3, L3PREPARE -> Wrist.Target.L3;
-            case L4, L4PREPARE -> Wrist.Target.L4;
-            case INTAKE, INTAKEPREPARE -> Wrist.Target.INTAKE;
-            case INTAKELOW, INTAKELOWPREPARE -> Wrist.Target.INTAKELOW;
-            case L2L3ALGAE -> Wrist.Target.L2L3ALGAE;
-            case L3L4ALGAE -> Wrist.Target.L3L4ALGAE;
-            case STOW -> Wrist.Target.STOW;
-            default -> null;
-          }
+      case L2, L2PREPARE:
+        elevator.setDesiredState(Elevator.Substate.L2);
+        wrist.setDesiredState(Wrist.Substate.L2);
+        intake.setDesiredState(
+          //check if it's ready to intake. If it is, intake.
+          ready(currentSuperState) ? Intake.Substate.INTAKING : Intake.Substate.INTAKE_PREPARE
         );
     }
   }
@@ -234,19 +215,15 @@ public class Superstructure extends SubsystemBase {
   /** Transition check */
   private boolean ready(SuperState state) {
     return switch (state) {
-        // also has to be at alignment goal to score
-        // case L2, L3, L4 -> elevator.atSetPoint(state) && wrist.atSetPoint(state);
-        //   // && container.getReefAlignController().atGoal();
-        //   // L1 is prospectively manual driving alignment
-        // case L1 -> elevator.atSetPoint(state) && wrist.atSetPoint(state);
-        // case INTAKE -> elevator.atSetPoint(state);
-        // case INTAKELOW -> elevator.atSetPoint(state);
-        // case STOW, INTAKEPREPARE, L2L3ALGAE, L3L4ALGAE -> true;
-      case L2, L3, L4, L1, INTAKE, INTAKELOW, STOW, INTAKEPREPARE, L2L3ALGAE, L3L4ALGAE ->
-          elevator.atSetPoint();
-        // && wrist.atSetPoint(); have to do wrist later
-      default -> false;
+      case L1, L1PREPARE ->
+        elevator.getCurrentState() == Elevator.Substate.L1 && 
+        
     };
+  }
+
+  public boolean AreElevatorWristReady()
+  {
+    return elevator.atSetPoint() && wrist.atSetPoint();
   }
 
   public BooleanSupplier doesCommandMatch(SuperState currentState) {
