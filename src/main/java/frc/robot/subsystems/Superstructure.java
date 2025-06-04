@@ -133,33 +133,6 @@ public class Superstructure extends SubsystemBase {
 
     if (currentSuperState == SuperState.STOPPED) handleStopped();
 
-    // Logger.recordOutput("TeleopShotReady/PivotAtSetpoint", pivot.pivotAtSetpoint());
-    // Logger.recordOutput("TeleopShotReady/PivotGreaterThan10", pivot.getCurrentPosition() > 10.0);
-    // Logger.recordOutput("TeleopShotReady/ShooterAtSpeakerSetpoint", shooter.atSpeakerSetpoint());
-    // Logger.recordOutput(
-    //         "TeleopShotReady/AccelerationVectorUnder12",
-    //         RobotState.getInstance().getLastAccelerationVector() < 0.12);
-    // Logger.recordOutput(
-    //         "TeleopShotReady/HasTarget", RobotState.getInstance().hasTarget());
-    // Logger.recordOutput(
-    //         "TeleopShotReady/CameraWithin8Meters",
-    // RobotState.getInstance().getVisionHorizontalDistance() <= 8.0);
-    // Logger.recordOutput(
-    //         "TeleopShotReady/PredictedPoseWithin8Meters",
-    //         aimingParameters.effectiveDistance().getX() <= 8.0);
-
-    // Logger.recordOutput("DesiredSuperstate", desiredState);
-    // if (currentState != previousState) {
-    //     Logger.recordOutput("CurrentSuperstate", currentState);
-    // }
-
-    // Logger.recordOutput(
-    //         "AimingParameters/AdjustedTurretAngleDegrees",
-    //         aimingParameters.turretAimingAngle().getDegrees());
-    // Logger.recordOutput("AimingParameters/EffectiveDistance",
-    // aimingParameters.effectiveDistance());
-
-    // Logger.recordOutput("FeedShotDistance", RobotState.getInstance().getDistanceToFeedTarget());
   }
 
   /**
@@ -188,21 +161,21 @@ public class Superstructure extends SubsystemBase {
       case STOPPED:
         elevator.setDesiredState(Elevator.Substate.STOPPED);
         wrist.setDesiredState(Wrist.Substate.STOPPED);
-        intake.setDesiredState(Intake.Substate.STOPPED);
+        intake.setDesiredState(Intake.Substate.STOW);
         break;
       case L1, L1PREPARE:
         elevator.setDesiredState(Elevator.Substate.L1);
         wrist.setDesiredState(Wrist.Substate.L1);
         intake.setDesiredState(
           //check if it's ready to intake. If it is, intake.
-          ready(currentSuperState) ? Intake.Substate.INTAKING : Intake.Substate.INTAKE_PREPARE
+          ElevatorWristReady(currentSuperState) ? Intake.Substate.L1OUTTAKING : Intake.Substate.OUTTAKEPREPARE
         );
       case L2, L2PREPARE:
         elevator.setDesiredState(Elevator.Substate.L2);
         wrist.setDesiredState(Wrist.Substate.L2);
         intake.setDesiredState(
           //check if it's ready to intake. If it is, intake.
-          ready(currentSuperState) ? Intake.Substate.INTAKING : Intake.Substate.INTAKE_PREPARE
+          ElevatorWristReady(currentSuperState) ? Intake.Substate.L2OUTTAKING : Intake.Substate.OUTTAKEPREPARE
         );
     }
   }
@@ -212,20 +185,67 @@ public class Superstructure extends SubsystemBase {
     elevator.stop();
   }
 
+
+  public boolean ready(SuperState state)
+  {
+    //elevator is 
+    return ElevatorWristReady(state) && intakeReady(state);
+  }
   /** Transition check */
-  private boolean ready(SuperState state) {
+  private boolean ElevatorWristReady(SuperState state) {
     return switch (state) {
+      //return true if both elevator and wrist are in ready state.
       case L1, L1PREPARE ->
-        elevator.getCurrentState() == Elevator.Substate.L1 && 
-        
+        elevator.getCurrentState() == Elevator.Substate.L1 && wrist.getCurrentState() == Wrist.Substate.L1;
+      case L2, L2PREPARE ->
+        elevator.getCurrentState() == Elevator.Substate.L2 && wrist.getCurrentState() == Wrist.Substate.L2;
+      case L3, L3PREPARE ->
+        elevator.getCurrentState() == Elevator.Substate.L3 && wrist.getCurrentState() == Wrist.Substate.L3;
+      case L4, L4PREPARE ->
+        elevator.getCurrentState() == Elevator.Substate.L4 && wrist.getCurrentState() == Wrist.Substate.L4;
+      case INTAKE, INTAKEPREPARE ->
+        elevator.getCurrentState() == Elevator.Substate.INTAKE && wrist.getCurrentState() == Wrist.Substate.INTAKE;
+      case INTAKELOW, INTAKELOWPREPARE ->
+        elevator.getCurrentState() == Elevator.Substate.INTAKELOW && wrist.getCurrentState() == Wrist.Substate.INTAKELOW;
+      case L2L3ALGAE ->
+        elevator.getCurrentState() == Elevator.Substate.L2L3ALGAE && wrist.getCurrentState() == Wrist.Substate.L2L3ALGAE;
+      case L3L4ALGAE ->
+        elevator.getCurrentState() == Elevator.Substate.L3L4ALGAE && wrist.getCurrentState() == Wrist.Substate.L3L4ALGAE;
+      case STOW ->
+        elevator.getCurrentState() == Elevator.Substate.STOW && wrist.getCurrentState() == Wrist.Substate.STOW;
+      default -> false;
     };
   }
 
-  public boolean AreElevatorWristReady()
+  private boolean intakeReady(SuperState state)
   {
-    return elevator.atSetPoint() && wrist.atSetPoint();
+    switch(state)
+    {
+      //if superstructure in prepare state, and intake in prepare state, intake is ready.
+      //if superstructure desired is L1, and intake is in L1 prepare state (and previous superstate is L1 prepare), 
+      //superstructure can move to L1.
+      case L1PREPARE, L2PREPARE, L3PREPARE, L4PREPARE:
+        return intake.getCurrentState() == Intake.Substate.OUTTAKEPREPARE;
+      case L1:
+        return intake.getCurrentState() == Intake.Substate.L1OUTTAKING;
+      case L2:
+        return intake.getCurrentState() == Intake.Substate.L2OUTTAKING;
+      case L3:
+        return intake.getCurrentState() == Intake.Substate.L3OUTTAKING;
+      case L4:
+        return intake.getCurrentState() == Intake.Substate.L4OUTTAKING;
+      case INTAKEPREPARE:
+        return intake.getCurrentState() == Intake.Substate.INTAKEPREPARE;
+      case INTAKE:
+        return intake.getCurrentState() == Intake.Substate.INTAKING;
+      case INTAKELOWPREPARE:
+        return intake.getCurrentState() == Intake.Substate.INTAKELOWPREPARE;
+      case INTAKELOW:
+        return intake.getCurrentState() == Intake.Substate.INTAKELOW;
+      default:
+        return false;
+    }
   }
-
   public BooleanSupplier doesCommandMatch(SuperState currentState) {
     return () -> Superstructure.currentSuperState == currentState;
   }
