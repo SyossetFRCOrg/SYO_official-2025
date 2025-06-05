@@ -1,11 +1,12 @@
 package frc.robot.subsystems;
 
-public interface SubsystemSM 
-{
-    // State Machine state enums
-    public enum WantedState {};
-    public enum SystemState {};
+public interface SubsystemSM {
+  // State Machine state enums
+  public enum WantedState {};
 
-    private void handleStateTransitions() {}
-    private void applyCurrentState() {}
+  public enum SystemState {};
+
+  private void handleStateTransitions() {}
+
+  private void applyCurrentState() {}
 }

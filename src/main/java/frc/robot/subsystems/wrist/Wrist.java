@@ -53,7 +53,7 @@ public class Wrist extends SubsystemBase implements frc.robot.subsystems.Subsyst
 
   private static final HashMap<WantedState, LoggedTunableNumber> initializePositions() {
     var map = new HashMap<WantedState, LoggedTunableNumber>();
-    
+
     map.put(WantedState.STOW, new LoggedTunableNumber("Wrist/StowPosition", 0));
     map.put(WantedState.INTAKE, new LoggedTunableNumber("Wrist/IntakePosition", 1.4));
     map.put(WantedState.INTAKELOW, new LoggedTunableNumber("Wrist/IntakeLowPosition", 1.4));
@@ -84,7 +84,7 @@ public class Wrist extends SubsystemBase implements frc.robot.subsystems.Subsyst
 
     // Pull Superstate and apply to wrist
     updateFromSuperstructure();
-    
+
     io.periodic();
 
     // Logging
@@ -97,12 +97,13 @@ public class Wrist extends SubsystemBase implements frc.robot.subsystems.Subsyst
     // State machine handling
     handleStateTransitions();
     applyCurrentState();
+    System.out.println(targetPosition);
   }
 
   /**
-   * Handles state transitions based on the current system state and wanted state.
-   * This method checks if the wrist is at the current setpoint and transitions
-   * to the appropriate state if needed.
+   * Handles state transitions based on the current system state and wanted state. This method
+   * checks if the wrist is at the current setpoint and transitions to the appropriate state if
+   * needed.
    */
   private void handleStateTransitions() {
     switch (systemState) {
@@ -130,64 +131,65 @@ public class Wrist extends SubsystemBase implements frc.robot.subsystems.Subsyst
   }
 
   /**
-   * Applies the current system state by moving the wrist to the target position.
-   * This method is called in periodic to ensure the wrist moves to the correct position
-   * based on the current system state and safety constraints.
+   * Applies the current system state by moving the wrist to the target position. This method is
+   * called in periodic to ensure the wrist moves to the correct position based on the current
+   * system state and safety constraints.
    */
   private void applyCurrentState() {
     // Always check if wrist can move - if not, force to stow position
-    if (!RobotState.getInstance().isWristCanMove()) {
-      targetPosition = positions.get(WantedState.STOW).get();
-      io.runPosition(targetPosition);
-      return;
-    }
+    // if (!RobotState.getInstance().isWristCanMove()) {
+    //   targetPosition = positions.get(WantedState.STOW).get();
+    //   io.runPosition(targetPosition);
+    //   return;
+    // }
 
     switch (systemState) {
       case TRANSITIONING:
         // Move to target position
         io.runPosition(targetPosition);
+
         break;
-        
+
       case STOWING:
         targetPosition = positions.get(WantedState.STOW).get();
         io.runPosition(targetPosition);
         break;
-        
+
       case INTAKING:
         targetPosition = positions.get(WantedState.INTAKE).get();
         io.runPosition(targetPosition);
         break;
-        
+
       case INTAKINGLOW:
         targetPosition = positions.get(WantedState.INTAKELOW).get();
         io.runPosition(targetPosition);
         break;
-        
+
       case ATL1:
         targetPosition = positions.get(WantedState.L1).get();
         io.runPosition(targetPosition);
         break;
-        
+
       case ATL2:
         targetPosition = positions.get(WantedState.L2).get();
         io.runPosition(targetPosition);
         break;
-        
+
       case ATL3:
         targetPosition = positions.get(WantedState.L3).get();
         io.runPosition(targetPosition);
         break;
-        
+
       case ATL4:
         targetPosition = positions.get(WantedState.L4).get();
         io.runPosition(targetPosition);
         break;
-        
+
       case ATL2L3ALGAE:
         targetPosition = positions.get(WantedState.L2L3ALGAE).get();
         io.runPosition(targetPosition);
         break;
-        
+
       case ATL3L4ALGAE:
         targetPosition = positions.get(WantedState.L3L4ALGAE).get();
         io.runPosition(targetPosition);
@@ -198,38 +200,58 @@ public class Wrist extends SubsystemBase implements frc.robot.subsystems.Subsyst
   // Helper methods for state machine
   private SystemState getSystemStateFromWanted(WantedState wanted) {
     switch (wanted) {
-      case STOW: return SystemState.STOWING;
-      case INTAKE: return SystemState.INTAKING;
-      case INTAKELOW: return SystemState.INTAKINGLOW;
-      case L1: return SystemState.ATL1;
-      case L2: return SystemState.ATL2;
-      case L3: return SystemState.ATL3;
-      case L4: return SystemState.ATL4;
-      case L2L3ALGAE: return SystemState.ATL2L3ALGAE;
-      case L3L4ALGAE: return SystemState.ATL3L4ALGAE;
-      default: return SystemState.STOWING;
+      case STOW:
+        return SystemState.STOWING;
+      case INTAKE:
+        return SystemState.INTAKING;
+      case INTAKELOW:
+        return SystemState.INTAKINGLOW;
+      case L1:
+        return SystemState.ATL1;
+      case L2:
+        return SystemState.ATL2;
+      case L3:
+        return SystemState.ATL3;
+      case L4:
+        return SystemState.ATL4;
+      case L2L3ALGAE:
+        return SystemState.ATL2L3ALGAE;
+      case L3L4ALGAE:
+        return SystemState.ATL3L4ALGAE;
+      default:
+        return SystemState.STOWING;
     }
   }
 
   private WantedState getWantedStateFromSystem(SystemState system) {
     switch (system) {
-      case STOWING: return WantedState.STOW;
-      case INTAKING: return WantedState.INTAKE;
-      case INTAKINGLOW: return WantedState.INTAKELOW;
-      case ATL1: return WantedState.L1;
-      case ATL2: return WantedState.L2;
-      case ATL3: return WantedState.L3;
-      case ATL4: return WantedState.L4;
-      case ATL2L3ALGAE: return WantedState.L2L3ALGAE;
-      case ATL3L4ALGAE: return WantedState.L3L4ALGAE;
-      default: return WantedState.STOW;
+      case STOWING:
+        return WantedState.STOW;
+      case INTAKING:
+        return WantedState.INTAKE;
+      case INTAKINGLOW:
+        return WantedState.INTAKELOW;
+      case ATL1:
+        return WantedState.L1;
+      case ATL2:
+        return WantedState.L2;
+      case ATL3:
+        return WantedState.L3;
+      case ATL4:
+        return WantedState.L4;
+      case ATL2L3ALGAE:
+        return WantedState.L2L3ALGAE;
+      case ATL3L4ALGAE:
+        return WantedState.L3L4ALGAE;
+      default:
+        return WantedState.STOW;
     }
   }
 
   private boolean atCurrentSetpoint() {
     return atSetpointDebouncer.calculate(
-        MathUtil.isNear(targetPosition, getPosition(), positionTolerance) 
-        && Math.abs(inputs.velocityRadPerSec) < velocityTolerance);
+        MathUtil.isNear(targetPosition, getPosition(), positionTolerance)
+            && Math.abs(inputs.velocityRadPerSec) < velocityTolerance);
   }
 
   // Public interface methods
@@ -250,8 +272,8 @@ public class Wrist extends SubsystemBase implements frc.robot.subsystems.Subsyst
   }
 
   /**
-   * Checks if the wrist is at the setpoint for a given SuperState.
-   * Maps the SuperState to a WantedState and checks if the wrist is at that setpoint.
+   * Checks if the wrist is at the setpoint for a given SuperState. Maps the SuperState to a
+   * WantedState and checks if the wrist is at that setpoint.
    *
    * @param superState The SuperState to check against.
    * @return true if at setpoint, false otherwise.
@@ -259,13 +281,14 @@ public class Wrist extends SubsystemBase implements frc.robot.subsystems.Subsyst
   public boolean atSetPoint(SuperState superState) {
     WantedState mappedState = mapSuperStateToWantedState(superState);
     if (mappedState == null) {
-        return false; // Unknown state, not at setpoint
+      return false; // Unknown state, not at setpoint
     }
     return atSetPoint(mappedState); // run method based on WantedState
   }
 
   /**
    * Overloaded: Checks if the wrist is at the setpoint for a given WantedState.
+   *
    * @param state
    * @return true if at setpoint, false otherwise.
    */
@@ -273,7 +296,7 @@ public class Wrist extends SubsystemBase implements frc.robot.subsystems.Subsyst
     var position = positions.get(state).get();
     return atSetpointDebouncer.calculate(
         MathUtil.isNear(position, getPosition(), positionTolerance)
-        && Math.abs(inputs.velocityRadPerSec) < velocityTolerance);
+            && Math.abs(inputs.velocityRadPerSec) < velocityTolerance);
   }
 
   public double getPosition() {
@@ -295,23 +318,39 @@ public class Wrist extends SubsystemBase implements frc.robot.subsystems.Subsyst
 
   private WantedState mapSuperStateToWantedState(SuperState superState) {
     switch (superState) {
-      case STOW: return WantedState.STOW;
-      case INTAKE: return WantedState.INTAKE;
-      case INTAKELOW: return WantedState.INTAKELOW;
-      case L1: return WantedState.L1;
-      case L2: return WantedState.L2;
-      case L3: return WantedState.L3;
-      case L4: return WantedState.L4;
-      case L2L3ALGAE: return WantedState.L2L3ALGAE;
-      case L3L4ALGAE: return WantedState.L3L4ALGAE;
-      // Handle prepare states - map to the same positions
-      case L1PREPARE: return WantedState.L1;
-      case L2PREPARE: return WantedState.L2;
-      case L3PREPARE: return WantedState.L3;
-      case L4PREPARE: return WantedState.L4;
-      case INTAKEPREPARE: return WantedState.STOW; // Different from original - was INTAKE
-      case INTAKELOWPREPARE: return WantedState.INTAKE; // Maps to INTAKE position
-      default: return null; // Don't change state for unmapped states
+      case STOW:
+        return WantedState.STOW;
+      case INTAKE:
+        return WantedState.INTAKE;
+      case INTAKELOW:
+        return WantedState.INTAKELOW;
+      case L1:
+        return WantedState.L1;
+      case L2:
+        return WantedState.L2;
+      case L3:
+        return WantedState.L3;
+      case L4:
+        return WantedState.L4;
+      case L2L3ALGAE:
+        return WantedState.L2L3ALGAE;
+      case L3L4ALGAE:
+        return WantedState.L3L4ALGAE;
+        // Handle prepare states - map to the same positions
+      case L1PREPARE:
+        return WantedState.L1;
+      case L2PREPARE:
+        return WantedState.L2;
+      case L3PREPARE:
+        return WantedState.L3;
+      case L4PREPARE:
+        return WantedState.L4;
+      case INTAKEPREPARE:
+        return WantedState.STOW; // Different from original - was INTAKE
+      case INTAKELOWPREPARE:
+        return WantedState.INTAKE; // Maps to INTAKE position
+      default:
+        return null; // Don't change state for unmapped states
     }
   }
 }

@@ -2,10 +2,7 @@ package frc.robot.subsystems.elevator;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotState;
-import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.HashMap;
@@ -53,7 +50,7 @@ public class Elevator extends SubsystemBase implements frc.robot.subsystems.Subs
 
   private static final HashMap<WantedState, LoggedTunableNumber> initializeHeights() {
     var map = new HashMap<WantedState, LoggedTunableNumber>();
-    
+
     map.put(WantedState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 24));
     map.put(WantedState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 27.35));
     map.put(WantedState.INTAKELOW, new LoggedTunableNumber("Elevator/LOWIntakePosition", 25.95));
@@ -82,8 +79,7 @@ public class Elevator extends SubsystemBase implements frc.robot.subsystems.Subs
     Logger.processInputs("Elevator", inputs);
 
     // Pull Superstate and apply to elevator
-    updateFromSuperstructure();
-    
+
     if (inputs.motorType.equals("Sparkmax")) {
       io.periodic();
     }
@@ -100,9 +96,9 @@ public class Elevator extends SubsystemBase implements frc.robot.subsystems.Subs
   }
 
   /**
-   * Handles state transitions based on the current system state and wanted state.
-   * This method checks if the elevator is at the current setpoint and transitions
-   * to the appropriate state if needed.
+   * Handles state transitions based on the current system state and wanted state. This method
+   * checks if the elevator is at the current setpoint and transitions to the appropriate state if
+   * needed.
    */
   private void handleStateTransitions() {
     switch (systemState) {
@@ -130,9 +126,9 @@ public class Elevator extends SubsystemBase implements frc.robot.subsystems.Subs
   }
 
   /**
-   * Applies the current system state by moving the elevator to the target height.
-   * This method is called in periodic to ensure the elevator moves to the correct position
-   * based on the current system state.
+   * Applies the current system state by moving the elevator to the target height. This method is
+   * called in periodic to ensure the elevator moves to the correct position based on the current
+   * system state.
    */
   private void applyCurrentState() {
     switch (systemState) {
@@ -140,47 +136,47 @@ public class Elevator extends SubsystemBase implements frc.robot.subsystems.Subs
         // Move to target height
         io.movetoHeight(targetHeight);
         break;
-        
+
       case STOWING:
         targetHeight = heights.get(WantedState.STOW).get();
         io.movetoHeight(targetHeight);
         break;
-        
+
       case INTAKING:
         targetHeight = heights.get(WantedState.INTAKE).get();
         io.movetoHeight(targetHeight);
         break;
-        
+
       case INTAKINGLOW:
         targetHeight = heights.get(WantedState.INTAKELOW).get();
         io.movetoHeight(targetHeight);
         break;
-        
+
       case ATL1:
         targetHeight = heights.get(WantedState.L1).get();
         io.movetoHeight(targetHeight);
         break;
-        
+
       case ATL2:
         targetHeight = heights.get(WantedState.L2).get();
         io.movetoHeight(targetHeight);
         break;
-        
+
       case ATL3:
         targetHeight = heights.get(WantedState.L3).get();
         io.movetoHeight(targetHeight);
         break;
-        
+
       case ATL4:
         targetHeight = heights.get(WantedState.L4).get();
         io.movetoHeight(targetHeight);
         break;
-        
+
       case ATL2L3ALGAE:
         targetHeight = heights.get(WantedState.L2L3ALGAE).get();
         io.movetoHeight(targetHeight);
         break;
-        
+
       case ATL3L4ALGAE:
         targetHeight = heights.get(WantedState.L3L4ALGAE).get();
         io.movetoHeight(targetHeight);
@@ -191,36 +187,57 @@ public class Elevator extends SubsystemBase implements frc.robot.subsystems.Subs
   // Helper methods for state machine
   private SystemState getSystemStateFromWanted(WantedState wanted) {
     switch (wanted) {
-      case STOW: return SystemState.STOWING;
-      case INTAKE: return SystemState.INTAKING;
-      case INTAKELOW: return SystemState.INTAKINGLOW;
-      case L1: return SystemState.ATL1;
-      case L2: return SystemState.ATL2;
-      case L3: return SystemState.ATL3;
-      case L4: return SystemState.ATL4;
-      case L2L3ALGAE: return SystemState.ATL2L3ALGAE;
-      case L3L4ALGAE: return SystemState.ATL3L4ALGAE;
-      default: return SystemState.STOWING;
+      case STOW:
+        return SystemState.STOWING;
+      case INTAKE:
+        return SystemState.INTAKING;
+      case INTAKELOW:
+        return SystemState.INTAKINGLOW;
+      case L1:
+        return SystemState.ATL1;
+      case L2:
+        return SystemState.ATL2;
+      case L3:
+        return SystemState.ATL3;
+      case L4:
+        return SystemState.ATL4;
+      case L2L3ALGAE:
+        return SystemState.ATL2L3ALGAE;
+      case L3L4ALGAE:
+        return SystemState.ATL3L4ALGAE;
+      default:
+        return SystemState.STOWING;
     }
   }
 
   private WantedState getWantedStateFromSystem(SystemState system) {
     switch (system) {
-      case STOWING: return WantedState.STOW;
-      case INTAKING: return WantedState.INTAKE;
-      case INTAKINGLOW: return WantedState.INTAKELOW;
-      case ATL1: return WantedState.L1;
-      case ATL2: return WantedState.L2;
-      case ATL3: return WantedState.L3;
-      case ATL4: return WantedState.L4;
-      case ATL2L3ALGAE: return WantedState.L2L3ALGAE;
-      case ATL3L4ALGAE: return WantedState.L3L4ALGAE;
-      default: return WantedState.STOW;
+      case STOWING:
+        return WantedState.STOW;
+      case INTAKING:
+        return WantedState.INTAKE;
+      case INTAKINGLOW:
+        return WantedState.INTAKELOW;
+      case ATL1:
+        return WantedState.L1;
+      case ATL2:
+        return WantedState.L2;
+      case ATL3:
+        return WantedState.L3;
+      case ATL4:
+        return WantedState.L4;
+      case ATL2L3ALGAE:
+        return WantedState.L2L3ALGAE;
+      case ATL3L4ALGAE:
+        return WantedState.L3L4ALGAE;
+      default:
+        return WantedState.STOW;
     }
   }
 
   private boolean atCurrentSetpoint() {
-    return atSetpointDebouncer.calculate(MathUtil.isNear(targetHeight, getHeight(), heightTolerance));
+    return atSetpointDebouncer.calculate(
+        MathUtil.isNear(targetHeight, getHeight(), heightTolerance));
   }
 
   // Public interface methods
@@ -241,8 +258,8 @@ public class Elevator extends SubsystemBase implements frc.robot.subsystems.Subs
   }
 
   /**
-   * Checks if the elevator is at the setpoint for a given SuperState.
-   * Maps the SuperState to a WantedState and checks if the elevator is at that setpoint.
+   * Checks if the elevator is at the setpoint for a given SuperState. Maps the SuperState to a
+   * WantedState and checks if the elevator is at that setpoint.
    *
    * @param superState The SuperState to check against.
    * @return true if at setpoint, false otherwise.
@@ -250,12 +267,14 @@ public class Elevator extends SubsystemBase implements frc.robot.subsystems.Subs
   public boolean atSetPoint(SuperState superState) {
     WantedState mappedState = mapSuperStateToWantedState(superState);
     if (mappedState == null) {
-        return false; // Unknown state, not at setpoint
+      return false; // Unknown state, not at setpoint
     }
     return atSetPoint(mappedState); // run method based on WantedState
   }
+
   /**
    * Overloaded: Checks if the elevator is at the setpoint for a given WantedState.
+   *
    * @param state
    * @return true if at setpoint, false otherwise.
    */
@@ -263,7 +282,6 @@ public class Elevator extends SubsystemBase implements frc.robot.subsystems.Subs
     var height = heights.get(state).get();
     return atSetpointDebouncer.calculate(MathUtil.isNear(height, getHeight(), heightTolerance));
   }
-  
 
   public double getHeight() {
     return inputs.positionRads;
@@ -279,23 +297,39 @@ public class Elevator extends SubsystemBase implements frc.robot.subsystems.Subs
 
   private WantedState mapSuperStateToWantedState(SuperState superState) {
     switch (superState) {
-      case STOW: return WantedState.STOW;
-      case INTAKE: return WantedState.INTAKE;
-      case INTAKELOW: return WantedState.INTAKELOW;
-      case L1: return WantedState.L1;
-      case L2: return WantedState.L2;
-      case L3: return WantedState.L3;
-      case L4: return WantedState.L4;
-      case L2L3ALGAE: return WantedState.L2L3ALGAE;
-      case L3L4ALGAE: return WantedState.L3L4ALGAE;
-      // Handle prepare states - you might want these to map to the same positions
-      case L1PREPARE: return WantedState.L1;
-      case L2PREPARE: return WantedState.L2;
-      case L3PREPARE: return WantedState.L3;
-      case L4PREPARE: return WantedState.L4;
-      case INTAKEPREPARE: return WantedState.INTAKE;
-      case INTAKELOWPREPARE: return WantedState.INTAKELOW;
-      default: return null; // Don't change state for unmapped states
+      case STOW:
+        return WantedState.STOW;
+      case INTAKE:
+        return WantedState.INTAKE;
+      case INTAKELOW:
+        return WantedState.INTAKELOW;
+      case L1:
+        return WantedState.L1;
+      case L2:
+        return WantedState.L2;
+      case L3:
+        return WantedState.L3;
+      case L4:
+        return WantedState.L4;
+      case L2L3ALGAE:
+        return WantedState.L2L3ALGAE;
+      case L3L4ALGAE:
+        return WantedState.L3L4ALGAE;
+        // Handle prepare states - you might want these to map to the same positions
+      case L1PREPARE:
+        return WantedState.L1;
+      case L2PREPARE:
+        return WantedState.L2;
+      case L3PREPARE:
+        return WantedState.L3;
+      case L4PREPARE:
+        return WantedState.L4;
+      case INTAKEPREPARE:
+        return WantedState.INTAKE;
+      case INTAKELOWPREPARE:
+        return WantedState.INTAKELOW;
+      default:
+        return null; // Don't change state for unmapped states
     }
   }
 }

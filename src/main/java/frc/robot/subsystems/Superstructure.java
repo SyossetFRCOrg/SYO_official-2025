@@ -9,7 +9,6 @@ import frc.robot.RobotContainer;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.wrist.Wrist;
 import java.util.function.BooleanSupplier;
 import lombok.Getter;
@@ -128,7 +127,7 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Superstructure/DesiredSuperState", desiredState.toString());
 
     if (currentState == SuperState.STOPPED) handleStopped();
-}
+  }
 
   /**
    * Sets currentState to the appropiate transition state based on desiredState
@@ -152,8 +151,7 @@ public class Superstructure extends SubsystemBase {
     return currentState;
   }
 
-  private void applyStates()
-  {
+  private void applyStates() {
     switch (currentState) {
       case L1:
         elevator.setWantedState(Elevator.WantedState.L1);
@@ -175,10 +173,10 @@ public class Superstructure extends SubsystemBase {
         elevator.setWantedState(Elevator.WantedState.INTAKE);
         wrist.setWantedState(Wrist.WantedState.INTAKE);
         break;
-      case INTAKELOW: 
+      case INTAKELOW:
         elevator.setWantedState(Elevator.WantedState.INTAKELOW);
         wrist.setWantedState(Wrist.WantedState.INTAKELOW);
-        break; 
+        break;
       case INTAKEPREPARE:
         elevator.setWantedState(Elevator.WantedState.INTAKE);
         wrist.setWantedState(Wrist.WantedState.INTAKE);
@@ -217,7 +215,7 @@ public class Superstructure extends SubsystemBase {
         elevator.setWantedState(Elevator.WantedState.STOW);
         wrist.setWantedState(Wrist.WantedState.STOW);
         break;
-      }
+    }
   }
 
   private void handleStopped() {
@@ -255,7 +253,4 @@ public class Superstructure extends SubsystemBase {
           setWantedSuperState(desiredState);
         });
   }
-
-
-  
 }
