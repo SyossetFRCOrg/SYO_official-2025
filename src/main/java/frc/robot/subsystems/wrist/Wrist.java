@@ -3,7 +3,6 @@ package frc.robot.subsystems.wrist;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotState;
 import frc.robot.subsystems.elevator.Elevator.Substate;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.HashMap;
@@ -35,14 +34,12 @@ public class Wrist extends SubsystemBase {
     L3,
     L4,
     L2L3ALGAE,
-    L3L4ALGAE,
-    L2L3ALGAEPREPARE,
-    L3L4ALGAEPREPARE
+    L3L4ALGAE
   }
 
   private static final HashMap<Substate, LoggedTunableNumber> positions = initializePositions();
-  private @Getter Substate currentState;
-  private @Setter Substate desiredState;
+  private @Getter Substate currentState = Substate.STOW;
+  private @Setter Substate desiredState = Substate.STOW;
 
   private static final HashMap<Substate, LoggedTunableNumber> initializePositions() {
     var map = new HashMap<Substate, LoggedTunableNumber>();
@@ -67,8 +64,6 @@ public class Wrist extends SubsystemBase {
     map.put(
         Substate.L3L4ALGAE,
         new LoggedTunableNumber("Wrist/L3L4A", map.get(Substate.L2L3ALGAE).get()));
-    map.put(Substate.L2L3ALGAEPREPARE, map.get(Substate.L2L3ALGAE));
-    map.put(Substate.L3L4ALGAEPREPARE, map.get(Substate.L3L4ALGAE));
 
     return map;
   }
@@ -98,14 +93,11 @@ public class Wrist extends SubsystemBase {
     // } else {
     //   position = positions.get(SuperState.STOW).get();
     // }
-    if (desiredState != currentState) {
-      Logger.recordOutput("Wrist/Substate", desiredState.toString());
-      currentState = desiredState;
-    }
+
     applyStates();
     // for wrist, everything is in radians
-    if (RobotState.getInstance().isWristCanMove()) wristIO.runPosition(position);
-    else wristIO.runPosition(positions.get(Substate.STOW).get());
+    // if (!RobotState.getInstance().isWristCanMove())
+    //   wristIO.runPosition(positions.get(Substate.STOW).get());
   }
 
   private Substate handleStateTransitions() {
@@ -127,27 +119,27 @@ public class Wrist extends SubsystemBase {
         return ready ? Substate.INTAKELOW : Substate.INTAKELOWPREPARE;
       case STOW, STOWPREPARE:
         return ready ? Substate.STOW : Substate.STOWPREPARE;
-      case L2L3ALGAE, L2L3ALGAEPREPARE:
-        return ready ? Substate.L2L3ALGAE : Substate.L2L3ALGAEPREPARE;
-      case L3L4ALGAE, L3L4ALGAEPREPARE:
-        return ready ? Substate.L3L4ALGAE : Substate.L3L4ALGAEPREPARE;
+      case L2L3ALGAE:
+        return Substate.L2L3ALGAE;
+      case L3L4ALGAE:
+        return Substate.L3L4ALGAE;
       default:
         return Substate.STOW;
     }
   }
 
   private void applyStates() {
-    switch (currentState) {
-      case STOPPED:
-        wristIO.stop();
-      default:
-        moveToDesiredPosition(currentState);
-    }
+
+    moveToDesiredPosition(currentState);
   }
 
   /** Moves wrist to target position */
   public void moveToDesiredPosition(Substate state) {
     double desiredPosition = positions.get(state).get();
+
+    System.out.println(state);
+    System.out.println(desiredPosition);
+
     wristIO.runPosition(desiredPosition);
   }
 
