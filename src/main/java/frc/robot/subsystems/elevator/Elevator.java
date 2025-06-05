@@ -8,9 +8,9 @@ import frc.robot.RobotState;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.HashMap;
-import org.littletonrobotics.junction.Logger;
 import lombok.Getter;
 import lombok.Setter;
+import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
 
@@ -71,12 +71,9 @@ public class Elevator extends SubsystemBase {
     return map;
   }
 
-  private double targetHeight = 0;
-
   public Elevator(ElevatorIO io) {
     this.io = io;
     io.setBrakeMode(true);
-
   }
 
   @Override
@@ -90,8 +87,7 @@ public class Elevator extends SubsystemBase {
     }
 
     Substate newState = handleStateTransitions();
-    if(currentState != newState)
-    {
+    if (currentState != newState) {
       Logger.recordOutput("Elevator/Substate", newState.toString());
       currentState = newState;
     }
@@ -125,12 +121,13 @@ public class Elevator extends SubsystemBase {
         .setAboveL1(getHeight() >= heights.get(Substate.L1).get() - heightTolerance);
   }
 
-  /** Returns prepare if currently moving towards target state position. Returns target state if at target state position */
-  private Substate handleStateTransitions()
-  {
+  /**
+   * Returns prepare if currently moving towards target state position. Returns target state if at
+   * target state position
+   */
+  private Substate handleStateTransitions() {
     boolean ready = atSetPoint();
-    switch(desiredState)
-    {
+    switch (desiredState) {
       case STOPPED:
         return Substate.STOPPED;
       case L1, L1PREPARE:
@@ -157,15 +154,14 @@ public class Elevator extends SubsystemBase {
   }
 
   private void applyStates() {
-    switch(currentState) {  
-    case STOPPED:
-      stop();
-      break;
-    default:
-      moveToDesiredHeight(currentState);
+    switch (currentState) {
+      case STOPPED:
+        stop();
+        break;
+      default:
+        moveToDesiredHeight(currentState);
     }
   }
-
 
   public void moveToDesiredHeight(Substate state) {
     double desiredHeight = heights.get(state).get();
