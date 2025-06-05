@@ -5,12 +5,11 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
-import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.HashMap;
-import org.littletonrobotics.junction.Logger;
 import lombok.Getter;
 import lombok.Setter;
+import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
 
@@ -62,9 +61,7 @@ public class Elevator extends SubsystemBase {
     map.put(Substate.L4, new LoggedTunableNumber("Elevator/L4Position", 70.7));
 
     map.put(Substate.L2L3ALGAE, new LoggedTunableNumber("Elevator/L2L3A", 29.7));
-    map.put(
-        Substate.L3L4ALGAE,
-        new LoggedTunableNumber("Elevator/L3L4A", map.get(Substate.L3).get() - 5));
+    map.put(Substate.L3L4ALGAE, new LoggedTunableNumber("Elevator/L3L4A", 47 - 5));
     map.put(Substate.L1PREPARE, map.get(Substate.L1));
     map.put(Substate.L2PREPARE, map.get(Substate.L2));
     map.put(Substate.L3PREPARE, map.get(Substate.L3));
@@ -75,7 +72,6 @@ public class Elevator extends SubsystemBase {
   public Elevator(ElevatorIO io) {
     this.io = io;
     io.setBrakeMode(true);
-
   }
 
   @Override
@@ -89,8 +85,7 @@ public class Elevator extends SubsystemBase {
     }
 
     Substate newState = handleStateTransitions();
-    if(currentState != newState)
-    {
+    if (currentState != newState) {
       Logger.recordOutput("Elevator/Substate", newState.toString());
       currentState = newState;
     }
@@ -124,12 +119,13 @@ public class Elevator extends SubsystemBase {
         .setAboveL1(getHeight() >= heights.get(Substate.L1).get() - heightTolerance);
   }
 
-  /** Returns prepare if currently moving towards target state position. Returns target state if at target state position */
-  private Substate handleStateTransitions()
-  {
+  /**
+   * Returns prepare if currently moving towards target state position. Returns target state if at
+   * target state position
+   */
+  private Substate handleStateTransitions() {
     boolean ready = atSetPoint();
-    switch(desiredState)
-    {
+    switch (desiredState) {
       case STOPPED:
         return Substate.STOPPED;
       case L1, L1PREPARE:
@@ -156,15 +152,14 @@ public class Elevator extends SubsystemBase {
   }
 
   private void applyStates() {
-    switch(currentState) {  
-    case STOPPED:
-      stop();
-      break;
-    default:
-      moveToDesiredHeight(currentState);
+    switch (currentState) {
+      case STOPPED:
+        stop();
+        break;
+      default:
+        moveToDesiredHeight(currentState);
     }
   }
-
 
   public void moveToDesiredHeight(Substate state) {
     double desiredHeight = heights.get(state).get();

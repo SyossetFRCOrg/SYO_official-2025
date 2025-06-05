@@ -3,15 +3,11 @@ package frc.robot.subsystems.wrist;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotState;
-import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.subsystems.elevator.Elevator.Substate;
 import frc.robot.util.LoggedTunableNumber;
+import java.util.HashMap;
 import lombok.Getter;
 import lombok.Setter;
-import java.lang.annotation.Target;
-import java.util.HashMap;
 import org.littletonrobotics.junction.Logger;
 
 public class Wrist extends SubsystemBase {
@@ -40,9 +36,10 @@ public class Wrist extends SubsystemBase {
     L2L3ALGAE,
     L3L4ALGAE
   }
+
   private static final HashMap<Substate, LoggedTunableNumber> positions = initializePositions();
-  private @Getter Substate currentState;
-  private @Setter Substate desiredState;
+  private @Getter Substate currentState = Substate.STOW;
+  private @Setter Substate desiredState = Substate.STOW;
 
   private static final HashMap<Substate, LoggedTunableNumber> initializePositions() {
     var map = new HashMap<Substate, LoggedTunableNumber>();
@@ -67,7 +64,7 @@ public class Wrist extends SubsystemBase {
     map.put(
         Substate.L3L4ALGAE,
         new LoggedTunableNumber("Wrist/L3L4A", map.get(Substate.L2L3ALGAE).get()));
-    
+
     return map;
   }
 
@@ -85,19 +82,26 @@ public class Wrist extends SubsystemBase {
     wristIO.periodic();
 
     Substate newState = handleStateTransitions();
-    if(newState != currentState) {
+    if (newState != currentState) {
       Logger.recordOutput("Wrist/Substate", newState.toString());
       currentState = newState;
     }
+    // if (positions.containsKey(Superstructure.getCurrentSuperState())
+    //     && RobotState.getInstance().isAboveL1()) {
+    //   position = positions.get(Superstructure.getCurrentSuperState()).get();
+    // } else {
+    //   position = positions.get(SuperState.STOW).get();
+    // }
+
     applyStates();
     // for wrist, everything is in radians
-    if (RobotState.getInstance().isWristCanMove()) wristIO.runPosition(position);
-    else wristIO.runPosition(positions.get(Substate.STOW).get());
+    // if (!RobotState.getInstance().isWristCanMove())
+    //   wristIO.runPosition(positions.get(Substate.STOW).get());
   }
 
   private Substate handleStateTransitions() {
     boolean ready = atSetPoint();
-    switch(desiredState) {
+    switch (desiredState) {
       case STOPPED:
         return Substate.STOPPED;
       case L1, L1PREPARE:
@@ -124,19 +128,17 @@ public class Wrist extends SubsystemBase {
   }
 
   private void applyStates() {
-    switch(currentState) {
-      case STOPPED:
-        wristIO.stop();
-        break;
-      default:
-        moveToDesiredPosition(currentState);
-        break;
-    }
+
+    moveToDesiredPosition(currentState);
   }
 
   /** Moves wrist to target position */
   public void moveToDesiredPosition(Substate state) {
     double desiredPosition = positions.get(state).get();
+
+    System.out.println(state);
+    System.out.println(desiredPosition);
+
     wristIO.runPosition(desiredPosition);
   }
 
@@ -148,11 +150,13 @@ public class Wrist extends SubsystemBase {
   public boolean atSetPoint() {
     return atSetPoint(currentState);
   }
+
   /** checks if wrist is at setpoint given a target */
   public boolean atSetPoint(Substate state) {
     double position = positions.get(state).get();
-    return aimedDebounce.calculate(MathUtil.isNear(position, inputs.positionRad, 0.03 /*0.106 rad*/)
-               && Math.abs(inputs.velocityRadPerSec) < .1);
+    return aimedDebounce.calculate(
+        MathUtil.isNear(position, inputs.positionRad, 0.03 /*0.106 rad*/)
+            && Math.abs(inputs.velocityRadPerSec) < .1);
   }
 
   public double getPosition() {

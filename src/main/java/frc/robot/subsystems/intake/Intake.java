@@ -2,12 +2,9 @@ package frc.robot.subsystems.intake;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.HashMap;
 import java.util.function.BooleanSupplier;
-import javax.lang.model.util.ElementScanner14;
 import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
@@ -26,10 +23,9 @@ public class Intake extends SubsystemBase {
     INTAKELOW,
     INTAKELOWPREPARE,
     STOW,
-    L2L3ALGAE, //Algae don't have prepare state because we want rollers to be rolling whole time
+    L2L3ALGAE, // Algae don't have prepare state because we want rollers to be rolling whole time
     L3L4ALGAE
   }
-  
 
   private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
 
@@ -45,9 +41,9 @@ public class Intake extends SubsystemBase {
 
     map.put(Substate.STOW, new LoggedTunableNumber("Intake/StowSpeed", 0));
 
-    //TO BE TUNED ?
-    map.put(Substate.INTAKING, new LoggedTunableNumber("Intake/IntakeSpeed", -5)); 
-    map.put(Substate.L1OUTTAKING, new LoggedTunableNumber("Intake/L1_OuttakeSpeed", 2)); 
+    // TO BE TUNED ?
+    map.put(Substate.INTAKING, new LoggedTunableNumber("Intake/IntakeSpeed", -5));
+    map.put(Substate.L1OUTTAKING, new LoggedTunableNumber("Intake/L1_OuttakeSpeed", 2));
     map.put(Substate.L2OUTTAKING, new LoggedTunableNumber("Intake/L2_OuttakeSpeed", 4));
     map.put(Substate.L3OUTTAKING, new LoggedTunableNumber("Intake/L3_OuttakeSpeed", 4));
     map.put(Substate.L4OUTTAKING, new LoggedTunableNumber("Intake/L4_OuttakeSpeed", 6));
@@ -74,10 +70,9 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     intakeIO.updateInputs(inputs);
     Logger.processInputs("Intake", inputs);
-    //properly transitions states
+    // properly transitions states
     Substate newState = handleStateTransitions();
-    if(newState != currentState)
-    {
+    if (newState != currentState) {
       Logger.recordOutput("Intake/Substate", newState.toString());
       currentState = newState;
     }
@@ -90,11 +85,10 @@ public class Intake extends SubsystemBase {
   }
 
   /**
-   * 
    * @return desired state
    */
   public Substate handleStateTransitions() {
-    switch(desiredState) {
+    switch (desiredState) {
       case INTAKING:
       case INTAKEPREPARE:
       case L1OUTTAKING:
@@ -107,18 +101,16 @@ public class Intake extends SubsystemBase {
       case STOW:
       case L2L3ALGAE:
       case L3L4ALGAE:
-      //handle state transitions pretty pointless in intake tbh
+        // handle state transitions pretty pointless in intake tbh
         return desiredState;
       default:
         return null;
     }
   }
 
-  /**Sets intake velocity according to state */
-  public void applyStates()
-  {
-    switch(currentState)
-    {
+  /** Sets intake velocity according to state */
+  public void applyStates() {
+    switch (currentState) {
       case L1OUTTAKING:
       case L2OUTTAKING:
       case L3OUTTAKING:
