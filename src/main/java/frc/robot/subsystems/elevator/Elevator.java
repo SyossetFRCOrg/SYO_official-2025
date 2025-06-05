@@ -88,9 +88,6 @@ public class Elevator extends SubsystemBase implements frc.robot.subsystems.Subs
       io.periodic();
     }
 
-    // Update RobotState based on current position
-    applyStates();
-
     // Logging
     Logger.recordOutput("Elevator/WantedState", wantedState.toString());
     Logger.recordOutput("Elevator/SystemState", systemState.toString());
@@ -191,28 +188,6 @@ public class Elevator extends SubsystemBase implements frc.robot.subsystems.Subs
     }
   }
 
-  /**
-   * Applies the current states to the RobotState, updating the elevator position
-   * and whether the wrist can move based on the current height.
-   */
-  private void applyStates() {
-    // Update elevator position in RobotState based on current height
-    if (getHeight() >= heights.get(WantedState.L4).get() - heightTolerance * 1.3) {
-      RobotState.getInstance().setElevatorPosition(4);
-    } else if (getHeight() >= heights.get(WantedState.L3).get() - heightTolerance * 1.3) {
-      RobotState.getInstance().setElevatorPosition(3);
-    } else if (getHeight() >= heights.get(WantedState.L2).get() - heightTolerance * 1.3) {
-      RobotState.getInstance().setElevatorPosition(2);
-    } else if (getHeight() >= heights.get(WantedState.L1).get() - heightTolerance * 1.3) {
-      RobotState.getInstance().setElevatorPosition(1);
-    } else {
-      RobotState.getInstance().setElevatorPosition(0);
-    }
-
-    RobotState.getInstance().setAboveL1(getHeight() >= heights.get(WantedState.L1).get() - heightTolerance);
-    RobotState.getInstance().setWristCanMove(getHeight() > heights.get(WantedState.L1).get() - heightTolerance);
-  }
-
   // Helper methods for state machine
   private SystemState getSystemStateFromWanted(WantedState wanted) {
     switch (wanted) {
@@ -300,15 +275,6 @@ public class Elevator extends SubsystemBase implements frc.robot.subsystems.Subs
 
   public void stop() {
     io.stop();
-  }
-
-  // Integration with existing Superstructure
-  public void updateFromSuperstructure() {
-    var superState = Superstructure.getCurrentState();
-    WantedState newWantedState = mapSuperStateToWantedState(superState);
-    if (newWantedState != null) {
-      setWantedState(newWantedState);
-    }
   }
 
   private WantedState mapSuperStateToWantedState(SuperState superState) {

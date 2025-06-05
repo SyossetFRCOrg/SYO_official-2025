@@ -9,6 +9,7 @@ import frc.robot.RobotContainer;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.wrist.Wrist;
 import java.util.function.BooleanSupplier;
 import lombok.Getter;
@@ -84,6 +85,7 @@ public class Superstructure extends SubsystemBase {
     //         .getAimingParameters(0.6 * percentageOfThreeMetersPerSecond, 0.25 *
     // percentageOfThreeMetersPerSecond);
     currentState = handleStateTransitions();
+    applyStates();
 
     // janky way of logging robotstate values. Robot state @AutoLog doesn't work???
     Logger.recordOutput("RobotState/aboveL1", RobotState.getInstance().isAboveL1());
@@ -126,34 +128,6 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Superstructure/DesiredSuperState", desiredState.toString());
 
     if (currentState == SuperState.STOPPED) handleStopped();
-
-    // Logger.recordOutput("TeleopShotReady/PivotAtSetpoint", pivot.pivotAtSetpoint());
-    // Logger.recordOutput("TeleopShotReady/PivotGreaterThan10", pivot.getCurrentPosition() > 10.0);
-    // Logger.recordOutput("TeleopShotReady/ShooterAtSpeakerSetpoint", shooter.atSpeakerSetpoint());
-    // Logger.recordOutput(
-    //         "TeleopShotReady/AccelerationVectorUnder12",
-    //         RobotState.getInstance().getLastAccelerationVector() < 0.12);
-    // Logger.recordOutput(
-    //         "TeleopShotReady/HasTarget", RobotState.getInstance().hasTarget());
-    // Logger.recordOutput(
-    //         "TeleopShotReady/CameraWithin8Meters",
-    // RobotState.getInstance().getVisionHorizontalDistance() <= 8.0);
-    // Logger.recordOutput(
-    //         "TeleopShotReady/PredictedPoseWithin8Meters",
-    //         aimingParameters.effectiveDistance().getX() <= 8.0);
-
-    // Logger.recordOutput("DesiredSuperstate", desiredState);
-    // if (currentState != previousState) {
-    //     Logger.recordOutput("CurrentSuperstate", currentState);
-    // }
-
-    // Logger.recordOutput(
-    //         "AimingParameters/AdjustedTurretAngleDegrees",
-    //         aimingParameters.turretAimingAngle().getDegrees());
-    // Logger.recordOutput("AimingParameters/EffectiveDistance",
-    // aimingParameters.effectiveDistance());
-
-    // Logger.recordOutput("FeedShotDistance", RobotState.getInstance().getDistanceToFeedTarget());
 }
 
   /**
@@ -176,6 +150,74 @@ public class Superstructure extends SubsystemBase {
         };
 
     return currentState;
+  }
+
+  private void applyStates()
+  {
+    switch (currentState) {
+      case L1:
+        elevator.setWantedState(Elevator.WantedState.L1);
+        wrist.setWantedState(Wrist.WantedState.L1);
+        break;
+      case L2:
+        elevator.setWantedState(Elevator.WantedState.L2);
+        wrist.setWantedState(Wrist.WantedState.L2);
+        break;
+      case L3:
+        elevator.setWantedState(Elevator.WantedState.L3);
+        wrist.setWantedState(Wrist.WantedState.L3);
+        break;
+      case L4:
+        elevator.setWantedState(Elevator.WantedState.L4);
+        wrist.setWantedState(Wrist.WantedState.L4);
+        break;
+      case INTAKE:
+        elevator.setWantedState(Elevator.WantedState.INTAKE);
+        wrist.setWantedState(Wrist.WantedState.INTAKE);
+        break;
+      case INTAKELOW: 
+        elevator.setWantedState(Elevator.WantedState.INTAKELOW);
+        wrist.setWantedState(Wrist.WantedState.INTAKELOW);
+        break; 
+      case INTAKEPREPARE:
+        elevator.setWantedState(Elevator.WantedState.INTAKE);
+        wrist.setWantedState(Wrist.WantedState.INTAKE);
+        break;
+      case INTAKELOWPREPARE:
+        elevator.setWantedState(Elevator.WantedState.INTAKELOW);
+        wrist.setWantedState(Wrist.WantedState.INTAKELOW);
+        break;
+      case L1PREPARE:
+        elevator.setWantedState(Elevator.WantedState.L1);
+        wrist.setWantedState(Wrist.WantedState.L1);
+        break;
+      case L2PREPARE:
+        elevator.setWantedState(Elevator.WantedState.L2);
+        wrist.setWantedState(Wrist.WantedState.L2);
+        break;
+      case L3PREPARE:
+        elevator.setWantedState(Elevator.WantedState.L3);
+        wrist.setWantedState(Wrist.WantedState.L3);
+        break;
+      case L4PREPARE:
+        elevator.setWantedState(Elevator.WantedState.L4);
+        wrist.setWantedState(Wrist.WantedState.L4);
+        break;
+      case L2L3ALGAE:
+        elevator.setWantedState(Elevator.WantedState.L2L3ALGAE);
+        wrist.setWantedState(Wrist.WantedState.L2L3ALGAE);
+        break;
+      case L3L4ALGAE:
+        elevator.setWantedState(Elevator.WantedState.L3L4ALGAE);
+        wrist.setWantedState(Wrist.WantedState.L3L4ALGAE);
+        break;
+      case STOW:
+      case STOPPED:
+      default:
+        elevator.setWantedState(Elevator.WantedState.STOW);
+        wrist.setWantedState(Wrist.WantedState.STOW);
+        break;
+      }
   }
 
   private void handleStopped() {
