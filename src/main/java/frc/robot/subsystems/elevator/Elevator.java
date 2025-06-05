@@ -66,7 +66,7 @@ public class Elevator extends SubsystemBase {
     map.put(Substate.L2L3ALGAE, new LoggedTunableNumber("Elevator/L2L3A", 29.7));
     map.put(
         Substate.L3L4ALGAE,
-        new LoggedTunableNumber("Elevator/L3L4A", map.get(SuperState.L3).get() - 5));
+        new LoggedTunableNumber("Elevator/L3L4A", map.get(Substate.L3).get() - 5));
     map.put(Substate.L1PREPARE, map.get(Substate.L1));
     map.put(Substate.L2PREPARE, map.get(Substate.L2));
     map.put(Substate.L3PREPARE, map.get(Substate.L3));
