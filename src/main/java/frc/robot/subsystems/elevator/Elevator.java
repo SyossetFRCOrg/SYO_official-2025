@@ -53,8 +53,11 @@ public class Elevator extends SubsystemBase {
   private static final HashMap<Substate, LoggedTunableNumber> initializeHeights() {
     var map = new HashMap<Substate, LoggedTunableNumber>();
     map.put(Substate.STOW, new LoggedTunableNumber("Elevator/StowPosition", 24));
+    map.put(Substate.STOWPREPARE, map.get(Substate.STOW));
     map.put(Substate.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 27.35));
+    map.put(Substate.INTAKEPREPARE, map.get(Substate.INTAKE));
     map.put(Substate.INTAKELOW, new LoggedTunableNumber("Elevator/LOWIntakePosition", 25.95));
+    map.put(Substate.INTAKELOWPREPARE, map.get(Substate.INTAKELOW));
     map.put(Substate.L1, new LoggedTunableNumber("Elevator/L1Position", 11));
     map.put(Substate.L2, new LoggedTunableNumber("Elevator/L2Position", 32.6));
     map.put(Substate.L3, new LoggedTunableNumber("Elevator/L3Position", 47));
@@ -150,7 +153,7 @@ public class Elevator extends SubsystemBase {
       case L3L4ALGAE, L3L4ALGAEPREPARE:
         return ready ? Substate.L3L4ALGAE : Substate.L3L4ALGAEPREPARE;
       default:
-        return null;
+        return Substate.STOW;
     }
   }
 
