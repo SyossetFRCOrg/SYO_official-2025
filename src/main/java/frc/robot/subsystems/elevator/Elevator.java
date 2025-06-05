@@ -71,8 +71,6 @@ public class Elevator extends SubsystemBase {
     return map;
   }
 
-  private double targetHeight = 0;
-
   public Elevator(ElevatorIO io) {
     this.io = io;
     io.setBrakeMode(true);
