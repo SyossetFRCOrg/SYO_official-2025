@@ -51,7 +51,7 @@ public class Elevator extends SubsystemBase {
   private static final HashMap<Substate, LoggedTunableNumber> heights = initializeHeights();
 
   private static final HashMap<Substate, LoggedTunableNumber> initializeHeights() {
-    var map = new HashMap<Substate, LoggedTunableNumber>()
+    var map = new HashMap<Substate, LoggedTunableNumber>();
     map.put(Substate.STOW, new LoggedTunableNumber("Elevator/StowPosition", 24));
     map.put(Substate.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 27.35));
     map.put(Substate.INTAKELOW, new LoggedTunableNumber("Elevator/LOWIntakePosition", 25.95));

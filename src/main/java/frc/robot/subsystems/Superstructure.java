@@ -15,6 +15,8 @@ import frc.robot.subsystems.wrist.Wrist;
 import java.util.function.BooleanSupplier;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.ExtensionMethod;
+
 import org.littletonrobotics.junction.Logger;
 
 public class Superstructure extends SubsystemBase {
@@ -44,8 +46,8 @@ public class Superstructure extends SubsystemBase {
     L3L4ALGAE
   }
 
-  private static @Getter @Setter SuperState desiredSuperState = SuperState.STOW;
-  private static @Getter @Setter SuperState currentSuperState = SuperState.STOW;
+  private @Getter @Setter  static SuperState desiredSuperState = SuperState.STOW;
+  private @Getter @Setter static SuperState currentSuperState = SuperState.STOW;
   private static SuperState previousState = SuperState.STOW;
 
   public Superstructure(Drive drive, Elevator elevator, Wrist wrist, RobotContainer container, Intake intake) {
