@@ -9,20 +9,28 @@ import frc.robot.RobotContainer;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.Elevator.Substate;
-import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.wrist.Wrist;
 import java.util.function.BooleanSupplier;
 import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 
+// import frc.robot.subsystems.shooter.ShooterSubsystem;
+// import frc.robot.subsystems.swerve.SwerveSubsystem;
+// import frc.robot.subsystems.turret.TurretSubsystem;
+
 public class Superstructure extends SubsystemBase {
   private Drive drive;
   private Elevator elevator;
   private RobotContainer container;
   private Wrist wrist;
-  private Intake intake;
+
+  // private ClimberSubsystem climber;
+
+  // private final Timer climberHeadingLockTimer = new Timer();
+
+  // private boolean subwooferShotMode = false;
+  // private boolean feedShotMode = false;
 
   public static enum SuperState {
     // MANUAL,
@@ -44,190 +52,40 @@ public class Superstructure extends SubsystemBase {
     L3L4ALGAE
   }
 
-  private static @Getter @Setter SuperState desiredSuperState = SuperState.STOW;
-  private static @Getter @Setter SuperState currentSuperState = SuperState.STOW;
+  private static @Getter @Setter SuperState desiredState = SuperState.STOW;
+  private static @Getter @Setter SuperState currentState = SuperState.STOW;
   private static SuperState previousState = SuperState.STOW;
 
-  public Superstructure(Drive drive, Elevator elevator, Wrist wrist, RobotContainer container, Intake intake) {
+  // RobotState.AimingParameters aimingParameters =
+  //         new RobotState.AimingParameters(new Rotation2d(), new Rotation2d(), new
+  // Translation2d(), 0.0);
+
+  // private static final double CLIMBER_MOTOR_ROTATIONS_CLIMB = 105.0;
+  // private static final double CLIMBER_MOTOR_ROTATIONS_CLIMB_SECONDARY = 45.0;
+  // private Rotation2d manualTurretSetpoint = new Rotation2d();
+  // private Rotation2d manualPitchSetpoint = new Rotation2d();
+
+  public Superstructure(Drive drive, Elevator elevator, Wrist wrist, RobotContainer container) {
     this.drive = drive;
     this.elevator = elevator;
     this.container = container;
     this.wrist = wrist;
-    this.intake = intake;
   }
 
   @Override
   public void periodic() {
-    currentSuperState = handleStateTransitions();
-    applyStates();
-    loggingRobostateValues();
-  }
+    // complex logging stuff for later on...? If we want to
 
-  /**
-   * Sets currentState to the appropiate transition state based on desiredState
-   *
-   * @return The current super state
-   */
-  private SuperState handleStateTransitions() {
-    previousState = currentSuperState;
-    var ready = ready(desiredSuperState);
-    currentSuperState =
-        switch (desiredSuperState) {
-          case L1 -> ready ? SuperState.L1 : SuperState.L1PREPARE;
-          case L2 -> ready ? SuperState.L2 : SuperState.L2PREPARE;
-          case L3 -> ready ? SuperState.L3 : SuperState.L3PREPARE;
-          case L4 -> ready ? SuperState.L4 : SuperState.L4PREPARE;
-          case INTAKE -> ready ? SuperState.INTAKE : SuperState.INTAKEPREPARE;
-          case INTAKELOW -> ready ? SuperState.INTAKELOW : SuperState.INTAKELOWPREPARE;
-          default -> desiredSuperState;
-        };
-    return currentSuperState;
-  }
+    // double percentageOfThreeMetersPerSecond = Math.hypot(
+    //                 RobotState.getInstance().getChassisSpeeds().vxMetersPerSecond,
+    //                 RobotState.getInstance().getChassisSpeeds().vyMetersPerSecond)
+    //         / 3.0;
+    // aimingParameters = RobotState.getInstance()
+    //         .getAimingParameters(0.6 * percentageOfThreeMetersPerSecond, 0.25 *
+    // percentageOfThreeMetersPerSecond);
 
-  /**Sets each local subsystem to proper state */
-  private void applyStates() {
-    switch (currentSuperState) {
-      /**For states where intake needs to check Elevator + Wrist, ElevatorWristReady checks if they are at corresponding setpoint */
-      case STOPPED:
-        elevator.setDesiredState(Elevator.Substate.STOPPED);
-        wrist.setDesiredState(Wrist.Substate.STOPPED);
-        intake.setDesiredState(Intake.Substate.STOW);
-        break;
-      case STOW:
-        elevator.setDesiredState(Elevator.Substate.STOW);
-        wrist.setDesiredState(Wrist.Substate.STOW);
-        intake.setDesiredState(Intake.Substate.STOW);
-        break;
-      case L1, L1PREPARE:
-        elevator.setDesiredState(Elevator.Substate.L1);
-        wrist.setDesiredState(Wrist.Substate.L1);
-        intake.setDesiredState(
-          ElevatorWristReady(currentSuperState) ? Intake.Substate.L1OUTTAKING : Intake.Substate.OUTTAKEPREPARE
-        );
-        break;
-      case L2, L2PREPARE:
-        elevator.setDesiredState(Elevator.Substate.L2);
-        wrist.setDesiredState(Wrist.Substate.L2);
-        intake.setDesiredState(
-          ElevatorWristReady(currentSuperState) ? Intake.Substate.L2OUTTAKING : Intake.Substate.OUTTAKEPREPARE
-        );
-        break;
-      case L3, L3PREPARE:
-        elevator.setDesiredState(Elevator.Substate.L3);
-        wrist.setDesiredState(Wrist.Substate.L3);
-        intake.setDesiredState(
-          ElevatorWristReady(currentSuperState) ? Intake.Substate.L3OUTTAKING : Intake.Substate.OUTTAKEPREPARE
-        );
-        break;
-      case L4, L4PREPARE:
-        elevator.setDesiredState(Elevator.Substate.L4);
-        wrist.setDesiredState(Wrist.Substate.L4);
-        intake.setDesiredState(
-          ElevatorWristReady(currentSuperState) ? Intake.Substate.L4OUTTAKING : Intake.Substate.OUTTAKEPREPARE
-        );
-        break;
-      case L2L3ALGAE:
-        elevator.setDesiredState(Elevator.Substate.L2L3ALGAE);
-        wrist.setDesiredState(Wrist.Substate.L2L3ALGAE);
-        intake.setDesiredState(Intake.Substate.L2L3ALGAE);
-        break;
-      case L3L4ALGAE:
-        elevator.setDesiredState(Elevator.Substate.L3L4ALGAE);
-        wrist.setDesiredState(Wrist.Substate.L3L4ALGAE);
-        intake.setDesiredState(Intake.Substate.L3L4ALGAE);
-        break;
-      case INTAKELOW, INTAKELOWPREPARE:
-        elevator.setDesiredState(Elevator.Substate.INTAKELOW);
-        wrist.setDesiredState(Wrist.Substate.INTAKELOW);
-        intake.setDesiredState(
-            ElevatorWristReady(currentSuperState) ? Intake.Substate.INTAKELOW : Intake.Substate.INTAKELOWPREPARE
-        );
-        break;
-      case INTAKE, INTAKEPREPARE:
-        elevator.setDesiredState(Elevator.Substate.INTAKE);
-        wrist.setDesiredState(Wrist.Substate.INTAKE);
-        intake.setDesiredState(
-            ElevatorWristReady(currentSuperState) ? Intake.Substate.INTAKING : Intake.Substate.INTAKEPREPARE
-        );
-    }
-  }
+    currentState = handleStateTransitions();
 
-  /**@return Whether Elevator, Wrist, and Intake are at the correct state. */
-  public boolean ready(SuperState state) {
-    return ElevatorWristReady(state) && intakeReady(state);
-  }
-  /** Transition check */
-  private boolean ElevatorWristReady(SuperState state) {
-    return switch (state) {
-      //return true if both elevator and wrist are in ready state.
-      case L1, L1PREPARE ->
-        elevator.getCurrentState() == Elevator.Substate.L1 && wrist.getCurrentState() == Wrist.Substate.L1;
-      case L2, L2PREPARE ->
-        elevator.getCurrentState() == Elevator.Substate.L2 && wrist.getCurrentState() == Wrist.Substate.L2;
-      case L3, L3PREPARE ->
-        elevator.getCurrentState() == Elevator.Substate.L3 && wrist.getCurrentState() == Wrist.Substate.L3;
-      case L4, L4PREPARE ->
-        elevator.getCurrentState() == Elevator.Substate.L4 && wrist.getCurrentState() == Wrist.Substate.L4;
-      case INTAKE, INTAKEPREPARE ->
-        elevator.getCurrentState() == Elevator.Substate.INTAKE && wrist.getCurrentState() == Wrist.Substate.INTAKE;
-      case INTAKELOW, INTAKELOWPREPARE ->
-        elevator.getCurrentState() == Elevator.Substate.INTAKELOW && wrist.getCurrentState() == Wrist.Substate.INTAKELOW;
-      case L2L3ALGAE ->
-        elevator.getCurrentState() == Elevator.Substate.L2L3ALGAE && wrist.getCurrentState() == Wrist.Substate.L2L3ALGAE;
-      case L3L4ALGAE ->
-        elevator.getCurrentState() == Elevator.Substate.L3L4ALGAE && wrist.getCurrentState() == Wrist.Substate.L3L4ALGAE;
-      case STOW ->
-        elevator.getCurrentState() == Elevator.Substate.STOW && wrist.getCurrentState() == Wrist.Substate.STOW;
-      default -> false;
-    };
-  }
-
-  private boolean intakeReady(SuperState state) {
-    switch(state) {
-      //if superstructure in prepare state, and intake in prepare state, intake is ready.
-      //if superstructure desired is L1, and intake is in L1 prepare state (and previous superstate is L1 prepare), 
-      //superstructure can move to L1.
-      case L1PREPARE, L2PREPARE, L3PREPARE, L4PREPARE:
-        return intake.getCurrentState() == Intake.Substate.OUTTAKEPREPARE;
-      case L1:
-        return intake.getCurrentState() == Intake.Substate.L1OUTTAKING;
-      case L2:
-        return intake.getCurrentState() == Intake.Substate.L2OUTTAKING;
-      case L3:
-        return intake.getCurrentState() == Intake.Substate.L3OUTTAKING;
-      case L4:
-        return intake.getCurrentState() == Intake.Substate.L4OUTTAKING;
-      case INTAKEPREPARE:
-        return intake.getCurrentState() == Intake.Substate.INTAKEPREPARE;
-      case INTAKE:
-        return intake.getCurrentState() == Intake.Substate.INTAKING;
-      case INTAKELOWPREPARE:
-        return intake.getCurrentState() == Intake.Substate.INTAKELOWPREPARE;
-      case INTAKELOW:
-        return intake.getCurrentState() == Intake.Substate.INTAKELOW;
-      default:
-        return false;
-    }
-  }
-  
-  public BooleanSupplier doesCommandMatch(SuperState currentState) {
-    return () -> Superstructure.currentSuperState == currentState;
-  }
-
-  /** State pushers */
-  public void setWantedSuperState(SuperState desiredState) {
-    Superstructure.desiredSuperState = desiredState;
-  }
-
-  public Command setWantedSuperStateCommand(SuperState desiredState) {
-    return new InstantCommand(
-        () -> {
-          setWantedSuperState(desiredState);
-        });
-  }
-
-  public void loggingRobostateValues()
-  {
     // janky way of logging robotstate values. Robot state @AutoLog doesn't work???
     Logger.recordOutput("RobotState/aboveL1", RobotState.getInstance().isAboveL1());
 
@@ -265,8 +123,628 @@ public class Superstructure extends SubsystemBase {
           drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation().getDegrees()
         });
 
-    Logger.recordOutput("Superstructure/CurrentSuperState", currentSuperState.toString());
-    Logger.recordOutput("Superstructure/DesiredSuperState", desiredSuperState.toString());
+    Logger.recordOutput("Superstructure/CurrentSuperState", currentState.toString());
+    Logger.recordOutput("Superstructure/DesiredSuperState", desiredState.toString());
 
+    if (currentState == SuperState.STOPPED) handleStopped();
+
+    // Logger.recordOutput("TeleopShotReady/PivotAtSetpoint", pivot.pivotAtSetpoint());
+    // Logger.recordOutput("TeleopShotReady/PivotGreaterThan10", pivot.getCurrentPosition() > 10.0);
+    // Logger.recordOutput("TeleopShotReady/ShooterAtSpeakerSetpoint", shooter.atSpeakerSetpoint());
+    // Logger.recordOutput(
+    //         "TeleopShotReady/AccelerationVectorUnder12",
+    //         RobotState.getInstance().getLastAccelerationVector() < 0.12);
+    // Logger.recordOutput(
+    //         "TeleopShotReady/HasTarget", RobotState.getInstance().hasTarget());
+    // Logger.recordOutput(
+    //         "TeleopShotReady/CameraWithin8Meters",
+    // RobotState.getInstance().getVisionHorizontalDistance() <= 8.0);
+    // Logger.recordOutput(
+    //         "TeleopShotReady/PredictedPoseWithin8Meters",
+    //         aimingParameters.effectiveDistance().getX() <= 8.0);
+
+    // Logger.recordOutput("DesiredSuperstate", desiredState);
+    // if (currentState != previousState) {
+    //     Logger.recordOutput("CurrentSuperstate", currentState);
+    // }
+
+    // Logger.recordOutput(
+    //         "AimingParameters/AdjustedTurretAngleDegrees",
+    //         aimingParameters.turretAimingAngle().getDegrees());
+    // Logger.recordOutput("AimingParameters/EffectiveDistance",
+    // aimingParameters.effectiveDistance());
+
+    // Logger.recordOutput("FeedShotDistance", RobotState.getInstance().getDistanceToFeedTarget());
+  }
+
+  /**
+   * Sets currentState to the appropiate transition state based on desiredState
+   *
+   * @return The current super state
+   */
+  private SuperState handleStateTransitions() {
+    previousState = currentState;
+    var ready = ready(desiredState);
+    currentState =
+        switch (desiredState) {
+          case L1 -> ready ? SuperState.L1 : SuperState.L1PREPARE;
+          case L2 -> ready ? SuperState.L2 : SuperState.L2PREPARE;
+          case L3 -> ready ? SuperState.L3 : SuperState.L3PREPARE;
+          case L4 -> ready ? SuperState.L4 : SuperState.L4PREPARE;
+          case INTAKE -> ready ? SuperState.INTAKE : SuperState.INTAKEPREPARE;
+          case INTAKELOW -> ready ? SuperState.INTAKELOW : SuperState.INTAKELOWPREPARE;
+          default -> desiredState;
+        };
+
+    return currentState;
+  }
+
+  private void handleStopped() {
+    drive.stop();
+    elevator.stop();
+  }
+
+  /** Transition check */
+  private boolean ready(SuperState state) {
+    return switch (state) {
+        // also has to be at alignment goal to score
+      case L2, L3, L4 -> elevator.atSetPoint(state) && wrist.atSetPoint(state);
+        // && container.getReefAlignController().atGoal();
+        // L1 is prospectively manual driving alignment
+      case L1 -> elevator.atSetPoint(state) && wrist.atSetPoint(state);
+      case INTAKE -> elevator.atSetPoint(state);
+      case INTAKELOW -> elevator.atSetPoint(state);
+      case STOW, INTAKEPREPARE, L2L3ALGAE, L3L4ALGAE -> true;
+      default -> false;
+    };
+  }
+
+  public BooleanSupplier doesCommandMatch(SuperState currentState) {
+    return () -> Superstructure.currentState == currentState;
+  }
+
+  /** State pushers */
+  public void setWantedSuperState(SuperState desiredState) {
+    Superstructure.desiredState = desiredState;
+  }
+
+  public Command setWantedSuperStateCommand(SuperState desiredState) {
+    return new InstantCommand(
+        () -> {
+          setWantedSuperState(desiredState);
+        });
   }
 }
+
+// package frc.robot.subsystems;
+
+// import edu.wpi.first.math.MathUtil;
+// import edu.wpi.first.math.geometry.Pose2d;
+// import edu.wpi.first.math.geometry.Rotation2d;
+// import edu.wpi.first.math.geometry.Transform2d;
+// import edu.wpi.first.math.geometry.Translation2d;
+// import edu.wpi.first.math.kinematics.ChassisSpeeds;
+// import edu.wpi.first.math.util.Units;
+// import edu.wpi.first.wpilibj.DriverStation;
+// import edu.wpi.first.wpilibj.RobotState;
+// import edu.wpi.first.wpilibj.Timer;
+// import edu.wpi.first.wpilibj.SynchronousInterrupt.WaitResult;
+// import edu.wpi.first.wpilibj2.command.Command;
+// import edu.wpi.first.wpilibj2.command.Commands;
+// import edu.wpi.first.wpilibj2.command.InstantCommand;
+// import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+// import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+// import edu.wpi.first.wpilibj2.command.SubsystemBase;
+// import frc.robot.RobotContainer;
+// import frc.robot.subsystems.climber.ClimberSubsystem;
+// // import frc.robot.config.FieldConstants;
+// import frc.robot.subsystems.drive.Drive;
+// import frc.robot.subsystems.flywheel.Flywheel;
+// import frc.robot.subsystems.intake.Intake;
+// import frc.robot.subsystems.vision.Vision;
+
+// import static edu.wpi.first.wpilibj2.command.Commands.none;
+// import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
+
+// // import frc.robot.subsystems.shooter.ShooterSubsystem;
+// // import frc.robot.subsystems.swerve.SwerveSubsystem;
+// // import frc.robot.subsystems.turret.TurretSubsystem;
+// import org.littletonrobotics.junction.Logger;
+
+// import com.fasterxml.jackson.annotation.JsonTypeInfo.None;
+
+// public class Superstructure extends SubsystemBase {
+
+//     private Drive drive;
+//     private Flywheel flywheel;
+//     private Intake intake;
+//     private ClimberSubsystem climber;
+//     private RobotContainer container;
+
+//     // private final Timer climberHeadingLockTimer = new Timer();
+
+//     private boolean subwooferShotMode = false;
+//     private boolean feedShotMode = false;
+
+//     public static enum SuperState {
+//         HOLD_FIX_PIECE,
+//         REGULAR_STATE,
+//         PREPARING_SUBWOOFER_SHOT,
+//         SUBWOOFER_SHOT,
+//         PREPARING_LIMELIGHT_SHOT,
+//         LIMELIGHT_SHOT,
+//         PREPARING_PASS,
+//         PASS,
+
+//         INTAKE_DOWN,
+//         INTAKE_UP,
+//         CLIMBER_UP,
+//         CLIMBER_DOWN,
+//         STOPPED,
+//     }
+
+//     public static enum SuperState {
+//         HOLD_FIX_PIECE,
+//         REGULAR_STATE,
+//         PREPARING_SUBWOOFER_SHOT,
+//         SUBWOOFER_SHOT,
+//         PREPARING_LIMELIGHT_SHOT,
+//         LIMELIGHT_SHOT,
+//         PREPARING_PASS,
+//         PASS,
+
+//         INTAKE_DOWN,
+//         INTAKE_UP,
+//         CLIMBER_UP,
+//         CLIMBER_DOWN,
+//         STOPPED,
+//     }
+
+//     private SuperState desiredState = SuperState.STOPPED;
+//     public static SuperState currentState = SuperState.STOPPED;
+//     private SuperState previousState;
+//     // RobotState.AimingParameters aimingParameters =
+//     //         new RobotState.AimingParameters(new Rotation2d(), new Rotation2d(), new
+// Translation2d(), 0.0);
+
+//     // private static final double CLIMBER_MOTOR_ROTATIONS_CLIMB = 105.0;
+//     // private static final double CLIMBER_MOTOR_ROTATIONS_CLIMB_SECONDARY = 45.0;
+//     // private Rotation2d manualTurretSetpoint = new Rotation2d();
+//     // private Rotation2d manualPitchSetpoint = new Rotation2d();
+
+//     public Superstructure(
+//         Drive drive,
+//         Flywheel flywheel,
+//         Intake intake,
+//         ClimberSubsystem climber,
+
+//         RobotContainer container
+
+//             ) {
+//         this.drive = drive;
+//         this.flywheel = flywheel;
+//         this.intake = intake;
+//         this.climber = climber;
+//         this.container = container;
+
+//     }
+
+//     @Override
+//     public void periodic() {
+//         // double percentageOfThreeMetersPerSecond = Math.hypot(
+//         //                 RobotState.getInstance().getChassisSpeeds().vxMetersPerSecond,
+//         //                 RobotState.getInstance().getChassisSpeeds().vyMetersPerSecond)
+//         //         / 3.0;
+//         // aimingParameters = RobotState.getInstance()
+//         //         .getAimingParameters(0.6 * percentageOfThreeMetersPerSecond, 0.25 *
+// percentageOfThreeMetersPerSecond);
+//         currentState = handleStateTransitions();
+//         applyStates();
+
+//         // Logger.recordOutput("TeleopShotReady/PivotAtSetpoint", pivot.pivotAtSetpoint());
+//         // Logger.recordOutput("TeleopShotReady/PivotGreaterThan10", pivot.getCurrentPosition() >
+// 10.0);
+//         // Logger.recordOutput("TeleopShotReady/ShooterAtSpeakerSetpoint",
+// shooter.atSpeakerSetpoint());
+//         // Logger.recordOutput(
+//         //         "TeleopShotReady/AccelerationVectorUnder12",
+//         //         RobotState.getInstance().getLastAccelerationVector() < 0.12);
+//         // Logger.recordOutput(
+//         //         "TeleopShotReady/HasTarget", RobotState.getInstance().hasTarget());
+//         // Logger.recordOutput(
+//         //         "TeleopShotReady/CameraWithin8Meters",
+// RobotState.getInstance().getVisionHorizontalDistance() <= 8.0);
+//         // Logger.recordOutput(
+//         //         "TeleopShotReady/PredictedPoseWithin8Meters",
+//         //         aimingParameters.effectiveDistance().getX() <= 8.0);
+
+//         // Logger.recordOutput("DesiredSuperstate", desiredState);
+//         // if (currentState != previousState) {
+//         //     Logger.recordOutput("CurrentSuperstate", currentState);
+//         // }
+
+//         // Logger.recordOutput(
+//         //         "AimingParameters/AdjustedTurretAngleDegrees",
+//         //         aimingParameters.turretAimingAngle().getDegrees());
+//         // Logger.recordOutput("AimingParameters/EffectiveDistance",
+// aimingParameters.effectiveDistance());
+
+//         // Logger.recordOutput("FeedShotDistance",
+// RobotState.getInstance().getDistanceToFeedTarget());
+//     }
+
+//     private SuperState handleStateTransitions() {
+//         previousState = currentState;
+//         switch (desiredState) {
+//             case HOLD_FIX_PIECE:
+
+//                 currentState = SuperState.HOLD_FIX_PIECE;
+//                 break;
+
+//             case REGULAR_STATE:
+//                 currentState = SuperState.REGULAR_STATE;
+//                 break;
+//             case PREPARING_SUBWOOFER_SHOT:
+//                 currentState = SuperState.PREPARING_SUBWOOFER_SHOT;
+//                 break;
+//             // case READY_FOR_SUBWOOFER_SHOT:
+//             //     currentState = SuperState.READY_FOR_SUBWOOFER_SHOT;
+//             //     break;
+//             case SUBWOOFER_SHOT:
+//                 currentState = areSystemsReadyForSubwooferShot()
+//                         ? SuperState.SUBWOOFER_SHOT
+//                         : SuperState.PREPARING_SUBWOOFER_SHOT;
+
+//                 break;
+//             case PREPARING_LIMELIGHT_SHOT:
+//                 currentState = SuperState.PREPARING_LIMELIGHT_SHOT;
+//                 break;
+//             // case READY_FOR_LIMELIGHT_SHOT:
+//             //     currentState = SuperState.READY_FOR_LIMELIGHT_SHOT;
+//             //     break;
+//             case LIMELIGHT_SHOT:
+//                 currentState = areSystemsReadyForLimelightShot()
+//                 ? SuperState.LIMELIGHT_SHOT
+//                 : SuperState.PREPARING_LIMELIGHT_SHOT;
+//                 break;
+//             case PREPARING_PASS:
+//                 currentState = SuperState.PREPARING_PASS;
+//                 break;
+//             case PASS:
+
+//                 currentState = areSystemsReadyForPassShot() ? SuperState.PASS :
+// SuperState.PREPARING_PASS;
+//                 break;
+
+//             // case READY_FOR_INTAKE:
+//             //     currentState = SuperState.READY_FOR_INTAKE;
+//             //     break;
+//             case INTAKE_DOWN:
+//                 currentState = SuperState.INTAKE_DOWN;
+//                 break;
+//             case INTAKE_UP:
+//                 currentState = SuperState.INTAKE_UP;
+//                 break;
+//             case CLIMBER_UP:
+//                 currentState = SuperState.CLIMBER_UP;
+//                 break;
+//             case CLIMBER_DOWN:
+//                 currentState = SuperState.CLIMBER_DOWN;
+//                 break;
+
+//             case STOPPED:
+//             default:
+//                 currentState = SuperState.STOPPED;
+//                 break;
+
+//         }
+//         return currentState;
+//     }
+
+//     private void applyStates() {
+//         switch (currentState) {
+//             case REGULAR_STATE:
+//                 drive.disableRotationLock();
+//                 makeSureIntakeUp(true);
+//             case HOLD_FIX_PIECE:
+//                 holdFixPiece();
+//                 break;
+//             case PREPARING_SUBWOOFER_SHOT:
+//                 prepareForSubwooferShot();
+//                 break;
+//             case SUBWOOFER_SHOT:
+//                 subwooferShot();
+//                 break;
+//             case PREPARING_LIMELIGHT_SHOT:
+//                 prepareForLimelightShot();
+//                 break;
+//             case LIMELIGHT_SHOT:
+//                 limelightShot();
+//                 break;
+//             case PREPARING_PASS:
+//                 prepareForPass();
+//                 break;
+//             case PASS:
+//                 pass();
+//                 break;
+//             case INTAKE_DOWN:
+//                 intakeDown();
+//                 break;
+//             case INTAKE_UP:
+//                 intakeUp();
+//                 break;
+//             case CLIMBER_DOWN:
+//             case CLIMBER_UP:
+//                 climb();
+//                 break;
+//             case STOPPED:
+//             default:
+//                 handleStopped();
+//                 break;
+//         }
+//     }
+
+//     /**
+//      * checks
+//      */
+//     private boolean areSystemsReadyForSubwooferShot(){
+//         boolean isReady = flywheel.atSetpoint(flywheel.getSubwooferAngle(),
+//         flywheel.getsubwooferRPM(),
+//         desiredState)
+//                 && intake.atShootPoint();
+
+//         return isReady;
+//     }
+
+//     /** Checks */
+//     private boolean areSystemsReadyForLimelightShot() {
+//         boolean isReady = flywheel.atSetpoint(drive.calculateShootAngle(),
+//         flywheel.getLimelightAndPassRPM(),
+//         desiredState)
+//                 && intake.atShootPoint()
+//                 && drive.atShootSetPoint()
+//                 && drive.stopped();
+
+//         return isReady;
+//     }
+
+//     /** checks
+
+//     */
+//     private boolean areSystemsReadyForPassShot() {
+//         boolean isReady = flywheel.atSetpoint(drive.calculatePassAngle(),
+//         flywheel.getMaxOuttakeRate() * .75,
+//         desiredState)
+//                 && intake.atShootPoint()
+//                 && drive.atPassSetPoint()
+//                 && drive.stopped();
+//         return isReady;
+//     }
+
+//     /** moves intake to shootpoint if it isn't yet*/
+//     private void makeSureIntakeUp(boolean revUp) {
+//         if (!intake.atShootPoint())
+//         {
+//             Commands.run(() -> intake.rotate(() -> 0.0));
+//         }
+//         if (revUp)
+//         {
+//             Commands.run(() -> flywheel.runVelocity(flywheel.getIdleRPM()));
+
+//         }
+//         Commands.run(() -> flywheel.aim(flywheel.getTravelAngle()));
+
+//     }
+
+//     /**
+//      * moves the note up and down and up and down rapidly to fix it while it moves the intake
+// back up.
+//      * therefore, the note should be nicely intaked by the time it's tdone
+//      */
+//     private void intakeUp(){
+
+//         Commands.runOnce(() -> Commands.deadline(
+
+//         Commands.runOnce(() -> makeSureIntakeUp(true)).until(() -> intake.atShootPoint()),
+
+//         new SequentialCommandGroup(
+//             Commands.deadline(waitSeconds(.25),  Commands.run(() -> intake.intake( () ->
+// 700.0))),
+//             Commands.deadline(waitSeconds(.3),  Commands.run(() -> intake.intake( () -> -700.0)))
+//         ).repeatedly()
+
+//         ).finallyDo(() -> Commands.deadline(waitSeconds(.15),  Commands.run(() -> intake.intake(
+// () -> -700.0)))));
+
+//         intake.intake(() -> 0);
+//         desiredState = SuperState.REGULAR_STATE;
+//     }
+
+//     /**
+//      * moves the note up and down and up and down rapidly to fix it while it moves the intake
+// back up.
+//      * therefore, the note should be nicely intaked by the time it's tdone
+//      */
+//     private void holdFixPiece(){
+
+//         Commands.runOnce(() -> Commands.deadline(
+
+//         waitSeconds(1),
+
+//         new SequentialCommandGroup(
+//             Commands.deadline(waitSeconds(.25),  Commands.run(() -> intake.intake( () ->
+// 700.0))),
+//             Commands.deadline(waitSeconds(.3),  Commands.run(() -> intake.intake( () -> -700.0)))
+//         ).repeatedly()
+
+//         ).finallyDo(() -> Commands.deadline(waitSeconds(.15),  Commands.run(() -> intake.intake(
+// () -> -700.0)))));
+
+//         intake.intake(() -> 0);
+//         desiredState = SuperState.REGULAR_STATE;
+//     }
+
+//     /**
+//      * moves the intake up and revs the shooter up while bringing it to the angle for subwoofer
+// shoot
+//      */
+//     private void prepareForSubwooferShot(){
+//         // the preparing should continue regardless until it's just not called anymore
+//         // if (!areSystemsReadyForSubwooferShot())
+//         // {
+//         Commands.run(() ->  new ParallelCommandGroup(
+//         Commands.run(() -> flywheel.aim(flywheel.getSubwooferAngle())),
+//         Commands.run(() -> flywheel.runVelocity(flywheel.getsubwooferRPM())),
+//         Commands.run(() -> makeSureIntakeUp(false))))
+//         ;
+//         // }
+//     }
+
+//     /**
+//      * moves the intake up and revs the shooter up while aiming the shooter and drivetrain for
+// limelight shoot
+//      */
+//     private void prepareForLimelightShot() {
+//         // if (!areSystemsReadyForLimelightShot())
+//         // {
+//             Commands.run( () -> new ParallelCommandGroup(
+//             Commands.run(() -> flywheel.aim(drive.calculateShootAngle())),
+//             Commands.run(() -> flywheel.runVelocity(flywheel.getLimelightAndPassRPM())),
+//             Commands.run(() -> makeSureIntakeUp(false)),
+//             Commands.run(() -> drive.setRotationLock())));
+//         // }
+//     }
+
+//     /**
+//      * Does the Subwoofer Shot. sets the robot state to REGULAR_STATE afterwards
+//      */
+//     private void subwooferShot()
+//     {
+//         Commands.run( () ->
+
+//         Commands.deadline(waitSeconds(.75),
+
+//         Commands.run(() -> intake.intake( () -> 700.0)),
+//         // I don't think the angle should be adjusting during the shot
+//         // Commands.run(() -> flywheel.aim(flywheel.getSubwooferAngle())),
+//         Commands.run(() -> flywheel.runVelocity(flywheel.getsubwooferRPM())),
+//         Commands.run(() -> makeSureIntakeUp(false))
+//         )
+//         );
+//         desiredState = SuperState.REGULAR_STATE;
+//         currentState = SuperState.REGULAR_STATE;
+
+//     }
+
+//     /**
+//      * Does the limelight Shot. sets the robot state to REGULAR_STATE afterwards
+//      */
+//     private void limelightShot()
+//     {
+//         Commands.run( () ->
+//         Commands.deadline(waitSeconds(.75),
+//         Commands.run(() -> intake.intake( () -> 700.0)),
+//         // I don't think the angle should be adjusting during the shot
+//         // Commands.run(() -> flywheel.aim(flywheel.getSubwooferAngle())),
+//         Commands.run(() -> flywheel.runVelocity(flywheel.getLimelightAndPassRPM())),
+//         Commands.run(() -> makeSureIntakeUp(false)),
+//         Commands.runOnce(() -> drive.setRotationLock()),
+//         Commands.run(() -> drive.stop())
+//         )
+//         ).andThen(() -> drive.disableRotationLock());
+
+//         desiredState = SuperState.REGULAR_STATE;
+//         currentState = SuperState.REGULAR_STATE;
+//     }
+
+//      /**
+//      * moves the intake up and revs the shooter up while aiming the shooter and drivetrain for
+// pass
+//      */
+//     private void prepareForPass() {
+//         // if (!areSystemsReadyForLimelightShot())
+//         // {
+
+//             Commands.run (() -> new ParallelCommandGroup(
+//             Commands.run(() -> flywheel.aim(flywheel.getPassShotAngle())),
+//             Commands.run(() -> flywheel.runVelocity(flywheel.getLimelightAndPassRPM())),
+//             Commands.run(() -> makeSureIntakeUp(false)),
+//             Commands.run(() -> drive.setRotationLock())));
+//         // }
+//     }
+
+//     /**
+//      * Does the limelight Shot. sets the robot state to REGULAR_STATE afterwards
+//      */
+//     private void pass()
+//     {
+//         Commands.run( () ->
+//         Commands.deadline(waitSeconds(.75),
+//         Commands.run(() -> intake.intake( () -> 700.0)),
+//         // I don't think the angle should be adjusting during the shot
+//         // Commands.run(() -> flywheel.aim(flywheel.getSubwooferAngle())),
+//         Commands.run(() -> flywheel.runVelocity(flywheel.getLimelightAndPassRPM())),
+//         Commands.run(() -> makeSureIntakeUp(false)),
+//         Commands.runOnce(() -> drive.setRotationLock()),
+//         Commands.run(() -> drive.stop())
+//         )
+//         ).andThen(() -> drive.disableRotationLock());
+
+//         desiredState = SuperState.REGULAR_STATE;
+//         currentState = SuperState.REGULAR_STATE;
+//     }
+
+//     /**
+//      * moves the intake down to the intake angle. This angle is approximated to be the one that
+// works,
+//      * but may be physically stopped by the bumper, which should be at the right height to be
+// able to intake properly
+//      * without dragging the intake on the ground
+//      *
+//      */
+//     private void intakeDown(){
+//         Commands.runOnce(() -> new ParallelCommandGroup(
+//         Commands.run(() -> intake.rotate(() -> -3.3)),
+//         Commands.run(() -> intake.intake(() -> -700.0))
+//         ));
+
+//     }
+
+//     /**
+//      * moves the climber up or down based on the
+//      * @param currentState that is passed,
+//      * {@value} CLIMBER_UP or
+//      * {@value} CLIMBER_DOWN
+//      */
+//     private void climb(){
+//         switch (currentState){
+//             case CLIMBER_UP:
+//                 Commands.run(() -> climber.climb(.7,.7));
+//                 break;
+//             case CLIMBER_DOWN:
+//                 Commands.run(() -> climber.climb(-.7,-.7));
+//                 break;
+//             default:
+//                 Commands.run(() -> climber.climb(0,0));
+//         }
+//     }
+
+//     private void handleStopped(){
+//         Commands.run(() -> new ParallelCommandGroup(
+//         Commands.run(() -> drive.stop()),
+//         Commands.run(() -> flywheel.stop()),
+//         Commands.run(() -> intake.stop()),
+//         Commands.run(() -> climber.stop())
+//         ));
+//     }
+
+//     /** State pushers */
+//     public void setWantedSuperState(SuperState desiredState) {
+//         this.desiredState = desiredState;
+//     }
+
+//     public Command setWantedSuperStateCommand(SuperState desiredState) {
+//         return new InstantCommand(() -> setWantedSuperState(desiredState));
+//     }
+
+// }

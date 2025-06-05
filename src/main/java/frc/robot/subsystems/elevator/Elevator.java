@@ -35,8 +35,8 @@ public class Elevator extends SubsystemBase {
   }
 
   private final ElevatorIO io;
-  private @Getter Substate currentState;
-  private @Setter Substate desiredState;
+  private @Getter Substate currentState = Substate.STOW;
+  private @Setter Substate desiredState = Substate.STOW;
 
   private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 

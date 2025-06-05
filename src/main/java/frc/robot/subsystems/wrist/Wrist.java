@@ -71,7 +71,6 @@ public class Wrist extends SubsystemBase {
     return map;
   }
 
-  private double position = 0;
 
   public Wrist(WristIO wristIO) {
     this.wristIO = wristIO;
@@ -89,16 +88,6 @@ public class Wrist extends SubsystemBase {
     if(newState != currentState) {
       Logger.recordOutput("Wrist/Substate", newState.toString());
       currentState = newState;
-    }
-    // if (positions.containsKey(Superstructure.getCurrentSuperState())
-    //     && RobotState.getInstance().isAboveL1()) {
-    //   position = positions.get(Superstructure.getCurrentSuperState()).get();
-    // } else {
-    //   position = positions.get(SuperState.STOW).get();
-    // }
-    if(desiredState != currentState) {
-      Logger.recordOutput("Wrist/Substate", desiredState.toString());
-      currentState = desiredState;
     }
     applyStates();
     // for wrist, everything is in radians
@@ -138,8 +127,10 @@ public class Wrist extends SubsystemBase {
     switch(currentState) {
       case STOPPED:
         wristIO.stop();
+        break;
       default:
         moveToDesiredPosition(currentState);
+        break;
     }
   }
 
