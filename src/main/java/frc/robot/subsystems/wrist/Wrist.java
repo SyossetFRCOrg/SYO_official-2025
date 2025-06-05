@@ -38,9 +38,7 @@ public class Wrist extends SubsystemBase {
     L3,
     L4,
     L2L3ALGAE,
-    L3L4ALGAE,
-    L2L3ALGAEPREPARE,
-    L3L4ALGAEPREPARE
+    L3L4ALGAE
   }
   private static final HashMap<Substate, LoggedTunableNumber> positions = initializePositions();
   private @Getter Substate currentState;
@@ -69,8 +67,6 @@ public class Wrist extends SubsystemBase {
     map.put(
         Substate.L3L4ALGAE,
         new LoggedTunableNumber("Wrist/L3L4A", map.get(Substate.L2L3ALGAE).get()));
-    map.put(Substate.L2L3ALGAEPREPARE, map.get(Substate.L2L3ALGAE));
-    map.put(Substate.L3L4ALGAEPREPARE, map.get(Substate.L3L4ALGAE));
     
     return map;
   }
@@ -129,10 +125,10 @@ public class Wrist extends SubsystemBase {
         return ready ? Substate.INTAKELOW : Substate.INTAKELOWPREPARE;
       case STOW, STOWPREPARE:
         return ready ? Substate.STOW : Substate.STOWPREPARE;
-      case L2L3ALGAE, L2L3ALGAEPREPARE:
-        return ready ? Substate.L2L3ALGAE : Substate.L2L3ALGAEPREPARE;
-      case L3L4ALGAE, L3L4ALGAEPREPARE:
-        return ready ? Substate.L3L4ALGAE : Substate.L3L4ALGAEPREPARE;
+      case L2L3ALGAE:
+        return Substate.L2L3ALGAE;
+      case L3L4ALGAE:
+        return Substate.L3L4ALGAE;
       default:
         return Substate.STOW;
     }
