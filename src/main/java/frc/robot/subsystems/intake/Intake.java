@@ -60,8 +60,8 @@ public class Intake extends SubsystemBase {
     return map;
   }
 
-  public @Getter @Setter Substate currentState = Substate.STOW;
-  public @Getter @Setter Substate desiredState = Substate.STOW;
+  @Getter @Setter public Substate currentState = Substate.STOW;
+  @Getter @Setter public Substate desiredState = Substate.STOW;
 
   private double intakeSpeed;
   private final IntakeIO intakeIO;

@@ -140,14 +140,14 @@ public class Superstructure extends SubsystemBase {
         elevator.setDesiredState(Elevator.Substate.INTAKELOW);
         wrist.setDesiredState(Wrist.Substate.INTAKELOW);
         intake.setDesiredState(
-            ElevatorWristReady(currentSuperState) ? Intake.Substate.INTAKELOW : Intake.Substate.INTAKELOWPREPARE;
+            ElevatorWristReady(currentSuperState) ? Intake.Substate.INTAKELOW : Intake.Substate.INTAKELOWPREPARE
         );
         break;
       case INTAKE, INTAKEPREPARE:
         elevator.setDesiredState(Elevator.Substate.INTAKE);
         wrist.setDesiredState(Wrist.Substate.INTAKE);
         intake.setDesiredState(
-            ElevatorWristReady(currentSuperState) ? Intake.Substate.INTAKING : Intake.Substate.INTAKEPREPARE;
+            ElevatorWristReady(currentSuperState) ? Intake.Substate.INTAKING : Intake.Substate.INTAKEPREPARE
         );
     }
   }
@@ -209,12 +209,7 @@ public class Superstructure extends SubsystemBase {
         return false;
     }
   }
-
-  private void handleStopped() {
-    drive.stop();
-    elevator.stop();
-  }
-
+  
   public BooleanSupplier doesCommandMatch(SuperState currentState) {
     return () -> Superstructure.currentSuperState == currentState;
   }
@@ -230,7 +225,7 @@ public class Superstructure extends SubsystemBase {
           setWantedSuperState(desiredState);
         });
   }
-}
+
   public void loggingRobostateValues()
   {
     // janky way of logging robotstate values. Robot state @AutoLog doesn't work???
@@ -274,3 +269,4 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Superstructure/DesiredSuperState", desiredSuperState.toString());
 
   }
+}
