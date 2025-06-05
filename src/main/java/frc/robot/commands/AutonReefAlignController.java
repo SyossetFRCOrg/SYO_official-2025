@@ -10,7 +10,8 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.RobotState;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.SuperState;
+import frc.robot.subsystems.Superstructure.CurrentSuperState;
+import frc.robot.subsystems.Superstructure.WantedSuperState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.LoggedTunableNumber;
@@ -36,8 +37,7 @@ public class AutonReefAlignController {
       new LoggedTunableNumber("AutonAlign/thetakD", 0.5);
   private static final LoggedTunableNumber linearTolerance =
       new LoggedTunableNumber(
-          "AutonAlign/controllerLinearTolerance",
-          Superstructure.getDesiredState() == SuperState.L4 ? 0.008 : 0.01);
+          "AutonAlign/controllerLinearTolerance", /*Superstructure.getWantedSuperState() == SuperState.L4 ? 0.008 :*/ 0.01);
   private static final LoggedTunableNumber thetaTolerance =
       new LoggedTunableNumber("AutonAlign/controllerThetaTolerance", Units.degreesToRadians(2));
   private static final LoggedTunableNumber toleranceTime =
@@ -88,15 +88,21 @@ public class AutonReefAlignController {
   private ProfiledPIDController thetaController;
   //   private TrapezoidProfile.State thetaSetpoint;
 
+
+  private Superstructure superstructure;
+
   private final Timer toleranceTimer = new Timer();
 
   public AutonReefAlignController(
       Drive drive,
       //   Supplier<Translation2d> feedforwardSupplier,
       BooleanSupplier slowMode,
-      Pose2d desiredpose) {
+      Pose2d desiredpose,
+      Superstructure superstructure) {
     this.drive = drive;
     this.desiredPose = desiredpose;
+
+    this.superstructure = superstructure;
 
     // this.feedforwardSupplier = feedforwardSupplier;
     this.slowMode = slowMode;

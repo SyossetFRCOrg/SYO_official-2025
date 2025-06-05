@@ -2,10 +2,10 @@ package frc.robot.subsystems.wrist;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.HashMap;
 import org.littletonrobotics.junction.Logger;
@@ -17,29 +17,53 @@ public class Wrist extends SubsystemBase {
 
   private final Debouncer aimedDebounce = new Debouncer(0.4);
 
-  private static final HashMap<SuperState, LoggedTunableNumber> positions = initializePositions();
+  private static final HashMap<SystemState, LoggedTunableNumber> positions = initializePositions();
 
-  private static final HashMap<SuperState, LoggedTunableNumber> initializePositions() {
-    var map = new HashMap<SuperState, LoggedTunableNumber>();
-    map.put(SuperState.STOW, new LoggedTunableNumber("Wrist/StowPosition", 0));
-    map.put(SuperState.INTAKE, new LoggedTunableNumber("Wrist/IntakePosition", 1.5));
+  public enum WantedState {
+        STOW,
+        L1,
+        L2,
+        L3,
+        L4,
+        L2L3ALGAE,
+        L3L4ALGAE,
+        INTAKE
+    }
 
-    map.put(SuperState.L2L3ALGAE, new LoggedTunableNumber("Wrist/L2L3AlgaePosition", 2.4));
-    map.put(SuperState.L3L4ALGAE, map.get(SuperState.L2L3ALGAE));
+    public enum SystemState {
+        IN_STOW,
+        L1_ING,
+        L2_ING,
+        L3_ING,
+        L4_ING,
+        L2L3ALGAE_ING,
+        L3L4ALGAE_ING,
+        INTAKING
+    }
+    private WantedState wantedState = WantedState.STOW;
+    private SystemState systemState = SystemState.IN_STOW;
 
-    map.put(SuperState.L1, new LoggedTunableNumber("Wrist/L1Position", 1.8));
-    map.put(SuperState.L2, new LoggedTunableNumber("Wrist/L2Position", 3.2));
-    map.put(SuperState.L3, new LoggedTunableNumber("Wrist/L3Position", 3.2));
-    map.put(SuperState.L4, new LoggedTunableNumber("Wrist/L4Position", 3.2));
+  private static final HashMap<SystemState, LoggedTunableNumber> initializePositions() {
+    var map = new HashMap<SystemState, LoggedTunableNumber>();
+    map.put(SystemState.IN_STOW, new LoggedTunableNumber("Wrist/StowPosition", 0));
+    map.put(SystemState.INTAKING, new LoggedTunableNumber("Wrist/IntakePosition", 1.5));
 
-    map.put(SuperState.L1PREPARE, map.get(SuperState.L1));
-    map.put(SuperState.L2PREPARE, map.get(SuperState.L2));
-    map.put(SuperState.L3PREPARE, map.get(SuperState.L3));
-    map.put(SuperState.L4PREPARE, map.get(SuperState.L4));
+    map.put(SystemState.L2L3ALGAE_ING, new LoggedTunableNumber("Wrist/L2L3AlgaePosition", 2.4));
+    map.put(SystemState.L3L4ALGAE_ING, map.get(SystemState.L2L3ALGAE_ING));
 
-    map.put(SuperState.INTAKEPREPARE, map.get(SuperState.STOW));
-    map.put(SuperState.INTAKELOW, map.get(SuperState.INTAKE));
-    map.put(SuperState.INTAKELOWPREPARE, map.get(SuperState.INTAKE));
+    map.put(SystemState.L1_ING, new LoggedTunableNumber("Wrist/L1Position", 1.8));
+    map.put(SystemState.L2_ING, new LoggedTunableNumber("Wrist/L2Position", 3.2));
+    map.put(SystemState.L3_ING, new LoggedTunableNumber("Wrist/L3Position", 3.2));
+    map.put(SystemState.L4_ING, new LoggedTunableNumber("Wrist/L4Position", 3.2));
+
+    // map.put(SystemState.L1PREPARE, map.get(SystemState.L1));
+    // map.put(SystemState.L2PREPARE, map.get(SuperState.L2));
+    // map.put(SystemState.L3PREPARE, map.get(SuperState.L3));
+    // map.put(SystemState.L4PREPARE, map.get(SuperState.L4));
+
+    // map.put(SystemState.INTAKEPREPARE, map.get(SystemState.STOW));
+    // map.put(SystemState.INTAKELOW, map.get(SystemState.INTAKE));
+    // map.put(SystemState.INTAKELOWPREPARE, map.get(SystemState.INTAKE));
 
     return map;
   }
@@ -58,31 +82,112 @@ public class Wrist extends SubsystemBase {
     Logger.processInputs("Wrist", inputs);
     wristIO.periodic();
 
-    if (positions.containsKey(Superstructure.getCurrentState())
-        && RobotState.getInstance().isAboveL1()) {
-      position = positions.get(Superstructure.getCurrentState()).get();
-    } else {
-      position = positions.get(SuperState.STOW).get();
+    SystemState newState = handleStateTransitions();
+
+    if (newState != systemState) {
+      Logger.recordOutput("Shooter/SystemState", newState.toString());
+      systemState = newState;
+    }
+    
+    if (RobotState.getInstance().isAboveL1() && RobotState.getInstance().isWristCanMove()) {
+      switch (systemState) {
+        case IN_STOW -> handleStow();
+        case L1_ING -> handleL1();
+        case L2_ING -> handleL2();
+        case L3_ING -> handleL3();
+        case L4_ING -> handleL4();
+        case L2L3ALGAE_ING -> handleL2L3Algae();
+        case L3L4ALGAE_ING -> handleL3L4Algae();
+        case INTAKING -> handleIntaking();
+        default -> handleStow();
+      }
+    }
+    else
+    {
+      handleStow();
+    }
+  }
+  public void handleStow() {
+    wristIO.runPosition(positions.get(SystemState.IN_STOW).get());
     }
 
-    // for wrist, everything is in radians
-    if (RobotState.getInstance().isWristCanMove()) wristIO.runPosition(position);
-    else wristIO.runPosition(positions.get(SuperState.STOW).get());
-  }
+    public void handleL1() {
+    wristIO.runPosition(positions.get(SystemState.L1_ING).get());
+    }
 
-  public void resetPosition(double posRads) {
+    public void handleL2() {
+    wristIO.runPosition(positions.get(SystemState.L2_ING).get());
+    }
+
+    public void handleL3() {
+    wristIO.runPosition(positions.get(SystemState.L3_ING).get());
+    }
+
+    public void handleL4() {
+    wristIO.runPosition(positions.get(SystemState.L4_ING).get());
+    }
+
+    public void handleL2L3Algae() {
+    wristIO.runPosition(positions.get(SystemState.L2L3ALGAE_ING).get());
+    }
+
+    public void handleL3L4Algae() {
+    wristIO.runPosition(positions.get(SystemState.L3L4ALGAE_ING).get());
+    }
+
+    public void handleIntaking() {
+    wristIO.runPosition(positions.get(SystemState.INTAKING).get());
+    }
+
+    private SystemState handleStateTransitions() {
+      return switch (wantedState) {
+        case STOW -> SystemState.IN_STOW;
+        case L1 -> SystemState.L1_ING;
+        case L2 -> SystemState.L2_ING;
+        case L3 -> SystemState.L3_ING;
+        case L4 -> SystemState.L4_ING;
+        case L2L3ALGAE -> SystemState.L2L3ALGAE_ING;
+        case L3L4ALGAE -> SystemState.L3L4ALGAE_ING;
+        case INTAKE -> SystemState.INTAKING;
+        default -> SystemState.IN_STOW;
+      };
+    }
+
+
+
+    public void resetPosition(double posRads) {
     wristIO.resetPosition(posRads);
   }
 
-  public boolean atSetPoint(SuperState setpointState) {
-
-    if (positions.containsKey(setpointState)) position = positions.get(setpointState).get();
+  public boolean atL1() {
     return aimedDebounce.calculate(
-        MathUtil.isNear(position, inputs.positionRad, 0.05 /*0.106 rad*/)
-            && Math.abs(inputs.velocityRadPerSec) < .1);
+      MathUtil.isNear(positions.get(SystemState.L1_ING).get(), inputs.positionRad, 0.05 /*0.106 rad*/)
+        && Math.abs(inputs.velocityRadPerSec) < 0.1);
+  }
+  
+  public boolean atL2() {
+    return aimedDebounce.calculate(
+      MathUtil.isNear(positions.get(SystemState.L1_ING).get(), inputs.positionRad, 0.05 /*0.106 rad*/)
+        && Math.abs(inputs.velocityRadPerSec) < 0.1);
+  }
+  
+  public boolean atL3() {
+    return aimedDebounce.calculate(
+      MathUtil.isNear(positions.get(SystemState.L1_ING).get(), inputs.positionRad, 0.05 /*0.106 rad*/)
+        && Math.abs(inputs.velocityRadPerSec) < 0.1);
+  }
+  
+  public boolean atL4() {
+    return aimedDebounce.calculate(
+      MathUtil.isNear(positions.get(SystemState.L1_ING).get(), inputs.positionRad, 0.05 /*0.106 rad*/)
+        && Math.abs(inputs.velocityRadPerSec) < 0.1);
   }
 
   public double getPosition() {
     return inputs.positionRad;
+  }
+
+  public void setWantedState(WantedState wantedState) {
+    this.wantedState = wantedState;
   }
 }

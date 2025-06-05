@@ -4,14 +4,11 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
-import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.HashMap;
 import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
-
   private final ElevatorIO io;
   private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
@@ -19,52 +16,55 @@ public class Elevator extends SubsystemBase {
 
   private double heightTolerance = .8; // rad
 
-  // DigitalInput zeroLimitSwitch = new DigitalInput(1);
+  private static final HashMap<SystemState, LoggedTunableNumber> heights = initializeHeights();
 
-  private static final HashMap<SuperState, LoggedTunableNumber> heights = initializeHeights();
+  public enum WantedState {
+    STOW,
+    L1,
+    L2,
+    L3,
+    L4,
+    L2L3ALGAE,
+    L3L4ALGAE,
+    INTAKE,
+    INTAKELOW
+  }
 
-  private static final HashMap<SuperState, LoggedTunableNumber> initializeHeights() {
-    var map = new HashMap<SuperState, LoggedTunableNumber>();
-    // to be tuned
-    map.put(SuperState.STOW, new LoggedTunableNumber("Elevator/StowPosition", 0));
-    map.put(SuperState.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 30));
-    map.put(SuperState.INTAKELOW, new LoggedTunableNumber("Elevator/LOWIntakePosition", 26.5));
-    map.put(SuperState.L1, new LoggedTunableNumber("Elevator/L1Position", 11));
-    map.put(SuperState.L2, new LoggedTunableNumber("Elevator/L2Position", 36.4));
-    map.put(SuperState.L3, new LoggedTunableNumber("Elevator/L3Position", 51));
-    map.put(SuperState.L4, new LoggedTunableNumber("Elevator/L4Position", 74.5));
+  public enum SystemState {
+    IN_STOW,
+    L1_ING,
+    L2_ING,
+    L3_ING,
+    L4_ING,
+    L2L3ALGAE_ING,
+    L3L4ALGAE_ING,
+    INTAKING,
+    INTAKELOW_ING
+  }
 
-    map.put(SuperState.L2L3ALGAE, map.get(SuperState.L2));
-    map.put(
-        SuperState.L3L4ALGAE,
-        new LoggedTunableNumber("Elevator/L3L4A", map.get(SuperState.L3).get() - 5));
+  private WantedState wantedState = WantedState.STOW;
+  private SystemState systemState = SystemState.IN_STOW;
 
-    map.put(SuperState.L1PREPARE, map.get(SuperState.L1));
-    map.put(SuperState.L2PREPARE, map.get(SuperState.L2));
-    map.put(SuperState.L3PREPARE, map.get(SuperState.L3));
-    map.put(SuperState.L4PREPARE, map.get(SuperState.L4));
+  private static final HashMap<SystemState, LoggedTunableNumber> initializeHeights() {
+    var map = new HashMap<SystemState, LoggedTunableNumber>();
+    map.put(SystemState.IN_STOW, new LoggedTunableNumber("Elevator/StowPosition", 0));
+    map.put(SystemState.INTAKING, new LoggedTunableNumber("Elevator/IntakePosition", 30));
+    map.put(SystemState.INTAKELOW_ING, new LoggedTunableNumber("Elevator/LOWIntakePosition", 26.5));
+    map.put(SystemState.L1_ING, new LoggedTunableNumber("Elevator/L1Position", 11));
+    map.put(SystemState.L2_ING, new LoggedTunableNumber("Elevator/L2Position", 36.4));
+    map.put(SystemState.L3_ING, new LoggedTunableNumber("Elevator/L3Position", 51));
+    map.put(SystemState.L4_ING, new LoggedTunableNumber("Elevator/L4Position", 74.5));
 
-    map.put(SuperState.INTAKEPREPARE, map.get(SuperState.INTAKE));
-    map.put(SuperState.INTAKELOWPREPARE, map.get(SuperState.INTAKELOW));
+    map.put(SystemState.L2L3ALGAE_ING, map.get(SystemState.L2_ING));
+    map.put(SystemState.L3L4ALGAE_ING, 
+        new LoggedTunableNumber("Elevator/L3L4A", map.get(SystemState.L3_ING).get() - 5));
 
     return map;
   }
 
-  private double targetHeight = 0;
-
   public Elevator(ElevatorIO io) {
     this.io = io;
     io.setBrakeMode(true);
-
-    // // Configure SysId
-    // sysId =
-    //     new SysIdRoutine(
-    //         new SysIdRoutine.Config(
-    //             null,
-    //             null,
-    //             null,
-    //             (state) -> Logger.recordOutput("Intake/SysIdState", state.toString())),
-    //         new SysIdRoutine.Mechanism((voltage) -> runVolts(voltage.in(Volts)), null, this));
   }
 
   @Override
@@ -77,98 +77,147 @@ public class Elevator extends SubsystemBase {
       io.periodic();
     }
 
+    SystemState newState = handleStateTransitions();
+
+    if (newState != systemState) {
+      Logger.recordOutput("Elevator/SystemState", newState.toString());
+      systemState = newState;
+    }
+
     Logger.recordOutput("Elevator/AtGoal", atSetPoint());
 
-    applyStates();
+    // Execute state-specific behavior
+    switch (systemState) {
+      case IN_STOW -> handleStow();
+      case L1_ING -> handleL1();
+      case L2_ING -> handleL2();
+      case L3_ING -> handleL3();
+      case L4_ING -> handleL4();
+      case L2L3ALGAE_ING -> handleL2L3Algae();
+      case L3L4ALGAE_ING -> handleL3L4Algae();
+      case INTAKING -> handleIntaking();
+      case INTAKELOW_ING -> handleIntakeLow();
+      default -> handleStow();
+    }
 
-    // if (zeroLimitSwitch.get()) {
-    //   io.setHeight(0);
-    // }
-    // System.out.println(zeroLimitSwitch.get());
+    // Update RobotState based on current height
+    updateRobotState();
+  }
 
-    // modify the Elevator position in RobotState so that the moduleLimits changes so the max
-    // acceleration changes
-    // depending on the superstate of the superstructure. can technically do this anywhere, but
-    // makes most sense in elevator.
+  public void handleStow() {
+    io.movetoHeight(heights.get(SystemState.IN_STOW).get());
+  }
 
-    if (getHeight() >= heights.get(SuperState.L4).get() - heightTolerance * 1.3) {
+  public void handleL1() {
+    io.movetoHeight(heights.get(SystemState.L1_ING).get());
+  }
+
+  public void handleL2() {
+    io.movetoHeight(heights.get(SystemState.L2_ING).get());
+  }
+
+  public void handleL3() {
+    io.movetoHeight(heights.get(SystemState.L3_ING).get());
+  }
+
+  public void handleL4() {
+    io.movetoHeight(heights.get(SystemState.L4_ING).get());
+  }
+
+  public void handleL2L3Algae() {
+    io.movetoHeight(heights.get(SystemState.L2L3ALGAE_ING).get());
+  }
+
+  public void handleL3L4Algae() {
+    io.movetoHeight(heights.get(SystemState.L3L4ALGAE_ING).get());
+  }
+
+  public void handleIntaking() {
+    io.movetoHeight(heights.get(SystemState.INTAKING).get());
+  }
+
+  public void handleIntakeLow() {
+    io.movetoHeight(heights.get(SystemState.INTAKELOW_ING).get());
+  }
+
+  private SystemState handleStateTransitions() {
+    return switch (wantedState) {
+      case STOW -> SystemState.IN_STOW;
+      case L1 -> SystemState.L1_ING;
+      case L2 -> SystemState.L2_ING;
+      case L3 -> SystemState.L3_ING;
+      case L4 -> SystemState.L4_ING;
+      case L2L3ALGAE -> SystemState.L2L3ALGAE_ING;
+      case L3L4ALGAE -> SystemState.L3L4ALGAE_ING;
+      case INTAKE -> SystemState.INTAKING;
+      case INTAKELOW -> SystemState.INTAKELOW_ING;
+      default -> SystemState.IN_STOW;
+    };
+  }
+
+  private void updateRobotState() {
+    // Update elevator position for drive limits
+    if (getHeight() >= heights.get(SystemState.L4_ING).get() - heightTolerance * 1.3) {
       RobotState.getInstance().setElevatorPosition(4);
-    } else if (getHeight() >= heights.get(SuperState.L3).get() - heightTolerance * 1.3) {
+    } else if (getHeight() >= heights.get(SystemState.L3_ING).get() - heightTolerance * 1.3) {
       RobotState.getInstance().setElevatorPosition(3);
-    } else if (getHeight() >= heights.get(SuperState.L2).get() - heightTolerance * 1.3) {
+    } else if (getHeight() >= heights.get(SystemState.L2_ING).get() - heightTolerance * 1.3) {
       RobotState.getInstance().setElevatorPosition(2);
-    } else if (getHeight() >= heights.get(SuperState.L1).get() - heightTolerance * 1.3) {
+    } else if (getHeight() >= heights.get(SystemState.L1_ING).get() - heightTolerance * 1.3) {
       RobotState.getInstance().setElevatorPosition(1);
-    } else if (getHeight() < heights.get(SuperState.L1).get() - heightTolerance * 1.3) {
+    } else {
       RobotState.getInstance().setElevatorPosition(0);
     }
-    // if (Superstructure.getDesiredState() == SuperState.STOW) {
-    //   RobotState.getInstance().setElevatorPosition(0);
-    // }
 
-    // if (Superstructure.getDesiredState() == SuperState.L1
-    //     || Superstructure.getDesiredState() == SuperState.INTAKE) {
-    //   RobotState.getInstance().setElevatorPosition(1);
-    // }
-    // if (Superstructure.getDesiredState() == SuperState.L2) {
-    //   RobotState.getInstance().setElevatorPosition(2);
-    // }
-
-    // if (Superstructure.getDesiredState() == SuperState.L3
-    // // || Superstructure.getDesiredState() == SuperState.AlgaeL2L3
-    // // || Superstructure.getDesiredState() == SuperState.AlgaeL3L4
-    // ) {
-    //   RobotState.getInstance().setElevatorPosition(3);
-    // }
-    // if (Superstructure.getDesiredState() == SuperState.L4) {
-    //   RobotState.getInstance().setElevatorPosition(4);
-    // }
-
+    // Update wrist movement permission
     RobotState.getInstance()
-        .setAboveL1(getHeight() >= heights.get(SuperState.L1).get() - heightTolerance);
+        .setWristCanMove(getHeight() > heights.get(SystemState.L1_ING).get() - heightTolerance);
+
+    // Update above L1 status
+    RobotState.getInstance()
+        .setAboveL1(getHeight() >= heights.get(SystemState.L1_ING).get() - heightTolerance);
   }
 
-  private void applyStates() {
-    var state = Superstructure.getCurrentState();
-    if (heights.containsKey(state)) targetHeight = heights.get(state).get();
-    RobotState.getInstance()
-        .setWristCanMove(getHeight() > heights.get(SuperState.L1).get() - heightTolerance);
-    io.movetoHeight(targetHeight);
-  }
-
-  /** Check if the height is close enough to desired state setpoint */
+  /** Check if the height is close enough to current state setpoint */
   public boolean atSetPoint() {
-    // Make sure the targetHeight is updated
-    return atSetPoint(Superstructure.getCurrentState());
+    var targetHeight = heights.get(systemState).get();
+    return atSetpointDebouncer.calculate(MathUtil.isNear(targetHeight, getHeight(), heightTolerance));
   }
 
   /** Check if the height is close enough to the given state setpoint */
-  public boolean atSetPoint(SuperState state) {
-    var height = targetHeight;
-    if (heights.containsKey(state)) height = heights.get(state).get();
+  public boolean atSetPoint(SystemState state) {
+    var height = heights.get(state).get();
     return atSetpointDebouncer.calculate(MathUtil.isNear(height, getHeight(), heightTolerance));
   }
 
-  /** Returns the current angle of the intake in radians. */
+  /** Returns the current height of the elevator in radians. */
   public double getHeight() {
     return inputs.positionRads;
   }
 
-  // public boolean elevatorUp() {
-  //   return getHeight() >= heights.get(SuperState.L2).get();
-  // }
-
   /**
-   * Resets the angle of the elevator
+   * Resets the height of the elevator
    *
-   * @param positionRads The angle in radians
+   * @param positionRads The height in radians
    */
   public void setHeight(double positionRads) {
     io.setHeight(positionRads);
   }
 
-  /** Stop slam elevator */
+  /** Stop elevator */
   public void stop() {
     io.stop();
+  }
+
+  public void setWantedState(WantedState wantedState) {
+    this.wantedState = wantedState;
+  }
+
+  public WantedState getWantedState() {
+    return wantedState;
+  }
+
+  public SystemState getSystemState() {
+    return systemState;
   }
 }

@@ -6,8 +6,8 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
-
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -17,8 +17,10 @@ import frc.robot.RobotContainer;
 import frc.robot.RobotState;
 import frc.robot.commands.AutonReefAlignController;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.SuperState;
+import frc.robot.subsystems.Superstructure.CurrentSuperState;
+import frc.robot.subsystems.Superstructure.WantedSuperState;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.elevator.Elevator.WantedState;
 import frc.robot.util.AllianceFlipUtil;
 
 /** A factory for creating autonomous programs for a given {@link Auto} */
@@ -49,7 +51,7 @@ class AutoFactory {
     this.robotContainer = robotContainer;
     this.drive = drive;
     this.superstructure = superstructure;
-    autonreefAlignController = new AutonReefAlignController(drive, () -> false, new Pose2d());
+    autonreefAlignController = new AutonReefAlignController(drive, () -> false, new Pose2d(), superstructure);
   }
 
   /* Autonomous program factories
@@ -803,7 +805,7 @@ class AutoFactory {
 
   private Command AutoAlignL4Score(PathPlannerPath segment) {
     return superstructure
-        .setWantedSuperStateCommand(SuperState.L4)
+        .setWantedSuperStateCommand(WantedSuperState.L4)
         .andThen(
             new InstantCommand(
                 () -> {
@@ -815,7 +817,7 @@ class AutoFactory {
                                   < 1.0,
                           RobotState.getInstance()
                               .getNearestReefPose(
-                                  segment.getIdealTrajectory(null).get().getEndState().pose));
+                                  segment.getIdealTrajectory(null).get().getEndState().pose), superstructure);
                 }))
         .andThen(
             new InstantCommand(
@@ -827,13 +829,13 @@ class AutoFactory {
                 .until(
                     () ->
                         autonreefAlignController.atGoal()
-                            && Superstructure.getCurrentState() == SuperState.L4))
+                            && superstructure.getCurrentSuperState() == CurrentSuperState.L4_ED))
         .andThen(waitSeconds(.4));
   }
 
   private Command AutoAlignL3Score(PathPlannerPath segment) {
     return superstructure
-        .setWantedSuperStateCommand(SuperState.L3)
+        .setWantedSuperStateCommand(WantedSuperState.L3)
         .andThen(
             new InstantCommand(
                 () -> {
@@ -845,7 +847,7 @@ class AutoFactory {
                                   < 1.0,
                           RobotState.getInstance()
                               .getNearestReefPose(
-                                  segment.getIdealTrajectory(null).get().getEndState().pose));
+                                  segment.getIdealTrajectory(null).get().getEndState().pose), superstructure);
                 }))
         .andThen(
             new InstantCommand(
@@ -857,12 +859,13 @@ class AutoFactory {
                 .until(
                     () ->
                         autonreefAlignController.atGoal()
-                            && Superstructure.getCurrentState() == SuperState.L3))
+                            && superstructure.getCurrentSuperState() == CurrentSuperState.L3_ED))
         .andThen(waitSeconds(.4));
   }
+
   private Command AutoAlignL2Score(PathPlannerPath segment) {
     return superstructure
-        .setWantedSuperStateCommand(SuperState.L2)
+        .setWantedSuperStateCommand(WantedSuperState.L2)
         .andThen(
             new InstantCommand(
                 () -> {
@@ -874,7 +877,7 @@ class AutoFactory {
                                   < 1.0,
                           RobotState.getInstance()
                               .getNearestReefPose(
-                                  segment.getIdealTrajectory(null).get().getEndState().pose));
+                                  segment.getIdealTrajectory(null).get().getEndState().pose), superstructure);
                 }))
         .andThen(
             new InstantCommand(
@@ -886,7 +889,7 @@ class AutoFactory {
                 .until(
                     () ->
                         autonreefAlignController.atGoal()
-                            && Superstructure.getCurrentState() == SuperState.L2))
+                            && superstructure.getCurrentSuperState() == CurrentSuperState.L2_ED))
         .andThen(waitSeconds(.4));
   }
 
@@ -921,21 +924,21 @@ class AutoFactory {
 
   private Command StowFollow(final Location start, final Location end) {
     return superstructure
-        .setWantedSuperStateCommand(SuperState.L2PREPARE)
+        .setWantedSuperStateCommand(WantedSuperState.L2PREPARE)
         .alongWith(follow(loadSegment(start, end)));
   }
 
   private Command StowFollow(PathPlannerPath path) {
-    return superstructure.setWantedSuperStateCommand(SuperState.STOW).alongWith(follow(path));
+    return superstructure.setWantedSuperStateCommand(WantedSuperState.STOW).alongWith(follow(path));
   }
 
   private Command IntakeFollow(PathPlannerPath path) {
-    return superstructure.setWantedSuperStateCommand(SuperState.INTAKE).alongWith(follow(path));
+    return superstructure.setWantedSuperStateCommand(WantedSuperState.INTAKE).alongWith(follow(path));
   }
 
   private Command IntakeFollow(final Location start, final Location end) {
     return (superstructure
-        .setWantedSuperStateCommand(SuperState.INTAKE)
+        .setWantedSuperStateCommand(WantedSuperState.INTAKE)
         .alongWith(follow(loadSegment(start, end))));
     // time for HP to throw in the coral
   }

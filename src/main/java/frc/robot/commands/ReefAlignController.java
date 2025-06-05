@@ -9,8 +9,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.RobotState;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.LoggedTunableNumber;
@@ -35,8 +33,7 @@ public class ReefAlignController {
   private static final LoggedTunableNumber thetakD =
       new LoggedTunableNumber("AutoAlign/thetakD", 0.5);
   private static final LoggedTunableNumber linearTolerance =
-      new LoggedTunableNumber(
-          "AutoAlign/controllerLinearTolerance", .005);
+      new LoggedTunableNumber("AutoAlign/controllerLinearTolerance", .005);
   private static final LoggedTunableNumber thetaTolerance =
       new LoggedTunableNumber("AutoAlign/controllerThetaTolerance", Units.degreesToRadians(2));
   private static final LoggedTunableNumber toleranceTime =

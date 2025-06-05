@@ -5,7 +5,8 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.autos.AutoChooser;
-import frc.robot.subsystems.Superstructure.SuperState;
+import frc.robot.subsystems.Superstructure.CurrentSuperState;
+import frc.robot.subsystems.Superstructure.WantedSuperState;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -64,7 +65,7 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {
 
     autoChooser.reset("SmartDashboard/Autonomous/2025Programs");
-    robotContainer.getSuperstructure().setWantedSuperState(SuperState.STOPPED);
+    robotContainer.getSuperstructure().setWantedSuperState(WantedSuperState.STOP);
   }
 
   /** This function is called periodically when disabled. */
@@ -88,7 +89,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledExit() {
-    robotContainer.getSuperstructure().setWantedSuperState(SuperState.STOW);
+    robotContainer.getSuperstructure().setWantedSuperState(WantedSuperState.STOW);
   }
 
   @Override
