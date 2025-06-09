@@ -128,7 +128,6 @@ public class Wrist extends SubsystemBase {
   }
 
   private void applyStates() {
-
     moveToDesiredPosition(currentState);
   }
 

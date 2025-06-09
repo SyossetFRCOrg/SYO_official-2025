@@ -77,7 +77,7 @@ public class Intake extends SubsystemBase {
       currentState = newState;
     }
     applyStates();
-    intakeIO.setVelocity(intakeSpeed);
+    // intakeIO.setVelocity(intakeSpeed);
 
     if (inputs.currentAmps < 1.5) {
       debounceTimer.reset();
