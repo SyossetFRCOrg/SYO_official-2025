@@ -148,12 +148,14 @@ public class RobotContainer {
     // kinda stupid but it works
     Container<Translation2d> AAFFSupplier = new Container<>();
 
+    double tempSpeed = 0.40;
+
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            () -> -controller.getLeftY() * tempSpeed,
+            () -> -controller.getLeftX() * tempSpeed,
+            () -> -controller.getRightX() * tempSpeed));
 
     // Lock to nearest coral station's angle when A button is held
     // also go towards it, still allowing for driver translation
