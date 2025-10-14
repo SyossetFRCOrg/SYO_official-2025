@@ -307,9 +307,11 @@ public class AutoChooser extends SendableChooser<Auto> {
       final Map<DriverStation.Alliance, AutoFactory> autoFactories) {
     this.programs = programs;
     this.autoFactories = autoFactories;
-    commandCache =
-        Stream.of(DriverStation.Alliance.values())
-            .map(alliance -> Map.entry(alliance, new HashMap<Auto, Command>()))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+    commandCache = new HashMap<DriverStation.Alliance, Map<Auto, Command>>();
+    for(DriverStation.Alliance alliance : DriverStation.Alliance.values())
+    {
+        commandCache.put(alliance, new HashMap<Auto, Command>());
+    }
   }
 }

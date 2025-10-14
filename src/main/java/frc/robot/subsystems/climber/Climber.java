@@ -18,7 +18,6 @@ public class Climber extends SubsystemBase {
 
     // new ControllerRumbleCommand(new XboxController(0), () ->
     // debouncer.calculate(inputs.currentAmps > 30));
-
   }
 
   @Override
