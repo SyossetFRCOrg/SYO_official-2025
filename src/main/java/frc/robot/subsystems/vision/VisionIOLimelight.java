@@ -73,8 +73,6 @@ public class VisionIOLimelight implements VisionIO {
     tySubscriber = LimelightHelpers.getTY(name);
 
     megatag1Subscriber = (LimelightHelpers.getBotPoseEstimate_wpiBlue(name));
-    // megatag2Subscriber =
-    //     table.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(new double[] {});
     megatag2Subscriber = (LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name));
     // Update connection status based on whether an update has been seen in the last 250ms
     inputs.connected = ((RobotController.getFPGATime() / 1000.0 - latencySubscriber)) < 250;
@@ -90,15 +88,14 @@ public class VisionIOLimelight implements VisionIO {
     NetworkTableInstance.getDefault()
         .flush(); // Increases network traffic but recommended by Limelight
 
+
+
+
+        
     // Read new pose observations from NetworkTables
     Set<Integer> tagIds = new HashSet<>();
     List<PoseObservation> poseObservations = new LinkedList<>();
 
-    // if (megatag1Subscriber.tagCount ==0) continue;
-
-    // for (int i = 11; i < rawSample.value.length; i += 7) {
-    //   tagIds.add((int) rawSample.value[i]);
-    // }
     if (megatag1Subscriber != null && megatag1Subscriber.tagCount != 0) {
       poseObservations.add(
           new PoseObservation(
