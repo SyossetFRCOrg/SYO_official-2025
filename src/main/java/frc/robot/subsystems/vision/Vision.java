@@ -158,37 +158,14 @@ public class Vision extends SubsystemBase {
         // occasional
         // nonsense
         // negligible.
-        if (observation
-                .pose()
-                .toPose2d()
-                .getTranslation()
-                .getDistance(drive.getPose().getTranslation())
-            > .5) {
-          linearstdDevFactor *= 5;
-        }
-        if (observation
-                .pose()
-                .toPose2d()
-                .getTranslation()
-                .getDistance(drive.getPose().getTranslation())
-            > 1) {
-          linearstdDevFactor *= 5;
-        }
-        if (observation
-                .pose()
-                .toPose2d()
-                .getTranslation()
-                .getDistance(drive.getPose().getTranslation())
-            > 1.5) {
-          linearstdDevFactor *= 5;
-        }
-        if (observation
-                .pose()
-                .toPose2d()
-                .getTranslation()
-                .getDistance(drive.getPose().getTranslation())
-            > 2) {
-          linearstdDevFactor *= 10;
+        for (int i = 0; i < linearThresholds.length; i++) {
+            if (observation.pose()
+                            .toPose2d()
+                            .getTranslation()
+                            .getDistance(drive.getPose().getTranslation()) 
+                > linearThresholds[i]) {
+                linearstdDevFactor *= linearMultipliers[i];
+            }
         }
 
         // same for rotational corrections.
@@ -197,55 +174,18 @@ public class Vision extends SubsystemBase {
         // that is very off, it takes the translation with it as well. This should already be
         // compensated for
         // in the translational adjustments, but this is for more safety
-        if (observation
-                .pose()
-                .toPose2d()
-                .getRotation()
-                .minus(drive.getPose().getRotation())
-                .getDegrees()
-            > 10) {
-          thetastdDevFactor *= 5;
-          linearstdDevFactor *= 5;
-        }
-        if (observation
-                .pose()
-                .toPose2d()
-                .getRotation()
-                .minus(drive.getPose().getRotation())
-                .getDegrees()
-            > 15) {
-          thetastdDevFactor *= 5;
-          linearstdDevFactor *= 5;
-        }
-        if (observation
-                .pose()
-                .toPose2d()
-                .getRotation()
-                .minus(drive.getPose().getRotation())
-                .getDegrees()
-            > 20) {
-          thetastdDevFactor *= 5;
-          // linearstdDevFactor *= 5;
-        }
-        if (observation
-                .pose()
-                .toPose2d()
-                .getRotation()
-                .minus(drive.getPose().getRotation())
-                .getDegrees()
-            > 25) {
-          thetastdDevFactor *= 5;
-          // linearstdDevFactor *= 5;
-        }
-        if (observation
-                .pose()
-                .toPose2d()
-                .getRotation()
-                .minus(drive.getPose().getRotation())
-                .getDegrees()
-            > 30) {
-          thetastdDevFactor *= 5;
-          // linearstdDevFactor *= 5;
+        
+        for (int i = 0; i < angularThresholds.length; i++) {
+            if (observation
+                            .pose()
+                            .toPose2d()
+                            .getRotation()
+                            .minus(drive.getPose().getRotation())
+                            .getDegrees()
+                > angularThresholds[i]) {
+                thetastdDevFactor *= angularMultipliers[i];
+                linearstdDevFactor *= angularLinearMultipliers[i];
+            }
         }
 
         // for some reason mt2 is also somewhat jumpy near the tag, which messes up auto align

@@ -48,4 +48,16 @@ public class VisionConstants {
   public static double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
   public static double angularStdDevMegatag2Factor =
       Double.POSITIVE_INFINITY; // No rotation data available for MT2
+
+
+  // Difference multipliers
+  public static double[] linearThresholds = {0.5, 1.0, 1.5, 2.0};
+  public static double[] linearMultipliers = {5, 5, 5, 10};
+
+  public static double[] angularThresholds = {10, 15, 20, 25, 30};
+  public static double[] angularMultipliers = {5, 5, 5, 5, 5};
+  public static double[] angularLinearMultipliers = {5, 5, 1, 1, 1};
+
 }
+
+
