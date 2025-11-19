@@ -4,6 +4,14 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import static frc.robot.subsystems.vision.VisionConstants.camera0Name;
 import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
 import static frc.robot.subsystems.vision.VisionConstants.camera2Name;
+import static frc.robot.subsystems.vision.VisionConstants.robotToCamera0;
+import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
+
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.littletonrobotics.junction.Logger;
+
+import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
@@ -32,15 +40,24 @@ import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
+import frc.robot.subsystems.drive.GyroIOSim;
+import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.drive.ModuleIOTalonFXReal;
+import frc.robot.subsystems.drive.ModuleIOTalonFXSim;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.wrist.WristIO;
 import frc.robot.subsystems.wrist.WristIOTalonFX;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Container;
@@ -56,7 +73,7 @@ public class RobotContainer {
   private final Vision vision;
   private final Drive drive;
   private final Elevator elevator;
-
+  private SwerveDriveSimulation driveSimulation = null;
   private final Intake intake;
   private final Wrist wrist;
   private final Superstructure superstructure;
@@ -69,7 +86,7 @@ public class RobotContainer {
   private final XboxController controller = new XboxController(0);
   private final XboxController buttonboard = new XboxController(1);
 
-  private final UsbCamera climbCam;
+  //private final UsbCamera climbCam;
 
   //   private final HttpCamera climberCamera;
 
@@ -83,14 +100,17 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
-
+    switch (Constants.currentMode){
+        case REAL ->
+        {
     drive =
         new Drive(
             new GyroIOPigeon2(),
-            new ModuleIOTalonFX(TunerConstants.FrontLeft),
-            new ModuleIOTalonFX(TunerConstants.FrontRight),
-            new ModuleIOTalonFX(TunerConstants.BackLeft),
-            new ModuleIOTalonFX(TunerConstants.BackRight));
+            new ModuleIOTalonFXReal(TunerConstants.FrontLeft),
+            new ModuleIOTalonFXReal(TunerConstants.FrontRight),
+            new ModuleIOTalonFXReal(TunerConstants.BackLeft),
+            new ModuleIOTalonFXReal(TunerConstants.BackRight),
+            (pose) -> {});
 
     elevator = new Elevator(new ElevatorIOTalonFX());
     wrist = new Wrist(new WristIOTalonFX());
@@ -109,17 +129,63 @@ public class RobotContainer {
     reefAlignController = new ReefAlignController(drive, () -> false, () -> false);
 
     climber = new Climber(new ClimberIOTalonFX());
+    // climbCam = CameraServer.startAutomaticCapture();
+    // climbCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    // climbCam.setResolution(80, 60);
+    // Shuffleboard.getTab("Match")
+    // .add(new HttpCamera("ClimberCam", "http://roborio-9016-frc.local:1181/?action=stream"))
+    // .withWidget(BuiltInWidgets.kCameraStream)
+    // .withSize(4, 3)
+    // .withPosition(4, 3);
+    }
+        case SIM -> 
+        {
+          // Sim robot, instantiate physics sim IO implementations
 
+                driveSimulation = new SwerveDriveSimulation(Drive.mapleSimConfig, new Pose2d(3, 3, new Rotation2d()));
+                SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation);
+                drive = new Drive(
+                        new GyroIOSim(driveSimulation.getGyroSimulation()),
+                        new ModuleIOTalonFXSim(
+                                TunerConstants.FrontLeft, driveSimulation.getModules()[0]),
+                        new ModuleIOTalonFXSim(
+                                TunerConstants.FrontRight, driveSimulation.getModules()[1]),
+                        new ModuleIOTalonFXSim(
+                                TunerConstants.BackLeft, driveSimulation.getModules()[2]),
+                        new ModuleIOTalonFXSim(
+                                TunerConstants.BackRight, driveSimulation.getModules()[3]),
+                        driveSimulation::setSimulationWorldPose);
+                vision = new Vision(
+                        drive::addVisionMeasurement,
+                        drive,
+                        new VisionIOPhotonVisionSim(
+                                camera0Name, robotToCamera0, driveSimulation::getSimulatedDriveTrainPose),
+                        new VisionIOPhotonVisionSim(
+                                camera1Name, robotToCamera1, driveSimulation::getSimulatedDriveTrainPose));
+
+
+        }
+        
+        default ->
+        {
+                 drive = new Drive(
+                        new GyroIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {}, 
+                        (pose) -> {});
+                elevator = new Elevator(new ElevatorIO() {});
+                wrist = new Wrist(new WristIO() {});
+                vision = new Vision(drive::addVisionMeasurement,drive, new VisionIO() {}, new VisionIO() {});
+        }
+    }
     superstructure = new Superstructure(drive, elevator, wrist, this);
-
+        
     // configureAutos();
 
     // Configure the button bindings
     configureButtonBindings();
-
-    climbCam = CameraServer.startAutomaticCapture();
-    climbCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    climbCam.setResolution(80, 60);
 
     // climberCamera =
     //     new HttpCamera("ClimberCamera", "http://roborio-9016-frc.local:1181/?action=stream");
@@ -130,11 +196,7 @@ public class RobotContainer {
     //     .withSize(2, 2)
     //     .withPosition(4, 0);
 
-    Shuffleboard.getTab("Match")
-        .add(new HttpCamera("ClimberCam", "http://roborio-9016-frc.local:1181/?action=stream"))
-        .withWidget(BuiltInWidgets.kCameraStream)
-        .withSize(4, 3)
-        .withPosition(4, 3);
+
   }
 
   /**
@@ -685,4 +747,21 @@ public class RobotContainer {
   public Superstructure getSuperstructure() {
     return superstructure;
   }
+  public void resetSimulationField() {
+    if (Constants.currentMode != Constants.Mode.SIM) return;
+
+    driveSimulation.setSimulationWorldPose(new Pose2d(3, 3, new Rotation2d()));
+    SimulatedArena.getInstance().resetFieldForAuto();
+    }
+    public void updateSimulation() {
+        if (Constants.currentMode != Constants.Mode.SIM) return;
+
+        SimulatedArena.getInstance().simulationPeriodic();
+        Logger.recordOutput("FieldSimulation/RobotPosition", driveSimulation.getSimulatedDriveTrainPose());
+        Logger.recordOutput(
+                "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
+        Logger.recordOutput(
+                "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
+    }
+
 }

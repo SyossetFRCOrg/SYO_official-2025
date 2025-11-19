@@ -1,12 +1,6 @@
 package frc.robot.autos;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.NetworkTableValue;
-import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Superstructure;
@@ -17,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * A {@link edu.wpi.first.wpilibj.smartdashboard.SendableChooser} for selecting an autonomous
@@ -35,7 +30,7 @@ import java.util.stream.Stream;
  *   <li>Test, test, and test some more.
  * </ol>
  */
-public class AutoChooser extends SendableChooser<Auto> {
+public class AutoChooser extends LoggedDashboardChooser<Auto> {
   private static final List<AutoProgram> AUTO_PROGRAMS =
       List.of(
           new AutoProgram(Auto.IDLE, "IDLE", AutoFactory::createIdleCommand),
@@ -188,7 +183,10 @@ public class AutoChooser extends SendableChooser<Auto> {
    *     {@link AutoChooser#AUTO_PROGRAMS}.
    */
   public static AutoChooser create(
-      final RobotContainer robotContainer, final Drive drive, final Superstructure superstructure) {
+      final String title,
+      final RobotContainer robotContainer,
+      final Drive drive,
+      final Superstructure superstructure) {
     var autoFactories =
         Stream.of(DriverStation.Alliance.values())
             .map(
@@ -201,24 +199,24 @@ public class AutoChooser extends SendableChooser<Auto> {
             .map(program -> Map.entry(program.getAuto(), program))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-    var autoChooser = new AutoChooser(programs, autoFactories);
+    var autoChooser = new AutoChooser(title, programs, autoFactories);
 
     AUTO_PROGRAMS.forEach(
         program -> {
           if (program.getAuto() == Auto.IDLE) {
-            autoChooser.setDefaultOption(program.getLabel(), program.getAuto());
+            autoChooser.addDefaultOption(program.getLabel(), program.getAuto());
           } else {
             autoChooser.addOption(program.getLabel(), program.getAuto());
           }
         });
 
-    autoChooser.reset(null);
+    autoChooser.reset();
 
-    Shuffleboard.getTab("Match")
-        .addString("Selected Auto", () -> autoChooser.getSelected().name())
-        .withPosition(12, 3)
-        .withSize(6, 2)
-        .withWidget(BuiltInWidgets.kTextView);
+    // Shuffleboard.getTab("Match")
+    //     .addString("Selected Auto", () -> autoChooser.get().name())
+    //     .withPosition(12, 3)
+    //     .withSize(6, 2)
+    //     .withWidget(BuiltInWidgets.kTextView);
 
     return autoChooser;
   }
@@ -232,7 +230,7 @@ public class AutoChooser extends SendableChooser<Auto> {
    * edu.wpi.first.wpilibj.shuffleboard.Shuffleboard} under the key <code>Auto/Selected</code>.
    */
   public void update() {
-    var selected = getSelected();
+    var selected = get();
 
     Stream.of(DriverStation.Alliance.values())
         .forEach(
@@ -249,14 +247,15 @@ public class AutoChooser extends SendableChooser<Auto> {
    * @param key Optional {@link edu.wpi.first.networktables.NetworkTable} key. If provided the
    *     selected value of the entry at this location will also be reset.
    */
-  public void reset(final String key) {
+  public void reset(/*final String key*/ ) {
     Stream.of(DriverStation.Alliance.values())
         .forEach(alliance -> commandCache.get(alliance).clear());
 
-    if (key != null) {
-      var table = NetworkTableInstance.getDefault().getTable(key);
-      table.putValue("selected", NetworkTableValue.makeString("%s".formatted(Auto.IDLE)));
-    }
+    // if (key != null) {
+    //   var table = NetworkTableInstance.getDefault().getTable(key);
+    //   table.putValue("selected", NetworkTableValue.makeString("%s".formatted(Auto.IDLE)));
+    // }
+
   }
 
   /**
@@ -266,7 +265,7 @@ public class AutoChooser extends SendableChooser<Auto> {
    *     available, otherwise {@link Optional#empty}.
    */
   public Optional<Command> getSelectedCommand() {
-    var selected = getSelected();
+    var selected = get();
 
     return DriverStation.getAlliance()
         .map(
@@ -278,15 +277,15 @@ public class AutoChooser extends SendableChooser<Auto> {
   }
 
   public AutoProgram getProgram() {
-    return programs.get(getSelected());
+    return programs.get(get());
   }
 
-  @Override
-  public void initSendable(SendableBuilder builder) {
-    super.initSendable(builder);
+  //   @Override
+  //   public void initSendable(SendableBuilder builder) {
+  //     super.initSendable(builder);
 
-    builder.publishConstString("selected", "%s".formatted(Auto.IDLE));
-  }
+  //     builder.publishConstString("selected", "%s".formatted(Auto.IDLE));
+  //   }
 
   private Command loadCommand(final DriverStation.Alliance alliance, final Auto auto) {
     var program = programs.get(auto);
@@ -303,8 +302,10 @@ public class AutoChooser extends SendableChooser<Auto> {
   private final Map<DriverStation.Alliance, AutoFactory> autoFactories;
 
   private AutoChooser(
+      final String title,
       final Map<Auto, AutoProgram> programs,
       final Map<DriverStation.Alliance, AutoFactory> autoFactories) {
+    super(title);
     this.programs = programs;
     this.autoFactories = autoFactories;
     commandCache =

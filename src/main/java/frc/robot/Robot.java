@@ -1,7 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.autos.AutoChooser;
@@ -45,12 +43,15 @@ public class Robot extends LoggedRobot {
 
     autoChooser =
         AutoChooser.create(
-            robotContainer, robotContainer.getDrive(), robotContainer.getSuperstructure());
-    Shuffleboard.getTab("Autonomous")
-        .add("Auto Program", autoChooser)
-        .withSize(6, 3)
-        .withPosition(12, 0)
-        .withWidget(BuiltInWidgets.kComboBoxChooser);
+            "Autonomous/Auto Program",
+            robotContainer,
+            robotContainer.getDrive(),
+            robotContainer.getSuperstructure());
+    // Shuffleboard.getTab("Autonomous")
+    //     .add("Auto Program", autoChooser)
+    //     .withSize(6, 3)
+    //     .withPosition(12, 0)
+    //     .withWidget(BuiltInWidgets.kComboBoxChooser);
   }
 
   @Override
@@ -62,7 +63,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
 
-    autoChooser.reset("SmartDashboard/Autonomous/2025Programs");
+    autoChooser.reset(/* "/SmartDashboard/Autonomous/2025Programs" */ );
     // robotContainer.getSuperstructure().setWantedSuperState(SuperState.STOPPED);
   }
 

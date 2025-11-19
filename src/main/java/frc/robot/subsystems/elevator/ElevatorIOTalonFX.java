@@ -26,7 +26,7 @@ import frc.robot.util.LoggedTunableNumber;
  * "CANSparkFlex".
  */
 public class ElevatorIOTalonFX implements ElevatorIO {
-
+    
   private static final double GEAR_RATIO = 4.6875 * 5.0 / 3.0;
   // public static final double maxspeed = 5600.0 / GEAR_RATIO; // rpm
 
