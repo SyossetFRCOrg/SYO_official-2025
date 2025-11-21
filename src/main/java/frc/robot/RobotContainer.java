@@ -63,8 +63,6 @@ public class RobotContainer {
 
   private final Climber climber;
 
-  private final LEDs LEDs;
-
   // Controller
   private final XboxController controller = new XboxController(0);
   private final XboxController buttonboard = new XboxController(1);
@@ -96,7 +94,6 @@ public class RobotContainer {
     wrist = new Wrist(new WristIOTalonFX());
     intake = new Intake(new IntakeIOTalonFX());
 
-    LEDs = new LEDs();
 
     vision =
         new Vision(
