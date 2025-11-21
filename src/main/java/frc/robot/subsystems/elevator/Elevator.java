@@ -5,12 +5,11 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
-import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.HashMap;
-import org.littletonrobotics.junction.Logger;
 import lombok.Getter;
 import lombok.Setter;
+import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
 
@@ -31,14 +30,12 @@ public class Elevator extends SubsystemBase {
     L3,
     L4,
     L2L3ALGAE,
-    L2L3ALGAEPREPARE,
-    L3L4ALGAE,
-    L3L4ALGAEPREPARE
+    L3L4ALGAE
   }
 
   private final ElevatorIO io;
-  private @Getter Substate currentState;
-  private @Setter Substate desiredState;
+  private @Getter Substate currentState = Substate.STOW;
+  private @Setter Substate desiredState = Substate.STOW;
 
   private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
@@ -53,17 +50,18 @@ public class Elevator extends SubsystemBase {
   private static final HashMap<Substate, LoggedTunableNumber> initializeHeights() {
     var map = new HashMap<Substate, LoggedTunableNumber>();
     map.put(Substate.STOW, new LoggedTunableNumber("Elevator/StowPosition", 24));
+    map.put(Substate.STOWPREPARE, map.get(Substate.STOW));
     map.put(Substate.INTAKE, new LoggedTunableNumber("Elevator/IntakePosition", 27.35));
+    map.put(Substate.INTAKEPREPARE, map.get(Substate.INTAKE));
     map.put(Substate.INTAKELOW, new LoggedTunableNumber("Elevator/LOWIntakePosition", 25.95));
+    map.put(Substate.INTAKELOWPREPARE, map.get(Substate.INTAKELOW));
     map.put(Substate.L1, new LoggedTunableNumber("Elevator/L1Position", 11));
     map.put(Substate.L2, new LoggedTunableNumber("Elevator/L2Position", 32.6));
     map.put(Substate.L3, new LoggedTunableNumber("Elevator/L3Position", 47));
     map.put(Substate.L4, new LoggedTunableNumber("Elevator/L4Position", 70.7));
 
     map.put(Substate.L2L3ALGAE, new LoggedTunableNumber("Elevator/L2L3A", 29.7));
-    map.put(
-        Substate.L3L4ALGAE,
-        new LoggedTunableNumber("Elevator/L3L4A", map.get(SuperState.L3).get() - 5));
+    map.put(Substate.L3L4ALGAE, new LoggedTunableNumber("Elevator/L3L4A", 47 - 5));
     map.put(Substate.L1PREPARE, map.get(Substate.L1));
     map.put(Substate.L2PREPARE, map.get(Substate.L2));
     map.put(Substate.L3PREPARE, map.get(Substate.L3));
@@ -71,12 +69,9 @@ public class Elevator extends SubsystemBase {
     return map;
   }
 
-  private double targetHeight = 0;
-
   public Elevator(ElevatorIO io) {
     this.io = io;
     io.setBrakeMode(true);
-
   }
 
   @Override
@@ -90,8 +85,7 @@ public class Elevator extends SubsystemBase {
     }
 
     Substate newState = handleStateTransitions();
-    if(currentState != newState)
-    {
+    if (currentState != newState) {
       Logger.recordOutput("Elevator/Substate", newState.toString());
       currentState = newState;
     }
@@ -125,12 +119,13 @@ public class Elevator extends SubsystemBase {
         .setAboveL1(getHeight() >= heights.get(Substate.L1).get() - heightTolerance);
   }
 
-  /** Returns prepare if currently moving towards target state position. Returns target state if at target state position */
-  private Substate handleStateTransitions()
-  {
+  /**
+   * Returns prepare if currently moving towards target state position. Returns target state if at
+   * target state position
+   */
+  private Substate handleStateTransitions() {
     boolean ready = atSetPoint();
-    switch(desiredState)
-    {
+    switch (desiredState) {
       case STOPPED:
         return Substate.STOPPED;
       case L1, L1PREPARE:
@@ -147,25 +142,24 @@ public class Elevator extends SubsystemBase {
         return ready ? Substate.INTAKELOW : Substate.INTAKELOWPREPARE;
       case STOW, STOWPREPARE:
         return ready ? Substate.STOW : Substate.STOWPREPARE;
-      case L2L3ALGAE, L2L3ALGAEPREPARE:
-        return ready ? Substate.L2L3ALGAE : Substate.L2L3ALGAEPREPARE;
-      case L3L4ALGAE, L3L4ALGAEPREPARE:
-        return ready ? Substate.L3L4ALGAE : Substate.L3L4ALGAEPREPARE;
+      case L2L3ALGAE:
+        return Substate.L2L3ALGAE;
+      case L3L4ALGAE:
+        return Substate.L3L4ALGAE;
       default:
-        return null;
+        return Substate.STOW;
     }
   }
 
   private void applyStates() {
-    switch(currentState) {  
-    case STOPPED:
-      stop();
-      break;
-    default:
-      moveToDesiredHeight(currentState);
+    switch (currentState) {
+      case STOPPED:
+        stop();
+        break;
+      default:
+        moveToDesiredHeight(currentState);
     }
   }
-
 
   public void moveToDesiredHeight(Substate state) {
     double desiredHeight = heights.get(state).get();

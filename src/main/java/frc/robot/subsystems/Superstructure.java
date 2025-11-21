@@ -9,7 +9,6 @@ import frc.robot.RobotContainer;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.Elevator.Substate;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.wrist.Wrist;
 import java.util.function.BooleanSupplier;
@@ -44,11 +43,12 @@ public class Superstructure extends SubsystemBase {
     L3L4ALGAE
   }
 
-  private static @Getter @Setter SuperState desiredSuperState = SuperState.STOW;
-  private static @Getter @Setter SuperState currentSuperState = SuperState.STOW;
+  private @Getter @Setter static SuperState desiredSuperState = SuperState.STOW;
+  private @Getter @Setter static SuperState currentSuperState = SuperState.STOW;
   private static SuperState previousState = SuperState.STOW;
 
-  public Superstructure(Drive drive, Elevator elevator, Wrist wrist, RobotContainer container, Intake intake) {
+  public Superstructure(
+      Drive drive, Elevator elevator, Wrist wrist, RobotContainer container, Intake intake) {
     this.drive = drive;
     this.elevator = elevator;
     this.container = container;
@@ -84,10 +84,13 @@ public class Superstructure extends SubsystemBase {
     return currentSuperState;
   }
 
-  /**Sets each local subsystem to proper state */
+  /** Sets each local subsystem to proper state */
   private void applyStates() {
     switch (currentSuperState) {
-      /**For states where intake needs to check Elevator + Wrist, ElevatorWristReady checks if they are at corresponding setpoint */
+        /**
+         * For states where intake needs to check Elevator + Wrist, ElevatorWristReady checks if
+         * they are at corresponding setpoint
+         */
       case STOPPED:
         elevator.setDesiredState(Elevator.Substate.STOPPED);
         wrist.setDesiredState(Wrist.Substate.STOPPED);
@@ -102,29 +105,33 @@ public class Superstructure extends SubsystemBase {
         elevator.setDesiredState(Elevator.Substate.L1);
         wrist.setDesiredState(Wrist.Substate.L1);
         intake.setDesiredState(
-          ElevatorWristReady(currentSuperState) ? Intake.Substate.L1OUTTAKING : Intake.Substate.OUTTAKEPREPARE
-        );
+            ElevatorWristReady(currentSuperState)
+                ? Intake.Substate.L1OUTTAKING
+                : Intake.Substate.OUTTAKEPREPARE);
         break;
       case L2, L2PREPARE:
         elevator.setDesiredState(Elevator.Substate.L2);
         wrist.setDesiredState(Wrist.Substate.L2);
         intake.setDesiredState(
-          ElevatorWristReady(currentSuperState) ? Intake.Substate.L2OUTTAKING : Intake.Substate.OUTTAKEPREPARE
-        );
+            ElevatorWristReady(currentSuperState)
+                ? Intake.Substate.L2OUTTAKING
+                : Intake.Substate.OUTTAKEPREPARE);
         break;
       case L3, L3PREPARE:
         elevator.setDesiredState(Elevator.Substate.L3);
         wrist.setDesiredState(Wrist.Substate.L3);
         intake.setDesiredState(
-          ElevatorWristReady(currentSuperState) ? Intake.Substate.L3OUTTAKING : Intake.Substate.OUTTAKEPREPARE
-        );
+            ElevatorWristReady(currentSuperState)
+                ? Intake.Substate.L3OUTTAKING
+                : Intake.Substate.OUTTAKEPREPARE);
         break;
       case L4, L4PREPARE:
         elevator.setDesiredState(Elevator.Substate.L4);
         wrist.setDesiredState(Wrist.Substate.L4);
         intake.setDesiredState(
-          ElevatorWristReady(currentSuperState) ? Intake.Substate.L4OUTTAKING : Intake.Substate.OUTTAKEPREPARE
-        );
+            ElevatorWristReady(currentSuperState)
+                ? Intake.Substate.L4OUTTAKING
+                : Intake.Substate.OUTTAKEPREPARE);
         break;
       case L2L3ALGAE:
         elevator.setDesiredState(Elevator.Substate.L2L3ALGAE);
@@ -152,41 +159,54 @@ public class Superstructure extends SubsystemBase {
     }
   }
 
-  /**@return Whether Elevator, Wrist, and Intake are at the correct state. */
+  /**
+   * @return Whether Elevator, Wrist, and Intake are at the correct state.
+   */
   public boolean ready(SuperState state) {
     return ElevatorWristReady(state) && intakeReady(state);
   }
+
   /** Transition check */
   private boolean ElevatorWristReady(SuperState state) {
     return switch (state) {
-      //return true if both elevator and wrist are in ready state.
+        // return true if both elevator and wrist are in ready state.
       case L1, L1PREPARE ->
-        elevator.getCurrentState() == Elevator.Substate.L1 && wrist.getCurrentState() == Wrist.Substate.L1;
+          elevator.getCurrentState() == Elevator.Substate.L1
+              && wrist.getCurrentState() == Wrist.Substate.L1;
       case L2, L2PREPARE ->
-        elevator.getCurrentState() == Elevator.Substate.L2 && wrist.getCurrentState() == Wrist.Substate.L2;
+          elevator.getCurrentState() == Elevator.Substate.L2
+              && wrist.getCurrentState() == Wrist.Substate.L2;
       case L3, L3PREPARE ->
-        elevator.getCurrentState() == Elevator.Substate.L3 && wrist.getCurrentState() == Wrist.Substate.L3;
+          elevator.getCurrentState() == Elevator.Substate.L3
+              && wrist.getCurrentState() == Wrist.Substate.L3;
       case L4, L4PREPARE ->
-        elevator.getCurrentState() == Elevator.Substate.L4 && wrist.getCurrentState() == Wrist.Substate.L4;
+          elevator.getCurrentState() == Elevator.Substate.L4
+              && wrist.getCurrentState() == Wrist.Substate.L4;
       case INTAKE, INTAKEPREPARE ->
-        elevator.getCurrentState() == Elevator.Substate.INTAKE && wrist.getCurrentState() == Wrist.Substate.INTAKE;
+          elevator.getCurrentState() == Elevator.Substate.INTAKE
+              && wrist.getCurrentState() == Wrist.Substate.INTAKE;
       case INTAKELOW, INTAKELOWPREPARE ->
-        elevator.getCurrentState() == Elevator.Substate.INTAKELOW && wrist.getCurrentState() == Wrist.Substate.INTAKELOW;
+          elevator.getCurrentState() == Elevator.Substate.INTAKELOW
+              && wrist.getCurrentState() == Wrist.Substate.INTAKELOW;
       case L2L3ALGAE ->
-        elevator.getCurrentState() == Elevator.Substate.L2L3ALGAE && wrist.getCurrentState() == Wrist.Substate.L2L3ALGAE;
+          elevator.getCurrentState() == Elevator.Substate.L2L3ALGAE
+              && wrist.getCurrentState() == Wrist.Substate.L2L3ALGAE;
       case L3L4ALGAE ->
-        elevator.getCurrentState() == Elevator.Substate.L3L4ALGAE && wrist.getCurrentState() == Wrist.Substate.L3L4ALGAE;
+          elevator.getCurrentState() == Elevator.Substate.L3L4ALGAE
+              && wrist.getCurrentState() == Wrist.Substate.L3L4ALGAE;
       case STOW ->
-        elevator.getCurrentState() == Elevator.Substate.STOW && wrist.getCurrentState() == Wrist.Substate.STOW;
+          elevator.getCurrentState() == Elevator.Substate.STOW
+              && wrist.getCurrentState() == Wrist.Substate.STOW;
       default -> false;
     };
   }
 
   private boolean intakeReady(SuperState state) {
-    switch(state) {
-      //if superstructure in prepare state, and intake in prepare state, intake is ready.
-      //if superstructure desired is L1, and intake is in L1 prepare state (and previous superstate is L1 prepare), 
-      //superstructure can move to L1.
+    switch (state) {
+        // if superstructure in prepare state, and intake in prepare state, intake is ready.
+        // if superstructure desired is L1, and intake is in L1 prepare state (and previous
+        // superstate is L1 prepare),
+        // superstructure can move to L1.
       case L1PREPARE, L2PREPARE, L3PREPARE, L4PREPARE:
         return intake.getCurrentState() == Intake.Substate.OUTTAKEPREPARE;
       case L1:
@@ -208,11 +228,6 @@ public class Superstructure extends SubsystemBase {
       default:
         return false;
     }
-  }
-
-  private void handleStopped() {
-    drive.stop();
-    elevator.stop();
   }
 
   public BooleanSupplier doesCommandMatch(SuperState currentState) {
